@@ -1,0 +1,6572 @@
+(function($) {
+    'use strict';
+
+    $(function() {
+        initialize_global_functions();
+    });
+})(jQuery);
+
+// Initialize function
+function initialize_global_functions(){
+    $(document).on('click','#datatable-checkbox',function() {
+        var status = $(this).is(':checked') ? true : false;
+        $('.datatable-checkbox-children').prop('checked',status);
+
+        check_table_check_box();
+        check_lock_unlock_check_box();
+        check_activate_deactivate_check_box();
+    });
+    
+    $(document).on('click','.datatable-checkbox-children',function() {
+        check_table_check_box();
+        check_lock_unlock_check_box();
+        check_activate_deactivate_check_box();
+    });
+
+    $(document).on('click','.view-transaction-log',function() {
+        var username = $('#username').text();
+        var transaction_log_id = $(this).data('transaction-log-id');
+
+        sessionStorage.setItem('transaction_log_id', transaction_log_id);
+
+        generate_modal('transaction log', 'Transaction Log', 'R' , '1', '0', 'element', '', '0', username);
+    });
+
+    if ($('.select2').length) {
+        $('.select2').select2();
+    }
+
+    if ($('.filter-select2').length) {
+        $(".filter-select2").select2({
+            dropdownParent: $("#filter-off-canvas")
+        });
+    }
+}
+
+function initialize_elements(){
+    if ($('.form-maxlength').length) {
+        $('.form-maxlength').maxlength({
+            alwaysShow: true,
+            warningClass: 'badge mt-1 bg-info',
+            limitReachedClass: 'badge mt-1 bg-danger',
+            validate: true
+        });
+    }
+
+    if ($('.form-select2').length) {
+        $('.form-select2').select2().on('change', function() {
+            $(this).valid();
+        });
+    }
+
+    if ($('.birthday-date-picker').length) {
+        $('.birthday-date-picker').datepicker({
+            endDate: '-18y'
+        });
+    }
+}
+
+function initialize_form_validation(form_type){
+    var transaction;
+    var username = $('#username').text();
+
+    if(form_type == 'change password form'){
+        $('#change-password-form').validate({
+            submitHandler: function (form) {
+                transaction = 'change password';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('signin').disabled = true;
+                        $('#signin').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span class="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){                            
+                            show_alert('Change User Account Password Success', 'The user account password has been updated. You can now sign in your account.', 'success');
+                            $('#System-Modal').modal('hide');
+
+                            document.getElementById('signin').disabled = false;
+                            $('#signin').html('Log In');
+                        }
+                        else{
+                            if(response === 'Not Found'){
+                                show_alert('Change User Account Password Error', 'The user account does not exist.', 'error');
+                            }
+                            else{
+                                show_alert('Change User Account Password Error', response, 'error');
+                            }                            
+
+                            document.getElementById('submit-form').disabled = false;
+                            $('#submit-form').html('Submit');
+                        }
+                    }
+                });
+
+                return false;
+            },
+            rules: {
+                change_password: {
+                    required: true,
+                    password_strength : true
+                }
+            },
+            messages: {
+                change_password: {
+                    required: 'Please enter your password',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if(element.hasClass('web-select2') && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.input-group'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'system parameter form'){
+        $('#system-parameter-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit system parameter';
+    
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert System Parameter Success', 'The system parameter has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update System Parameter Success', 'The system parameter has been updated.', 'success');
+                            }
+    
+                            $('#System-Modal').modal('hide');
+                            initialize_system_parameter_table('#system-parameter-datatable');
+                        }
+                        else{
+                            show_alert('System Parameter Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                parameter: {
+                    required: true         
+                },
+            },
+            messages: {
+                parameter: {
+                    required: 'Please enter the parameter',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'policy form'){
+        $('#policy-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit policy';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Policy Success', 'The policy has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Policy Success', 'The policy has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+
+                            initialize_policy_table('#policy-datatable');
+                        }
+                        else{
+                            show_alert('Policy Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                policy: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                policy: {
+                    required: 'Please enter the policy',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'permission form'){
+        $('#permission-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit permission';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Permission Success', 'The permission has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Permission Success', 'The permission has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_permission_table('#permission-datatable');
+                        }
+                        else{
+                            show_alert('Permission Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                permission: {
+                    required: true         
+                }
+            },
+            messages: {
+                permission: {
+                    required: 'Please enter the permission',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'role form'){
+        $('#role-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit role';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Role Success', 'The role has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Role Success', 'The role has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_role_table('#role-datatable');
+                        }
+                        else{
+                            show_alert('Role Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                role: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                role: {
+                    required: 'Please enter the role',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'system code form'){
+        $('#system-code-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit system code';
+
+                document.getElementById('system_type').disabled = false;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert System Code Success', 'The system code has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update System Code Success', 'The system code has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_system_code_table('#system-code-datatable');
+                        }
+                        else{
+                            show_alert('System Code Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                system_type: {
+                    required: true         
+                },
+                systemcsystem_codeode: {
+                    required: true         
+                },
+                system_description: {
+                    required: true         
+                }
+            },
+            messages: {
+                system_type: {
+                    required: 'Please choose the system type',
+                },
+                system_code: {
+                    required: 'Please enter the system code',
+                },
+                system_description: {
+                    required: 'Please enter the system description',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'notification type form'){
+        $('#notification-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit notification type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Notification Type Success', 'The notification type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Notification Type Success', 'The notification type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+
+                            initialize_notification_type_table('#notification-type-datatable');
+                        }
+                        else{
+                            show_alert('Notification Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                notification: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                notification: {
+                    required: 'Please enter the notification',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'department form'){
+        $('#department-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit department';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Department Success', 'The department has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Department Success', 'The department has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_department_table('#department-datatable');
+                        }
+                        else{
+                            show_alert('Department Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                department: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                department: {
+                    required: 'Please enter the department',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'designation form'){
+        $('#designation-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit designation';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Designation Success', 'The designation has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Designation Success', 'The designation has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_designation_table('#designation-datatable');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Designation Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Designation Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Designation Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                designation: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                designation: {
+                    required: 'Please enter the designation',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'branch form'){
+        $('#branch-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit branch';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Branch Success', 'The branch has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Branch Success', 'The branch has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_branch_table('#branch-datatable');
+                        }
+                        else{
+                            show_alert('Branch Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                branch: {
+                    required: true
+                },
+                address: {
+                    required: true
+                }
+            },
+            messages: {
+                branch: {
+                    required: 'Please enter the branch',
+                },
+                address: {
+                    required: 'Please enter the address',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'upload setting form'){
+        $('#upload-setting-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit upload setting';
+                var file_type = $('#file_type').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&file_type=' + file_type,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Upload Setting Success', 'The branch has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Upload Setting Success', 'The branch has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_upload_setting_table('#upload-setting-datatable');
+                        }
+                        else{
+                            show_alert('Upload Setting Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                upload_setting: {
+                    required: true
+                },
+                max_file_size: {
+                    required: true
+                },
+                file_type: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                upload_setting: {
+                    required: 'Please enter the upload setting',
+                },
+                max_file_size: {
+                    required: 'Please enter the max file size',
+                },
+                file_type: {
+                    required: 'Please choose at least one (1) file type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employment status form'){
+        $('#employment-status-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employment status';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employment Status Success', 'The employment status has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employment Status Success', 'The employment status has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employment_status_table('#employment-status-datatable');
+                        }
+                        else{
+                            show_alert('Employment Status Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employment_status: {
+                    required: true
+                },
+                color_value: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                employment_status: {
+                    required: 'Please enter the employment status',
+                },
+                color_value: {
+                    required: 'Please enter the color value',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee form'){
+        $('#employee-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Success', 'The employee has been inserted.', 'success');
+                                initialize_employee_table('#employee-datatable');
+                            }
+                            else{
+                                if($('#employee-datatable').length){
+                                    show_alert('Update Employee Success', 'The employee has been updated.', 'success');
+                                    initialize_employee_table('#employee-datatable');
+                                }
+                                else{
+                                    show_alert_event('Update Employee Success', 'The employee has been updated.', 'success', 'reload');
+                                }
+                            }
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'ID Number Exist'){
+                            show_alert('Employee Error', 'The ID number you entered already exist.', 'error');
+                        }
+                        else{
+                            show_alert('Employee Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                id_number: {
+                    required: true
+                },
+                joining_date: {
+                    required: true
+                },
+                exit_date: {
+                    required:  function(element){
+                        var employment_status = $('#employment_status').val();
+
+                        if(employment_status == '3' || employment_status == '4'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                exit_reason: {
+                    required:  function(element){
+                        var employment_status = $('#employment_status').val();
+
+                        if(employment_status == '3' || employment_status == '4'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                permanency_date: {
+                    required:  function(element){
+                        var employment_status = $('#employment_status').val();
+
+                        if(employment_status == '1'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                first_name: {
+                    required: true
+                },
+                last_name: {
+                    required: true
+                },
+                department: {
+                    required: true
+                },
+                designation: {
+                    required: true
+                },
+                branch: {
+                    required: true
+                },
+                employment_status: {
+                    required: true
+                },
+                birthday: {
+                    employee_age : 18,
+                    required: true
+                },
+                gender: {
+                    required: true
+                },
+                email: {
+                    required: true
+                }
+            },
+            messages: {
+                id_number: {
+                    required: 'Please enter the ID number',
+                },
+                joining_date: {
+                    required: 'Please choose the joining date',
+                },
+                exit_date: {
+                    required: 'Please choose the exit date',
+                },
+                exit_reason: {
+                    required: 'Please enter the exit reason',
+                },
+                permanency_date: {
+                    required: 'Please choose the permanency date',
+                },
+                first_name: {
+                    required: 'Please enter the first name',
+                },
+                last_name: {
+                    required: 'Please enter the last name',
+                },
+                department: {
+                    required: 'Please choose the department',
+                },
+                designation: {
+                    required: 'Please choose the designation',
+                },
+                branch: {
+                    required: 'Please choose the branch',
+                },
+                employment_status: {
+                    required: 'Please choose the employment status',
+                },
+                birthday: {
+                    required: 'Please choose the birthday',
+                },
+                gender: {
+                    required: 'Please choose the gender',
+                },
+                email: {
+                    required: 'Please enter the email',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'emergency contact form'){
+        $('#emergency-contact-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit emergency contact';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Emergency Contact Success', 'The emergency contact has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Emergency Contact Success', 'The emergency contact has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_emergency_contact_table('#emergency-contact-datatable');
+                        }
+                        else{
+                            show_alert('Emergency Contact Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                contact_name: {
+                    required: true
+                },
+                relationship: {
+                    required: true
+                },
+                address: {
+                    required: true
+                },
+                province: {
+                    required: true
+                },
+                city: {
+                    required: true
+                },
+                phone: {
+                    required: true
+                }
+            },
+            messages: {
+                contact_name: {
+                    required: 'Please enter the name',
+                },
+                relationship: {
+                    required: 'Please choose the relationship',
+                },
+                address: {
+                    required: 'Please enter the address',
+                },
+                province: {
+                    required: 'Please choose the province',
+                },
+                city: {
+                    required: 'Please choose the city',
+                },
+                phone: {
+                    required: 'Please enter the phone',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee address form'){
+        $('#employee-address-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee address';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Address Success', 'The employee address has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee Address Success', 'The employee address has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_address_table('#employee-address-datatable');
+                        }
+                        else{
+                            show_alert('Employee Address Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                address_type: {
+                    required: true
+                },
+                address: {
+                    required: true
+                },
+                province: {
+                    required: true
+                },
+                city: {
+                    required: true
+                }
+            },
+            messages: {
+                address_type: {
+                    required: 'Please choose the address type',
+                },
+                address: {
+                    required: 'Please enter the address',
+                },
+                province: {
+                    required: 'Please choose the province',
+                },
+                city: {
+                    required: 'Please choose the city',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee social form'){
+        $('#employee-social-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee social';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Social Success', 'The employee social has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee Social Success', 'The employee social has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_social_table('#employee-social-datatable');
+                        }
+                        else{
+                            show_alert('Employee Social Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                social_type: {
+                    required: true
+                },
+                link: {
+                    required: true
+                }
+            },
+            messages: {
+                social_type: {
+                    required: 'Please choose the social',
+                },
+                link: {
+                    required: 'Please enter the link',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'work shift form'){
+        $('#work-shift-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit work shift';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Work Shift Success', 'The work shift has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Work Shift Success', 'The work shift has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_work_shift_table('#work-shift-datatable');
+                        }
+                        else{
+                            show_alert('Work Shift Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                work_shift: {
+                    required: true
+                },
+                work_shift_type: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                work_shift: {
+                    required: 'Please enter the work shift',
+                },
+                work_shift_type: {
+                    required: 'Please choose the work shift type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'regular work shift schedule form'){
+        $('#regular-work-shift-schedule-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit regular work shift schedule';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Work Shift Success', 'The work shift has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Work Shift Success', 'The work shift has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_work_shift_table('#work-shift-datatable');
+                        }
+                        else{
+                            show_alert('Work Shift Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                monday_start_time: {
+                    required:  function(element){
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_end_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_lunch_start_time = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_lunch_start_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_lunch_end_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_half_day_mark: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_late_mark: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_start_time: {
+                    required:  function(element){
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_end_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_lunch_start_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_lunch_end_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_half_day_mark: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_late_mark: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_start_time: {
+                    required:  function(element){
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_end_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_lunch_start_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_lunch_end_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_half_day_mark: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_late_mark: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_start_time: {
+                    required:  function(element){
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_end_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_lunch_start_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_lunch_end_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_half_day_mark: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_late_mark: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_start_time: {
+                    required:  function(element){
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_end_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_lunch_start_time = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_lunch_start_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_lunch_end_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_half_day_mark: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_late_mark: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_start_time: {
+                    required:  function(element){
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_end_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_lunch_start_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_lunch_end_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_half_day_mark: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_late_mark: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_start_time: {
+                    required:  function(element){
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_end_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_lunch_start_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_lunch_end_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_half_day_mark: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_late_mark: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+            },
+            messages: {
+                monday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                monday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                monday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                monday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                monday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                monday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                tuesday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                tuesday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                tuesday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                tuesday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                tuesday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                tuesday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                wednesday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                wednesday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                wednesday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                wednesday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                wednesday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                wednesday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                thursday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                thursday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                thursday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                thursday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                thursday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                thursday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                friday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                friday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                friday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                friday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                friday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                friday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                saturday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                saturday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                saturday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                saturday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                saturday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                saturday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                sunday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                sunday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                sunday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                sunday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                sunday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                sunday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'scheduled work shift schedule form'){
+        $('#scheduled-work-shift-schedule-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit scheduled work shift schedule';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Work Shift Success', 'The work shift has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Work Shift Success', 'The work shift has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_work_shift_table('#work-shift-datatable');
+                        }
+                        else{
+                            show_alert('Work Shift Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                start_date: {
+                    required: true
+                },
+                end_date: {
+                    required: true
+                },
+                monday_start_time: {
+                    required:  function(element){
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_end_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_lunch_start_time = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_lunch_start_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_end_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_lunch_end_time: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_half_day_mark || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_half_day_mark: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_late_mark = $('#monday_late_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                monday_late_mark: {
+                    required:  function(element){
+                        var monday_start_time = $('#monday_start_time').val();
+                        var monday_end_time = $('#monday_end_time').val();
+                        var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
+                        var monday_lunch_end_time = $('#monday_lunch_end_time').val();
+                        var monday_half_day_mark = $('#monday_half_day_mark').val();
+
+                        if(monday_start_time || monday_end_time || monday_lunch_start_time || monday_lunch_end_time || monday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_start_time: {
+                    required:  function(element){
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_end_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_lunch_start_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_end_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_lunch_end_time: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_half_day_mark || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_half_day_mark: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_late_mark = $('#tuesday_late_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                tuesday_late_mark: {
+                    required:  function(element){
+                        var tuesday_start_time = $('#tuesday_start_time').val();
+                        var tuesday_end_time = $('#tuesday_end_time').val();
+                        var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
+                        var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
+                        var tuesday_half_day_mark = $('#tuesday_half_day_mark').val();
+
+                        if(tuesday_start_time || tuesday_end_time || tuesday_lunch_start_time || tuesday_lunch_end_time || tuesday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_start_time: {
+                    required:  function(element){
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_end_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_lunch_start_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_end_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_lunch_end_time: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_half_day_mark || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_half_day_mark: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_late_mark = $('#wednesday_late_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                wednesday_late_mark: {
+                    required:  function(element){
+                        var wednesday_start_time = $('#wednesday_start_time').val();
+                        var wednesday_end_time = $('#wednesday_end_time').val();
+                        var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
+                        var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
+                        var wednesday_half_day_mark = $('#wednesday_half_day_mark').val();
+
+                        if(wednesday_start_time || wednesday_end_time || wednesday_lunch_start_time || wednesday_lunch_end_time || wednesday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_start_time: {
+                    required:  function(element){
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_end_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_lunch_start_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_end_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_lunch_end_time: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_half_day_mark || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_half_day_mark: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_late_mark = $('#thursday_late_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                thursday_late_mark: {
+                    required:  function(element){
+                        var thursday_start_time = $('#thursday_start_time').val();
+                        var thursday_end_time = $('#thursday_end_time').val();
+                        var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
+                        var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
+                        var thursday_half_day_mark = $('#thursday_half_day_mark').val();
+
+                        if(thursday_start_time || thursday_end_time || thursday_lunch_start_time || thursday_lunch_end_time || thursday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_start_time: {
+                    required:  function(element){
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_end_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_lunch_start_time = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_lunch_start_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_end_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_lunch_end_time: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_half_day_mark || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_half_day_mark: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_late_mark = $('#friday_late_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                friday_late_mark: {
+                    required:  function(element){
+                        var friday_start_time = $('#friday_start_time').val();
+                        var friday_end_time = $('#friday_end_time').val();
+                        var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
+                        var friday_lunch_end_time = $('#friday_lunch_end_time').val();
+                        var friday_half_day_mark = $('#friday_half_day_mark').val();
+
+                        if(friday_start_time || friday_end_time || friday_lunch_start_time || friday_lunch_end_time || friday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_start_time: {
+                    required:  function(element){
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_end_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_lunch_start_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_end_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_lunch_end_time: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_half_day_mark || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_half_day_mark: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_late_mark = $('#saturday_late_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                saturday_late_mark: {
+                    required:  function(element){
+                        var saturday_start_time = $('#saturday_start_time').val();
+                        var saturday_end_time = $('#saturday_end_time').val();
+                        var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
+                        var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
+                        var saturday_half_day_mark = $('#saturday_half_day_mark').val();
+
+                        if(saturday_start_time || saturday_end_time || saturday_lunch_start_time || saturday_lunch_end_time || saturday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_start_time: {
+                    required:  function(element){
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_end_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_lunch_start_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_end_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_lunch_end_time: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_half_day_mark || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_half_day_mark: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_late_mark = $('#sunday_late_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_late_mark > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                sunday_late_mark: {
+                    required:  function(element){
+                        var sunday_start_time = $('#sunday_start_time').val();
+                        var sunday_end_time = $('#sunday_end_time').val();
+                        var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
+                        var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
+                        var sunday_half_day_mark = $('#sunday_half_day_mark').val();
+
+                        if(sunday_start_time || sunday_end_time || sunday_lunch_start_time || sunday_lunch_end_time || sunday_half_day_mark){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+            },
+            messages: {
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+                end_date: {
+                    required: 'Please choose the end date',
+                },
+                monday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                monday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                monday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                monday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                monday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                monday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                tuesday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                tuesday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                tuesday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                tuesday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                tuesday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                tuesday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                wednesday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                wednesday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                wednesday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                wednesday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                wednesday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                wednesday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                thursday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                thursday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                thursday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                thursday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                thursday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                thursday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                friday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                friday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                friday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                friday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                friday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                friday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                saturday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                saturday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                saturday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                saturday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                saturday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                saturday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+                sunday_start_time: {
+                    required: 'Please enter the start time',
+                },
+                sunday_end_time: {
+                    required: 'Please enter the end time',
+                },
+                sunday_lunch_start_time: {
+                    required: 'Please enter the lunch start time',
+                },
+                sunday_lunch_end_time: {
+                    required: 'Please enter the lunch end time',
+                },
+                sunday_half_day_mark: {
+                    required: 'Please enter the half day mark',
+                },
+                sunday_late_mark: {
+                    required: 'Please enter the late mark',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'assign work shift form'){
+        $('#assign-work-shift-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit work shift assignment';
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Assigned'){
+                            show_alert('Assign Work Shift Success', 'The work shift has been assigned.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_work_shift_table('#work-shift-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Assign Work Shift Error', 'The work shift does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Work Shift Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee: {
+                    required: true
+                }
+            },
+            messages: {
+                employee: {
+                    required: 'Please choose at least one (1) employee',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee attendance form'){
+        $('#employee-attendance-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee attendance';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Attendance Success', 'The employee attendance has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee Attendance Success', 'The employee attendance has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_attendance_table('#employee-attendance-datatable');
+                        }
+                        else if(response === 'Max Attendance'){
+                            show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
+                        }
+                        else{
+                            show_alert('Employee Attendance Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'leave type form'){
+        $('#leave-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit leave type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Leave Type Success', 'The leave type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Leave Type Success', 'The leave type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_leave_type_table('#leave-type-datatable');
+                        }
+                        else{
+                            show_alert('Leave Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                leave_name: {
+                    required: true
+                },
+                paid_status: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                leave_name: {
+                    required: 'Please enter the leave',
+                },
+                paid_status: {
+                    required: 'Please choose the paid status',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'leave entitlement form'){
+        $('#leave-entitlement-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit leave entitlement';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Leave Entitlement Success', 'The leave entitlement has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                        }
+                        else{
+                            show_alert('Leave Entitlement Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee: {
+                    required: true
+                },
+                leave_type: {
+                    required: true
+                },
+                no_leaves: {
+                    required: true
+                },
+                start_date: {
+                    required: true
+                },
+                end_date: {
+                    required: true
+                }
+            },
+            messages: {
+                employee: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                leave_type: {
+                    required: 'Please choose the leave type',
+                },
+                no_leaves: {
+                    required: 'Please enter the entitlement',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+                end_date: {
+                    required: 'Please choose the end date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'update leave entitlement form'){
+        $('#leave-entitlement-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit leave entitlement update';
+                document.getElementById('employee').disabled = false;
+                document.getElementById('leave_type').disabled = false;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Leave Entitlement Success', 'The leave entitlement has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                        }
+                        else if(response == 'Overlap'){
+                            show_alert('Leave Entitlement Error', 'The leave entitlement overlaps with an existing entitlement.', 'error');
+                        }
+                        else{
+                            show_alert('Leave Entitlement Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                no_leaves: {
+                    required: true
+                },
+                start_date: {
+                    required: true
+                },
+                end_date: {
+                    required: true
+                }
+            },
+            messages: {
+                no_leaves: {
+                    required: 'Please enter the entitlement',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+                end_date: {
+                    required: 'Please choose the end date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee leave entitlement form'){
+        $('#employee-leave-entitlement-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee leave entitlement';
+
+                document.getElementById('leave_type').disabled = false;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Leave Entitlement Success', 'The employee leave entitlement has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee Leave Entitlement Success', 'The employee leave entitlement has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_leave_entitlement_table('#employee-leave-entitlement-datatable');
+                        }
+                        else if(response == 'Overlap'){
+                            show_alert('Employee Leave Entitlement Error', 'The employee leave entitlement overlaps with an existing entitlement.', 'error');
+                        }
+                        else{
+                            show_alert('Employee Leave Entitlement Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                leave_type: {
+                    required: true
+                },
+                no_leaves: {
+                    required: true
+                },
+                start_date: {
+                    required: true
+                },
+                end_date: {
+                    required: true
+                }
+            },
+            messages: {
+                leave_type: {
+                    required: 'Please choose the leave type',
+                },
+                no_leaves: {
+                    required: 'Please enter the entitlement',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+                end_date: {
+                    required: 'Please choose the end date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'leave form'){
+        $('#leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Leave Success', 'The employee leave has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_leave_table('#leave-datatable');
+                        }
+                        else if(response === 'Leave Entitlement'){
+                            show_alert('Insert Leave Error', 'The leave entitlement was consumed.', 'error');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee: {
+                    required: true
+                },
+                leave_type: {
+                    required: true
+                },
+                leave_status: {
+                    required: true
+                },
+                leave_duration: {
+                    required: true
+                },
+                leave_date: {
+                    required: true
+                },
+                start_time: {
+                    required: true
+                },
+                end_time: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                employee: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                leave_type: {
+                    required: 'Please choose the leave type',
+                },
+                leave_status: {
+                    required: 'Please choose the status',
+                },
+                leave_duration: {
+                    required: 'Please choose the duration',
+                },
+                leave_date: {
+                    required: 'Please choose the leave date',
+                },
+                start_time: {
+                    required: 'Please choose the start time',
+                },
+                end_time: {
+                    required: 'Please choose the end time',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'approve leave form' || form_type == 'approve employee leave form'){
+        $('#approve-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'approve leave';
+                var leave_id = $('#leave_id').val();
+                var decision_remarks = $('#decision_remarks').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Approved'){
+                            show_alert('Leave Approval Success', 'The leave has been approved.', 'success');
+
+                            $('#System-Modal').modal('hide');
+
+                            if($('#leave-datatable').length){
+                                initialize_leave_table('#leave-datatable');
+                            }
+
+                            if($('#employee-leave-datatable').length){
+                                initialize_employee_leave_table('#employee-leave-datatable');
+                            }
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Leave Approval Error', 'The leave does not exist.', 'info');
+                        }
+                        else if(response === 'Overlap'){
+                            Swal.fire({
+                                title: 'Leave Overlap',
+                                text: 'This leave being applied overlaps with an existing approved leave. Do you want to continue approving this leave?',
+                                icon: 'warning',
+                                showCancelButton: !0,
+                                confirmButtonText: 'Continue',
+                                cancelButtonText: 'Close',
+                                confirmButtonClass: 'btn btn-warning mt-2',
+                                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                                buttonsStyling: !1
+                            }).then(function(result) {
+                                if (result.value) {
+                                    transaction = 'approve overlap leave';
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: 'controller.php',
+                                        data: {username : username, leave_id : leave_id, decision_remarks : decision_remarks, transaction : transaction},
+                                        success: function (response) {
+                                            if(response === 'Approved'){
+                                                show_alert('Leave Approval Success', 'The leave has been approved.', 'success');
+                    
+                                                $('#System-Modal').modal('hide');
+                                                initialize_leave_table('#leave-datatable');
+                                            }
+                                            else{
+                                                show_alert('Leave Approval Error', response, 'error');
+                                            }
+                                        }
+                                    });
+                                    return false;
+                                }
+                                else{
+                                    $('#System-Modal').modal('hide');
+
+                                    show_alert('Leave Overlap', 'Please fix the overlap.', 'info');
+                                }
+                            });
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'reject leave form' || form_type == 'reject employee leave form'){
+        $('#reject-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'reject leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Rejected'){
+                            show_alert('Leave Rejection Success', 'The leave has been rejected.', 'success');
+
+                            $('#System-Modal').modal('hide');
+
+                            if($('#leave-datatable').length){
+                                initialize_leave_table('#leave-datatable');
+                            }
+
+                            if($('#employee-leave-datatable').length){
+                                initialize_employee_leave_table('#employee-leave-datatable');
+                            }
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Leave Rejection Error', 'The leave does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the rejection remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel leave form' || form_type == 'cancel employee leave form'){
+        $('#cancel-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Leave Rejection Success', 'The leave has been cancelled.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            
+                            if($('#leave-datatable').length){
+                                initialize_leave_table('#leave-datatable');
+                            }
+
+                            if($('#employee-leave-datatable').length){
+                                initialize_employee_leave_table('#employee-leave-datatable');
+                            }
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Leave Rejection Error', 'The leave does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee leave form'){
+        $('#employee-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Leave Success', 'The employee leave has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_leave_table('#employee-leave-datatable');
+                        }
+                        else if(response === 'Leave Entitlement'){
+                            show_alert('Insert Leave Error', 'The leave entitlement was consumed.', 'error');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                leave_type: {
+                    required: true
+                },
+                leave_status: {
+                    required: true
+                },
+                leave_duration: {
+                    required: true
+                },
+                leave_date: {
+                    required: true
+                },
+                start_time: {
+                    required: true
+                },
+                end_time: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                leave_type: {
+                    required: 'Please choose the leave type',
+                },
+                leave_status: {
+                    required: 'Please choose the status',
+                },
+                leave_duration: {
+                    required: 'Please choose the duration',
+                },
+                leave_date: {
+                    required: 'Please choose the leave date',
+                },
+                start_time: {
+                    required: 'Please choose the start time',
+                },
+                end_time: {
+                    required: 'Please choose the end time',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee file management form'){
+        $('#employee-file-management-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit employee file management';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee File Success', 'The employee file has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee File Success', 'The employee file has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_file_management_table('#employee-file-datatable');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Employee File Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Employee File Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Employee File Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                file_name: {
+                    required: true
+                },
+                file_category: {
+                    required: true
+                },
+                file_date: {
+                    required: true
+                },
+                file: {
+                    required:  function(element){
+                        var update = $('#update').val();
+
+                        if(update == '0'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                remarks: {
+                    required: true
+                }
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose the employee',
+                },
+                file_name: {
+                    required: 'Please enter the file name',
+                },
+                file_category: {
+                    required: 'Please choose the file category',
+                },
+                file_date: {
+                    required: 'Please choose the file date',
+                },
+                file: {
+                    required: 'Please choose the file',
+                },
+                remarks: {
+                    required: 'Please enter the remarks',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee file form'){
+        $('#employee-file-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit employee file management';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee File Success', 'The employee file has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee File Success', 'The employee file has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_employee_file_management_table('#employee-file-datatable');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Employee File Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Employee File Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Employee File Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                file_name: {
+                    required: true
+                },
+                file_category: {
+                    required: true
+                },
+                file_date: {
+                    required: true
+                },
+                file: {
+                    required:  function(element){
+                        var update = $('#update').val();
+
+                        if(update == '0'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                remarks: {
+                    required: true
+                }
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose the employee',
+                },
+                file_name: {
+                    required: 'Please enter the file name',
+                },
+                file_category: {
+                    required: 'Please choose the file category',
+                },
+                file_date: {
+                    required: 'Please choose the file date',
+                },
+                file: {
+                    required: 'Please choose the file',
+                },
+                remarks: {
+                    required: 'Please enter the remarks',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'user account form'){
+        $('#user-account-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit user account';
+                var role = $('#role').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&role=' + role,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert User Account Success', 'The user account has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_user_account_table('#user-account-datatable');
+                        }
+                        else{
+                            show_alert('User Account Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                user_code: {
+                    required: true
+                },
+                password: {
+                    required: true,
+                    password_strength : true
+                },
+                role: {
+                    required: true
+                }
+            },
+            messages: {
+                user_code: {
+                    required: 'Please enter the username',
+                },
+                password: {
+                    required: 'Please enter the password',
+                },
+                role: {
+                    required: 'Please choose at least one (1) role',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'user account update form'){
+        $('#user-account-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit user account update';
+                var role = $('#role').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&role=' + role,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update User Account Success', 'The user account has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            initialize_user_account_table('#user-account-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('User Account', 'The user account does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('User Account Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                role: {
+                    required: true
+                }
+            },
+            messages: {
+                role: {
+                    required: 'Please choose at least one (1) role',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'holiday form'){
+        $('#holiday-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit holiday';
+                var branch = $('#branch').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&branch=' + branch,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Holiday Success', 'The holiday has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Holiday Success', 'The holiday has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_holiday_table('#holiday-datatable');
+                        }
+                        else{
+                            show_alert('Holiday Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                holiday: {
+                    required: true
+                },
+                holiday_type: {
+                    required: true
+                },
+                holiday_date: {
+                    required: true
+                },
+                branch: {
+                    required: true
+                },
+            },
+            messages: {
+                holiday: {
+                    required: 'Please enter the holiday',
+                },
+                holiday_type: {
+                    required: 'Please choose the holiday type',
+                },
+                holiday_date: {
+                    required: 'Please choose the holiday date',
+                },
+                branch: {
+                    required: 'Please choose at least one (1) branch',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'time in form'){
+        $('#time-in-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit time in';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Recorded'){
+                            show_alert_event('Time In Success', 'Your time in has been recorded.', 'success', 'reload');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'Max Attendance'){
+                            show_alert_event('Time In Error', 'Your have reached the maximum clock-in for the day.', 'error', 'reload');
+                        }
+                        else if(response === 'Location'){
+                            show_alert_event('Time In Error', 'Your location cannot be determined.', 'error', 'reload');
+                        }
+                        else{
+                            show_alert('Time In Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'time out form'){
+        $('#time-out-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit time out';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Recorded'){
+                            show_alert_event('Time Out Success', 'Your time in has been recorded.', 'success', 'reload');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'Location'){
+                            show_alert_event('Time Out Error', 'Your location cannot be determined.', 'error', 'reload');
+                        }
+                        else{
+                            show_alert('Time Out Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'attendance record form'){
+        $('#attendance-record-form').validate({
+            submitHandler: function (form) {
+                document.getElementById('employee_id').disabled = false;
+                transaction = 'submit employee attendance';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Employee Attendance Success', 'The employee attendance has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Employee Attendance Success', 'The employee attendance has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            initialize_attendance_record_table('#attendance-record-datatable');
+                        }
+                        else if(response === 'Max Attendance'){
+                            show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
+                        }
+                        else{
+                            show_alert('Employee Attendance Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                }
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose the employee',
+                },
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'health declaration form'){
+        $('#health-declaration-form').validate({
+            submitHandler: function (form) {
+                document.getElementById('specific').disabled = false;
+                transaction = 'submit health declaration';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert_event('Insert Health Declaration Success', 'The health declaration has been inserted.', 'success', 'reload');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'Existed'){
+                            show_alert_event('Health Declaration Error', 'You already submitted your health declaration today.', 'error', 'reload');
+                        }
+                        else{
+                            show_alert('Health Declaration Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                temperature: {
+                    required: true
+                },
+                specific: {
+                    required:  function(element){
+                        var question_5 = $('#question_5').val();
+
+                        if(question_5 == '1'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+            },
+            messages: {
+                temperature: {
+                    required: 'Please enter the temperature',
+                },
+                specific: {
+                    required: 'Please enter the specific place',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'get location form'){
+        $('#get-location-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit location';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Location Success', 'The location has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'Location'){
+                            show_alert_event('Location Error', 'You location cannot be determined.', 'error', 'reload');
+                        }
+                        else{
+                            show_alert('Location Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'send test email form'){
+        $('#send-test-email-form').validate({
+            submitHandler: function (form) {
+                transaction = 'send test email';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Sent'){
+                            show_alert_event('Test Email Success', 'The test email has been sent.', 'success', 'reload');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            show_alert('Test Email Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                email: {
+                    required: true
+                },
+            },
+            messages: {
+                email: {
+                    required: 'Please enter the email',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+}
+
+// Get location function
+function get_location(map_div) {
+    if(!map_div){
+        if (navigator.geolocation) {
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.watchPosition(show_position, show_geolocation_error, options);
+        } 
+        else {
+            show_alert('Geolocation Error', 'Your browser does not support geolocation.', 'error');
+        }
+    }
+    else{
+        var map = new GMaps({
+            div: '#' + map_div,
+            lat: -12.043333,
+            lng: -77.028333
+        });
+    
+        GMaps.geolocate({
+            success: function(position){
+                map.setCenter(position.coords.latitude, position.coords.longitude);
+                map.addMarker({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+
+                sessionStorage.setItem('latitude', position.coords.latitude);
+                sessionStorage.setItem('longitude', position.coords.longitude);
+            },
+            error: function(error){
+                show_alert('Geolocation Error', 'Geolocation failed: ' + error.message, 'error');
+            },
+            not_supported: function(){
+                show_alert('Geolocation Error', 'Your browser does not support geolocation.', 'error');
+            },
+        });
+    }
+}
+
+function show_position(position) {
+    sessionStorage.setItem('latitude', position.coords.latitude);
+    sessionStorage.setItem('longitude', position.coords.longitude);
+
+    if ($('#attendance_position').length) {
+        $('#attendance_position').val(position.coords.longitude + ', ' + position.coords.latitude);
+    }
+
+    if ($('#position').length) {
+        $('#position').val(position.coords.longitude + ', ' + position.coords.latitude);
+    }
+}
+
+function show_geolocation_error(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            show_alert('Geolocation Error', 'User denied the request for Geolocation.', 'error');
+            break;
+        case error.POSITION_UNAVAILABLE:
+            show_alert('Geolocation Error', 'Location information is unavailable.', 'error');
+            break;
+        case error.TIMEOUT:
+            show_alert('Geolocation Error', 'The request to get user location timed out.', 'error');
+            break;
+        case error.UNKNOWN_ERROR:
+            show_alert('Geolocation Error', 'An unknown error occurred.', 'error');
+            break;
+    }
+}
+
+// Generate function
+function generate_modal(form_type, title, size, scrollable, submit_button, generate_type, form_id, add, username){
+    var type = 'system modal';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {type : type, username : username, title : title, size : size, scrollable : scrollable, submit_button : submit_button, generate_type : generate_type, form_id : form_id},
+        beforeSend: function(){
+            $('#System-Modal').remove();
+        },
+        success: function(response) {
+            $('body').append(response[0].MODAL);
+        },
+        complete : function(){
+            if(generate_type == 'form'){
+                generate_form(form_type, form_id, add, username);
+            }
+            else{
+                generate_element(form_type, '', '', '1', username);
+            }
+        }
+    });
+}
+
+function generate_form(form_type, form_id, add, username){
+    var type = 'system form';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: { type : type, username : username, form_type : form_type, form_id : form_id },
+        success: function(response) {
+            document.getElementById('modal-body').innerHTML = response[0].FORM;
+        },
+        complete: function(){
+            if(add == '0'){
+                display_form_details(form_type);
+            }
+            else{
+                if(form_type == 'permission form'){
+                    var policy_id = $('#policy-id').text();
+                    $('#policy_id').val(policy_id);
+                }
+                else if(form_type == 'emergency contact form' || form_type == 'employee address form' || form_type == 'employee social form' || form_type == 'employee attendance form' || form_type == 'employee leave entitlement form' || form_type == 'employee leave form' || form_type == 'employee file form'){
+                    var employee_id = $('#employee-id').text();
+                    $('#employee_id').val(employee_id);
+                }
+                else if(form_type == 'approve leave form' || form_type == 'reject leave form' || form_type == 'cancel leave form' || form_type == 'approve employee leave form' || form_type == 'reject employee leave form' || form_type == 'cancel employee leave form'){
+                    var leave_id = sessionStorage.getItem('leave_id');
+                    $('#leave_id').val(leave_id);
+                }
+                else if(form_type == 'time in form' || form_type == 'get location form'){
+                    get_location('');
+                }
+            }
+
+            initialize_elements();
+            initialize_form_validation(form_type);
+
+            $('#System-Modal').modal('show');
+        }
+    });    
+}
+
+function generate_element(element_type, value, container, modal, username){
+    var type = 'system element';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: { type : type, username : username, value : value, element_type : element_type },
+        beforeSend : function(){
+            if(container){
+                document.getElementById(container).innerHTML = '';
+            }
+        },
+        success: function(response) {
+            if(!container){
+                document.getElementById('modal-body').innerHTML = response[0].ELEMENT;
+            }
+            else{
+                document.getElementById(container).innerHTML = response[0].ELEMENT;
+            }
+        },
+        complete: function(){
+            initialize_elements();
+
+            if(modal == '1'){
+                $('#System-Modal').modal('show');
+
+                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details'){
+                    display_form_details(element_type);
+                }
+                else if(element_type == 'scan qr code form'){
+                    var html5QrcodeScanner = new Html5QrcodeScanner(
+                        "qr-code-reader", { fps: 10, qrbox: 250 });
+                        html5QrcodeScanner.render(on_attendance_qr_code_scan);
+            
+                    function on_attendance_qr_code_scan(decodedText, decodedResult) {
+            
+                        $('#System-Modal').modal('hide');
+                        html5QrcodeScanner.clear();
+                                    
+                        var audio = new Audio('assets/audio/scan.mp3');
+                        audio.play();
+                        navigator.vibrate([500]);
+            
+                        var employee_id = decodedText.substring(
+                            decodedText.lastIndexOf("[") + 1, 
+                            decodedText.lastIndexOf("]")
+                        );
+            
+                        var latitude = sessionStorage.getItem('latitude');
+                        var longitude = sessionStorage.getItem('longitude');
+                        var transaction = 'submit attendance record';
+                        var username = $('#username').text();
+                            
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller.php',
+                            data: {username : username, employee_id : employee_id, latitude : latitude, longitude : longitude, transaction : transaction},
+                            success: function (response) {
+                                if(response === 'Recorded'){
+                                    show_alert_event('Attendance Record Success', 'Your attendance has been recorded.', 'success', 'reload');
+                                }
+                                else if(response === 'Max Time-In'){
+                                    show_alert_event('Attendance Record Error', 'Your have reached the maximum clock-in for the day.', 'error', 'reload');
+                                }
+                                else if(response === 'Location'){
+                                    show_alert_event('Attendance Record Error', 'Your location cannot be determined.', 'error', 'reload');
+                                }
+                                else{
+                                    show_alert('Attendance Record Error', response, 'error');
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    });
+}
+
+function generate_city_option(province, selected){
+    var username = $('#username').text();
+    var type = 'city options';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {type : type, province : province, username : username},
+        beforeSend: function(){
+            $('#city').empty();
+        },
+        success: function(response) {
+            var newOption = new Option('--', '', false, false);
+            $('#city').append(newOption);
+
+            for(var i = 0; i < response.length; i++) {
+                newOption = new Option(response[i].CITY, response[i].CITY_ID, false, false);
+                $('#city').append(newOption);
+            }
+        },
+        complete: function(){
+            if(selected != ''){
+                $('#city').val(selected).change();
+            }
+        }
+    });
+}
+
+function generate_employee_work_shift_option(work_shift_id, selected){
+    var username = $('#username').text();
+    var type = 'employee work shift options';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {type : type, work_shift_id : work_shift_id, username : username},
+        beforeSend: function(){
+            $('#employee').empty();
+        },
+        success: function(response) {
+            for(var i = 0; i < response.length; i++) {
+                newOption = new Option(response[i].FILE_AS, response[i].EMPLOYEE_ID, false, false);
+                $('#employee').append(newOption);
+            }
+        },
+        complete: function(){
+            if(selected != ''){
+                check_empty(selected.split(','), '#employee', 'select');
+            }
+        }
+    });
+}
+
+// Reset validation functions
+function reset_element_validation(element){
+    $(element).parent().removeClass('has-danger');
+    $(element).removeClass('form-control-danger');
+    $(element + '-error').remove();
+}
+
+// Display functions
+function display_form_details(form_type){
+    var transaction;
+    var d = new Date();
+
+    if(form_type == 'system parameter form'){
+        transaction = 'system parameter details';
+
+        var parameter_id = sessionStorage.getItem('parameter_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {parameter_id : parameter_id, transaction : transaction},
+            success: function(response) {
+                $('#parameter').val(response[0].PARAMETER_DESC);
+                $('#extension').val(response[0].PARAMETER_EXTENSION);
+                $('#parameter_number').val(response[0].PARAMETER_NUMBER);
+                $('#parameter_id').val(parameter_id);
+            }
+        });
+    }
+    else if(form_type == 'system parameter details'){
+        transaction = 'system parameter details';
+        
+        var parameter_id = sessionStorage.getItem('parameter_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {parameter_id : parameter_id, transaction : transaction},
+            success: function(response) {
+                $('#parameter').text(response[0].PARAMETER_DESC);
+                $('#extension').text(response[0].PARAMETER_EXTENSION);
+                $('#parameter_number').text(response[0].PARAMETER_NUMBER);
+            }
+        });
+    }
+    else if(form_type == 'transaction log'){
+        transaction = 'transaction log details';
+        
+        var transaction_log_id = sessionStorage.getItem('transaction_log_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction_log_id : transaction_log_id, transaction : transaction},
+            success: function(response) {
+                document.getElementById('transaction-log-timeline').innerHTML = response[0].TIMELINE;
+            }
+        });
+    }
+    else if(form_type == 'policy form'){
+        transaction = 'policy details';
+
+        var policy_id = sessionStorage.getItem('policy_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {policy_id : policy_id, transaction : transaction},
+            success: function(response) {
+                $('#policy').val(response[0].POLICY);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#policy_id').val(policy_id);
+            }
+        });
+    }
+    else if(form_type == 'permission form'){
+        transaction = 'permission details';
+        
+        var permission_id = sessionStorage.getItem('permission_id');
+        var policy_id = $('#policy-id').text();
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {permission_id : permission_id, transaction : transaction},
+            success: function(response) {
+                $('#permission_id').val(permission_id);
+                $('#policy_id').val(policy_id);
+                $('#permission').val(response[0].PERMISSION);
+            }
+        });
+    }
+    else if(form_type == 'role form'){
+        transaction = 'role details';
+        
+        var role_id = sessionStorage.getItem('role_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {role_id : role_id, transaction : transaction},
+            success: function(response) {
+                $('#role_id').val(role_id);
+                $('#role').val(response[0].ROLE);
+                $('#description').val(response[0].DESCRIPTION);
+            }
+        });
+    }
+    else if(form_type == 'role permission form'){
+        transaction = 'role permission details';
+        
+        var role_id = $('#role-id').text();
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {role_id : role_id, transaction : transaction},
+            success: function(response) {
+                var userArray = new Array();
+                userArray = response.toString().split(',');
+
+                $('.role-permissions').each(function(index) {
+                    var val = $(this).val();
+                    if (userArray.includes(val)) {
+                        $(this).prop('checked', true);
+                    }
+                });
+            }
+        });
+    }
+    else if(form_type == 'system code form'){
+        transaction = 'system code details';
+        
+        var system_type = sessionStorage.getItem('system_type');
+        var system_code = sessionStorage.getItem('system_code');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {system_type : system_type, system_code : system_code, transaction : transaction},
+            success: function(response) {
+                $('#system_description').val(response[0].DESCRIPTION);
+                $('#system_code').val(system_code);
+
+                check_option_exist('#system_type', system_type, '');
+            },
+            complete: function(){
+                document.getElementById('system_type').disabled = true;
+                document.getElementById('system_code').readOnly = true;
+            }
+        });
+    }
+    else if(form_type == 'user interface setting form'){
+        transaction = 'user interface settings details';
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                $('#login-bg').attr('src', response[0].LOGIN_BG + '?' + d.getMilliseconds());
+                $('#logo-light').attr('src', response[0].LOGO_LIGHT + '?' + d.getMilliseconds());
+                $('#logo-dark').attr('src', response[0].LOGO_DARK + '?' + d.getMilliseconds());
+                $('#logo-icon-light').attr('src', response[0].LOGO_ICON_LIGHT + '?' + d.getMilliseconds());
+                $('#logo-icon-dark').attr('src', response[0].LOGO_ICON_DARK + '?' + d.getMilliseconds());
+                $('#favicon-image').attr('src', response[0].FAVICON + '?' + d.getMilliseconds());
+            }
+        });
+    }
+    else if(form_type == 'email configuration form'){
+        transaction = 'email configuration details';
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                $('#mail_host').val(response[0].MAIL_HOST);
+                $('#port').val(response[0].PORT);
+                $('#mail_user').val(response[0].USERNAME);
+                $('#mail_password').val(response[0].PASSWORD);
+                $('#mail_from_name').val(response[0].MAIL_FROM_NAME);
+                $('#mail_from_email').val(response[0].MAIL_FROM_EMAIL);
+
+                check_empty(response[0].MAIL_ENCRYPTION, '#mail_encryption', 'select');
+                check_empty(response[0].SMTP_AUTH, '#smtp_auth', 'select');
+                check_empty(response[0].SMTP_AUTO_TLS, '#smtp_auto_tls', 'select');
+            }
+        });
+    }
+    else if(form_type == 'notification type form'){
+        transaction = 'notification type details';
+        
+        var notification_id = sessionStorage.getItem('notification_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {notification_id : notification_id, transaction : transaction},
+            success: function(response) {
+                $('#notification').val(response[0].NOTIFICATION);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#notification_id').val(notification_id);
+            }
+        });
+    }
+    else if(form_type == 'application notification form'){
+        transaction = 'application notification details';
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                var userArray = new Array();
+                userArray = response.toString().split(',');
+
+                $('.application-notification').each(function(index) {
+                    var val = $(this).val();
+                    if (userArray.includes(val)) {
+                        $(this).prop('checked', true);
+                    }
+                    else{
+                        $(this).prop('checked', false);
+                    }
+                });
+            }
+        });
+    }
+    else if(form_type == 'company setting form'){
+        transaction = 'company setting details';
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                $('#company_name').val(response[0].COMPANY_NAME);
+                $('#email').val(response[0].EMAIL);
+                $('#phone').val(response[0].PHONE);
+                $('#telephone').val(response[0].TELEPHONE);
+                $('#website').val(response[0].WEBSITE);
+                $('#address').val(response[0].ADDRESS);
+
+                check_option_exist('#province', response[0].PROVINCE_ID, '');
+
+                generate_city_option(response[0].PROVINCE_ID, response[0].CITY_ID);
+            }
+        });
+    }
+    else if(form_type == 'department form'){
+        transaction = 'department details';
+        
+        var department_id = sessionStorage.getItem('department_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {department_id : department_id, transaction : transaction},
+            success: function(response) {
+                $('#department_id').val(department_id);
+                $('#department').val(response[0].DEPARTMENT);
+                $('#description').val(response[0].DESCRIPTION);
+
+                check_option_exist('#department_head', response[0].DEPARTMENT_HEAD, '');
+                check_option_exist('#parent_department', response[0].PARENT_DEPARTMENT, '');
+            }
+        });
+    }
+    else if(form_type == 'designation form'){
+        transaction = 'designation details';
+        
+        var designation_id = sessionStorage.getItem('designation_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {designation_id : designation_id, transaction : transaction},
+            success: function(response) {
+                $('#designation_id').val(designation_id);
+                $('#designation').val(response[0].DESIGNATION);
+                $('#description').val(response[0].DESCRIPTION);
+            }
+        });
+    }
+    else if(form_type == 'branch form'){
+        transaction = 'branch details';
+        
+        var branch_id = sessionStorage.getItem('branch_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {branch_id : branch_id, transaction : transaction},
+            success: function(response) {
+                $('#branch_id').val(branch_id);
+                $('#branch').val(response[0].BRANCH);
+                $('#email').val(response[0].EMAIL);
+                $('#phone').val(response[0].PHONE);
+                $('#telephone').val(response[0].TELEPHONE);
+                $('#address').val(response[0].ADDRESS);
+            }
+        });
+    }
+    else if(form_type == 'branch details'){
+        transaction = 'branch details';
+
+        var branch_id = sessionStorage.getItem('branch_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {branch_id : branch_id, transaction : transaction},
+            success: function(response) {
+                $('#branch').text(response[0].BRANCH);
+                $('#email').text(response[0].EMAIL);
+                $('#phone').text(response[0].PHONE);
+                $('#telephone').text(response[0].TELEPHONE);
+                $('#address').text(response[0].ADDRESS);
+            }
+        });
+    }
+    else if(form_type == 'upload setting form'){
+        transaction = 'upload setting details';
+        
+        var upload_setting_id = sessionStorage.getItem('upload_setting_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {upload_setting_id : upload_setting_id, transaction : transaction},
+            success: function(response) {
+                $('#upload_setting_id').val(upload_setting_id);
+                $('#upload_setting').val(response[0].UPLOAD_SETTING);
+                $('#max_file_size').val(response[0].MAX_FILE_SIZE);
+                $('#description').val(response[0].DESCRIPTION);
+               
+                check_empty(response[0].FILE_TYPE.split(','), '#file_type', 'select');
+            }
+        });
+    }
+    else if(form_type == 'employment status form'){
+        transaction = 'employment status details';
+
+        var employment_status_id = sessionStorage.getItem('employment_status_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {employment_status_id : employment_status_id, transaction : transaction},
+            success: function(response) {
+                $('#employment_status').val(response[0].EMPLOYMENT_STATUS);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#employment_status_id').val(employment_status_id);
+
+                check_option_exist('#color_value', response[0].COLOR_VALUE, '');
+            }
+        });
+    }
+    else if(form_type == 'employee form'){
+        transaction = 'employee details';
+
+        var employee_id = sessionStorage.getItem('employee_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {employee_id : employee_id, transaction : transaction},
+            success: function(response) {
+                check_option_exist('#employment_status', response[0].EMPLOYMENT_STATUS, '');
+                check_option_exist('#suffix', response[0].SUFFIX, '');
+                check_option_exist('#department', response[0].DEPARTMENT, '');
+                check_option_exist('#designation', response[0].DESIGNATION, '');
+                check_option_exist('#branch', response[0].BRANCH, '');
+                check_option_exist('#gender', response[0].GENDER, '');
+
+                $('#id_number').val(response[0].ID_NUMBER);
+                $('#joining_date').val(response[0].JOIN_DATE);
+                $('#permanency_date').val(response[0].PERMANENCY_DATE);
+                $('#exit_date').val(response[0].EXIT_DATE);
+                $('#exit_reason').val(response[0].EXIT_REASON);
+                $('#first_name').val(response[0].FIRST_NAME);
+                $('#middle_name').val(response[0].MIDDLE_NAME);
+                $('#last_name').val(response[0].LAST_NAME);
+                $('#email').val(response[0].EMAIL);
+                $('#phone').val(response[0].PHONE);
+                $('#telephone').val(response[0].TELEPHONE);
+                $('#birthday').val(response[0].BIRTHDAY);
+                $('#employee_id').val(employee_id);
+            },
+            complete: function(){
+                document.getElementById('id_number').readOnly = true;
+            }
+        });
+    }
+    else if(form_type == 'emergency contact form'){
+        transaction = 'emergency contact details';
+
+        var contact_id = sessionStorage.getItem('contact_id');
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {contact_id : contact_id, transaction : transaction},
+            success: function(response) {
+                $('#contact_name').val(response[0].NAME);
+                $('#address').val(response[0].ADDRESS);
+                $('#phone').val(response[0].PHONE);
+                $('#email').val(response[0].EMAIL);
+                $('#telephone').val(response[0].TELEPHONE);
+                $('#contact_id').val(contact_id);
+                $('#employee_id').val(employee_id);
+
+                check_option_exist('#relationship', response[0].RELATIONSHIP, '');
+                check_option_exist('#province', response[0].PROVINCE, '');
+
+                generate_city_option(response[0].PROVINCE, response[0].CITY);
+            }
+        });
+    }
+    else if(form_type == 'employee address form'){
+        transaction = 'employee address details';
+
+        var address_id = sessionStorage.getItem('address_id');
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {address_id : address_id, transaction : transaction},
+            success: function(response) {
+                $('#address').val(response[0].ADDRESS);
+                $('#address_id').val(address_id);
+                $('#employee_id').val(employee_id);
+
+                check_option_exist('#address_type', response[0].ADDRESS_TYPE, '');
+                check_option_exist('#province', response[0].PROVINCE, '');
+
+                generate_city_option(response[0].PROVINCE, response[0].CITY);
+            }
+        });
+    }
+    else if(form_type == 'employee social form'){
+        transaction = 'employee social details';
+
+        var social_id = sessionStorage.getItem('social_id');
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {social_id : social_id, transaction : transaction},
+            success: function(response) {
+                $('#link').val(response[0].LINK);
+                $('#social_id').val(social_id);
+                $('#employee_id').val(employee_id);
+
+                check_option_exist('#social_type', response[0].SOCIAL_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'work shift form'){
+        transaction = 'work shift details';
+
+        var work_shift_id = sessionStorage.getItem('work_shift_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {work_shift_id : work_shift_id, transaction : transaction},
+            success: function(response) {
+                $('#work_shift').val(response[0].WORK_SHIFT);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#work_shift_id').val(work_shift_id);
+
+                check_option_exist('#work_shift_type', response[0].WORK_SHIFT_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'regular work shift schedule form'){
+        transaction = 'work shift schedule details';
+
+        var work_shift_id = sessionStorage.getItem('work_shift_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {work_shift_id : work_shift_id, transaction : transaction},
+            success: function(response) {
+                $('#monday_start_time').val(response[0].MONDAY_START_TIME);
+                $('#monday_end_time').val(response[0].MONDAY_END_TIME);
+                $('#monday_lunch_start_time').val(response[0].MONDAY_LUNCH_START_TIME);
+                $('#monday_lunch_end_time').val(response[0].MONDAY_LUNCH_END_TIME);
+                $('#monday_half_day_mark').val(response[0].MONDAY_HALF_DAY_MARK);
+                $('#monday_late_mark').val(response[0].MONDAY_LATE_MARK);
+
+                $('#tuesday_start_time').val(response[0].TUESDAY_START_TIME);
+                $('#tuesday_end_time').val(response[0].TUESDAY_END_TIME);
+                $('#tuesday_lunch_start_time').val(response[0].TUESDAY_LUNCH_START_TIME);
+                $('#tuesday_lunch_end_time').val(response[0].TUESDAY_LUNCH_END_TIME);
+                $('#tuesday_half_day_mark').val(response[0].TUESDAY_HALF_DAY_MARK);
+                $('#tuesday_late_mark').val(response[0].TUESDAY_LATE_MARK);
+
+                $('#wednesday_start_time').val(response[0].WEDNESDAY_START_TIME);
+                $('#wednesday_end_time').val(response[0].WEDNESDAY_END_TIME);
+                $('#wednesday_lunch_start_time').val(response[0].WEDNESDAY_LUNCH_START_TIME);
+                $('#wednesday_lunch_end_time').val(response[0].WEDNESDAY_LUNCH_END_TIME);
+                $('#wednesday_half_day_mark').val(response[0].WEDNESDAY_HALF_DAY_MARK);
+                $('#wednesday_late_mark').val(response[0].WEDNESDAY_LATE_MARK);
+
+                $('#thursday_start_time').val(response[0].THURSDAY_START_TIME);
+                $('#thursday_end_time').val(response[0].THURSDAY_END_TIME);
+                $('#thursday_lunch_start_time').val(response[0].THURSDAY_LUNCH_START_TIME);
+                $('#thursday_lunch_end_time').val(response[0].THURSDAY_LUNCH_END_TIME);
+                $('#thursday_half_day_mark').val(response[0].THURSDAY_HALF_DAY_MARK);
+                $('#thursday_late_mark').val(response[0].THURSDAY_LATE_MARK);
+
+                $('#friday_start_time').val(response[0].FRIDAY_START_TIME);
+                $('#friday_end_time').val(response[0].FRIDAY_END_TIME);
+                $('#friday_lunch_start_time').val(response[0].FRIDAY_LUNCH_START_TIME);
+                $('#friday_lunch_end_time').val(response[0].FRIDAY_LUNCH_END_TIME);
+                $('#friday_half_day_mark').val(response[0].FRIDAY_HALF_DAY_MARK);
+                $('#friday_late_mark').val(response[0].FRIDAY_LATE_MARK);
+
+                $('#saturday_start_time').val(response[0].SATURDAY_START_TIME);
+                $('#saturday_end_time').val(response[0].SATURDAY_END_TIME);
+                $('#saturday_lunch_start_time').val(response[0].SATURDAY_LUNCH_START_TIME);
+                $('#saturday_lunch_end_time').val(response[0].SATURDAY_LUNCH_END_TIME);
+                $('#saturday_half_day_mark').val(response[0].SATURDAY_HALF_DAY_MARK);
+                $('#saturday_late_mark').val(response[0].SATURDAY_LATE_MARK);
+
+                $('#sunday_start_time').val(response[0].SUNDAY_START_TIME);
+                $('#sunday_end_time').val(response[0].SUNDAY_END_TIME);
+                $('#sunday_lunch_start_time').val(response[0].SUNDAY_LUNCH_START_TIME);
+                $('#sunday_lunch_end_time').val(response[0].SUNDAY_LUNCH_END_TIME);
+                $('#sunday_half_day_mark').val(response[0].SUNDAY_HALF_DAY_MARK);
+                $('#sunday_late_mark').val(response[0].SUNDAY_LATE_MARK);
+
+                $('#work_shift_id').val(work_shift_id);
+            }
+        });
+    }
+    else if(form_type == 'scheduled work shift schedule form'){
+        transaction = 'work shift schedule details';
+
+        var work_shift_id = sessionStorage.getItem('work_shift_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {work_shift_id : work_shift_id, transaction : transaction},
+            success: function(response) {
+                $('#start_date').val(response[0].START_DATE);
+                $('#end_date').val(response[0].END_DATE);
+
+                $('#monday_start_time').val(response[0].MONDAY_START_TIME);
+                $('#monday_end_time').val(response[0].MONDAY_END_TIME);
+                $('#monday_lunch_start_time').val(response[0].MONDAY_LUNCH_START_TIME);
+                $('#monday_lunch_end_time').val(response[0].MONDAY_LUNCH_END_TIME);
+                $('#monday_half_day_mark').val(response[0].MONDAY_HALF_DAY_MARK);
+                $('#monday_late_mark').val(response[0].MONDAY_LATE_MARK);
+
+                $('#tuesday_start_time').val(response[0].TUESDAY_START_TIME);
+                $('#tuesday_end_time').val(response[0].TUESDAY_END_TIME);
+                $('#tuesday_lunch_start_time').val(response[0].TUESDAY_LUNCH_START_TIME);
+                $('#tuesday_lunch_end_time').val(response[0].TUESDAY_LUNCH_END_TIME);
+                $('#tuesday_half_day_mark').val(response[0].TUESDAY_HALF_DAY_MARK);
+                $('#tuesday_late_mark').val(response[0].TUESDAY_LATE_MARK);
+
+                $('#wednesday_start_time').val(response[0].WEDNESDAY_START_TIME);
+                $('#wednesday_end_time').val(response[0].WEDNESDAY_END_TIME);
+                $('#wednesday_lunch_start_time').val(response[0].WEDNESDAY_LUNCH_START_TIME);
+                $('#wednesday_lunch_end_time').val(response[0].WEDNESDAY_LUNCH_END_TIME);
+                $('#wednesday_half_day_mark').val(response[0].WEDNESDAY_HALF_DAY_MARK);
+                $('#wednesday_late_mark').val(response[0].WEDNESDAY_LATE_MARK);
+
+                $('#thursday_start_time').val(response[0].THURSDAY_START_TIME);
+                $('#thursday_end_time').val(response[0].THURSDAY_END_TIME);
+                $('#thursday_lunch_start_time').val(response[0].THURSDAY_LUNCH_START_TIME);
+                $('#thursday_lunch_end_time').val(response[0].THURSDAY_LUNCH_END_TIME);
+                $('#thursday_half_day_mark').val(response[0].THURSDAY_HALF_DAY_MARK);
+                $('#thursday_late_mark').val(response[0].THURSDAY_LATE_MARK);
+
+                $('#friday_start_time').val(response[0].FRIDAY_START_TIME);
+                $('#friday_end_time').val(response[0].FRIDAY_END_TIME);
+                $('#friday_lunch_start_time').val(response[0].FRIDAY_LUNCH_START_TIME);
+                $('#friday_lunch_end_time').val(response[0].FRIDAY_LUNCH_END_TIME);
+                $('#friday_half_day_mark').val(response[0].FRIDAY_HALF_DAY_MARK);
+                $('#friday_late_mark').val(response[0].FRIDAY_LATE_MARK);
+
+                $('#saturday_start_time').val(response[0].SATURDAY_START_TIME);
+                $('#saturday_end_time').val(response[0].SATURDAY_END_TIME);
+                $('#saturday_lunch_start_time').val(response[0].SATURDAY_LUNCH_START_TIME);
+                $('#saturday_lunch_end_time').val(response[0].SATURDAY_LUNCH_END_TIME);
+                $('#saturday_half_day_mark').val(response[0].SATURDAY_HALF_DAY_MARK);
+                $('#saturday_late_mark').val(response[0].SATURDAY_LATE_MARK);
+
+                $('#sunday_start_time').val(response[0].SUNDAY_START_TIME);
+                $('#sunday_end_time').val(response[0].SUNDAY_END_TIME);
+                $('#sunday_lunch_start_time').val(response[0].SUNDAY_LUNCH_START_TIME);
+                $('#sunday_lunch_end_time').val(response[0].SUNDAY_LUNCH_END_TIME);
+                $('#sunday_half_day_mark').val(response[0].SUNDAY_HALF_DAY_MARK);
+                $('#sunday_late_mark').val(response[0].SUNDAY_LATE_MARK);
+
+                $('#work_shift_id').val(work_shift_id);
+            }
+        });
+    }
+    else if(form_type == 'assign work shift form'){
+        transaction = 'work shift assignment details';
+
+        var work_shift_id = sessionStorage.getItem('work_shift_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {work_shift_id : work_shift_id, transaction : transaction},
+            success: function(response) {
+                $('#work_shift_id').val(work_shift_id);
+
+                generate_employee_work_shift_option(work_shift_id, response[0].EMPLOYEE_ID);
+            }
+        });
+    }
+    else if(form_type == 'employee attendance form'){
+        transaction = 'employee attendance details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE);
+                $('#time_in').val(response[0].TIME_IN);
+                $('#time_out_date').val(response[0].TIME_OUT_DATE);
+                $('#time_out').val(response[0].TIME_OUT);
+                $('#remarks').val(response[0].REMARKS);
+                $('#attendance_id').val(attendance_id);
+                $('#employee_id').val(employee_id);
+            }
+        });
+    }
+    else if(form_type == 'leave type form'){
+        transaction = 'leave type details';
+        
+        var leave_type_id = sessionStorage.getItem('leave_type_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {leave_type_id : leave_type_id, transaction : transaction},
+            success: function(response) {
+                $('#leave_type_id').val(leave_type_id);
+                $('#leave_name').val(response[0].LEAVE_NAME);
+                $('#no_leaves').val(response[0].NO_LEAVES);
+                $('#description').val(response[0].DESCRIPTION);
+
+                check_option_exist('#paid_status', response[0].PAID_STATUS, '');
+            }
+        });
+    }
+    else if(form_type == 'update leave entitlement form'){
+        transaction = 'leave entitlement details';
+        
+        var leave_entitlement_id = sessionStorage.getItem('leave_entitlement_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {leave_entitlement_id : leave_entitlement_id, transaction : transaction},
+            success: function(response) {
+                $('#leave_entitlement_id').val(leave_entitlement_id);
+                $('#no_leaves').val(response[0].NO_LEAVES);
+                $('#start_date').val(response[0].START_DATE);
+                $('#end_date').val(response[0].END_DATE);
+
+                check_option_exist('#leave_type', response[0].LEAVE_TYPE, '');
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+            }
+        });
+    }
+    else if(form_type == 'employee leave entitlement form'){
+        transaction = 'leave entitlement details';
+        
+        var leave_entitlement_id = sessionStorage.getItem('leave_entitlement_id');
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {leave_entitlement_id : leave_entitlement_id, transaction : transaction},
+            success: function(response) {
+                $('#leave_entitlement_id').val(leave_entitlement_id);
+                $('#employee_id').val(employee_id);
+                $('#no_leaves').val(response[0].NO_LEAVES);
+                $('#start_date').val(response[0].START_DATE);
+                $('#end_date').val(response[0].END_DATE);
+
+                check_option_exist('#leave_type', response[0].LEAVE_TYPE, '');
+            },
+            complete: function(){
+                document.getElementById('leave_type').disabled = true;
+            }
+        });
+    }
+    else if(form_type == 'leave details'){
+        transaction = 'leave details';
+        
+        var leave_id = sessionStorage.getItem('leave_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {leave_id : leave_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE);
+                $('#leave_type').text(response[0].LEAVE_TYPE);
+                $('#leave_date').text(response[0].LEAVE_DATE);
+                $('#leave_time').text(response[0].LEAVE_TIME);
+                $('#leave_reason').text(response[0].LEAVE_REASON);
+                $('#leave_status').text(response[0].LEAVE_STATUS);
+                $('#decision_by').text(response[0].DECISION_BY);
+                $('#decision_remarks').text(response[0].DECISION_REMARKS);
+                $('#decision_date').text(response[0].DECISION_DATE);
+                $('#decision_time').text(response[0].DECISION_TIME);
+            }
+        });
+    }
+    else if(form_type == 'employee file management form'){
+        transaction = 'employee file details';
+        
+        var file_id = sessionStorage.getItem('file_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {file_id : file_id, transaction : transaction},
+            success: function(response) {
+                $('#update').val('1');
+                $('#file_id').val(file_id);
+                $('#file_name').val(response[0].FILE_NAME);
+                $('#file_date').val(response[0].FILE_DATE);
+                $('#remarks').val(response[0].REMARKS);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#file_category', response[0].FILE_CATEGORY, '');
+            }
+        });
+    }
+    else if(form_type == 'employee file details'){
+        transaction = 'employee file summary details';
+        
+        var file_id = sessionStorage.getItem('file_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {file_id : file_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#file_name').text(response[0].FILE_NAME);
+                $('#file_category').text(response[0].FILE_CATEGORY);
+                $('#file').html(response[0].FILE_PATH);
+                $('#file_date').text(response[0].FILE_DATE);
+                $('#upload_date').text(response[0].UPLOAD_DATE);
+                $('#upload_time').text(response[0].UPLOAD_TIME);
+                $('#upload_by').text(response[0].UPLOAD_BY);
+                $('#remarks').text(response[0].REMARKS);
+            }
+        });
+    }
+    else if(form_type == 'employee file form'){
+        transaction = 'employee file details';
+        
+        var file_id = sessionStorage.getItem('file_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {file_id : file_id, transaction : transaction},
+            success: function(response) {
+                $('#update').val('1');
+                $('#file_id').val(file_id);
+                $('#employee_id').val(response[0].EMPLOYEE_ID);
+                $('#file_name').val(response[0].FILE_NAME);
+                $('#file_date').val(response[0].FILE_DATE);
+                $('#remarks').val(response[0].REMARKS);
+
+                check_option_exist('#file_category', response[0].FILE_CATEGORY, '');
+            }
+        });
+    }
+    else if(form_type == 'employee qr code'){
+        transaction = 'employee details';
+
+        var employee_id = $('#employee-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {employee_id : employee_id, transaction : transaction},
+            success: function(response) {
+                create_employee_qr_code('qr-code', response[0].FIRST_NAME + ' ' + response[0].LAST_NAME, employee_id, response[0].EMAIL, response[0].PHONE);
+            },
+        });
+    }
+    else if(form_type == 'user account update form'){
+        transaction = 'user account details';
+
+        var user_code = sessionStorage.getItem('user_code');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {user_code : user_code, transaction : transaction},
+            success: function(response) {
+                $('#user_code').val(user_code);
+
+                check_empty(response[0].ROLES.split(','), '#role', 'select');
+            },
+            complete: function(){
+                document.getElementById('user_code').readOnly = true;
+            }
+        });
+    }
+    else if(form_type == 'user account details'){
+        transaction = 'view user account details';
+        
+        var user_code = sessionStorage.getItem('user_code');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {user_code : user_code, transaction : transaction},
+            success: function(response) {
+                $('#user_code').text(user_code);
+                $('#employee').text(response[0].FILE_AS);
+                $('#active').text(response[0].ACTIVE);
+                $('#password_expiry_date').html(response[0].PASSWORD_EXPIRY_DATE);
+                $('#failed_login').text(response[0].FAILED_LOGIN);
+                $('#last_failed_login').text(response[0].LAST_FAILED_LOGIN);
+                $('#roles').text(response[0].ROLES);
+            }
+        });
+    }
+    else if(form_type == 'holiday form'){
+        transaction = 'holiday details';
+
+        var holiday_id = sessionStorage.getItem('holiday_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {holiday_id : holiday_id, transaction : transaction},
+            success: function(response) {
+                $('#holiday_id').val(holiday_id);
+                $('#holiday').val(response[0].HOLIDAY);
+                $('#holiday_date').val(response[0].HOLIDAY_DATE);
+
+                check_option_exist('#holiday_type', response[0].HOLIDAY_TYPE, '');
+
+                check_empty(response[0].BRANCH.split(','), '#branch', 'select');
+            }
+        });
+    }
+    else if(form_type == 'attendance setting form'){
+        transaction = 'attendance setting details';
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                $('#maximum_attendance').val(response[0].MAX_ATTENDANCE);
+               
+                check_empty(response[0].CREATION.split(','), '#attendance_creation_approval', 'select');
+                check_empty(response[0].ADJUSTMENT.split(','), '#attendance_adjustment_approval', 'select');
+            }
+        });
+    }
+    else if(form_type == 'time out form'){
+        transaction = 'record attendance details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#time-in-record').text(response[0].TIME_IN_DATE);
+                $('#attendance_id').val(attendance_id);
+                get_location('');
+            }
+        });
+    }
+    else if(form_type == 'employee attendance details'){
+        transaction = 'employee attendance summary details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#time_in_date').text(response[0].TIME_IN_DATE);
+                $('#time_in').text(response[0].TIME_IN);
+                document.getElementById('time_in_location').innerHTML = response[0].TIME_IN_LOCATION;
+                $('#time_in_ip_address').text(response[0].TIME_IN_IP_ADDRESS);
+                $('#time_in_by').text(response[0].TIME_IN_BY);
+                document.getElementById('time_in_behavior').innerHTML = response[0].TIME_IN_BEHAVIOR;
+                $('#time_in_note').text(response[0].TIME_IN_NOTE);
+                $('#time_out_date').text(response[0].TIME_OUT_DATE);
+                $('#time_out').text(response[0].TIME_OUT);
+                document.getElementById('time_out_location').innerHTML = response[0].TIME_OUT_LOCATION;
+                $('#time_out_ip_address').text(response[0].TIME_OUT_IP_ADDRESS);
+                $('#time_out_by').text(response[0].TIME_OUT_BY);
+                document.getElementById('time_out_behavior').innerHTML = response[0].TIME_OUT_BEHAVIOR;
+                $('#time_out_note').text(response[0].TIME_OUT_NOTE);
+                $('#late').text(response[0].LATE);
+                $('#early_leaving').text(response[0].EARLY_LEAVING);
+                $('#overtime').text(response[0].OVERTIME);
+                $('#total_working_hours').text(response[0].TOTAL_WORKING_HOURS);
+                $('#remarks').text(response[0].REMARKS);
+            }
+        });
+    }
+    else if(form_type == 'attendance record form'){
+        transaction = 'attendance record details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE);
+                $('#time_in').val(response[0].TIME_IN);
+                $('#time_out_date').val(response[0].TIME_OUT_DATE);
+                $('#time_out').val(response[0].TIME_OUT);
+                $('#remarks').val(response[0].REMARKS);
+                $('#attendance_id').val(attendance_id);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+            },
+            complete: function(){
+                document.getElementById('employee_id').disabled = true;
+            }
+        });
+    }
+}
+
+// Destroy datatable
+function destroy_datatable(datatable_name){
+    $(datatable_name).DataTable().clear().destroy();
+}
+
+// Clear
+function clear_datatable(datatable_name){
+    $(datatable_name).dataTable().fnClearTable();
+}
+
+// Re-adjust datatable columns
+function readjust_datatable_column(){
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+    });
+
+    $('a[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+    });
+
+    $('#System-Modal').on('shown.bs.modal', function (e) {
+        $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+    });
+}
+
+// Check functions
+function check_option_exist(element, option, return_value){
+    if ($(element).find('option[value="' + option + '"]').length) {
+        $(element).val(option).trigger('change');
+    }
+    else{
+        $(element).val(return_value).trigger('change');
+    }
+}
+
+function check_empty(value, id, type){
+    if(value != '' || value != null){
+        if(type == 'select'){
+            $(id).val(value).change();
+        }
+        else if(type == 'text'){
+            $(id).text(value);
+        }
+        else {
+            $(id).val(value);
+        }
+    }
+}
+
+function check_table_check_box(){
+    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
+    var checked_value = input_elements.filter(chk => chk.checked).length;
+
+    if(checked_value > 0){
+        $('.multiple').removeClass('d-none');
+    }
+    else{
+        $('.multiple').addClass('d-none');
+    }
+}
+
+function check_lock_unlock_check_box(){
+    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
+    var checked_value = input_elements.filter(chk => chk.checked).length;
+
+    if(checked_value > 0){
+        var lock_array = [];
+        
+        $(".datatable-checkbox-children").each(function () {
+            var lock = $(this).data('lock');
+
+            if($(this).prop('checked') === true){
+                lock_array.push(lock);
+            }
+        });
+
+        var unlock_checker = arr => arr.every(v => v === 1);
+        var lock_checker = arr => arr.every(v => v === 0);
+        
+        if(lock_checker(lock_array) || unlock_checker(lock_array)){
+            if(lock_checker(lock_array)){
+                $('.multiple-lock').removeClass('d-none');
+                $('.multiple-unlock').addClass('d-none');
+            }
+
+            if(unlock_checker(lock_array)){
+                $('.multiple-lock').addClass('d-none');
+                $('.multiple-unlock').removeClass('d-none');
+            }
+        }
+        else{
+            $('.multiple-lock').addClass('d-none');
+            $('.multiple-unlock').addClass('d-none');
+        }
+    }
+    else{
+        $('.multiple-lock').addClass('d-none');
+        $('.multiple-unlock').addClass('d-none');
+    }
+}
+
+function check_activate_deactivate_check_box(){
+    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
+    var checked_value = input_elements.filter(chk => chk.checked).length;
+
+    if(checked_value > 0){
+        var active_array = [];
+        
+        $(".datatable-checkbox-children").each(function () {
+            var active = $(this).data('active');
+
+            if($(this).prop('checked') === true){
+                active_array.push(active);
+            }
+        });
+
+        var activate_checker = arr => arr.every(v => v === 0);
+        var deactivate_checker = arr => arr.every(v => v === 1);
+        
+        if(activate_checker(active_array) || deactivate_checker(active_array)){
+            if(activate_checker(active_array)){
+                $('.multiple-activate').removeClass('d-none');
+                $('.multiple-deactivate').addClass('d-none');
+            }
+
+            if(deactivate_checker(active_array)){
+                $('.multiple-activate').addClass('d-none');
+                $('.multiple-deactivate').removeClass('d-none');
+            }
+        }
+        else{
+            $('.multiple-activate').addClass('d-none');
+            $('.multiple-deactivate').addClass('d-none');
+        }
+    }
+    else{
+        $('.multiple-activate').addClass('d-none');
+        $('.multiple-deactivate').addClass('d-none');
+    }
+}
+
+// Show alert
+function show_alert(title, message, type){
+    Swal.fire(title, message, type);
+}
+
+function show_alert_event(title, message, type, event){
+    Swal.fire(title, message, type).then(function(){ 
+            if(event == 'reload'){
+                location.reload();
+            }
+        }
+    );
+}
+
+function show_alert_confirmation(confirm_title, confirm_text, confirm_icon, confirm_button_text, button_color, confirm_type){
+    Swal.fire({
+        title: confirm_title,
+        text: confirm_text,
+        icon: confirm_icon,
+        showCancelButton: !0,
+        confirmButtonText: confirm_button_text,
+        cancelButtonText: "Cancel",
+        confirmButtonClass: "btn btn-"+ button_color +" mt-2",
+        cancelButtonClass: "btn btn-secondary ms-2 mt-2",
+        buttonsStyling: !1
+    }).then(function(result) {
+        if (result.value) {
+            if(confirm_type == 'expired password'){
+                var username = $('#username').val();
+                
+                generate_modal('change password form', 'Change Password', 'R' , '1', '1', '0', 'form', 'change-password-form', '1', username);
+            }
+        }
+    })
+}
+
+function create_employee_qr_code(container, name, employee_id, email, mobile){
+    document.getElementById(container).innerHTML = '';
+
+    var card = 'BEGIN:VCARD\r\n';
+    card += 'VERSION:3.0\r\n';
+    card += 'FN:'+ name +'\r\n';
+    card += 'EMAIL:' + email +'\r\n';
+    card += 'ID NO:[' + employee_id + ']\r\n';
+
+    if(mobile){
+        card += 'TEL:' + mobile +'\r\n';
+    }
+    
+    card += 'END:VCARD';
+
+    var qrcode = new QRCode(document.getElementById(container), {
+        width: 300,
+        height: 300,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H,
+    });
+
+    qrcode.makeCode(card);
+}
+
+// Hide
+function hide_multiple_buttons(){
+    $('#datatable-checkbox').prop('checked', false);
+
+    $('.multiple').addClass('d-none');
+    $('.multiple-lock').addClass('d-none');
+    $('.multiple-unlock').addClass('d-none');
+    $('.multiple-activate').addClass('d-none');
+    $('.multiple-deactivate').addClass('d-none');
+}
+
+// Form validation rules
+// Rule for password strength
+$.validator.addMethod('password_strength', function(value) {
+    if(value != ''){
+        var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+        return re.test(value);
+    }
+    else{
+        return true;
+    }
+
+}, 'Password must contain at least 1 lowercase, uppercase letter, number, special character and must be 8 characters or longer');
+
+// Rule for legal age
+$.validator.addMethod('employee_age', function(value, element, min) {
+    var today = new Date();
+    var birthDate = new Date(value);
+    var age = today.getFullYear() - birthDate.getFullYear();
+  
+    if (age > min+1) { return true; }
+  
+    var m = today.getMonth() - birthDate.getMonth();
+  
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+  
+    return age >= min;
+}, 'The employee must be at least 18 years old and above');
+
