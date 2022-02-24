@@ -3313,19 +3313,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE tblnotification(
-	NOTIFICATION_ID INT PRIMARY KEY,
-	NOTIFICATION_FROM VARCHAR(100) NOT NULL,
-	NOTIFICATION_TO VARCHAR(100),
-	STATUS INT(1),
-	NOTIFICATION_TITLE VARCHAR(200),
-	NOTIFICATION VARCHAR(1000),
-	LINK VARCHAR(500),
-	NOTIFICATION_DATE DATE,
-	NOTIFICATION_TIME TIME,
-	RECORD_LOG VARCHAR(100)
-);
-
 CREATE PROCEDURE insert_system_notification(IN notification_id INT, IN notification_from VARCHAR(100), IN notification_to VARCHAR(100), IN notification_title VARCHAR(200), IN notification VARCHAR(1000), IN link VARCHAR(500), IN notification_date DATE, IN notification_time TIME, IN record_log VARCHAR(100))
 BEGIN
 	SET @notification_id = notification_id;
