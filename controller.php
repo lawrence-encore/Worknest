@@ -2039,12 +2039,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $ip_address = $api->get_ip_address();
 
+            $notification_title = 'Time In Notification';
+            $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in_date, '', 'h:i a', '', '', '') . '.';
+
             if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 if($get_clock_in_total < $max_attendance){
                     $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, $time_in_note, $late, $username);
 
                     if($insert_time_in > 0){
-                        $send_notification = $api->send_notification(1, $employee_id, 'Time In Notification', 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' ' .  $api->check_date('empty', $time_in_date, '', 'h:i a', '', '', '') . '.');
+                        $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2066,7 +2069,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, $time_in_note, $late, $username);
 
                     if($insert_time_in > 0){
-                        $send_notification = $api->send_notification(1, $employee_id, 'Time In Notification', 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' ' .  $api->check_date('empty', $time_in_date, '', 'h:i a', '', '', '') . '.');
+                        $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2115,12 +2118,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $ip_address = $api->get_ip_address();
 
+            $notification_title = 'Time Out Notification';
+            $notification_message = 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.';
+
             if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 if($get_clock_in_total < $max_attendance){
                     $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, $time_out_note, $early_leaving, $overtime, $total_hours_worked, $username);
 
                     if($update_time_out > 0){
-                        $send_notification = $api->send_notification(2, $employee_id, 'Time Out Notification', 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.');
+                        $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2142,7 +2148,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, $time_out_note, $early_leaving, $overtime, $total_hours_worked, $username);
 
                     if($update_time_out > 0){
-                        $send_notification = $api->send_notification(2, $employee_id, 'Time Out Notification', 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.');
+                        $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -4027,7 +4033,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $username = $_POST['username'];
             $email = $_POST['email'];
 
-            $send_email_notification = $api->send_email_notification('test email', $email, 'Test Email', 'This is a test email.', 0, '');
+            $send_email_notification = $api->send_email_notification('test email', $email, 'Test Email', 'This is a test email.', '', 0, '');
 
             if($send_email_notification == 1){
                 echo 'Sent';

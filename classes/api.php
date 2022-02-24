@@ -280,7 +280,7 @@ class Api{
     # Returns    : String
     #
     # -------------------------------------------------------------
-    public function send_email_notification($notification_type, $email, $subject, $message, $is_html, $character_set){
+    public function send_email_notification($notification_type, $email, $subject, $body, $link, $is_html, $character_set){
         $email_configuration_details = $this->get_email_configuration_details(1);
         $mail_host = $email_configuration_details[0]['MAIL_HOST'];
         $port = $email_configuration_details[0]['PORT'];
@@ -291,6 +291,9 @@ class Api{
         $mail_encryption = $email_configuration_details[0]['MAIL_ENCRYPTION'];
         $mail_from_name = $email_configuration_details[0]['MAIL_FROM_NAME'];
         $mail_from_email = $email_configuration_details[0]['MAIL_FROM_EMAIL'];
+
+        $company_setting_details = $this->get_company_setting_details(1);
+        $company_name = $company_setting_details[0]['COMPANY_NAME'];
 
         $mail = new PHPMailer();
         $mail->isSMTP();
@@ -307,13 +310,32 @@ class Api{
         $mail->addAddress($email, $email);
         $mail->Subject = $subject;
 
+        if($notification_type == 1 || $notification_type == 2){
+            if(!empty($link)){
+                $message = file_get_contents('email_template/basic-notification-with-button.html');
+
+                if($notification_type == 1 || $notification_type == 2){
+                    $message = str_replace('@link', $link, $message);
+                    $message = str_replace('@button_title', 'View Attendance Record', $message);
+                }
+            }
+            else{
+                $message = file_get_contents('email_template/basic-notification.html'); 
+            }
+            
+            $message = str_replace('@company_name', $company_name, $message);
+            $message = str_replace('@year', date('Y'), $message);
+            $message = str_replace('@title', $subject, $message);
+            $message = str_replace('@body', $body, $message);
+        }
+
         if($is_html == 1){
             $mail->isHTML(true);
             $mail->MsgHTML($message);
             $mail->CharSet = $character_set;
         }
         else{
-            $mail->Body = $message;
+            $mail->Body = $body;
         }
 
         if ($mail->send()) {
@@ -333,41 +355,49 @@ class Api{
     # Returns    : String
     #
     # -------------------------------------------------------------
-    public function send_notification($notification_id, $employee_id, $title, $message){
+    public function send_notification($notification_id, $employee_id, $title, $message, $username){
         $system_notification = $this->check_system_notification_exist($notification_id, 'S');
         $email_notification = $this->check_system_notification_exist($notification_id, 'E');
 
         if($system_notification > 0 || $email_notification > 0){
-            $link = '';
+            $error = '';
             $employee_details = $this->get_employee_details($employee_id, '');
             $email = $employee_details[0]['EMAIL'];
 
+            $notification_type_details = $this->get_notification_type_details($notification_id);
+            $system_link = $notification_type_details[0]['SYSTEM_LINK'] ?? null;
+            $web_link = $notification_type_details[0]['WEB_LINK'] ?? null;
+
             if($system_notification > 0){
-                if($notification_id == 1){
-                    $link = 'employee-attendance-record.php';
 
-                    $insert_system_notification = $this->insert_system_notification($notification_id, '', $employee_id, $title, $message, $link);
+                if($notification_id == 1 || $notification_id == 2){
+
+                    $insert_system_notification = $this->insert_system_notification($notification_id, '', $employee_id, $title, $message, $system_link, $username);
                 }
 
-                if($insert_system_notification == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_system_notification;
+                if($insert_system_notification != 1){
+                    $error = $insert_system_notification;
                 }
             }
 
             if($email_notification > 0){
-                if($notification_id == 1){
-                    $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, 0, '');
-                }
+                if(!empty($email)){
+                    if($notification_id == 1 || $notification_id == 2){
 
-                if($send_email_notification == 1){
-                    return 1;
+                        $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
+                    }
+    
+                    if($send_email_notification != 1){
+                        $error = $send_email_notification;
+                    }
                 }
-                else{
-                    return $send_email_notification;
-                }
+            }
+
+            if(empty($error)){
+                return 1;
+            }
+            else{
+                return $error;
             }
         }
         else{
@@ -5968,7 +5998,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_system_notification($notification_id, $notification_from, $notification_to, $title, $message, $link){
+    public function insert_system_notification($notification_id, $notification_from, $notification_to, $title, $message, $link, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
             $system_date = date('Y-m-d');

@@ -2435,6 +2435,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             $update_notification_type = $api->check_role_permissions($username, 31);
             $delete_notification_type = $api->check_role_permissions($username, 32);
             $view_transaction_log = $api->check_role_permissions($username, 33);
+            $notification_details_page = $api->check_role_permissions($username, 168);
 
             $sql = $api->db_connection->prepare('SELECT NOTIFICATION_ID, NOTIFICATION, DESCRIPTION, TRANSACTION_LOG_ID FROM tblnotificationtype ORDER BY NOTIFICATION');
 
@@ -2444,6 +2445,16 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $notification = $row['NOTIFICATION'];
                     $description = $row['DESCRIPTION'];
                     $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                    $notification_id_encrypted = $api->encrypt_data($notification_id);
+
+                    if($notification_details_page > 0){
+                        $notification_details = '<a href="notification-details.php?id='. $notification_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Notification Details">
+                                    <i class="bx bx-list-check font-size-16 align-middle"></i>
+                                </a>';
+                    }
+                    else{
+                        $notification_details = '';
+                    }
 
                     if($update_notification_type > 0){
                         $update = '<button type="button" class="btn btn-info waves-effect waves-light update-notification-type" data-notification-id="'. $notification_id .'" title="Edit Notification Type">
@@ -2477,6 +2488,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'NOTIFICATION' => $notification . '<p class="text-muted mb-0">'. $description .'</p>',
                         'ACTION' => '<div class="d-flex gap-2">
                             '. $update .'
+                            '. $notification_details .'
                             '. $transaction_log .'
                             '. $delete .'
                         </div>'

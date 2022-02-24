@@ -113,6 +113,15 @@ CREATE TABLE tblnotificationtype(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblnotificationdetails(
+	NOTIFICATION_ID INT(50) PRIMARY KEY,
+	NOTIFICATION_TITLE VARCHAR(500),
+	NOTIFICATION_MESSAGE VARCHAR(500),
+	SYSTEM_LINK VARCHAR(200),
+	WEB_LINK VARCHAR(200),
+	RECORD_LOG VARCHAR(100)
+);
+
 CREATE TABLE tblsystemnotification(
 	NOTIFICATION_ID INT(50),
 	NOTIFICATION VARCHAR(5) NOT NULL,
@@ -1166,30 +1175,34 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE update_notification_type(IN notification_id INT, IN notification VARCHAR(100), IN description VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE update_notification_type(IN notification_id INT, IN notification VARCHAR(100), IN description VARCHAR(200), IN system_link VARCHAR(500), IN web_link VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
 BEGIN
 	SET @notification_id = notification_id;
 	SET @notification = notification;
 	SET @description = description;
+	SET @system_link = system_link;
+	SET @web_link = web_link;
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'UPDATE tblnotificationtype SET NOTIFICATION = @notification, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE NOTIFICATION_ID = @notification_id';
+	SET @query = 'UPDATE tblnotificationtype SET NOTIFICATION = @notification, DESCRIPTION = @description, SYSTEM_LINK = @system_link, WEB_LINK = @web_link, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE NOTIFICATION_ID = @notification_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE insert_notification_type(IN notification_id INT, IN notification VARCHAR(100), IN description VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE insert_notification_type(IN notification_id INT, IN notification VARCHAR(100), IN description VARCHAR(200), IN system_link VARCHAR(500), IN web_link VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
 BEGIN
 	SET @notification_id = notification_id;
 	SET @notification = notification;
 	SET @description = description;
+	SET @system_link = system_link;
+	SET @web_link = web_link;
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'INSERT INTO tblnotificationtype (NOTIFICATION_ID, NOTIFICATION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@notification_id, @notification, @description, @transaction_log_id, @record_log)';
+	SET @query = 'INSERT INTO tblnotificationtype (NOTIFICATION_ID, NOTIFICATION, DESCRIPTION, SYSTEM_LINK, WEB_LINK, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@notification_id, @notification, @description, @system_link, @web_link, @transaction_log_id, @record_log)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -1200,7 +1213,7 @@ CREATE PROCEDURE get_notification_type_details(IN notification_id INT)
 BEGIN
 	SET @notification_id = notification_id;
 
-	SET @query = 'SELECT NOTIFICATION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblnotificationtype WHERE NOTIFICATION_ID = @notification_id';
+	SET @query = 'SELECT NOTIFICATION, DESCRIPTION, SYSTEM_LINK, WEB_LINK, TRANSACTION_LOG_ID, RECORD_LOG FROM tblnotificationtype WHERE NOTIFICATION_ID = @notification_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
