@@ -339,14 +339,14 @@ class Api{
 
         if($system_notification > 0 || $email_notification > 0){
             $link = '';
-            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_details = $this->get_employee_details($employee_id, '');
             $email = $employee_details[0]['EMAIL'];
 
             if($system_notification > 0){
                 if($notification_id == 1){
                     $link = 'employee-attendance-record.php';
 
-                    $insert_system_notification = $api->insert_system_notification($notification_id, '', $employee_id, $title, $message, $link);
+                    $insert_system_notification = $this->insert_system_notification($notification_id, '', $employee_id, $title, $message, $link);
                 }
 
                 if($insert_system_notification == 1){
@@ -359,7 +359,7 @@ class Api{
 
             if($email_notification > 0){
                 if($notification_id == 1){
-                    $send_email_notification = $api->send_email_notification($notification_id, $email, $title, $message, 0, '');
+                    $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, 0, '');
                 }
 
                 if($send_email_notification == 1){
