@@ -109,7 +109,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Department</p>
 
-                                                                <select class="form-control select2" id="filter_department">
+                                                                <select class="form-control filter-select2" id="filter_department">
                                                                     <option value="">All Department</option>
                                                                     <?php echo $api->generate_department_options(); ?>
                                                                 </select>
@@ -130,7 +130,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">User Account Status</p>
 
-                                                                <select class="form-control select2" id="filter_user_account_status">
+                                                                <select class="form-control filter-select2" id="filter_user_account_status">
                                                                     <option value="">All User Account Status</option>
                                                                     <option value="0">Inactive</option>
                                                                     <option value="1">Active</option>
@@ -139,7 +139,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">User Account Lock Status</p>
 
-                                                                <select class="form-control select2" id="filter_user_account_lock_status">
+                                                                <select class="form-control filter-select2" id="filter_user_account_lock_status">
                                                                     <option value="">All User Account Lock Status</option>
                                                                     <option value="locked">Locked</option>
                                                                     <option value="Unlocked">Unlocked</option>

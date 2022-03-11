@@ -39,10 +39,16 @@
                 maximum_attendance: {
                     required: true
                 },
+                time_out_allowance: {
+                    required: true
+                },
             },
             messages: {
                 maximum_attendance: {
                     required: 'Please enter the maximum attendance',
+                },
+                time_out_allowance: {
+                    required: 'Please enter the time out allowance',
                 },
             },
             errorPlacement: function(label, element) {

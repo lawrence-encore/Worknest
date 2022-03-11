@@ -437,6 +437,10 @@ CREATE TABLE tblholidaybranch(
 CREATE TABLE tblattendancesetting(
 	SETTING_ID INT PRIMARY KEY,
 	MAX_ATTENDANCE INT NOT NULL,
+	TIME_OUT_ALLOWANCE INT NOT NULL,
+	LATE_ALLOWANCE INT NOT NULL,
+	LATE_POLICY INT NOT NULL,
+	EARLY_LEAVING_POLICY INT NOT NULL,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
@@ -491,6 +495,26 @@ CREATE TABLE tblnotification(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblattendancecreation(
+	REQUEST_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	TIME_IN_DATE DATE,
+	TIME_IN TIME,
+	TIME_OUT_DATE DATE,
+	TIME_OUT TIME,
+	STATUS INT(1),
+	REASON VARCHAR(500),
+	FILE_PATH VARCHAR(500) NOT NULL,
+	REQUEST_DATE DATE,
+	REQUEST_TIME TIME,
+	DECISION_REMARKS VARCHAR(500),
+	DECISION_DATE DATE,
+	DECISION_TIME TIME,
+	DECISION_BY VARCHAR(50),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -528,6 +552,7 @@ CREATE INDEX attendance_setting_index ON tblattendancesetting(SETTING_ID);
 CREATE INDEX health_declaration_index ON tblhealthdeclaration(DECLARATION_ID);
 CREATE INDEX location_index ON tbllocation(LOCATION_ID);
 CREATE INDEX notification_index ON tblnotification(NOTIFICATION_ID);
+CREATE INDEX attendance_creation_index ON tblattendancecreation(REQUEST_ID);
 
 /* Stored Procedure */
 
@@ -3326,6 +3351,112 @@ BEGIN
 	SET @record_log = record_log;
 
 	SET @query = 'INSERT INTO tblnotification (NOTIFICATION_ID, NOTIFICATION_FROM, NOTIFICATION_TO, STATUS, NOTIFICATION_TITLE, NOTIFICATION, LINK, NOTIFICATION_DATE, NOTIFICATION_TIME, RECORD_LOG) VALUES(@notification_id, @notification_from, @notification_to, "0", @notification_title, @notification, @link, @notification_date, @notification_time, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblattendancecreation(
+	REQUEST_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	TIME_IN_DATE DATE,
+	TIME_IN TIME,
+	TIME_OUT_DATE DATE,
+	TIME_OUT TIME,
+	STATUS INT(1),
+	REASON VARCHAR(500),
+	FILE_PATH VARCHAR(500) NOT NULL,
+	REQUEST_DATE DATE,
+	REQUEST_TIME TIME,
+	DECISION_REMARKS VARCHAR(500),
+	DECISION_DATE DATE,
+	DECISION_TIME TIME,
+	DECISION_BY VARCHAR(50),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_attendance_creation_exist(IN request_id VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblattendancecreation WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_attendance_creation(IN request_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME, IN reason VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @reason = reason;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblattendancecreation SET TIME_IN_DATE = @time_in_date, TIME_IN = @time_in, TIME_OUT_DATE = @time_out_date, TIME_OUT = @time_out, REASON = @reason, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_attendance_creation(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME, IN reason VARCHAR(500), IN request_date DATE, IN request_time TIME, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @reason = reason;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblattendancecreation (REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, REQUEST_DATE, REQUEST_TIME, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@request_id, @employee_id, @time_in_date, @time_in, @time_out_date, @time_out, 0, @reason, @request_date, @request_time, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_creation_details(IN request_id VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, REQUEST_DATE, REQUEST_TIME, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, TRANSACTION_LOG_ID, RECORD_LOG FROM tblattendancecreation WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_attendance_creation(IN request_id VARCHAR(100))
+BEGIN
+	SET @file_id = file_id;
+
+	SET @query = 'DELETE FROM tblattendancecreation WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_attendance_creation_file(IN request_id VARCHAR(100), IN file_path VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @file_path = file_path;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblattendancecreation SET FILE_PATH = @file_path, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

@@ -71,7 +71,7 @@ function initialize_attendance_record_table(datatable_name, buttons = false, sho
             buttons: [
                 'csv', 'excel', 'pdf'
             ],
-            'order': [[ 1, 'asc' ]],
+            'order': [[ 2, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,
@@ -98,7 +98,7 @@ function initialize_attendance_record_table(datatable_name, buttons = false, sho
                 'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_time_in_behavior' : filter_time_in_behavior, 'filter_time_out_behavior' :filter_time_out_behavior, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
                 'dataSrc' : ''
             },
-            'order': [[ 1, 'asc' ]],
+            'order': [[ 2, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,

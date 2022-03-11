@@ -1931,18 +1931,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit attendance setting
     else if($transaction == 'submit attendance setting'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['maximum_attendance']) && !empty($_POST['maximum_attendance']) && isset($_POST['attendance_creation_approval']) && isset($_POST['attendance_adjustment_approval'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['maximum_attendance']) && !empty($_POST['maximum_attendance']) && isset($_POST['time_out_allowance']) && !empty($_POST['time_out_allowance'])  && isset($_POST['late_allowance']) && isset($_POST['late_policy']) && isset($_POST['early_leaving_policy']) && isset($_POST['attendance_creation_approval']) && isset($_POST['attendance_adjustment_approval'])){
             $error = '';
             $username = $_POST['username'];
             $setting_id = 1;
             $maximum_attendance = $_POST['maximum_attendance'];
+            $time_out_allowance = $_POST['time_out_allowance'];
+            $late_allowance = $_POST['late_allowance'];
+            $late_policy = $_POST['late_policy'];
+            $early_leaving_policy = $_POST['early_leaving_policy'];
             $attendance_creation_approvals = explode(',', $_POST['attendance_creation_approval']);
             $attendance_adjustment_approvals = explode(',', $_POST['attendance_adjustment_approval']);
 
             $check_attendance_setting_exist = $api->check_attendance_setting_exist($setting_id);
 
             if($check_attendance_setting_exist > 0){
-                $update_attendance_setting = $api->update_attendance_setting($setting_id, $maximum_attendance, $username);
+                $update_attendance_setting = $api->update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $username);
 
                 if($update_attendance_setting == 1){
                     $delete_attendance_creation_approval = $api->delete_attendance_creation_approval();
@@ -1987,7 +1991,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_attendance_setting = $api->insert_attendance_setting($setting_id, $maximum_attendance, $username);
+                $insert_attendance_setting = $api->insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $username);
 
                 if($insert_attendance_setting == 1){
                     foreach($attendance_adjustment_approvals as $attendance_adjustment_approval){
@@ -2040,7 +2044,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $ip_address = $api->get_ip_address();
 
             $notification_title = 'Time In Notification';
-            $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in_date, '', 'h:i a', '', '', '') . '.';
+            $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in, '', 'h:i a', '', '', '') . '.';
 
             if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 if($get_clock_in_total < $max_attendance){
@@ -2216,6 +2220,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $latitude = $_POST['latitude'];
             $longitude = $_POST['longitude'];
 
+            $attendance_setting_details = $api->get_attendance_setting_details(1);
+            $time_out_allowance = $attendance_setting_details[0]['TIME_OUT_ALLOWANCE'] ?? 1;
+
             if(!empty($latitude) && !empty($longitude)){
                 $attendance_position = $latitude . ', ' . $longitude;
             }
@@ -2233,6 +2240,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if(!empty($attendance_id)){
                 $time_out_date = date('Y-m-d');
                 $time_out = date('H:i:00');
+                $notification_title = 'Time Out Notification';
+                $notification_message = 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.';
 
                 $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
                 $time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
@@ -2243,35 +2252,56 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $total_hours_worked = $api->get_attendance_total_hours($employee_id, $time_in_date, $time_in, $time_out_date, $time_out);
                 $time_out_behavior = $api->get_time_out_behavior($employee_id, $time_in_date, $time_out_date, $time_out);
 
-                if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
-                    if($get_clock_in_total < $max_attendance){
-                        $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
+                $time_difference = round(abs(strtotime($time_out_date . ' ' . $time_out) - strtotime($time_in_date . ' ' . $time_in)) / 60, 2);
 
-                        if($update_time_out > 0){
-                            echo 'Recorded';
+                if($time_difference > $time_out_allowance){
+                    if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
+                        if($get_clock_in_total < $max_attendance){
+                            $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
+    
+                            if($update_time_out > 0){
+                                $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+
+                                if($send_notification == 1){
+                                    echo 'Time Out';
+                                }
+                                else{
+                                    echo $send_notification;
+                                }
+                            }
+                            else{
+                                echo $update_time_out;
+                            }
                         }
                         else{
-                            echo $update_time_out;
+                            echo 'Max Attendance';
                         }
                     }
                     else{
-                        echo 'Max Attendance';
+                        if(!empty($attendance_position)){
+                            $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
+    
+                            if($update_time_out > 0){
+                                $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+
+                                if($send_notification == 1){
+                                    echo 'Time Out';
+                                }
+                                else{
+                                    echo $send_notification;
+                                }
+                            }
+                            else{
+                                echo $update_time_out;
+                            }
+                        }
+                        else{
+                            echo 'Location';
+                        }
                     }
                 }
                 else{
-                    if(!empty($attendance_position)){
-                        $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
-
-                        if($update_time_out > 0){
-                            echo 'Recorded';
-                        }
-                        else{
-                            echo $update_time_out;
-                        }
-                    }
-                    else{
-                        echo 'Location';
-                    }
+                    echo 'Time Allowance';
                 }
             }
             else{
@@ -2279,13 +2309,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $time_in = date('H:i:00');
                 $time_in_behavior = $api->get_time_in_behavior($employee_id, $time_in_date, $time_in);
                 $late = $api->get_attendance_late_total($employee_id, $time_in_date, $time_in);
+                $notification_title = 'Time In Notification';
+                $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in, '', 'h:i a', '', '', '') . '.';
     
                 if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                     if($get_clock_in_total < $max_attendance){
                         $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, 'Scanned', $late, $username);
     
                         if($insert_time_in > 0){
-                            echo 'Recorded';
+                            $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+
+                            if($send_notification == 1){
+                                echo 'Time In';
+                            }
+                            else{
+                                echo $send_notification;
+                            }
                         }
                         else{
                             echo $insert_time_in;
@@ -2300,7 +2339,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, 'Scanned', $late, $username);
     
                         if($insert_time_in > 0){
-                            echo 'Recorded';
+                            $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+
+                            if($send_notification == 1){
+                                echo 'Time In';
+                            }
+                            else{
+                                echo $send_notification;
+                            }
                         }
                         else{
                             echo $insert_time_in;
@@ -2337,6 +2383,117 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo 'Location';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit attendance creation
+    else if($transaction == 'submit attendance creation'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && isset($_POST['time_in_date']) && !empty($_POST['time_in_date']) && isset($_POST['time_in']) && !empty($_POST['time_in']) && isset($_POST['time_out_date']) && isset($_POST['time_out']) && isset($_POST['reason']) && !empty($_POST['reason'])){
+            $file_type = '';
+            $username = $_POST['username'];
+            $request_id = $_POST['request_id'];
+            $time_in_date = $api->check_date('empty', $_POST['time_in_date'], '', 'Y-m-d', '', '', '');
+            $time_in = $api->check_date('empty', $_POST['time_in'], '', 'H:i:s', '', '', '');
+            $time_out_date = $api->check_date('empty', $_POST['time_out_date'], '', 'Y-m-d', '', '', '');
+            $time_out = $api->check_date('empty', $_POST['time_out'], '', 'H:i:s', '', '', '');
+            $reason = $_POST['reason'];
+
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+            $attendance_creation_file_name = $_FILES['file']['name'];
+            $attendance_creation_file_size = $_FILES['file']['size'];
+            $attendance_creation_file_error = $_FILES['file']['error'];
+            $attendance_creation_file_tmp_name = $_FILES['file']['tmp_name'];
+            $attendance_creation_file_ext = explode('.', $attendance_creation_file_name);
+            $attendance_creation_file_actual_ext = strtolower(end($attendance_creation_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(9);
+            $upload_file_type_details = $api->get_upload_file_type_details(9);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
+ 
+            if($check_attendance_creation_exist > 0){
+                if(!empty($attendance_creation_file_tmp_name)){
+                    if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
+                        if(!$attendance_creation_file_error){
+                            if($attendance_creation_file_size < $file_max_size){
+                                $update_attendance_creation_file = $api->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $request_id, $username);
+        
+                                if($update_attendance_creation_file == 1){
+                                    $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
+
+                                    if($update_attendance_creation == 1){
+                                        echo 'Updated';
+                                    }
+                                    else{
+                                        echo $update_attendance_creation;
+                                    }
+                                }
+                                else{
+                                    echo $update_attendance_creation_file;
+                                }
+                            }
+                            else{
+                                echo 'File Size';
+                            }
+                        }
+                        else{
+                            echo 'There was an error uploading the file.';
+                        }
+                    }
+                    else{
+                        echo 'File Type';
+                    }
+                }
+                else{
+                    $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
+
+                    if($update_attendance_creation == 1){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_attendance_creation;
+                    }
+                }
+            }
+            else{
+                if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
+                    if(!$attendance_creation_file_error){
+                        if($attendance_creation_file_size < $file_max_size){
+                            $insert_attendance_creation = $api->insert_attendance_creation($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
+
+                            if($insert_attendance_creation == 1){
+                                echo 'Inserted';
+                            }
+                            else{
+                                echo $insert_attendance_creation;
+                            }
+                        }
+                        else{
+                            echo 'File Size';
+                        }
+                    }
+                    else{
+                        echo 'There was an error uploading the file.';
+                    }
+                }
+                else{
+                    echo 'File Type';
+                }
             }
         }
     }
@@ -3582,6 +3739,31 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete attendance creation
+    else if($transaction == 'delete attendance creation'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id'])){
+            $username = $_POST['username'];
+            $request_id = $_POST['request_id'];
+
+            $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
+
+            if($check_attendance_creation_exist > 0){
+                $delete_attendance_creation = $api->delete_attendance_creation($request_id, $username);
+                                    
+                if($delete_attendance_creation == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_attendance_creation;
+                }
+            }
+            else{
+                echo 'Not Found';
             }
         }
     }
@@ -4856,6 +5038,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
         $response[] = array(
             'MAX_ATTENDANCE' => $attendance_setting_details[0]['MAX_ATTENDANCE'] ?? 1,
+            'TIME_OUT_ALLOWANCE' => $attendance_setting_details[0]['TIME_OUT_ALLOWANCE'] ?? 1,
+            'LATE_ALLOWANCE' => $attendance_setting_details[0]['LATE_ALLOWANCE'] ?? 1,
+            'LATE_POLICY' => $attendance_setting_details[0]['LATE_POLICY'] ?? 0,
+            'EARLY_LEAVING_POLICY' => $attendance_setting_details[0]['EARLY_LEAVING_POLICY'] ?? 0,
             'CREATION' => $creation,
             'ADJUSTMENT' => $adjustment
         );
@@ -4887,7 +5073,6 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $get_employee_file_details = $api->get_employee_file_details($attendance_id);
 
             $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
-
             $employee_id = $get_employee_attendance_details[0]['EMPLOYEE_ID'];
 
             $time_in_date = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'] ?? null, '', 'F d, Y', '', '', '');

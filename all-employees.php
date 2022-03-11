@@ -95,7 +95,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Branch</p>
 
-                                                                <select class="form-control select2" id="filter_branch">
+                                                                <select class="form-control filter-select2" id="filter_branch">
                                                                     <option value="">All Branch</option>
                                                                     <?php echo $api->generate_branch_options(); ?>
                                                                 </select>
@@ -103,7 +103,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Department</p>
 
-                                                                <select class="form-control select2" id="filter_department">
+                                                                <select class="form-control filter-select2" id="filter_department">
                                                                     <option value="">All Department</option>
                                                                     <?php echo $api->generate_department_options(); ?>
                                                                 </select>
@@ -111,7 +111,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Designation</p>
 
-                                                                <select class="form-control select2" id="filter_designation">
+                                                                <select class="form-control filter-select2" id="filter_designation">
                                                                     <option value="">All Designation</option>
                                                                     <?php echo $api->generate_designation_options(); ?>
                                                                 </select>
@@ -119,7 +119,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Employment Status</p>
 
-                                                                <select class="form-control select2" id="filter_employment_status" name="filter_employment_status">
+                                                                <select class="form-control filter-select2" id="filter_employment_status" name="filter_employment_status">
                                                                     <option value="">All Employment Status</option>
                                                                     <?php echo $api->generate_employment_status_options(); ?>
                                                                 </select>

@@ -37,8 +37,8 @@ function initialize_global_functions(){
     }
 
     if ($('.filter-select2').length) {
-        $(".filter-select2").select2({
-            dropdownParent: $("#filter-off-canvas")
+        $('.filter-select2').select2({
+            dropdownParent: $('#filter-off-canvas')
         });
     }
 }
@@ -5048,6 +5048,147 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'attendance creation form'){
+        $('#attendance-creation-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit attendance creation';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Attendance Creation', 'The attendance creation has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Attendance Creation', 'The attendance creation has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+
+                            /*if($('#attendance-creation-datatable').length){
+                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
+                            }*/
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Attendance Creation File Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Attendance Creation File Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Attendance Creation File Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                },
+                file: {
+                    required:  function(element){
+                        var update = $('#update').val();
+
+                        if(update == '0'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                time_out_date: {
+                    required:  function(element){
+                        var time_out = $('#time_out').val();
+
+                        if(time_out != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                time_out: {
+                    required:  function(element){
+                        var time_out_date = $('#time_out_date').val();
+
+                        if(time_out_date != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                },
+                time_out_date: {
+                    required: 'Please choose the time out date',
+                },
+                time_out: {
+                    required: 'Please choose the time out',
+                },
+                file: {
+                    required: 'Please choose the file',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 // Get location function
@@ -5222,49 +5363,82 @@ function generate_element(element_type, value, container, modal, username){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
-                    var html5QrcodeScanner = new Html5QrcodeScanner(
-                        "qr-code-reader", { fps: 10, qrbox: 250 });
-                        html5QrcodeScanner.render(on_attendance_qr_code_scan);
+                    $('#qr-code-reader').html('<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span rclass="sr-only"></span></div></div>');
+
+                    Html5Qrcode.getCameras().then(devices => {
+                        if (devices && devices.length) {
+                            var camera_id = devices[0].id;
             
-                    function on_attendance_qr_code_scan(decodedText, decodedResult) {
+                            const html5QrCode = new Html5Qrcode("qr-code-reader");
+                            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                                var audio = new Audio('assets/audio/scan.mp3');
+                                audio.play();
+                                navigator.vibrate([500]);
             
-                        $('#System-Modal').modal('hide');
-                        html5QrcodeScanner.clear();
+                                var employee_id = decodedText.substring(
+                                    decodedText.lastIndexOf("[") + 1, 
+                                    decodedText.lastIndexOf("]")
+                                );
+            
+                                var latitude = sessionStorage.getItem('latitude');
+                                var longitude = sessionStorage.getItem('longitude');
+                                var transaction = 'submit attendance record';
+                                var username = $('#username').text();
                                     
-                        var audio = new Audio('assets/audio/scan.mp3');
-                        audio.play();
-                        navigator.vibrate([500]);
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'controller.php',
+                                    data: {username : username, latitude : latitude, employee_id : employee_id, longitude : longitude, transaction : transaction},
+                                    success: function (response) {
+                                        if(response === 'Time In'){
+                                            var audio = new Audio('assets/audio/attendance-clock-in-success.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                        else if(response === 'Time Out'){
+                                            var audio = new Audio('assets/audio/attendance-clock-out-success.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                        else if(response === 'Max Attendance'){
+                                            var audio = new Audio('assets/audio/max-attendance-error.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                        else if(response === 'Location'){
+                                            var audio = new Audio('assets/audio/location-error.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                        else if(response === 'Time Allowance'){
+                                            var audio = new Audio('assets/audio/clock-out-time-error.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                        else{
+                                            var audio = new Audio('assets/audio/attendance-error.mp3');
+                                            audio.play();
+                                            navigator.vibrate([500]);
+                                        }
+                                    }
+                                });
             
-                        var employee_id = decodedText.substring(
-                            decodedText.lastIndexOf("[") + 1, 
-                            decodedText.lastIndexOf("]")
-                        );
+                                html5QrCode.stop().then((ignore) => {
+                                    $('#qr-code-reader').html('');
+                                    $('#qr-code-reader').html('<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span rclass="sr-only"></span></div></div>');
+                                    
+                                    setTimeout(function(){  html5QrCode.start({ deviceId: { exact: camera_id} }, config, qrCodeSuccessCallback); }, 4000);
+                                }).catch((err) => {
+                                    alert(err);
+                                });
+                            };
             
-                        var latitude = sessionStorage.getItem('latitude');
-                        var longitude = sessionStorage.getItem('longitude');
-                        var transaction = 'submit attendance record';
-                        var username = $('#username').text();
-                            
-                        $.ajax({
-                            type: 'POST',
-                            url: 'controller.php',
-                            data: {username : username, employee_id : employee_id, latitude : latitude, longitude : longitude, transaction : transaction},
-                            success: function (response) {
-                                if(response === 'Recorded'){
-                                    show_alert_event('Attendance Record Success', 'Your attendance has been recorded.', 'success', 'reload');
-                                }
-                                else if(response === 'Max Time-In'){
-                                    show_alert_event('Attendance Record Error', 'Your have reached the maximum clock-in for the day.', 'error', 'reload');
-                                }
-                                else if(response === 'Location'){
-                                    show_alert_event('Attendance Record Error', 'Your location cannot be determined.', 'error', 'reload');
-                                }
-                                else{
-                                    show_alert('Attendance Record Error', response, 'error');
-                                }
-                            }
-                        });
-                    }
+                            html5QrCode.start({ deviceId: { exact: camera_id} }, config, qrCodeSuccessCallback);
+                        }
+                    }).catch(err => {
+                        alert(err);
+                    });
                 }
             }
         }
@@ -6244,6 +6418,10 @@ function display_form_details(form_type){
             data: {transaction : transaction},
             success: function(response) {
                 $('#maximum_attendance').val(response[0].MAX_ATTENDANCE);
+                $('#time_out_allowance').val(response[0].TIME_OUT_ALLOWANCE);
+                $('#late_allowance').val(response[0].LATE_ALLOWANCE);
+                $('#late_policy').val(response[0].LATE_POLICY);
+                $('#early_leaving_policy').val(response[0].EARLY_LEAVING_POLICY);
                
                 check_empty(response[0].CREATION.split(','), '#attendance_creation_approval', 'select');
                 check_empty(response[0].ADJUSTMENT.split(','), '#attendance_adjustment_approval', 'select');

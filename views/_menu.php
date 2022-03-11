@@ -27,6 +27,7 @@
     $holiday_page = $api->check_role_permissions($username, 151);
     $attendance_setting_page = $api->check_role_permissions($username, 156);
     $attendance_record_page = $api->check_role_permissions($username, 160);
+    $employee_attendance_record_page = $api->check_role_permissions($username, 171);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -36,6 +37,26 @@
                             <span key="t-dashboard">Dashboard</span>
                         </a>
                     </li>';
+    }
+
+    if($employee_attendance_record_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Employee</li>';
+
+        if($employee_attendance_record_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-calendar"></i>
+                            <span key="t-employee">Manage Attendance</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($employee_attendance_record_page > 0){
+                            $menu .= '<li><a href="employee-attendance-record.php" key="t-all-employees">Attendance Record</a></li>';
+                        }
+
+            $menu .= '</ul>
+                    </li>';
+        }
     }
 
     if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0){
@@ -54,7 +75,7 @@
                         }
 
                         if($attendance_record_page > 0){
-                            $menu .= '<li><a href="attendance-record.php" key="t-all-employees">Attendance Record</a></li>';
+                            $menu .= '<li><a href="attendance-record.php" key="t-attendance-record">Attendance Record</a></li>';
                         }
 
                         if($department_page > 0){

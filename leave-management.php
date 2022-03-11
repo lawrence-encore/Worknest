@@ -96,19 +96,19 @@
                                                                 <p class="text-muted">Leave Date</p>
 
                                                                 <div class="input-group mb-3" id="filter-start-date-container">
-                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date">
+                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('m/01/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
 
                                                                 <div class="input-group" id="filter-end-date-container">
-                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date">
+                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('m/t/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Department</p>
 
-                                                                <select class="form-control select2" id="filter_department">
+                                                                <select class="form-control filter-select2" id="filter_department">
                                                                     <option value="">All Department</option>
                                                                     <?php echo $api->generate_department_options(); ?>
                                                                 </select>
@@ -116,7 +116,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Leave Type</p>
 
-                                                                <select class="form-control select2" id="filter_leave_type">
+                                                                <select class="form-control filter-select2" id="filter_leave_type">
                                                                     <option value="">All Leave Type</option>
                                                                     <?php echo $api->generate_leave_type_options(); ?>
                                                                 </select>
@@ -124,7 +124,7 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Leave Status</p>
 
-                                                                <select class="form-control select2" id="filter_leave_status">
+                                                                <select class="form-control filter-select2" id="filter_leave_status">
                                                                     <option value="1">Approved</option>
                                                                     <option value="4">Approved (System Generated)</option>
                                                                     <option value="3">Cancelled</option>

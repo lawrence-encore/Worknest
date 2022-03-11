@@ -1709,6 +1709,60 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'attendance creation form'){
+                $form .= '<div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-in-date-container">
+                                        <input type="hidden" id="request_id" name="request_id">
+                                        <input type="hidden" id="update" value="0">
+                                        <input type="text" class="form-control" id="time_in_date" name="time_in_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-in-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In <span class="required">*</span></label>
+                                    <input type="time" id="time_in" name="time_in" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out Date</label>
+                                    <div class="input-group" id="time-out-date-container">
+                                        <input type="text" class="form-control" id="time_out_date" name="time_out_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-out-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out</label>
+                                    <input type="time" id="time_out" name="time_out" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="file" class="form-label">File <span class="required">*</span></label><br/>
+                                        <input class="form-control" type="file" name="file" id="file">
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
 
             $form .= '</form>';
 
@@ -4571,6 +4625,130 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Employee attendance record table
+    else if($type == 'employee attendance record table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_time_in_behavior']) && isset($_POST['filter_time_out_behavior'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+                # Get permission
+                $add_attendance_adjustment = $api->check_role_permissions($username, 173);
+                $view_transaction_log = $api->check_role_permissions($username, 174);
+
+                $filter_time_in_behavior = $_POST['filter_time_in_behavior'];
+                $filter_time_out_behavior = $_POST['filter_time_out_behavior'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = :employee_id AND ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || $filter_time_in_behavior != '' || $filter_time_out_behavior != ''){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'TIME_IN_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if($filter_time_in_behavior != ''){
+                        $filter[] = 'TIME_IN_BEHAVIOR = :filter_time_in_behavior';
+                    }
+
+                    if($filter_time_out_behavior != ''){
+                        $filter[] = 'TIME_OUT_BEHAVIOR = :filter_time_out_behavior';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || $filter_time_in_behavior != '' || $filter_time_out_behavior != ''){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if($filter_time_in_behavior != ''){
+                        $sql->bindValue(':filter_time_in_behavior', $filter_time_in_behavior);
+                    }
+
+                    if($filter_time_out_behavior != ''){
+                        $sql->bindValue(':filter_time_out_behavior', $filter_time_out_behavior);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $attendance_id = $row['ATTENDANCE_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_in_behavior = $api->get_time_in_behavior_status($row['TIME_IN_BEHAVIOR'])[0]['BADGE'];
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $time_out_behavior = $api->get_time_out_behavior_status($row['TIME_OUT_BEHAVIOR'])[0]['BADGE'];
+                        $late = number_format($row['LATE']);
+                        $early_leaving = number_format($row['EARLY_LEAVING']);
+                        $overtime = number_format($row['OVERTIME']);
+                        $total_working_hours = number_format($row['TOTAL_WORKING_HOURS'], 2);
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        if($add_attendance_adjustment > 0){
+                            if(!empty($time_out_date) && !empty($time_out)){
+                                $attendance_adjustment = '<button type="button" class="btn btn-success waves-effect waves-light add-attendance-adjustment-full" data-attendance-id="'. $attendance_id .'" title="Add Attendance Adjustment">
+                                    <i class="bx bx-time-five font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $attendance_adjustment = '<button type="button" class="btn btn-success waves-effect waves-light add-attendance-adjustment-partial" data-attendance-id="'. $attendance_id .'" title="Add Attendance Adjustment">
+                                    <i class="bx bx-time-five font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                        }
+                        else{
+                            $attendance_adjustment = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_IN_BEHAVIOR' => $time_in_behavior,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'TIME_OUT_BEHAVIOR' => $time_out_behavior,
+                            'LATE' => $late,
+                            'EARLY_LEAVING' => $early_leaving,
+                            'OVERTIME' => $overtime,
+                            'TOTAL_WORKING_HOURS' => $total_working_hours,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-employee-attendance" data-attendance-id="'. $attendance_id .'" title="View Employee Attendance">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $attendance_adjustment .'
+                                '. $transaction_log .'
                             </div>'
                         );
                     }

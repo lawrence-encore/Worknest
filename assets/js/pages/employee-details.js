@@ -357,7 +357,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
             buttons: [
                 'csv', 'excel', 'pdf'
             ],
-            'order': [[ 0, 'asc' ]],
+            'order': [[ 0, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,
@@ -384,7 +384,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
                 'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
                 'dataSrc' : ''
             },
-            'order': [[ 0, 'asc' ]],
+            'order': [[ 0, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,

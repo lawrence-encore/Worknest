@@ -95,13 +95,37 @@
                                             <div class="col-md-12">
                                                 <form class="cmxform" id="attendance-setting-form" method="post" action="#">
                                                     <div class="row mb-3">
-                                                        <label for="maximum_attendance" class="col-md-4 col-form-label">Maximum Attendance <span class="required">*</span></label>
+                                                        <label for="maximum_attendance" class="col-md-4 col-form-label">Maximum Attendance  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the number of attendance record per day."></i> <span class="required">*</span></label>
                                                         <div class="col-md-8">
                                                             <input id="maximum_attendance" name="maximum_attendance" class="form-control" type="number" min="1" value="1" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="maximum_attendance" class="col-md-4 col-form-label">Attendance Creation Approval Exception</label>
+                                                        <label for="time_out_allowance" class="col-md-4 col-form-label">Time Out Grace Period (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the grace period before the employee can time out after time in."></i> <span class="required">*</span></label>
+                                                        <div class="col-md-8">
+                                                            <input id="time_out_allowance" name="time_out_allowance" class="form-control" type="number" min="1" value="1" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="late_allowance" class="col-md-4 col-form-label">Late Grace Period (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the grace period before the employee can be considered as late."></i> <span class="required">*</span></label>
+                                                        <div class="col-md-8">
+                                                            <input id="late_allowance" name="late_allowance" class="form-control" type="number" min="1" value="1" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="late_policy" class="col-md-4 col-form-label">Late Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i> <span class="required">*</span></label>
+                                                        <div class="col-md-8">
+                                                            <input id="late_policy" name="late_policy" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="early_leaving_policy" class="col-md-4 col-form-label">Early Leaving Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i> <span class="required">*</span></label>
+                                                        <div class="col-md-8">
+                                                            <input id="early_leaving_policy" name="early_leaving_policy" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="attendance_creation_approval" class="col-md-4 col-form-label">Attendance Creation Approval Exception</label>
                                                         <div class="col-md-8">
                                                             <select class="form-control select2" id="attendance_creation_approval" multiple="multiple" name="attendance_creation_approval">
                                                                 <?php echo $api->generate_active_employee_options(); ?>
@@ -109,7 +133,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="maximum_attendance" class="col-md-4 col-form-label">Attendance Adjustment Approval Exception</label>
+                                                        <label for="attendance_adjustment_approval" class="col-md-4 col-form-label">Attendance Adjustment Approval Exception</label>
                                                         <div class="col-md-8">
                                                             <select class="form-control select2" id="attendance_adjustment_approval" multiple="multiple" name="attendance_adjustment_approval">
                                                                 <?php echo $api->generate_active_employee_options(); ?>
