@@ -2506,6 +2506,89 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit attendance adjustment
+    else if($transaction == 'submit attendance adjustment'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['attendance_id']) && isset($_POST['time_in_date']) && !empty($_POST['time_in_date']) && isset($_POST['time_in']) && !empty($_POST['time_in']) && isset($_POST['reason']) && !empty($_POST['reason'])){
+            $file_type = '';
+            $username = $_POST['username'];
+            $attendance_id = $_POST['attendance_id'];
+            $time_in_date = $api->check_date('empty', $_POST['time_in_date'], '', 'Y-m-d', '', '', '');
+            $time_in = $api->check_date('empty', $_POST['time_in'], '', 'H:i:s', '', '', '');
+            $reason = $_POST['reason'];
+
+            if(isset($_POST['time_out_date']) && isset($_POST['time_out'])){
+                $time_out_date = $api->check_date('empty', $_POST['time_out_date'], '', 'Y-m-d', '', '', '');
+                $time_out = $api->check_date('empty', $_POST['time_out'], '', 'H:i:s', '', '', '');
+            }
+            else{
+                $time_out_date = null;
+                $time_out = null;
+            }
+
+            $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
+            $time_in_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'], '', 'Y-m-d', '', '', '');
+            $time_in_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN'], '', 'H:i:s', '', '', '');
+            $time_out_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT_DATE'], '', 'Y-m-d', '', '', '');
+            $time_out_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT'], '', 'H:i:s', '', '', '');
+
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+            $attendance_adjustment_file_name = $_FILES['file']['name'];
+            $attendance_adjustment_file_size = $_FILES['file']['size'];
+            $attendance_adjustment_file_error = $_FILES['file']['error'];
+            $attendance_adjustment_file_tmp_name = $_FILES['file']['tmp_name'];
+            $attendance_adjustment_file_ext = explode('.', $attendance_adjustment_file_name);
+            $attendance_adjustment_file_actual_ext = strtolower(end($attendance_adjustment_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(10);
+            $upload_file_type_details = $api->get_upload_file_type_details(10);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            $check_attendance_validation = $api->check_attendance_validation($time_in_date, $time_in, $time_out_date, $time_out);
+
+            if(empty($check_attendance_validation)){
+                if(in_array($attendance_adjustment_file_actual_ext, $allowed_ext)){
+                    if(!$attendance_adjustment_file_error){
+                        if($attendance_adjustment_file_size < $file_max_size){
+                            $insert_attendance_adjustment = $api->insert_attendance_adjustment($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $employee_id, $time_in_date_default, $time_in_default, $time_in_date, $time_in, $time_out_date_default, $time_out_default, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
+
+                            if($insert_attendance_adjustment == 1){
+                                echo 'Inserted';
+                            }
+                            else{
+                                echo $insert_attendance_adjustment;
+                            }
+                        }
+                        else{
+                            echo 'File Size';
+                        }
+                    }
+                    else{
+                        echo 'There was an error uploading the file.';
+                    }
+                }
+                else{
+                    echo 'File Type';
+                }
+            }
+            else{
+                echo $check_attendance_validation;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------

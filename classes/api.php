@@ -3929,6 +3929,163 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_attendance_adjustment
+    # Purpose    : Updates attendance adjustment.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_attendance_adjustment($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $attendance_adjustment_details = $this->get_attendance_adjustment_details($request_id);
+
+            if(!empty($attendance_adjustment_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $attendance_adjustment_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_attendance_adjustment(:request_id, :time_in_date, :time_in, :time_out_date, :time_out, :reason, :transaction_log_id, :record_log)');
+            $sql->bindValue(':request_id', $request_id);
+            $sql->bindValue(':time_in_date', $time_in_date);
+            $sql->bindValue(':time_in', $time_in);
+            $sql->bindValue(':time_out_date', $time_out_date);
+            $sql->bindValue(':time_out', $time_out);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($attendance_adjustment_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $request_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $file_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_attendance_adjustment_file
+    # Purpose    : Updates attendance adjustment file.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_attendance_adjustment_file($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $request_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            if(!empty($attendance_adjustment_file_tmp_name)){ 
+                $file_name = $this->generate_file_name(10);
+                $file_new = $file_name . '.' . $attendance_adjustment_file_actual_ext;
+                $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/attendance_adjustment/' . $file_new;
+                $file_path ='./attendance_adjustment/' . $file_new;
+                
+                $attendance_adjustment_details = $this->get_attendance_adjustment_details($request_id);
+                $attendance_adjustment_file_path = $attendance_adjustment_details[0]['FILE_PATH'];
+                $transaction_log_id = $attendance_adjustment_details[0]['TRANSACTION_LOG_ID'];
+
+                if(file_exists($attendance_adjustment_file_path)){
+                    if (unlink($attendance_adjustment_file_path)) {
+                        if(move_uploaded_file($attendance_adjustment_file_tmp_name, $file_destination)){
+                            $sql = $this->db_connection->prepare('CALL update_attendance_adjustment_file(:request_id, :file_path, :transaction_log_id, :record_log)');
+                            $sql->bindValue(':request_id', $request_id);
+                            $sql->bindValue(':file_path', $file_path);
+                            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                            $sql->bindValue(':record_log', $record_log);
+                        
+                            if($sql->execute()){
+                                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
+                                    
+                                if($insert_transaction_log == 1){
+                                    return 1;
+                                }
+                                else{
+                                    return $insert_transaction_log;
+                                }
+                            }
+                            else{
+                                return $sql->errorInfo()[2];
+                            }
+                        }
+                        else{
+                            return 'There was an error uploading your file.';
+                        }
+                    }
+                    else {
+                        return $attendance_creation_file_path . ' cannot be deleted due to an error.';
+                    }
+                }
+                else{
+                    if(move_uploaded_file($attendance_adjustment_file_tmp_name, $file_destination)){
+                        $sql = $this->db_connection->prepare('CALL update_attendance_adjustment_file(:request_id, :file_path, :transaction_log_id, :record_log)');
+                        $sql->bindValue(':request_id', $request_id);
+                        $sql->bindValue(':file_path', $file_path);
+                        $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                        $sql->bindValue(':record_log', $record_log);
+                    
+                        if($sql->execute()){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
+                                
+                            if($insert_transaction_log == 1){
+                                return 1;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $sql->errorInfo()[2];
+                        }
+                    }
+                    else{
+                        return 'There was an error uploading your file.';
+                    }
+                }
+            }
+            else{
+                return 1;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -6288,6 +6445,85 @@ class Api{
                             }
                             else{
                                 return $update_attendance_creation_file;
+                            }
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_attendance_adjustment
+    # Purpose    : Insert attendance adjustment.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_attendance_adjustment($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $employee_id, $time_in_date_default, $time_in_default, $time_in_date, $time_in, $time_out_date_default, $time_out_default, $time_out_date, $time_out, $reason, $system_date, $current_time, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(27, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_attendance_adjustment(:id, :employee_id, :time_in_date_default, :time_in_default, :time_in_date, :time_in, :time_out_date_default, :time_out_default, :time_out_date, :time_out, :reason, :system_date, :current_time, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':time_in_date_default', $time_in_date_default);
+            $sql->bindValue(':time_in_default', $time_in_default);
+            $sql->bindValue(':time_in_date', $time_in_date);
+            $sql->bindValue(':time_in', $time_in);
+            $sql->bindValue(':time_out_date_default', $time_out_date_default);
+            $sql->bindValue(':time_out_default', $time_out_default);
+            $sql->bindValue(':time_out_date', $time_out_date);
+            $sql->bindValue(':time_out', $time_out);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':current_time', $current_time);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 27, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance adjustment (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            $update_attendance_adjustment_file = $this->update_attendance_adjustment_file($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $id, $username);
+        
+                            if($update_attendance_adjustment_file == 1){
+                                return 1;
+                            }
+                            else{
+                                return $update_attendance_adjustment_file;
                             }
                         }
                         else{
@@ -8880,6 +9116,56 @@ class Api{
                         'TIME_IN' => $row['TIME_IN'],
                         'TIME_OUT_DATE' => $row['TIME_OUT_DATE'],
                         'TIME_OUT' => $row['TIME_OUT'],
+                        'STATUS' => $row['STATUS'],
+                        'REASON' => $row['REASON'],
+                        'FILE_PATH' => $row['FILE_PATH'],
+                        'REQUEST_DATE' => $row['REQUEST_DATE'],
+                        'REQUEST_TIME' => $row['REQUEST_TIME'],
+                        'DECISION_REMARKS' => $row['DECISION_REMARKS'],
+                        'DECISION_DATE' => $row['DECISION_DATE'],
+                        'DECISION_TIME' => $row['DECISION_TIME'],
+                        'DECISION_BY' => $row['DECISION_BY'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_adjustment_details
+    # Purpose    : Gets the attendance creation details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_adjustment_details($request_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_attendance_adjustment_details(:request_id)');
+            $sql->bindValue(':request_id', $request_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'TIME_IN_DATE' => $row['TIME_IN_DATE'],
+                        'TIME_IN' => $row['TIME_IN'],
+                        'TIME_IN_DATE_ADJUSTED' => $row['TIME_IN_DATE_ADJUSTED'],
+                        'TIME_IN_ADJUSTED' => $row['TIME_IN_ADJUSTED'],
+                        'TIME_OUT_DATE' => $row['TIME_OUT_DATE'],
+                        'TIME_OUT' => $row['TIME_OUT'],
+                        'TIME_OUT_DATE_ADJUSTED' => $row['TIME_OUT_DATE_ADJUSTED'],
+                        'TIME_OUT_ADJUSTED' => $row['TIME_OUT_ADJUSTED'],
                         'STATUS' => $row['STATUS'],
                         'REASON' => $row['REASON'],
                         'FILE_PATH' => $row['FILE_PATH'],

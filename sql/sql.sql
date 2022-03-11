@@ -3488,6 +3488,96 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE check_attendance_adjustment_exist(IN request_id VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblattendanceadjustment WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_attendance_adjustment(IN request_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME, IN reason VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @reason = reason;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblattendanceadjustment SET TIME_IN_DATE_ADJUSTED = @time_in_date, TIME_IN_ADJUSTED = @time_in, TIME_OUT_DATE_ADJUSTED = @time_out_date, TIME_OUT_ADJUSTED = @time_out, REASON = @reason, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_attendance_adjustment(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_in_date_adjusted DATE, IN time_in_adjusted TIME, IN time_out_date DATE, IN time_out TIME, IN time_out_date_adjusted DATE, IN time_out_adjusted TIME, IN reason VARCHAR(500), IN request_date DATE, IN request_time TIME, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_in_date_adjusted = time_in_date_adjusted;
+	SET @time_in_adjusted = time_in_adjusted;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @time_out_date_adjusted = time_out_date_adjusted;
+	SET @time_out_adjusted = time_out_adjusted;
+	SET @reason = reason;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblattendanceadjustment (REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, REQUEST_DATE, REQUEST_TIME, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@request_id, @employee_id, @time_in_date, @time_in, @time_in_date_adjusted, @time_in_adjusted, @time_out_date, @time_out, @time_out_date_adjusted, @time_out_adjusted, 0, @reason, @request_date, @request_time, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_adjustment_details(IN request_id VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, REQUEST_DATE, REQUEST_TIME, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, TRANSACTION_LOG_ID, RECORD_LOG FROM tblattendanceadjustment WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_attendance_adjustment(IN request_id VARCHAR(100))
+BEGIN
+	SET @file_id = file_id;
+
+	SET @query = 'DELETE FROM tblattendanceadjustment WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_attendance_adjustment_file(IN request_id VARCHAR(100), IN file_path VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @file_path = file_path;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblattendanceadjustment SET FILE_PATH = @file_path, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 /* Insert */
 
 INSERT INTO tbluseraccount (USERNAME, PASSWORD, USER_ROLE, ACTIVE, PASSWORD_EXPIRY_DATE, FAILED_LOGIN, TRANSACTION_LOG_ID) VALUES ('ADMIN', '68aff5412f35ed76', 'RL-1', 1, '2021-12-30', 0);
