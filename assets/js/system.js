@@ -3332,6 +3332,12 @@ function initialize_form_validation(form_type){
                         else if(response === 'Max Attendance'){
                             show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
                         }
+                        else if(response === 'Time In'){
+                            show_alert('Employee Attendance Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Employee Attendance Error', 'The time out cannot be less than the time in.', 'error');
+                        }
                         else{
                             show_alert('Employee Attendance Error', response, 'error');
                         }
@@ -4795,6 +4801,12 @@ function initialize_form_validation(form_type){
                         else if(response === 'Max Attendance'){
                             show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
                         }
+                        else if(response === 'Time In'){
+                            show_alert('Employee Attendance Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Employee Attendance Error', 'The time out cannot be less than the time in.', 'error');
+                        }
                         else{
                             show_alert('Employee Attendance Error', response, 'error');
                         }
@@ -5083,14 +5095,20 @@ function initialize_form_validation(form_type){
                                 initialize_employee_attendance_record_table('#attendance-creation-datatable');
                             }*/
                         }
+                        else if(response === 'Time In'){
+                            show_alert('Attendance Creation Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Attendance Creation Error', 'The time out cannot be less than the time in.', 'error');
+                        }
                         else if(response === 'File Size'){
-                            show_alert('Attendance Creation File Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                            show_alert('Attendance Creation Error', 'The file uploaded exceeds the maximum file size.', 'error');
                         }
                         else if(response === 'File Type'){
-                            show_alert('Attendance Creation File Error', 'The file uploaded is not supported.', 'error');
+                            show_alert('Attendance Creation Error', 'The file uploaded is not supported.', 'error');
                         }
                         else{
-                            show_alert('Attendance Creation File Error', response, 'error');
+                            show_alert('Attendance Creation Error', response, 'error');
                         }
                     },
                     complete: function(){
@@ -5159,6 +5177,234 @@ function initialize_form_validation(form_type){
                 },
                 time_out: {
                     required: 'Please choose the time out',
+                },
+                file: {
+                    required: 'Please choose the file',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment full form'){
+        $('#attendance-adjustment-full-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit attendance adjustment';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Attendance Adjustment', 'The attendance adjustment has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Attendance Adjustment', 'The attendance adjustment has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+
+                            /*if($('#attendance-creation-datatable').length){
+                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
+                            }*/
+                        }
+                        else if(response === 'Time In'){
+                            show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Attendance Adjustment Error', 'The time out cannot be less than the time in.', 'error');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                },
+                time_out_date: {
+                    required: true
+                },
+                time_out: {
+                    required: true
+                },
+                file: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                },
+                time_out_date: {
+                    required: 'Please choose the time out date',
+                },
+                time_out: {
+                    required: 'Please choose the time out',
+                },
+                file: {
+                    required: 'Please choose the file',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment partial form'){
+        $('#attendance-adjustment-partial-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit attendance adjustment';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Attendance Adjustment', 'The attendance adjustment has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Attendance Adjustment', 'The attendance adjustment has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+
+                            /*if($('#attendance-creation-datatable').length){
+                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
+                            }*/
+                        }
+                        else if(response === 'Time In'){
+                            show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Attendance Adjustment Error', 'The time out cannot be less than the time in.', 'error');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                },
+                file: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
                 },
                 file: {
                     required: 'Please choose the file',
@@ -6501,6 +6747,42 @@ function display_form_details(form_type){
             },
             complete: function(){
                 document.getElementById('employee_id').disabled = true;
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment full form'){
+        transaction = 'attendance record details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE);
+                $('#time_in').val(response[0].TIME_IN);
+                $('#time_out_date').val(response[0].TIME_OUT_DATE);
+                $('#time_out').val(response[0].TIME_OUT);
+                $('#attendance_id').val(attendance_id);
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment partial form'){
+        transaction = 'attendance record details';
+
+        var attendance_id = sessionStorage.getItem('attendance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {attendance_id : attendance_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE);
+                $('#time_in').val(response[0].TIME_IN);
+                $('#attendance_id').val(attendance_id);
             }
         });
     }

@@ -9896,7 +9896,7 @@ class Api{
                 return $this->format_date($format, $date, $modify);
             }
             else{
-                return NULL;
+                return null;
             }
         }
         else if($type == 'na'){
@@ -10077,11 +10077,11 @@ class Api{
                 return 'Time Out';
             }
             else{
-                return '';
+                return null;
             }
         }
         else{
-            return '';
+            return null;
         }
     }
     # -------------------------------------------------------------

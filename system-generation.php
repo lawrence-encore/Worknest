@@ -1749,11 +1749,189 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="file" class="form-label">File <span class="required">*</span></label><br/>
+                                        <label for="file" class="form-label">Attachment <span class="required">*</span></label><br/>
                                         <input class="form-control" type="file" name="file" id="file">
                                     </div>
                                 </div>
                             </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'attendance adjustment full form'){
+                $form .= '<div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-in-date-container">
+                                        <input type="hidden" id="attendance_id" name="attendance_id">
+                                        <input type="text" class="form-control" id="time_in_date" name="time_in_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-in-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In <span class="required">*</span></label>
+                                    <input type="time" id="time_in" name="time_in" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-out-date-container">
+                                        <input type="text" class="form-control" id="time_out_date" name="time_out_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-out-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out <span class="required">*</span></label>
+                                    <input type="time" id="time_out" name="time_out" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Attachment <span class="required">*</span></label><br/>
+                                    <input class="form-control" type="file" name="file" id="file">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'attendance adjustment partial form'){
+                $form .= '<div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-in-date-container">
+                                        <input type="hidden" id="attendance_id" name="attendance_id">
+                                        <input type="text" class="form-control" id="time_in_date" name="time_in_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-in-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In <span class="required">*</span></label>
+                                    <input type="time" id="time_in" name="time_in" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Attachment <span class="required">*</span></label><br/>
+                                    <input class="form-control" type="file" name="file" id="file">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'attendance adjustment full update form'){
+                $form .= '<div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-in-date-container">
+                                        <input type="hidden" id="request_id" name="request_id">
+                                        <input type="text" class="form-control" id="time_in_date" name="time_in_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-in-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In <span class="required">*</span></label>
+                                    <input type="time" id="time_in" name="time_in" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-out-date-container">
+                                        <input type="text" class="form-control" id="time_out_date" name="time_out_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-out-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time Out <span class="required">*</span></label>
+                                    <input type="time" id="time_out" name="time_out" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Attachment</label><br/>
+                                    <input class="form-control" type="file" name="file" id="file">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'attendance adjustment partial update form'){
+                $form .= '<div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In Date <span class="required">*</span></label>
+                                    <div class="input-group" id="time-in-date-container">
+                                        <input type="hidden" id="request_id" name="request_id">
+                                        <input type="text" class="form-control" id="time_in_date" name="time_in_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#time-in-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-end-date="0d">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Time In <span class="required">*</span></label>
+                                    <input type="time" id="time_in" name="time_in" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Attachment</label><br/>
+                                    <input class="form-control" type="file" name="file" id="file">
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">

@@ -129,6 +129,22 @@ function initialize_click_events(){
         generate_modal('attendance creation form', 'Attendance Creation', 'R' , '0', '1', 'form', 'attendance-creation-form', '1', username);
     });
 
+    $(document).on('click','.add-attendance-adjustment-full',function() {
+        var attendance_id = $(this).data('attendance-id');
+
+        sessionStorage.setItem('attendance_id', attendance_id);
+
+        generate_modal('attendance adjustment full form', 'Attendance Adjustment', 'R' , '0', '1', 'form', 'attendance-adjustment-full-form', '0', username);
+    });
+
+    $(document).on('click','.add-attendance-adjustment-partial',function() {
+        var attendance_id = $(this).data('attendance-id');
+
+        sessionStorage.setItem('attendance_id', attendance_id);
+
+        generate_modal('attendance adjustment partial form', 'Attendance Adjustment', 'R' , '0', '1', 'form', 'attendance-adjustment-partial-form', '0', username);
+    });
+
     $(document).on('click','#apply-filter',function() {
         initialize_employee_attendance_record_table('#employee-attendance-record-datatable');
     });

@@ -2424,27 +2424,66 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $allowed_ext = explode(',', $file_type);
 
-            $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
- 
-            if($check_attendance_creation_exist > 0){
-                if(!empty($attendance_creation_file_tmp_name)){
-                    if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
-                        if(!$attendance_creation_file_error){
-                            if($attendance_creation_file_size < $file_max_size){
-                                $update_attendance_creation_file = $api->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $request_id, $username);
-        
-                                if($update_attendance_creation_file == 1){
-                                    $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
+            $check_attendance_validation = $api->check_attendance_validation($time_in_date, $time_in, $time_out_date, $time_out);
 
-                                    if($update_attendance_creation == 1){
-                                        echo 'Updated';
+            if(empty($check_attendance_validation)){
+                $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
+ 
+                if($check_attendance_creation_exist > 0){
+                    if(!empty($attendance_creation_file_tmp_name)){
+                        if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
+                            if(!$attendance_creation_file_error){
+                                if($attendance_creation_file_size < $file_max_size){
+                                    $update_attendance_creation_file = $api->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $request_id, $username);
+            
+                                    if($update_attendance_creation_file == 1){
+                                        $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
+
+                                        if($update_attendance_creation == 1){
+                                            echo 'Updated';
+                                        }
+                                        else{
+                                            echo $update_attendance_creation;
+                                        }
                                     }
                                     else{
-                                        echo $update_attendance_creation;
+                                        echo $update_attendance_creation_file;
                                     }
                                 }
                                 else{
-                                    echo $update_attendance_creation_file;
+                                    echo 'File Size';
+                                }
+                            }
+                            else{
+                                echo 'There was an error uploading the file.';
+                            }
+                        }
+                        else{
+                            echo 'File Type';
+                        }
+                    }
+                    else{
+                        $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
+
+                        if($update_attendance_creation == 1){
+                            echo 'Updated';
+                        }
+                        else{
+                            echo $update_attendance_creation;
+                        }
+                    }
+                }
+                else{
+                    if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
+                        if(!$attendance_creation_file_error){
+                            if($attendance_creation_file_size < $file_max_size){
+                                $insert_attendance_creation = $api->insert_attendance_creation($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
+
+                                if($insert_attendance_creation == 1){
+                                    echo 'Inserted';
+                                }
+                                else{
+                                    echo $insert_attendance_creation;
                                 }
                             }
                             else{
@@ -2459,41 +2498,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         echo 'File Type';
                     }
                 }
-                else{
-                    $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
-
-                    if($update_attendance_creation == 1){
-                        echo 'Updated';
-                    }
-                    else{
-                        echo $update_attendance_creation;
-                    }
-                }
             }
             else{
-                if(in_array($attendance_creation_file_actual_ext, $allowed_ext)){
-                    if(!$attendance_creation_file_error){
-                        if($attendance_creation_file_size < $file_max_size){
-                            $insert_attendance_creation = $api->insert_attendance_creation($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
-
-                            if($insert_attendance_creation == 1){
-                                echo 'Inserted';
-                            }
-                            else{
-                                echo $insert_attendance_creation;
-                            }
-                        }
-                        else{
-                            echo 'File Size';
-                        }
-                    }
-                    else{
-                        echo 'There was an error uploading the file.';
-                    }
-                }
-                else{
-                    echo 'File Type';
-                }
+                echo $check_attendance_validation;
             }
         }
     }
