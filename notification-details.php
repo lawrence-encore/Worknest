@@ -7,7 +7,8 @@
     $page_title = 'Notification Details';
 
     $page_access = $api->check_role_permissions($username, 168);
-	$update_permission = $api->check_role_permissions($username, 169);
+	$update_notification_details = $api->check_role_permissions($username, 169);
+    $view_transaction_log = $api->check_role_permissions($username, 170);
     
     $check_user_account_status = $api->check_user_account_status($username);
 
@@ -18,6 +19,9 @@
         else{
             $id = $_GET['id'];
             $notification_id = $api->decrypt_data($id);
+
+            $notification_details = $api->get_notification_details($notification_id);
+            $transaction_log_id = $company_setting_details[0]['TRANSACTION_LOG_ID'] ?? null;
         }
     }
     else{
@@ -79,8 +83,8 @@
                                                             echo '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'">Transaction Log</button>';
                                                         }
 
-                                                        if($update_permission > 0){
-                                                            echo '<button type="submit" class="btn btn-primary waves-effect waves-light" form="company-setting-form" id="submit-form">Save</button>';
+                                                        if($update_notification_details > 0){
+                                                            echo '<button type="submit" class="btn btn-primary waves-effect waves-light" form="notification-details-form" id="submit-form">Save</button>';
 
                                                             $disabled = '';
                                                         }
@@ -94,21 +98,33 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="permission-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="all">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" id="datatable-checkbox" type="checkbox">
-                                                                </div>
-                                                            </th>
-                                                            <th class="all" style="width:15%">Permission ID</th>
-                                                            <th class="all" style="width:35%">Permission</th>
-                                                            <th class="all" style="width:15%">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody><tbody>
-                                                </table>
+                                            <form class="cmxform" id="notification-details-form" method="post" action="#">
+                                                    <div class="row mb-3">
+                                                        <label for="notification_title" class="col-md-2 col-form-label">Notification Title <span class="required">*</span></label>
+                                                        <div class="col-md-10">
+                                                            <input type="hidden" id="notification_id" name="notification_id" value="<?php echo $notification_id; ?>">
+                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="notification_title" name="notification_title" maxlength="500" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="notification_message" class="col-md-2 col-form-label">Notification Message <span class="required">*</span></label>
+                                                        <div class="col-md-10">
+                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="notification_message" name="notification_message" maxlength="500" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="system_link" class="col-md-2 col-form-label">Notification Link <span class="required">*</span></label>
+                                                        <div class="col-md-10">
+                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="system_link" name="system_link" maxlength="200" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="web_link" class="col-md-2 col-form-label">Web Link <span class="required">*</span></label>
+                                                        <div class="col-md-10">
+                                                            <input type="url" id="web_link" name="web_link" class="form-control maxlength" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>       
                                     </div>

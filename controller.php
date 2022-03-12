@@ -473,6 +473,42 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit notification details
+    else if($transaction == 'submit notification details'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['notification_id']) && !empty($_POST['notification_id']) && isset($_POST['notification_title']) && !empty($_POST['notification_title']) && isset($_POST['notification_message']) && !empty($_POST['notification_message']) && isset($_POST['system_link']) && !empty($_POST['system_link']) && isset($_POST['web_link']) && !empty($_POST['web_link'])){
+            $username = $_POST['username'];
+            $notification_id = $_POST['notification_id'];
+            $notification_title = $_POST['notification_title'];
+            $notification_message = $_POST['notification_message'];
+            $system_link = $_POST['system_link'];
+            $web_link = $_POST['web_link'];
+
+            $check_notification_details_exist = $api->check_notification_details_exist($notification_id);
+
+            if($check_notification_details_exist > 0){
+                $update_notification_details = $api->update_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username);
+
+                if($update_notification_details == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_notification_details;
+                }
+            }
+            else{
+                $insert_notification_details = $api->insert_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username);
+
+                if($insert_notification_details == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $insert_notification_details;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Submit application notification
     else if($transaction == 'submit application notification'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['notification'])){
@@ -2043,8 +2079,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $ip_address = $api->get_ip_address();
 
-            $notification_title = 'Time In Notification';
-            $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in, '', 'h:i a', '', '', '') . '.';
+            $notification_details = $api->get_notification_details(1);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{date}', $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', ''), $notification_message);
+            $notification_message = str_replace('{time}', $api->check_date('empty', $time_in, '', 'h:i a', '', '', ''), $notification_message);
 
             if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 if($get_clock_in_total < $max_attendance){
@@ -2122,8 +2161,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $ip_address = $api->get_ip_address();
 
-            $notification_title = 'Time Out Notification';
-            $notification_message = 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.';
+            $notification_details = $api->get_notification_details(2);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{date}', $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', ''), $notification_message);
+            $notification_message = str_replace('{time}', $api->check_date('empty', $time_out, '', 'h:i a', '', '', ''), $notification_message);
 
             if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                 if($get_clock_in_total < $max_attendance){
@@ -2240,8 +2282,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if(!empty($attendance_id)){
                 $time_out_date = date('Y-m-d');
                 $time_out = date('H:i:00');
-                $notification_title = 'Time Out Notification';
-                $notification_message = 'You time out on ' . $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_out, '', 'h:i a', '', '', '') . '.';
+
+                $notification_details = $api->get_notification_details(2);
+                $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                $notification_message = str_replace('{date}', $api->check_date('empty', $time_out_date, '', 'F d, Y', '', '', ''), $notification_message);
+                $notification_message = str_replace('{time}', $api->check_date('empty', $time_out, '', 'h:i a', '', '', ''), $notification_message);
 
                 $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
                 $time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
@@ -2309,8 +2355,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $time_in = date('H:i:00');
                 $time_in_behavior = $api->get_time_in_behavior($employee_id, $time_in_date, $time_in);
                 $late = $api->get_attendance_late_total($employee_id, $time_in_date, $time_in);
-                $notification_title = 'Time In Notification';
-                $notification_message = 'You time in on ' . $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', '') . ' at ' .  $api->check_date('empty', $time_in, '', 'h:i a', '', '', '') . '.';
+                
+                $notification_details = $api->get_notification_details(1);
+                $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                $notification_message = str_replace('{date}', $api->check_date('empty', $time_in_date, '', 'F d, Y', '', '', ''), $notification_message);
+                $notification_message = str_replace('{time}', $api->check_date('empty', $time_in, '', 'h:i a', '', '', ''), $notification_message);
     
                 if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
                     if($get_clock_in_total < $max_attendance){
@@ -2916,7 +2966,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $delete_notification_type = $api->delete_notification_type($notification_id, $username);
                                     
                 if($delete_notification_type == 1){
-                    echo 'Deleted';
+                    $delete_notification_details = $api->delete_notification_details($notification_id, $username);
+                                    
+                    if($delete_notification_details == 1){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_notification_details;
+                    }
                 }
                 else{
                     echo $delete_notification_type;
@@ -4515,6 +4572,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'NOTIFICATION' => $notification_type_details[0]['NOTIFICATION'],
                 'DESCRIPTION' => $notification_type_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Notification details
+    else if($transaction == 'notification details'){
+        if(isset($_POST['notification_id']) && !empty($_POST['notification_id'])){
+            $notification_id = $_POST['notification_id'];
+            $notification_details = $api->get_notification_details($notification_id);
+
+            $response[] = array(
+                'NOTIFICATION_TITLE' => $notification_details[0]['NOTIFICATION_TITLE'],
+                'NOTIFICATION_MESSAGE' => $notification_details[0]['NOTIFICATION_MESSAGE'],
+                'SYSTEM_LINK' => $notification_details[0]['SYSTEM_LINK'],
+                'WEB_LINK' => $notification_details[0]['WEB_LINK']
             );
 
             echo json_encode($response);

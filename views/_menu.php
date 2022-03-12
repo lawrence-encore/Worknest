@@ -28,6 +28,8 @@
     $attendance_setting_page = $api->check_role_permissions($username, 156);
     $attendance_record_page = $api->check_role_permissions($username, 160);
     $employee_attendance_record_page = $api->check_role_permissions($username, 171);
+    $attendance_creation_page = $api->check_role_permissions($username, 175);
+    $attendance_adjustment_page = $api->check_role_permissions($username, 180);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -39,10 +41,10 @@
                     </li>';
     }
 
-    if($employee_attendance_record_page > 0){
+    if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Employee</li>';
 
-        if($employee_attendance_record_page > 0){
+        if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-calendar"></i>
@@ -52,6 +54,14 @@
 
                         if($employee_attendance_record_page > 0){
                             $menu .= '<li><a href="employee-attendance-record.php" key="t-all-employees">Attendance Record</a></li>';
+                        }
+
+                        if($attendance_creation_page > 0){
+                            $menu .= '<li><a href="attendance-creation.php" key="t-all-employees">Attendance Creation</a></li>';
+                        }
+
+                        if($attendance_adjustment_page > 0){
+                            $menu .= '<li><a href="attendance-adjustment.php" key="t-all-employees">Attendance Adjustment</a></li>';
                         }
 
             $menu .= '</ul>

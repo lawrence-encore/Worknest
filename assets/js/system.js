@@ -5963,6 +5963,24 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'notification details form'){
+        transaction = 'notification details';
+        
+        var notification_id = $('#notification-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {notification_id : notification_id, transaction : transaction},
+            success: function(response) {
+                $('#notification_title').val(response[0].NOTIFICATION_TITLE);
+                $('#notification_message').val(response[0].NOTIFICATION_MESSAGE);
+                $('#system_link').val(response[0].SYSTEM_LINK);
+                $('#web_link').val(response[0].WEB_LINK);
+            }
+        });
+    }
     else if(form_type == 'application notification form'){
         transaction = 'application notification details';
   

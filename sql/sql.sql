@@ -119,6 +119,7 @@ CREATE TABLE tblnotificationdetails(
 	NOTIFICATION_MESSAGE VARCHAR(500),
 	SYSTEM_LINK VARCHAR(200),
 	WEB_LINK VARCHAR(200),
+    TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
 
@@ -552,6 +553,7 @@ CREATE INDEX role_permission_index ON tblrolepermission(ROLE_ID, PERMISSION_ID);
 CREATE INDEX user_interface_setting_index ON tbluserinterfacesettings(SETTINGS_ID);
 CREATE INDEX mail_config_index ON tblmailconfig(MAIL_ID);
 CREATE INDEX notification_type_index ON tblnotificationtype(NOTIFICATION_ID);
+CREATE INDEX notification_details_index ON tblnotificationdetails(NOTIFICATION_ID);
 CREATE INDEX system_notification_index ON tblsystemnotification(NOTIFICATION_ID, NOTIFICATION);
 CREATE INDEX company_index ON tblcompany(COMPANY_ID);
 CREATE INDEX province_index ON tblprovince(PROVINCE_ID);
@@ -1275,6 +1277,82 @@ BEGIN
 	SET @notification_id = notification_id;
 
 	SET @query = 'DELETE FROM tblnotificationtype WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblnotificationdetails(
+	NOTIFICATION_ID INT(50) PRIMARY KEY,
+	NOTIFICATION_TITLE VARCHAR(500),
+	NOTIFICATION_MESSAGE VARCHAR(500),
+	SYSTEM_LINK VARCHAR(200),
+	WEB_LINK VARCHAR(200),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_notification_details_exist(IN notification_id INT)
+BEGIN
+	SET @notification_id = notification_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblnotificationdetails WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_notification_details(IN notification_id INT, IN notification_title VARCHAR(500), IN notification_message VARCHAR(500), IN system_link VARCHAR(200), IN web_link VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @notification_id = notification_id;
+	SET @notification_title = notification_title;
+	SET @notification_message = notification_message;
+	SET @system_link = system_link;
+	SET @web_link = web_link;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblnotificationdetails SET NOTIFICATION_TITLE = @notification_title, DESCRIPTION = @description, SYSTEM_LINK = @system_link, WEB_LINK = @web_link, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_notification_details(IN notification_id INT, IN notification_title VARCHAR(500), IN notification_message VARCHAR(500), IN system_link VARCHAR(200), IN web_link VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @notification_id = notification_id;
+	SET @notification_title = notification_title;
+	SET @notification_message = notification_message;
+	SET @system_link = system_link;
+	SET @web_link = web_link;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblnotificationdetails (NOTIFICATION_ID, NOTIFICATION_TITLE, NOTIFICATION_MESSAGE, SYSTEM_LINK, WEB_LINK, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@notification_id, @notification_title, @notification_message, @system_link, @web_link, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_notification_details(IN notification_id INT)
+BEGIN
+	SET @notification_id = notification_id;
+
+	SET @query = 'SELECT NOTIFICATION_TITLE, NOTIFICATION_MESSAGE, SYSTEM_LINK, WEB_LINK, TRANSACTION_LOG_ID, RECORD_LOG FROM tblnotificationdetails WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_notification_details(IN notification_id INT)
+BEGIN
+	SET @notification_id = notification_id;
+
+	SET @query = 'DELETE FROM tblnotificationdetails WHERE NOTIFICATION_ID = @notification_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

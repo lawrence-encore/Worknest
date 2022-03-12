@@ -364,14 +364,12 @@ class Api{
             $employee_details = $this->get_employee_details($employee_id, '');
             $email = $employee_details[0]['EMAIL'];
 
-            $notification_type_details = $this->get_notification_type_details($notification_id);
-            $system_link = $notification_type_details[0]['SYSTEM_LINK'] ?? null;
-            $web_link = $notification_type_details[0]['WEB_LINK'] ?? null;
+            $notification_details = $this->get_notification_details($notification_id);
+            $system_link = $notification_details[0]['SYSTEM_LINK'] ?? null;
+            $web_link = $notification_details[0]['WEB_LINK'] ?? null;
 
             if($system_notification > 0){
-
                 if($notification_id == 1 || $notification_id == 2){
-
                     $insert_system_notification = $this->insert_system_notification($notification_id, '', $employee_id, $title, $message, $system_link, $username);
                 }
 
@@ -383,7 +381,6 @@ class Api{
             if($email_notification > 0){
                 if(!empty($email)){
                     if($notification_id == 1 || $notification_id == 2){
-
                         $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
                     }
     
@@ -614,7 +611,7 @@ class Api{
     # -------------------------------------------------------------
     #
     # Name       : check_notification_type_exist
-    # Purpose    : Checks if the email configuration exists.
+    # Purpose    : Checks if the notification type exists.
     #
     # Returns    : Number
     #
@@ -622,6 +619,31 @@ class Api{
     public function check_notification_type_exist($notification_id){
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL check_notification_type_exist(:notification_id)');
+            $sql->bindValue(':notification_id', $notification_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_notification_details_exist
+    # Purpose    : Checks if the notification details exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_notification_details_exist($notification_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_notification_details_exist(:notification_id)');
             $sql->bindValue(':notification_id', $notification_id);
 
             if($sql->execute()){
@@ -1899,6 +1921,75 @@ class Api{
 
                     if($update_system_parameter_value == 1){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification type (' . $notification_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_notification_details
+    # Purpose    : Updates notification details.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $notification_type_details = $this->get_notification_type_details($notification_id);
+
+            if(!empty($notification_type_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $notification_type_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_notification_details(:notification_id, :notification_title, :notification_message, $system_link, $web_link, :transaction_log_id, :record_log)');
+            $sql->bindValue(':notification_id', $notification_id);
+            $sql->bindValue(':notification_title', $notification_title);
+            $sql->bindValue(':notification_message', $notification_message);
+            $sql->bindValue(':system_link', $system_link);
+            $sql->bindValue(':web_link', $web_link);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($notification_type_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
                                     
                         if($insert_transaction_log == 1){
                             return 1;
@@ -4610,6 +4701,57 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : insert_notification_details
+    # Purpose    : Insert notification details.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_notification_details(:notification_id, :notification_title, :notification_message, :system_link, :web_link, :transaction_log_id, :record_log)');
+            $sql->bindValue(':notification_id', $notification_id);
+            $sql->bindValue(':notification_title', $notification_title);
+            $sql->bindValue(':notification_message', $notification_message);
+            $sql->bindValue(':system_link', $system_link);
+            $sql->bindValue(':web_link', $web_link);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update transaction log value
+                $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                if($update_system_parameter_value == 1){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted notification details (' . $notification_id . ').');
+                                
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : insert_application_notification
     # Purpose    : Insert application notification.
     #
@@ -6798,6 +6940,39 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : delete_notification_details
+    # Purpose    : Delete notification details.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_notification_details($notification_id, $username){
+        if ($this->databaseConnection()) {
+            $notification_details = $this->get_notification_details($notification_id);
+            $transaction_log_id = $notification_details[0]['TRANSACTION_LOG_ID'];
+
+            $sql = $this->db_connection->prepare('CALL delete_notification_details(:notification_id)');
+            $sql->bindValue(':notification_id', $notification_id);
+        
+            if($sql->execute()){
+                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted notification details (' . $notification_id . ').');
+                                    
+                if($insert_transaction_log == 1){
+                    return 1;
+                }
+                else{
+                    return $insert_transaction_log;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : delete_all_application_notification
     # Purpose    : Delete all application notification.
     #
@@ -7941,6 +8116,42 @@ class Api{
                     $response[] = array(
                         'NOTIFICATION' => $row['NOTIFICATION'],
                         'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_notification_details
+    # Purpose    : Gets the notification details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_notification_details($notification_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_notification_details(:notification_id)');
+            $sql->bindValue(':notification_id', $notification_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'NOTIFICATION_TITLE' => $row['NOTIFICATION_TITLE'],
+                        'NOTIFICATION_MESSAGE' => $row['NOTIFICATION_MESSAGE'],
+                        'SYSTEM_LINK' => $row['SYSTEM_LINK'],
+                        'WEB_LINK' => $row['WEB_LINK'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );

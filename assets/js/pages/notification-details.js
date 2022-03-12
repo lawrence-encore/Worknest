@@ -3,13 +3,12 @@
 
     $(function() {
         initialize_elements();
-        initialize_on_change_events();
 
-        display_form_details('company setting form');
+        display_form_details('notification details form');
 
-        $('#company-setting-form').validate({
+        $('#notification-details-form').validate({
             submitHandler: function (form) {
-                var transaction = 'submit company setting';
+                var transaction = 'submit notification details';
                 var username = $('#username').text();
 
                 $.ajax({
@@ -22,10 +21,10 @@
                     },
                     success: function (response) {
                         if(response === 'Updated'){
-                            show_alert_event('Company Setting Update Success', 'The company setting has been updated.', 'success', 'reload');
+                            show_alert_event('Notification Details Update Success', 'The notification details has been updated.', 'success', 'reload');
                         }
                         else{
-                            show_alert('Company Setting Update Error', response, 'error');
+                            show_alert('Notification Details Update Error', response, 'error');
                         }
                     },
                     complete: function(){
@@ -37,32 +36,32 @@
                 return false;
             },
             rules: {
-                company_name: {
+                notification_title: {
                     required: true
                 },
-                province: {
+                notification_message: {
                     required: true
                 },
-                city: {
+                system_link: {
                     required: true
                 },
-                address: {
+                web_link: {
                     required: true
-                }
+                },
             },
             messages: {
-                company_name: {
-                    required: 'Please enter the company name',
+                notification_title: {
+                    required: 'Please enter the notification title',
                 },
-                province: {
-                    required: 'Please choose the province',
+                notification_message: {
+                    required: 'Please enter the notification message',
                 },
-                city: {
-                    required: 'Please choose the city',
+                system_link: {
+                    required: 'Please enter the system link',
                 },
-                address: {
-                    required: 'Please enter the address',
-                }
+                web_link: {
+                    required: 'Please enter the web link',
+                },
             },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
@@ -87,22 +86,3 @@
         });
     });
 })(jQuery);
-
-function initialize_on_change_events(){
-    $(document).on('change','#province',function() {
-        if(this.value != ''){
-            reset_element_validation('#city');
-
-            generate_city_option(this.value, '');
-
-            document.getElementById('city').disabled = false;
-        }
-        else{
-            $('#city').append(new Option('--', '', false, false));
-
-            $('#city').val('').change();
-
-            document.getElementById('city').disabled = true;
-        }
-    });
-}
