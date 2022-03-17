@@ -1140,8 +1140,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <label for="leave_status" class="form-label">Status <span class="required">*</span></label>
                                         <select class="form-control form-select2" id="leave_status" name="leave_status">
                                             <option value="">--</option>
-                                            <option value="2">Pending</option>
-                                            <option value="1">Approved</option>
+                                            <option value="PEN">Pending</option>
+                                            <option value="APV">Approved</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1749,7 +1749,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="file" class="form-label">Attachment <span class="required">*</span></label><br/>
+                                        <label for="file" class="form-label">Attachment</label><br/>
                                         <input class="form-control" type="file" name="file" id="file">
                                     </div>
                                 </div>
@@ -1941,6 +1941,27 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
+            else if($form_type == 'approve attendance creation form' || $form_type == 'reject attendance creation form' || $form_type == 'cancel attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'cancel multiple attendance creation form' || $form_type == 'approve attendance adjustment form' || $form_type == 'reject attendance adjustment form' || $form_type == 'cancel attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form' || $form_type == 'cancel multiple attendance adjustment form'){
+                if($form_type == 'approve attendance creation form' || $form_type == 'approve attendance adjustment form'){
+                    $label = 'Approval Remarks';
+                }
+                else if($form_type == 'reject attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'reject attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form'){
+                    $label = 'Rejection Remarks <span class="required">*</span>';
+                }
+                else{
+                    $label = 'Cancellation Remarks <span class="required">*</span>';
+                }
+
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="decision_remarks" class="form-label">'. $label .'</label>
+                                        <input type="hidden" id="request_id" name="request_id">
+                                        <textarea class="form-control form-maxlength" id="decision_remarks" name="decision_remarks" maxlength="500" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -2081,10 +2102,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <td id="leave_status"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Decision By :</th>
-                                        <td id="decision_by"></td>
-                                    </tr>
-                                    <tr>
                                         <th scope="row">Decision Remarks :</th>
                                         <td id="decision_remarks"></td>
                                     </tr>
@@ -2095,6 +2112,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <tr>
                                         <th scope="row">Decision Time :</th>
                                         <td id="decision_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision By :</th>
+                                        <td id="decision_by"></td>
                                     </tr>
                                 </tbody>
                             </table>';
@@ -2276,6 +2297,186 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <div id="qr-code-reader"></div>
                                 </div>
                             </div>';
+            }
+            else if($element_type == 'attendance creation details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In Date :</th>
+                                        <td id="time_in_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In :</th>
+                                        <td id="time_in"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out Date :</th>
+                                        <td id="time_out_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out :</th>
+                                        <td id="time_out"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Attachment :</th>
+                                        <td id="attachment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status :</th>
+                                        <td id="creation_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Reason :</th>
+                                        <td id="reason"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Request Date :</th>
+                                        <td id="request_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Request Time :</th>
+                                        <td id="request_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">For Recommendation Date :</th>
+                                        <td id="for_recommendation_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">For Recommendation Time :</th>
+                                        <td id="for_recommendation_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation Date :</th>
+                                        <td id="recommendation_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation Time :</th>
+                                        <td id="recommendation_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation By :</th>
+                                        <td id="recommendation_by"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Date :</th>
+                                        <td id="decision_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Time :</th>
+                                        <td id="decision_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Remarks :</th>
+                                        <td id="decision_remarks"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision By :</th>
+                                        <td id="decision_by"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'attendance adjustment details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In Date :</th>
+                                        <td id="time_in_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In Date Adjustment :</th>
+                                        <td id="time_in_date_adjustment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In :</th>
+                                        <td id="time_in"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time In Adjustment :</th>
+                                        <td id="time_in_adjustment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out Date :</th>
+                                        <td id="time_out_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out Date Adjustment :</th>
+                                        <td id="time_out_date_adjustment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out :</th>
+                                        <td id="time_out"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Time Out Adjustment :</th>
+                                        <td id="time_out_adjustment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Attachment :</th>
+                                        <td id="attachment"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status :</th>
+                                        <td id="creation_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Reason :</th>
+                                        <td id="reason"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Request Date :</th>
+                                        <td id="request_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Request Time :</th>
+                                        <td id="request_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">For Recommendation Date :</th>
+                                        <td id="for_recommendation_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">For Recommendation Time :</th>
+                                        <td id="for_recommendation_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation Date :</th>
+                                        <td id="recommendation_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation Time :</th>
+                                        <td id="recommendation_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Recommendation By :</th>
+                                        <td id="recommendation_by"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Date :</th>
+                                        <td id="decision_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Time :</th>
+                                        <td id="decision_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision Remarks :</th>
+                                        <td id="decision_remarks"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Decision By :</th>
+                                        <td id="decision_by"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
             }
 
             $response[] = array(
@@ -3953,18 +4154,18 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
     
-                        if($delete_leave > 0 && $leave_status == 2){
+                        if($delete_leave > 0 && $leave_status == 'PEN'){
                             $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-leave" data-leave-id="'. $leave_id .'" title="Delete Leave">
                                         <i class="bx bx-trash font-size-16 align-middle"></i>
                                     </button>';
-                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leave_id .'">';
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-leave-status="'. $leave_status .'" value="'. $leave_id .'">';
                         }
                         else{
                             $delete = '';
                             $check_box = '';
                         }
     
-                        if($approve_leave > 0 && $leave_status == 2){
+                        if($approve_leave > 0 && $leave_status == 'PEN'){
                             $approve = '<button type="button" class="btn btn-success waves-effect waves-light approve-leave" data-leave-id="'. $leave_id .'" title="Approve Leave">
                                         <i class="bx bx-check font-size-16 align-middle"></i>
                                     </button>';
@@ -3973,7 +4174,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $approve = '';
                         }
     
-                        if($reject_leave > 0 && $leave_status == 2){
+                        if($reject_leave > 0 && $leave_status == 'PEN'){
                             $reject = '<button type="button" class="btn btn-danger waves-effect waves-light reject-leave" data-leave-id="'. $leave_id .'" title="Reject Leave">
                                         <i class="bx bx-x font-size-16 align-middle"></i>
                                     </button>';
@@ -3982,7 +4183,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $reject = '';
                         }
     
-                        if($cancel_leave > 0 && ($leave_status == 2 || ($leave_status == 1 && strtotime($system_date) < strtotime($leave_date)))){
+                        if($cancel_leave > 0 && ($leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
                             $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-leave" data-leave-id="'. $leave_id .'" title="Cancel Leave">
                                         <i class="bx bx-calendar-x font-size-16 align-middle"></i>
                                     </button>';
@@ -4926,6 +5127,355 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $attendance_adjustment .'
+                                '. $transaction_log .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance creation table
+    else if($type == 'attendance creation table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_creation_status'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+                # Get permission
+                $update_attendance_creation = $api->check_role_permissions($username, 177);
+                $delete_attendance_creation = $api->check_role_permissions($username, 178);
+                $tag_attendance_creation_for_recommendation = $api->check_role_permissions($username, 179);
+                $cancel_attendance_creation = $api->check_role_permissions($username, 180);
+                $view_transaction_log = $api->check_role_permissions($username, 181);
+
+                $filter_attendance_creation_status = $_POST['filter_attendance_creation_status'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendancecreation WHERE EMPLOYEE_ID = :employee_id AND ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status)){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_attendance_creation_status)){
+                        $filter[] = 'STATUS = :filter_attendance_creation_status';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status)){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_attendance_creation_status)){
+                        $sql->bindValue(':filter_attendance_creation_status', $filter_attendance_creation_status);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_creation_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        if($update_attendance_creation > 0 && $status == 'PEN'){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-attendance-creation" data-request-id="'. $request_id .'" title="Edit Attendance Creation">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+
+                        if($cancel_attendance_creation > 0 && ($status == 'PEN' || $status == 'REC' || $status == 'FRREC')){
+                            $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-attendance-creation" data-request-id="'. $request_id .'" title="Cancel Attendance Creation">
+                                        <i class="bx bx-calendar-x font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $cancel = '';
+                        }
+
+                        if($tag_attendance_creation_for_recommendation > 0 && $status == 'PEN'){
+                            $for_recommendation = '<button type="button" class="btn btn-success waves-effect waves-light for-recommend-attendance-creation" data-request-id="'. $request_id .'" title="Tag Attendance Creation For Recommendation">
+                                        <i class="bx bx-check font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $for_recommendation = '';
+                        }
+
+                        if($delete_attendance_creation > 0 && $status == 'PEN'){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-attendance-creation" data-request-id="'. $request_id .'" title="Delete Attendance Creation">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($status == 'PEN' || $status == 'REC' || $status == 'FRREC'){
+                            $data_cancel = 1;
+
+                            if($status == 'PEN'){
+                                $data_for_recommendation = 1;
+                                $data_delete = 1;
+                            }
+                            else{
+                                $data_for_recommendation = 0;
+                                $data_delete = 0;
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" data-cancel="'. $data_cancel .'" data-delete="'. $data_delete .'" data-for-recommendation="'. $data_for_recommendation .'" type="checkbox" value="'. $request_id .'">';
+                        }
+                        else{
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-creation" data-request-id="'. $request_id .'" title="View Attendance Creation">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $for_recommendation .'
+                                '. $cancel .'
+                                '. $delete .'
+                                '. $transaction_log .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance adjustment table
+    else if($type == 'attendance adjustment table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_adjustment_status'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+                # Get permission
+                $update_attendance_adjustment = $api->check_role_permissions($username, 183);
+                $delete_attendance_adjustment = $api->check_role_permissions($username, 184);
+                $tag_attendance_adjustment_for_recommendation = $api->check_role_permissions($username, 185);
+                $cancel_attendance_adjustment = $api->check_role_permissions($username, 186);
+                $view_transaction_log = $api->check_role_permissions($username, 187);
+
+                $filter_attendance_adjustment_status = $_POST['filter_attendance_adjustment_status'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendanceadjustment WHERE EMPLOYEE_ID = :employee_id AND ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status)){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_attendance_adjustment_status)){
+                        $filter[] = 'STATUS = :filter_attendance_adjustment_status';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status)){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_attendance_adjustment_status)){
+                        $sql->bindValue(':filter_attendance_adjustment_status', $filter_attendance_adjustment_status);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'h:i a', '', '', '');
+                        $time_in_date_adjusted = $api->check_date('empty', $row['TIME_IN_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in_adjusted = $api->check_date('empty', $row['TIME_IN_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date_adjusted = $api->check_date('empty', $row['TIME_OUT_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out_adjusted = $api->check_date('empty', $row['TIME_OUT_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_adjustment_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        if($update_attendance_adjustment > 0  && $status == 'PEN'){
+                            if(!empty($time_out_date) && !empty($time_out)){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-attendance-adjustment-full" data-request-id="'. $request_id .'" title="Edit Attendance Adjustment">
+                                    <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-attendance-adjustment-partial" data-request-id="'. $request_id .'" title="Edit Attendance Adjustment">
+                                    <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                        }
+                        else{
+                            $update = '';
+                        }
+
+                        if($cancel_attendance_adjustment > 0 && ($status == 'PEN' || $status == 'REC' || $status == 'FRREC')){
+                            $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-attendance-adjustment" data-request-id="'. $request_id .'" title="Cancel Attendance Adjustment">
+                                        <i class="bx bx-calendar-x font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $cancel = '';
+                        }
+
+                        if($tag_attendance_adjustment_for_recommendation > 0 && $status == 'PEN'){
+                            $for_recommendation = '<button type="button" class="btn btn-success waves-effect waves-light for-recommend-attendance-adjustment" data-request-id="'. $request_id .'" title="Tag Attendance Adjustment For Recommendation">
+                                        <i class="bx bx-check font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $for_recommendation = '';
+                        }
+
+                        if($delete_attendance_adjustment > 0 && $status == 'PEN'){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-attendance-adjustment" data-request-id="'. $request_id .'" title="Delete Attendance Adjustment">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($status == 'PEN' || $status == 'REC' || $status == 'FRREC'){
+                            $data_cancel = 1;
+
+                            if($status == 'PEN'){
+                                $data_for_recommendation = 1;
+                                $data_delete = 1;
+                            }
+                            else{
+                                $data_for_recommendation = 0;
+                                $data_delete = 0;
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" data-cancel="'. $data_cancel .'" data-delete="'. $data_delete .'" data-for-recommendation="'. $data_for_recommendation .'" type="checkbox" value="'. $request_id .'">';
+                        }
+                        else{
+                            $check_box = '';
+                        }
+
+                        if(strtotime($time_in_date) != strtotime($time_in_date_adjusted)){
+                            $adjustment_time_in_date = $time_in_date . ' -> ' . $time_in_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in_date = $time_in_date;
+                        }
+
+                        if(strtotime($time_in) != strtotime($time_in_adjusted)){
+                            $adjustment_time_in = $time_in . ' -> ' . $time_in_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in = $time_in_date;
+                        }
+
+                        if(strtotime($time_out_date) != strtotime($time_out_date_adjusted)){
+                            $adjustment_time_out_date = $time_out_date . ' -> ' . $time_out_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out_date = $time_out_date;
+                        }
+
+                        if(strtotime($time_out) != strtotime($time_out_adjusted)){
+                            $adjustment_time_out = $time_out . ' -> ' . $time_out_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out = $time_out_date;
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'TIME_IN_DATE' => $adjustment_time_in_date,
+                            'TIME_IN' => $adjustment_time_in,
+                            'TIME_OUT_DATE' => $adjustment_time_out_date,
+                            'TIME_OUT' => $adjustment_time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-adjustment" data-request-id="'. $request_id .'" title="View Attendance Creation">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $for_recommendation .'
+                                '. $cancel .'
+                                '. $delete .'
                                 '. $transaction_log .'
                             </div>'
                         );

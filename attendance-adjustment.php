@@ -4,11 +4,12 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Leave Management';
+    $page_title = 'Attendance Adjustment';
 
-    $page_access = $api->check_role_permissions($username, 119);
-	$add_leave = $api->check_role_permissions($username, 120);
-	$delete_leave = $api->check_role_permissions($username, 121);
+    $page_access = $api->check_role_permissions($username, 181);
+	$delete_attendance_adjustment = $api->check_role_permissions($username, 184);
+    $tag_attendance_adjustment_for_recommendation = $api->check_role_permissions($username, 185);
+	$cancel_attendance_adjustment = $api->check_role_permissions($username, 186);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -53,7 +54,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Human Resource</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Leave</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Employee</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -68,21 +69,26 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Leave Management List</h4>
+                                                        <h4 class="card-title">Attendance Adjustment List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
-                                                        <?php
-                                                            if($add_leave > 0 || $delete_leave > 0){
+                                                    <?php
+                                                        if($delete_attendance_adjustment > 0 || $cancel_attendance_adjustment > 0 || $tag_attendance_adjustment_for_recommendation > 0){
 
-                                                                if($add_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
-                                                                }
-
-                                                                if($delete_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-leave"><i class="bx bx-trash label-icon"></i> Delete</button>';
-                                                                }
+                                                            if($tag_attendance_adjustment_for_recommendation > 0){
+                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-for-recommendation" id="for-recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
                                                             }
-                                                        ?>
+
+                                                            if($cancel_attendance_adjustment > 0){
+                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-attendance-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
+                                                            }
+                                                            
+                                                            if($delete_attendance_adjustment > 0){
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                            }
+                                                        }
+                                                    ?>
+
                                                         <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
                                                     </div>
 
@@ -93,42 +99,28 @@
                                                         </div>
                                                         <div class="offcanvas-body">
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Leave Date</p>
+                                                                <p class="text-muted">Attendance Adjustment Request Date</p>
 
-                                                                <div class="input-group mb-3" id="filter-start-date-container">
-                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('m/01/Y'); ?>">
+                                                                <div class="input-group mb-3" id="filter-file-start-date-container">
+                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-file-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('m/01/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
 
-                                                                <div class="input-group" id="filter-end-date-container">
-                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('m/t/Y'); ?>">
+                                                                <div class="input-group" id="filter-file-end-date-container">
+                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-file-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('m/t/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Department</p>
+                                                                <p class="text-muted">Attendance Adjustment Status</p>
 
-                                                                <select class="form-control filter-select2" id="filter_department">
-                                                                    <option value="">All Department</option>
-                                                                    <?php echo $api->generate_department_options(); ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <p class="text-muted">Leave Type</p>
-
-                                                                <select class="form-control filter-select2" id="filter_leave_type">
-                                                                    <option value="">All Leave Type</option>
-                                                                    <?php echo $api->generate_leave_type_options(); ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <p class="text-muted">Leave Status</p>
-
-                                                                <select class="form-control filter-select2" id="filter_leave_status">
-                                                                    <option value="APV">Approved</option>
-                                                                    <option value="APVSYS">Approved (System Generation)</option>
+                                                                <select class="form-control filter-select2" id="filter_attendance_adjustment_status">
+                                                                    <option value="">All Attendance Adjustment Status</option>
+                                                                    <option value="APV">Approve</option>
                                                                     <option value="CAN">Cancelled</option>
+                                                                    <option value="FRREC">For Recommendation</option>
                                                                     <option value="PEN" selected>Pending</option>
+                                                                    <option value="REC">Recommended</option>
                                                                     <option value="REJ">Rejected</option>
                                                                 </select>
                                                             </div>
@@ -142,7 +134,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="leave-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="attendance-adjustment-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -150,18 +142,20 @@
                                                                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                                                                 </div>
                                                             </th>
-                                                            <th class="all">Employee</th>
-                                                            <th class="all">Leave</th>
-                                                            <th class="all">Entitlement Status</th>
-                                                            <th class="all">Date</th>
+                                                            <th class="all">Time In Date</th>
+                                                            <th class="all">Time In</th>
+                                                            <th class="all">Time Out Date</th>
+                                                            <th class="all">Time Out</th>
                                                             <th class="all">Status</th>
+                                                            <th class="all">Attachment</th>
+                                                            <th class="all">Reason</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
                                                 </table>
                                             </div>
-                                        </div>
+                                        </div>       
                                     </div>
                                 </div>
                             </div>
@@ -185,6 +179,6 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/leave-management.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/attendance-adjustment.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

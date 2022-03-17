@@ -145,7 +145,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Leave Entitlement', 'The leave entitlement has been deleted.', 'success');
 
-                          initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                          reload_datatable('#leave-entitlement-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Leave Entitlement', 'The leave entitlement does not exist.', 'info');
@@ -192,7 +192,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Leave Entitlements', 'The leave entitlements have been deleted.', 'success');
     
-                                initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                                reload_datatable('#leave-entitlement-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Leave Entitlements', 'The leave entitlement does not exist.', 'info');

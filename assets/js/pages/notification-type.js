@@ -139,7 +139,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Notification Type', 'The notification type has been deleted.', 'success');
 
-                          initialize_notification_type_table('#notification-type-datatable');
+                          reload_datatable('#notification-type-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Notification Type', 'The notification type does not exist.', 'info');
@@ -186,7 +186,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Notification Type', 'The notification types have been deleted.', 'success');
     
-                                initialize_notification_type_table('#notification-type-datatable');
+                                reload_datatable('#notification-type-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Notification Type', 'The notification type does not exist.', 'info');

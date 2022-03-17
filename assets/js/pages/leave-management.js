@@ -177,7 +177,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Leave', 'The leave has been deleted.', 'success');
 
-                          initialize_leave_table('#leave-datatable');
+                          reload_datatable('#leave-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Leave', 'The leave does not exist.', 'info');
@@ -224,7 +224,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Leaves', 'The leaves have been deleted.', 'success');
     
-                                initialize_leave_table('#leave-datatable');
+                                reload_datatable('#leave-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Leaves', 'The leave does not exist.', 'info');
@@ -241,6 +241,54 @@ function initialize_click_events(){
         }
         else{
             show_alert('Delete Multiple Leaves', 'Please select the leaves you want to delete.', 'error');
+        }
+    });
+
+    $(document).on('click','#approve-leave',function() {
+        var leave_id = [];
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                leave_id.push(this.value);  
+            }
+        });
+
+        sessionStorage.setItem('leave_id', leave_id);
+        
+        if(leave_id.length > 0){
+            generate_modal('approve multiple leave form', 'Approve Multiple Leave', 'R' , '0', '1', 'form', 'approve-multiple-leave-form', '1', username);
+        }
+    });
+
+    $(document).on('click','#reject-leave',function() {
+        var leave_id = [];
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                leave_id.push(this.value);  
+            }
+        });
+
+        sessionStorage.setItem('leave_id', leave_id);
+
+        if(leave_id.length > 0){
+            generate_modal('reject multiple leave form', 'Reject Multiple Leave', 'R' , '0', '1', 'form', 'reject-multiple-leave-form', '1', username);
+        }
+    });
+
+    $(document).on('click','#cancel-leave',function() {
+        var leave_id = [];
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                leave_id.push(this.value);  
+            }
+        });
+
+        sessionStorage.setItem('leave_id', leave_id);
+        
+        if(leave_id.length > 0){
+            generate_modal('cancel multiple leave form', 'Cancel Multiple Leave', 'R' , '0', '1', 'form', 'cancel-multiple-leave-form', '1', username);
         }
     });
 

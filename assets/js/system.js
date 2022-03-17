@@ -15,12 +15,14 @@ function initialize_global_functions(){
         check_table_check_box();
         check_lock_unlock_check_box();
         check_activate_deactivate_check_box();
+        check_attendance_creation_adjustment_check_box();
     });
     
     $(document).on('click','.datatable-checkbox-children',function() {
         check_table_check_box();
         check_lock_unlock_check_box();
         check_activate_deactivate_check_box();
+        check_attendance_creation_adjustment_check_box();
     });
 
     $(document).on('click','.view-transaction-log',function() {
@@ -163,7 +165,7 @@ function initialize_form_validation(form_type){
                             }
     
                             $('#System-Modal').modal('hide');
-                            initialize_system_parameter_table('#system-parameter-datatable');
+                            reload_datatable('#system-parameter-datatable');
                         }
                         else{
                             show_alert('System Parameter Error', response, 'error');
@@ -231,8 +233,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-
-                            initialize_policy_table('#policy-datatable');
+                            reload_datatable('#policy-datatable');
                         }
                         else{
                             show_alert('Policy Error', response, 'error');
@@ -306,7 +307,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_permission_table('#permission-datatable');
+                            reload_datatable('#permission-datatable');
                         }
                         else{
                             show_alert('Permission Error', response, 'error');
@@ -374,7 +375,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_role_table('#role-datatable');
+                            reload_datatable('#role-datatable');
                         }
                         else{
                             show_alert('Role Error', response, 'error');
@@ -450,7 +451,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_system_code_table('#system-code-datatable');
+                            reload_datatable('#system-code-datatable');
                         }
                         else{
                             show_alert('System Code Error', response, 'error');
@@ -530,8 +531,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-
-                            initialize_notification_type_table('#notification-type-datatable');
+                            reload_datatable('#notification-type-datatable');
                         }
                         else{
                             show_alert('Notification Type Error', response, 'error');
@@ -605,7 +605,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_department_table('#department-datatable');
+                            reload_datatable('#department-datatable');
                         }
                         else{
                             show_alert('Department Error', response, 'error');
@@ -686,7 +686,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_designation_table('#designation-datatable');
+                            reload_datatable('#designation-datatable');
                         }
                         else if(response === 'File Size'){
                             show_alert('Designation Error', 'The file uploaded exceeds the maximum file size.', 'error');
@@ -766,7 +766,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_branch_table('#branch-datatable');
+                            reload_datatable('#branch-datatable');
                         }
                         else{
                             show_alert('Branch Error', response, 'error');
@@ -841,7 +841,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_upload_setting_table('#upload-setting-datatable');
+                            reload_datatable('#upload-setting-datatable');
                         }
                         else{
                             show_alert('Upload Setting Error', response, 'error');
@@ -927,7 +927,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employment_status_table('#employment-status-datatable');
+                            reload_datatable('#employment-status-datatable');
                         }
                         else{
                             show_alert('Employment Status Error', response, 'error');
@@ -1001,12 +1001,12 @@ function initialize_form_validation(form_type){
                         if(response === 'Updated' || response === 'Inserted'){
                             if(response === 'Inserted'){
                                 show_alert('Insert Employee Success', 'The employee has been inserted.', 'success');
-                                initialize_employee_table('#employee-datatable');
+                                reload_datatable('#employee-datatable');
                             }
                             else{
                                 if($('#employee-datatable').length){
                                     show_alert('Update Employee Success', 'The employee has been updated.', 'success');
-                                    initialize_employee_table('#employee-datatable');
+                                    reload_datatable('#employee-datatable');
                                 }
                                 else{
                                     show_alert_event('Update Employee Success', 'The employee has been updated.', 'success', 'reload');
@@ -1190,7 +1190,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_emergency_contact_table('#emergency-contact-datatable');
+                            reload_datatable('#emergency-contact-datatable');
                         }
                         else{
                             show_alert('Emergency Contact Error', response, 'error');
@@ -1288,7 +1288,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_address_table('#employee-address-datatable');
+                            reload_datatable('#employee-address-datatable');
                         }
                         else{
                             show_alert('Employee Address Error', response, 'error');
@@ -1374,7 +1374,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_social_table('#employee-social-datatable');
+                            reload_datatable('#employee-social-datatable');
                         }
                         else{
                             show_alert('Employee Social Error', response, 'error');
@@ -1448,7 +1448,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_work_shift_table('#work-shift-datatable');
+                            reload_datatable('#work-shift-datatable');
                         }
                         else{
                             show_alert('Work Shift Error', response, 'error');
@@ -1528,7 +1528,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_work_shift_table('#work-shift-datatable');
+                            reload_datatable('#work-shift-datatable');
                         }
                         else{
                             show_alert('Work Shift Error', response, 'error');
@@ -2388,7 +2388,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_work_shift_table('#work-shift-datatable');
+                            reload_datatable('#work-shift-datatable');
                         }
                         else{
                             show_alert('Work Shift Error', response, 'error');
@@ -3256,7 +3256,7 @@ function initialize_form_validation(form_type){
                             show_alert('Assign Work Shift Success', 'The work shift has been assigned.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_work_shift_table('#work-shift-datatable');
+                            reload_datatable('#work-shift-datatable');
                         }
                         else if(response === 'Not Found'){
                             show_alert('Assign Work Shift Error', 'The work shift does not exist.', 'error');
@@ -3327,7 +3327,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_attendance_table('#employee-attendance-datatable');
+                            reload_datatable('#employee-attendance-datatable');
                         }
                         else if(response === 'Max Attendance'){
                             show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
@@ -3410,7 +3410,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_leave_type_table('#leave-type-datatable');
+                            reload_datatable('#leave-type-datatable');
                         }
                         else{
                             show_alert('Leave Type Error', response, 'error');
@@ -3487,7 +3487,7 @@ function initialize_form_validation(form_type){
                             show_alert('Insert Leave Entitlement Success', 'The leave entitlement has been inserted.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                            reload_datatable('#leave-entitlement-datatable');
                         }
                         else{
                             show_alert('Leave Entitlement Error', response, 'error');
@@ -3576,7 +3576,7 @@ function initialize_form_validation(form_type){
                             show_alert('Update Leave Entitlement Success', 'The leave entitlement has been updated.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_leave_entitlement_table('#leave-entitlement-datatable');
+                            reload_datatable('#leave-entitlement-datatable');
                         }
                         else if(response == 'Overlap'){
                             show_alert('Leave Entitlement Error', 'The leave entitlement overlaps with an existing entitlement.', 'error');
@@ -3661,7 +3661,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_leave_entitlement_table('#employee-leave-entitlement-datatable');
+                            reload_datatable('#employee-leave-entitlement-datatable');
                         }
                         else if(response == 'Overlap'){
                             show_alert('Employee Leave Entitlement Error', 'The employee leave entitlement overlaps with an existing entitlement.', 'error');
@@ -3745,7 +3745,7 @@ function initialize_form_validation(form_type){
                             show_alert('Insert Leave Success', 'The employee leave has been inserted.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_leave_table('#leave-datatable');
+                            reload_datatable('#leave-datatable');
                         }
                         else if(response === 'Leave Entitlement'){
                             show_alert('Insert Leave Error', 'The leave entitlement was consumed.', 'error');
@@ -3857,11 +3857,11 @@ function initialize_form_validation(form_type){
                             $('#System-Modal').modal('hide');
 
                             if($('#leave-datatable').length){
-                                initialize_leave_table('#leave-datatable');
+                                reload_datatable('#leave-datatable');
                             }
 
                             if($('#employee-leave-datatable').length){
-                                initialize_employee_leave_table('#employee-leave-datatable');
+                                reload_datatable('#employee-leave-datatable');
                             }
                         }
                         else if(response === 'Not Found'){
@@ -3891,7 +3891,7 @@ function initialize_form_validation(form_type){
                                                 show_alert('Leave Approval Success', 'The leave has been approved.', 'success');
                     
                                                 $('#System-Modal').modal('hide');
-                                                initialize_leave_table('#leave-datatable');
+                                                reload_datatable('#leave-datatable');
                                             }
                                             else{
                                                 show_alert('Leave Approval Error', response, 'error');
@@ -3960,11 +3960,11 @@ function initialize_form_validation(form_type){
                             $('#System-Modal').modal('hide');
 
                             if($('#leave-datatable').length){
-                                initialize_leave_table('#leave-datatable');
+                                reload_datatable('#leave-datatable');
                             }
 
                             if($('#employee-leave-datatable').length){
-                                initialize_employee_leave_table('#employee-leave-datatable');
+                                reload_datatable('#employee-leave-datatable');
                             }
                         }
                         else if(response === 'Not Found'){
@@ -4028,20 +4028,20 @@ function initialize_form_validation(form_type){
                     },
                     success: function (response) {
                         if(response === 'Cancelled'){
-                            show_alert('Leave Rejection Success', 'The leave has been cancelled.', 'success');
+                            show_alert('Leave Cancellation Success', 'The leave has been cancelled.', 'success');
 
                             $('#System-Modal').modal('hide');
                             
                             if($('#leave-datatable').length){
-                                initialize_leave_table('#leave-datatable');
+                                reload_datatable('#leave-datatable');
                             }
 
                             if($('#employee-leave-datatable').length){
-                                initialize_employee_leave_table('#employee-leave-datatable');
+                                reload_datatable('#employee-leave-datatable');
                             }
                         }
                         else if(response === 'Not Found'){
-                            show_alert('Leave Rejection Error', 'The leave does not exist.', 'info');
+                            show_alert('Leave Cancellation Error', 'The leave does not exist.', 'info');
                         }
                         else{
                             show_alert('Leave Error', response, 'error');
@@ -4104,7 +4104,7 @@ function initialize_form_validation(form_type){
                             show_alert('Insert Leave Success', 'The employee leave has been inserted.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_leave_table('#employee-leave-datatable');
+                            reload_datatable('#employee-leave-datatable');
                         }
                         else if(response === 'Leave Entitlement'){
                             show_alert('Insert Leave Error', 'The leave entitlement was consumed.', 'error');
@@ -4218,7 +4218,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_file_management_table('#employee-file-datatable');
+                            reload_datatable('#employee-file-datatable');
                         }
                         else if(response === 'File Size'){
                             show_alert('Employee File Error', 'The file uploaded exceeds the maximum file size.', 'error');
@@ -4338,7 +4338,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_employee_file_management_table('#employee-file-datatable');
+                            reload_datatable('#employee-file-datatable');
                         }
                         else if(response === 'File Size'){
                             show_alert('Employee File Error', 'The file uploaded exceeds the maximum file size.', 'error');
@@ -4447,7 +4447,7 @@ function initialize_form_validation(form_type){
                             show_alert('Insert User Account Success', 'The user account has been inserted.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_user_account_table('#user-account-datatable');
+                            reload_datatable('#user-account-datatable');
                         }
                         else{
                             show_alert('User Account Error', response, 'error');
@@ -4524,7 +4524,7 @@ function initialize_form_validation(form_type){
                             show_alert('Update User Account Success', 'The user account has been updated.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            initialize_user_account_table('#user-account-datatable');
+                            reload_datatable('#user-account-datatable');
                         }
                         else if(response === 'Not Found'){
                             show_alert('User Account', 'The user account does not exist.', 'info');
@@ -4596,7 +4596,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_holiday_table('#holiday-datatable');
+                            reload_datatable('#holiday-datatable');
                         }
                         else{
                             show_alert('Holiday Error', response, 'error');
@@ -4796,7 +4796,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            initialize_attendance_record_table('#attendance-record-datatable');
+                            reload_datatable('#attendance-record-datatable');
                         }
                         else if(response === 'Max Attendance'){
                             show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
@@ -5091,9 +5091,9 @@ function initialize_form_validation(form_type){
 
                             $('#System-Modal').modal('hide');
 
-                            /*if($('#attendance-creation-datatable').length){
-                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
-                            }*/
+                            if($('#attendance-creation-datatable').length){
+                                reload_datatable('#attendance-creation-datatable');
+                            }
                         }
                         else if(response === 'Time In'){
                             show_alert('Attendance Creation Error', 'The time in cannot be greater than the time out.', 'error');
@@ -5237,10 +5237,6 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-
-                            /*if($('#attendance-creation-datatable').length){
-                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
-                            }*/
                         }
                         else if(response === 'Time In'){
                             show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
@@ -5357,10 +5353,6 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-
-                            /*if($('#attendance-creation-datatable').length){
-                                initialize_employee_attendance_record_table('#attendance-creation-datatable');
-                            }*/
                         }
                         else if(response === 'Time In'){
                             show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
@@ -5412,6 +5404,476 @@ function initialize_form_validation(form_type){
                 reason: {
                     required: 'Please enter the reason',
                 }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel attendance creation form'){
+        $('#cancel-attendance-creation-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel attendance creation';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Attendance Creation Cancellation Success', 'The attendance creation has been cancelled.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            
+                            reload_datatable('#attendance-creation-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Attendance Creation Cancellation Error', 'The attendance creation does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Attendance Creation Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel multiple attendance creation form'){
+        $('#cancel-multiple-attendance-creation-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel multiple attendance creation';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Multiple Attendance Creation Cancellation Success', 'The multiple attendance creation has been cancelled.', 'success');
+                        }
+                        else{
+                            show_alert('MultipleAttendance Creation Error', response, 'error');
+                        }
+
+                        $('#System-Modal').modal('hide');
+                            
+                        reload_datatable('#attendance-creation-datatable');
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment full update form'){
+        $('#attendance-adjustment-full-update-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit attendance adjustment update';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            show_alert('Update Attendance Adjustment', 'The attendance adjustment has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+
+                            reload_datatable('#attendance-adjustment-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Attendance Adjustment Error', 'The attendance adjustment does not exist.', 'error');
+                        }
+                        else if(response === 'Time In'){
+                            show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Attendance Adjustment Error', 'The time out cannot be less than the time in.', 'error');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                },
+                time_out_date: {
+                    required: true
+                },
+                time_out: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                },
+                time_out_date: {
+                    required: 'Please choose the time out date',
+                },
+                time_out: {
+                    required: 'Please choose the time out',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment partial update form'){
+        $('#attendance-adjustment-partial-update-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit attendance adjustment update';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Attendance Adjustment', 'The attendance adjustment has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+
+                            reload_datatable('#attendance-adjustment-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Attendance Adjustment Error', 'The attendance adjustment does not exist.', 'error');
+                        }
+                        else if(response === 'Time In'){
+                            show_alert('Attendance Adjustment Error', 'The time in cannot be greater than the time out.', 'error');
+                        }
+                        else if(response === 'Time Out'){
+                            show_alert('Attendance Adjustment Error', 'The time out cannot be less than the time in.', 'error');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Attendance Adjustment Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                time_in_date: {
+                    required: true
+                },
+                time_in: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                time_in_date: {
+                    required: 'Please choose the time in date',
+                },
+                time_in: {
+                    required: 'Please choose the time in',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel attendance adjustment form'){
+        $('#cancel-attendance-adjustment-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel attendance adjustment';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Attendance Adjustment Cancellation Success', 'The attendance adjustment has been cancelled.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            
+                            reload_datatable('#attendance-adjustment-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Attendance Adjustment Cancellation Error', 'The attendance adjustment does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel multiple attendance adjustment form'){
+        $('#cancel-multiple-attendance-adjustment-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel multiple attendance adjustment';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Multiple Attendance Adjustment Cancellation Success', 'The multiple attendance adjustment has been cancelled.', 'success');
+                        }
+                        else{
+                            show_alert('MultipleAttendance Adjustment Error', response, 'error');
+                        }
+
+                        $('#System-Modal').modal('hide');
+                            
+                        reload_datatable('#attendance-adjustment-datatable');
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
             },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
@@ -5568,6 +6030,10 @@ function generate_form(form_type, form_id, add, username){
                 else if(form_type == 'time in form' || form_type == 'get location form'){
                     get_location('');
                 }
+                else if(form_type == 'approve attendance creation form' || form_type == 'reject attendance creation form' || form_type == 'cancel attendance creation form' || form_type == 'reject multiple attendance creation form' || form_type == 'cancel multiple attendance creation form' || form_type == 'approve attendance adjustment form' || form_type == 'reject attendance adjustment form' || form_type == 'cancel attendance adjustment form' || form_type == 'reject multiple attendance adjustment form' || form_type == 'cancel multiple attendance adjustment form'){
+                    var request_id = sessionStorage.getItem('request_id');
+                    $('#request_id').val(request_id);
+                }
             }
 
             initialize_elements();
@@ -5605,7 +6071,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details'){
+                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -5751,6 +6217,12 @@ function reset_element_validation(element){
     $(element).parent().removeClass('has-danger');
     $(element).removeClass('form-control-danger');
     $(element + '-error').remove();
+}
+
+// Reload functions
+function reload_datatable(datatable){
+    hide_multiple_buttons();
+    $(datatable).DataTable().ajax.reload();
 }
 
 // Display functions
@@ -6804,6 +7276,135 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'attendance creation form'){
+        transaction = 'attendance creation details';
+
+        var request_id = sessionStorage.getItem('request_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {request_id : request_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE);
+                $('#time_in').val(response[0].TIME_IN);
+                $('#time_out_date').val(response[0].TIME_OUT_DATE);
+                $('#time_out').val(response[0].TIME_OUT);
+                $('#reason').val(response[0].REASON);
+                $('#request_id').val(request_id);
+                $('#update').val('1');
+            }
+        });
+    }
+    else if(form_type == 'attendance creation details'){
+        transaction = 'attendance creation summary details';
+
+        var request_id = sessionStorage.getItem('request_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {request_id : request_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#time_in_date').text(response[0].TIME_IN_DATE);
+                $('#time_in').text(response[0].TIME_IN);
+                $('#time_out_date').text(response[0].TIME_OUT_DATE);
+                $('#time_out').text(response[0].TIME_OUT);
+                document.getElementById('attachment').innerHTML = response[0].ATTACHMENT;
+                document.getElementById('creation_status').innerHTML = response[0].STATUS;
+                $('#reason').text(response[0].REASON);
+                $('#request_date').text(response[0].REQUEST_DATE);
+                $('#request_time').text(response[0].REQUEST_TIME);
+                $('#for_recommendation_date').text(response[0].FOR_RECOMMENDATION_DATE);
+                $('#for_recommendation_time').text(response[0].FOR_RECOMMENDATION_TIME);
+                $('#recommendation_date').text(response[0].RECOMMENDATION_DATE);
+                $('#recommendation_time').text(response[0].RECOMMENDATION_TIME);
+                $('#recommendation_by').text(response[0].RECOMMENDATION_BY);
+                $('#decision_date').text(response[0].DECISION_DATE);
+                $('#decision_time').text(response[0].DECISION_TIME);
+                $('#decision_remarks').text(response[0].DECISION_REMARKS);
+                $('#decision_by').text(response[0].DECISION_BY);
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment details'){
+        transaction = 'attendance adjustment summary details';
+
+        var request_id = sessionStorage.getItem('request_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {request_id : request_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#time_in_date').text(response[0].TIME_IN_DATE);
+                $('#time_in').text(response[0].TIME_IN);
+                $('#time_in_date_adjustment').text(response[0].TIME_IN_DATE_ADJUSTMENT);
+                $('#time_in_adjustment').text(response[0].TIME_IN_ADJUSTMENT);
+                $('#time_out_date').text(response[0].TIME_OUT_DATE);
+                $('#time_out').text(response[0].TIME_OUT);
+                $('#time_out_date_adjustment').text(response[0].TIME_OUT_DATE_ADJUSTMENT);
+                $('#time_out_adjustment').text(response[0].TIME_OUT_ADJUSTMENT);
+                document.getElementById('attachment').innerHTML = response[0].ATTACHMENT;
+                document.getElementById('creation_status').innerHTML = response[0].STATUS;
+                $('#reason').text(response[0].REASON);
+                $('#request_date').text(response[0].REQUEST_DATE);
+                $('#request_time').text(response[0].REQUEST_TIME);
+                $('#for_recommendation_date').text(response[0].FOR_RECOMMENDATION_DATE);
+                $('#for_recommendation_time').text(response[0].FOR_RECOMMENDATION_TIME);
+                $('#recommendation_date').text(response[0].RECOMMENDATION_DATE);
+                $('#recommendation_time').text(response[0].RECOMMENDATION_TIME);
+                $('#recommendation_by').text(response[0].RECOMMENDATION_BY);
+                $('#decision_date').text(response[0].DECISION_DATE);
+                $('#decision_time').text(response[0].DECISION_TIME);
+                $('#decision_remarks').text(response[0].DECISION_REMARKS);
+                $('#decision_by').text(response[0].DECISION_BY);
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment full update form'){
+        transaction = 'attendance adjustment details';
+
+        var request_id = sessionStorage.getItem('request_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {request_id : request_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE_ADJUSTED);
+                $('#time_in').val(response[0].TIME_IN_ADJUSTED);
+                $('#time_out_date').val(response[0].TIME_OUT_DATE_ADJUSTED);
+                $('#time_out').val(response[0].TIME_OUT_ADJUSTED);
+                $('#reason').val(response[0].REASON);
+                $('#request_id').val(request_id);
+            }
+        });
+    }
+    else if(form_type == 'attendance adjustment partial update form'){
+        transaction = 'attendance adjustment details';
+
+        var request_id = sessionStorage.getItem('request_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {request_id : request_id, transaction : transaction},
+            success: function(response) {
+                $('#time_in_date').val(response[0].TIME_IN_DATE_ADJUSTED);
+                $('#time_in').val(response[0].TIME_IN_ADJUSTED);
+                $('#reason').val(response[0].REASON);
+                $('#request_id').val(request_id);
+            }
+        });
+    }
 }
 
 // Destroy datatable
@@ -6947,6 +7548,65 @@ function check_activate_deactivate_check_box(){
     }
 }
 
+function check_attendance_creation_adjustment_check_box(){
+    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
+    var checked_value = input_elements.filter(chk => chk.checked).length;
+
+    if(checked_value > 0){
+        var cancel_attendance_creation_array = [];
+        var delete_attendance_creation_array = [];
+        var for_recommendation_attendance_creation_array = [];
+        
+        $(".datatable-checkbox-children").each(function () {
+            var cancel = $(this).data('cancel');
+            var delete_attendance_creation = $(this).data('delete');
+            var for_recommendation = $(this).data('for-recommendation');
+
+            if($(this).prop('checked') === true){
+                cancel_attendance_creation_array.push(cancel);
+            }
+
+            if($(this).prop('checked') === true){
+                delete_attendance_creation_array.push(delete_attendance_creation);
+            }
+
+            if($(this).prop('checked') === true){
+                for_recommendation_attendance_creation_array.push(for_recommendation);
+            }
+        });
+
+        var cancel_checker = arr => arr.every(v => v === 1);
+        var delete_checker = arr => arr.every(v => v === 1);
+        var for_recommendation_checker = arr => arr.every(v => v === 1);
+        
+        if(cancel_checker(cancel_attendance_creation_array) ){
+            $('.multiple-attendance-cancel').removeClass('d-none');
+        }
+        else{
+            $('.multiple-attendance-cancel').addClass('d-none');
+        }
+        
+        if(delete_checker(delete_attendance_creation_array) ){
+            $('.multiple').removeClass('d-none');
+        }
+        else{
+            $('.multiple').addClass('d-none');
+        }
+        
+        if(for_recommendation_checker(for_recommendation_attendance_creation_array) ){
+            $('.multiple-attendance-for-recommendation').removeClass('d-none');
+        }
+        else{
+            $('.multiple-attendance-for-recommendation').addClass('d-none');
+        }
+    }
+    else{
+        $('.multiple').addClass('d-none');
+        $('.multiple-attendance-cancel').addClass('d-none');
+        $('.multiple-attendance-for-recommendation').addClass('d-none');
+    }
+}
+
 // Show alert
 function show_alert(title, message, type){
     Swal.fire(title, message, type);
@@ -7018,6 +7678,9 @@ function hide_multiple_buttons(){
     $('.multiple-unlock').addClass('d-none');
     $('.multiple-activate').addClass('d-none');
     $('.multiple-deactivate').addClass('d-none');
+    $('.multiple-approve').addClass('d-none');
+    $('.multiple-reject').addClass('d-none');
+    $('.multiple-cancel').addClass('d-none');
 }
 
 // Form validation rules
@@ -7047,4 +7710,3 @@ $.validator.addMethod('employee_age', function(value, element, min) {
   
     return age >= min;
 }, 'The employee must be at least 18 years old and above');
-

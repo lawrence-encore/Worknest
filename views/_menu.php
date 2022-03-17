@@ -29,7 +29,7 @@
     $attendance_record_page = $api->check_role_permissions($username, 160);
     $employee_attendance_record_page = $api->check_role_permissions($username, 171);
     $attendance_creation_page = $api->check_role_permissions($username, 175);
-    $attendance_adjustment_page = $api->check_role_permissions($username, 180);
+    $attendance_adjustment_page = $api->check_role_permissions($username, 182);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>

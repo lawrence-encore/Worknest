@@ -169,7 +169,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Attendance Record', 'The attendance record has been deleted.', 'success');
 
-                          initialize_attendance_record_table('#attendance-record-datatable');
+                          reload_datatable('#attendance-record-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Attendance Record', 'The attendance record does not exist.', 'info');
@@ -216,7 +216,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Attendance Record', 'The attendance record have been deleted.', 'success');
     
-                                initialize_attendance_record_table('#attendance-record-datatable');
+                                reload_datatable('#attendance-record-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Attendance Record', 'The attendance record does not exist.', 'info');

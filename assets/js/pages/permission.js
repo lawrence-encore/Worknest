@@ -142,7 +142,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Permission', 'The permission has been deleted.', 'success');
 
-                          initialize_permission_table('#permission-datatable');
+                          reload_datatable('#permission-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Permission', 'The permission does not exist.', 'info');
@@ -189,7 +189,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Permissions', 'The permissions have been deleted.', 'success');
     
-                                initialize_permission_table('#permission-datatable');
+                                reload_datatable('#permission-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Permissions', 'The permission does not exist.', 'info');

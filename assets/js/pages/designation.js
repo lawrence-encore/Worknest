@@ -139,7 +139,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Designation', 'The designation has been deleted.', 'success');
 
-                          initialize_designation_table('#designation-datatable');
+                          reload_datatable('#designation-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Designation', 'The designation does not exist.', 'info');
@@ -186,7 +186,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Designations', 'The designations have been deleted.', 'success');
     
-                                initialize_designation_table('#designation-datatable');
+                                reload_datatable('#designation-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Designations', 'The designation does not exist.', 'info');

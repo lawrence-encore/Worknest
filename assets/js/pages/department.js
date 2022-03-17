@@ -143,7 +143,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Department', 'The department has been deleted.', 'success');
 
-                          initialize_department_table('#department-datatable');
+                          reload_datatable('#department-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Department', 'The department does not exist.', 'info');
@@ -190,7 +190,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Departments', 'The departments have been deleted.', 'success');
     
-                                initialize_department_table('#department-datatable');
+                                reload_datatable('#department-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Departments', 'The department does not exist.', 'info');

@@ -147,7 +147,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Branch', 'The branch has been deleted.', 'success');
 
-                          initialize_branch_table('#branch-datatable');
+                          reload_datatable('#branch-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Branch', 'The branch does not exist.', 'info');
@@ -194,7 +194,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Branches', 'The branches have been deleted.', 'success');
     
-                                initialize_branch_table('#branch-datatable');
+                                reload_datatable('#branch-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Branches', 'The branch does not exist.', 'info');

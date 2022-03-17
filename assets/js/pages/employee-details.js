@@ -729,7 +729,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Emergency Contact', 'The emergency contact has been deleted.', 'success');
 
-                          initialize_emergency_contact_table('#emergency-contact-datatable');
+                          reload_datatable('#emergency-contact-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Emergency Contact', 'The emergency contact does not exist.', 'info');
@@ -780,7 +780,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee Address', 'The employee address has been deleted.', 'success');
 
-                          initialize_employee_address_table('#employee-address-datatable');
+                          reload_datatable('#employee-address-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee Address', 'The employee address does not exist.', 'info');
@@ -831,7 +831,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee Social', 'The employee social has been deleted.', 'success');
 
-                          initialize_employee_social_table('#employee-social-datatable');
+                          reload_datatable('#employee-social-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee Social', 'The employee social does not exist.', 'info');
@@ -890,7 +890,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee Attendance', 'The employee attendance has been deleted.', 'success');
 
-                          initialize_employee_attendance_table('#employee-attendance-datatable');
+                          reload_datatable('#employee-attendance-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee Attendance', 'The employee attendance does not exist.', 'info');
@@ -941,7 +941,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee Leave Entitlement', 'The employee leave entitlement has been deleted.', 'success');
 
-                          initialize_employee_leave_entitlement_table('#employee-leave-entitlement-datatable');
+                          reload_datatable('#leave-entitlement-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee Leave Entitlement', 'The employee leave entitlement does not exist.', 'info');
@@ -1016,7 +1016,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Leave', 'The leave has been deleted.', 'success');
 
-                          initialize_employee_leave_table('#employee-leave-datatable');
+                          reload_datatable('#employee-leave-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Leave', 'The leave does not exist.', 'info');
@@ -1075,7 +1075,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee File', 'The employee file has been deleted.', 'success');
 
-                          initialize_employee_file_management_table('#employee-file-datatable');
+                          reload_datatable('#employee-file-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee File', 'The employee file does not exist.', 'info');

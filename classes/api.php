@@ -1210,6 +1210,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_attendance_adjustment_exist
+    # Purpose    : Checks if the attendance adjustment exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_attendance_adjustment_exist($request_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_attendance_adjustment_exist(:request_id)');
+            $sql->bindValue(':request_id', $request_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -3218,20 +3243,25 @@ class Api{
             $system_date = date('Y-m-d');
             $system_time = date('H:i:s');
 
-            if($status == 0){
+            if($status == 'REJ'){
                 $record_log = 'REJ->' . $username . '->' . date('Y-m-d h:i:s');
                 $log_type = 'Reject';
                 $log = 'User ' . $username . ' rejected leave (' . $leave_id . ').';
             }
-            else if($status == 1){
+            else if($status == 'APV'){
                 $record_log = 'APV->' . $username . '->' . date('Y-m-d h:i:s');
                 $log_type = 'Approve';
                 $log = 'User ' . $username . ' approved leave (' . $leave_id . ').';
             }
-            else{
+            else if($status == 'CAN'){
                 $record_log = 'CAN->' . $username . '->' . date('Y-m-d h:i:s');
                 $log_type = 'Cancel';
-                $log = 'User ' . $username . ' cancelled leave (' . $leave_id . ').';
+                $log = 'User ' . $username . ' approved leave (' . $leave_id . ').';
+            }
+            else{
+                $record_log = 'APVSYS->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Approved';
+                $log = 'User ' . $username . ' approved system generated leave (' . $leave_id . ').';
             }
 
             $leave_details = $this->get_leave_details($leave_id);
@@ -4171,6 +4201,156 @@ class Api{
             }
             else{
                 return 1;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_attendance_creation_status
+    # Purpose    : Update attendance creation status.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_attendance_creation_status($request_id, $status, $decision_remarks, $username){
+        if ($this->databaseConnection()) {
+            
+            $system_date = date('Y-m-d');
+            $system_time = date('H:i:s');
+
+            if($status == 'APV'){
+                $record_log = 'APV->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Approve';
+                $log = 'User ' . $username . ' approved attendance creation (' . $request_id . ').';
+            }
+            else if($status == 'CAN'){
+                $record_log = 'CAN->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Cancel';
+                $log = 'User ' . $username . ' cancelled attendance creation (' . $request_id . ').';
+            }
+            else if($status == 'FRREC'){
+                $record_log = 'FRREC->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'For Recommendation';
+                $log = 'User ' . $username . ' tagged the attendance creation for recommendation (' . $request_id . ').';
+            }
+            else if($status == 'REC'){
+                $record_log = 'REC->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Recommend';
+                $log = 'User ' . $username . ' recommended attendance creation (' . $request_id . ').';
+            }
+            else if($status == 'PEN'){
+                $record_log = 'PEN->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Pending';
+                $log = 'User ' . $username . ' tagged the attendance creation as pending (' . $request_id . ').';
+            }
+            else{
+                $record_log = 'REJ->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Reject';
+                $log = 'User ' . $username . ' rejected attendance creation (' . $request_id . ').';
+            }
+
+            $attendance_creation_details = $this->get_attendance_creation_details($request_id);
+            $transaction_log_id = $attendance_creation_details[0]['TRANSACTION_LOG_ID'];
+
+            $sql = $this->db_connection->prepare("CALL update_attendance_creation_status(:request_id, :status, :decision_remarks, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
+            $sql->bindValue(':request_id', $request_id);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':system_time', $system_time);
+            $sql->bindValue(':username', $username);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
+
+                if($insert_transaction_log == 1){
+                    return 1;
+                }
+                else{
+                    return $insert_transaction_log;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_attendance_adjustment_status
+    # Purpose    : Update attendance adjustment status.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_attendance_adjustment_status($request_id, $status, $decision_remarks, $username){
+        if ($this->databaseConnection()) {
+            
+            $system_date = date('Y-m-d');
+            $system_time = date('H:i:s');
+
+            if($status == 'APV'){
+                $record_log = 'APV->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Approve';
+                $log = 'User ' . $username . ' approved attendance adjustment (' . $request_id . ').';
+            }
+            else if($status == 'CAN'){
+                $record_log = 'CAN->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Cancel';
+                $log = 'User ' . $username . ' cancelled attendance adjustment (' . $request_id . ').';
+            }
+            else if($status == 'FRREC'){
+                $record_log = 'FRREC->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'For Recommendation';
+                $log = 'User ' . $username . ' tagged the attendance adjustment for recommendation (' . $request_id . ').';
+            }
+            else if($status == 'REC'){
+                $record_log = 'REC->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Recommend';
+                $log = 'User ' . $username . ' recommended attendance adjustment (' . $request_id . ').';
+            }
+            else if($status == 'PEN'){
+                $record_log = 'PEN->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Pending';
+                $log = 'User ' . $username . ' tagged the attendance adjustment as pending (' . $request_id . ').';
+            }
+            else{
+                $record_log = 'REJ->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Reject';
+                $log = 'User ' . $username . ' rejected attendance adjustment (' . $request_id . ').';
+            }
+
+            $attendance_adjustment_details = $this->get_attendance_adjustment_details($request_id);
+            $transaction_log_id = $attendance_adjustment_details[0]['TRANSACTION_LOG_ID'];
+
+            $sql = $this->db_connection->prepare("CALL update_attendance_adjustment_status(:request_id, :status, :decision_remarks, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
+            $sql->bindValue(':request_id', $request_id);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':system_time', $system_time);
+            $sql->bindValue(':username', $username);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
+
+                if($insert_transaction_log == 1){
+                    return 1;
+                }
+                else{
+                    return $insert_transaction_log;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
             }
         }
     }
@@ -9332,6 +9512,11 @@ class Api{
                         'FILE_PATH' => $row['FILE_PATH'],
                         'REQUEST_DATE' => $row['REQUEST_DATE'],
                         'REQUEST_TIME' => $row['REQUEST_TIME'],
+                        'FOR_RECOMMENDATION_DATE' => $row['FOR_RECOMMENDATION_DATE'],
+                        'FOR_RECOMMENDATION_TIME' => $row['FOR_RECOMMENDATION_TIME'],
+                        'RECOMMENDATION_DATE' => $row['RECOMMENDATION_DATE'],
+                        'RECOMMENDATION_TIME' => $row['RECOMMENDATION_TIME'],
+                        'RECOMMENDED_BY' => $row['RECOMMENDED_BY'],
                         'DECISION_REMARKS' => $row['DECISION_REMARKS'],
                         'DECISION_DATE' => $row['DECISION_DATE'],
                         'DECISION_TIME' => $row['DECISION_TIME'],
@@ -9382,6 +9567,11 @@ class Api{
                         'FILE_PATH' => $row['FILE_PATH'],
                         'REQUEST_DATE' => $row['REQUEST_DATE'],
                         'REQUEST_TIME' => $row['REQUEST_TIME'],
+                        'FOR_RECOMMENDATION_DATE' => $row['FOR_RECOMMENDATION_DATE'],
+                        'FOR_RECOMMENDATION_TIME' => $row['FOR_RECOMMENDATION_TIME'],
+                        'RECOMMENDATION_DATE' => $row['RECOMMENDATION_DATE'],
+                        'RECOMMENDATION_TIME' => $row['RECOMMENDATION_TIME'],
+                        'RECOMMENDED_BY' => $row['RECOMMENDED_BY'],
                         'DECISION_REMARKS' => $row['DECISION_REMARKS'],
                         'DECISION_DATE' => $row['DECISION_DATE'],
                         'DECISION_TIME' => $row['DECISION_TIME'],
@@ -9547,15 +9737,15 @@ class Api{
         $response = array();
 
         switch ($stat) {
-            case '0':
+            case 'REG':
                 $status = 'Regular';
                 $button_class = 'bg-success';
                 break;
-            case '1':
+            case 'EARLY':
                 $status = 'Early';
                 $button_class = 'bg-info';
                 break;
-            case '2':
+            case 'LATE':
                 $status = 'Late';
                 $button_class = 'bg-danger';
                 break;
@@ -9585,15 +9775,15 @@ class Api{
         $response = array();
 
         switch ($stat) {
-            case '0':
+            case 'REG':
                 $status = 'Regular';
                 $button_class = 'bg-success';
                 break;
-            case '1':
+            case 'OT':
                 $status = 'Overtime';
                 $button_class = 'bg-info';
                 break;
-            case '2':
+            case 'EL':
                 $status = 'Early Leaving';
                 $button_class = 'bg-danger';
                 break;
@@ -9622,11 +9812,11 @@ class Api{
     public function get_leave_status($stat, $system_date, $leave_date){
         $response = array();
 
-        if($stat == '0'){
+        if($stat == 'REJ'){
             $status = 'Rejected';
             $button_class = 'bg-danger';
         }
-        else if($stat == '1'){
+        else if($stat == 'APV'){
             if(strtotime($system_date) >= strtotime($leave_date)){
                 $status = 'Taken';
                 $button_class = 'bg-primary';
@@ -9636,11 +9826,11 @@ class Api{
                 $button_class = 'bg-success';
             }
         }
-        else if($stat == '2'){
+        else if($stat == 'PEN'){
             $status = 'Pending';
             $button_class = 'bg-info';
         }
-        else if($stat == '3'){
+        else if($stat == 'CAN'){
             $status = 'Cancelled';
             $button_class = 'bg-warning';
         }
@@ -9950,13 +10140,13 @@ class Api{
         $work_shift_late_allowance = $this->check_date('empty', $work_shift_time_in, '', 'H:i:00', '+'. $late_allowance .' minutes', '', '');
 
         if(strtotime($time_in) < strtotime($work_shift_time_in)){
-            return '1';
+            return 'EARLY';
         }
         else if(strtotime($time_in) >= strtotime($work_shift_late_allowance)){
-            return '2';
+            return 'LATE';
         }
         else{
-            return '0';
+            return 'REG';
         }
     }
     # -------------------------------------------------------------
@@ -9978,13 +10168,13 @@ class Api{
         $work_shift_time_out = strtotime($work_shift_schedule[0]['END_TIME']);
 
         if($time_out == $work_shift_time_out){
-            return '0';
+            return 'REG';
         }
         else if($time_out > $work_shift_time_out){
-            return '1';
+            return 'OT';
         }
         else{
-            return '2';
+            return 'EL';
         }
     }
     # -------------------------------------------------------------
@@ -10250,7 +10440,7 @@ class Api{
     # -------------------------------------------------------------
     #
     # Name       : get_health_declaration_count
-    # Purpose    : Gets the total health declaration by date
+    # Purpose    : Gets the total health declaration by date.
     #
     # Returns    : Number
     #
@@ -10270,6 +10460,96 @@ class Api{
                 return $sql->errorInfo()[2];
             }
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_creation_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_creation_status($stat){
+        $response = array();
+
+        if($stat == 'PEN'){
+            $status = 'Pending';
+            $button_class = 'bg-info';
+        }
+        else if($stat == 'APV'){
+            $status = 'Approved';
+            $button_class = 'bg-success';
+        }
+        else if($stat == 'REJ'){
+            $status = 'Rejected';
+            $button_class = 'bg-danger';
+        }
+        else if($stat == 'CAN'){
+            $status = 'Cancelled';
+            $button_class = 'bg-warning';
+        }
+        else if($stat == 'FRREC'){
+            $status = 'For Recommendation';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'Recommended';
+            $button_class = 'bg-info';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_adjustment_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_adjustment_status($stat){
+        $response = array();
+
+        if($stat == 'PEN'){
+            $status = 'Pending';
+            $button_class = 'bg-info';
+        }
+        else if($stat == 'APV'){
+            $status = 'Approved';
+            $button_class = 'bg-success';
+        }
+        else if($stat == 'REJ'){
+            $status = 'Rejected';
+            $button_class = 'bg-danger';
+        }
+        else if($stat == 'CAN'){
+            $status = 'Cancelled';
+            $button_class = 'bg-warning';
+        }
+        else if($stat == 'FRREC'){
+            $status = 'For Recommendation';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'Recommended';
+            $button_class = 'bg-info';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
     }
     # -------------------------------------------------------------
 

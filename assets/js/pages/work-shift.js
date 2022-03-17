@@ -163,7 +163,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Work Shift', 'The work shift has been deleted.', 'success');
 
-                          initialize_work_shift_table('#work-shift-datatable');
+                          reload_datatable('#work-shift-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Work Shift', 'The work shift does not exist.', 'info');
@@ -210,7 +210,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Work Shifts', 'The work shifts have been deleted.', 'success');
     
-                                initialize_work_shift_table('#work-shift-datatable');
+                                reload_datatable('#work-shift-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Work Shifts', 'The work shift does not exist.', 'info');

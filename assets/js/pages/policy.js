@@ -139,7 +139,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Policy', 'The policy has been deleted.', 'success');
 
-                          initialize_policy_table('#policy-datatable');
+                          reload_datatable('#policy-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Policy', 'The policy does not exist.', 'info');
@@ -186,7 +186,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Policies', 'The policies have been deleted.', 'success');
     
-                                initialize_policy_table('#policy-datatable');
+                                reload_datatable('#policy-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Policies', 'The policy does not exist.', 'info');

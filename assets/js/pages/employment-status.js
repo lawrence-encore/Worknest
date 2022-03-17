@@ -141,7 +141,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employment Status', 'The employment status has been deleted.', 'success');
 
-                          initialize_employment_status_table('#employment-status-datatable');
+                          reload_datatable('#employment-status-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employment Status', 'The employment status does not exist.', 'info');
@@ -188,7 +188,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Employment Status', 'The employment status have been deleted.', 'success');
     
-                                initialize_employment_status_table('#employment-status-datatable');
+                                reload_datatable('#employment-status-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Employment Status', 'The employment status does not exist.', 'info');

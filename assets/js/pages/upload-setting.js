@@ -145,7 +145,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Upload Setting', 'The upload setting has been deleted.', 'success');
 
-                          initialize_upload_setting_table('#upload-setting-datatable');
+                          reload_datatable('#upload-setting-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Upload Setting', 'The upload setting does not exist.', 'info');
@@ -192,7 +192,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Upload Settings', 'The upload settings have been deleted.', 'success');
     
-                                initialize_upload_setting_table('#upload-setting-datatable');
+                                reload_datatable('#upload-setting-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Upload Settings', 'The upload setting does not exist.', 'info');

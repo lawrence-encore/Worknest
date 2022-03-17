@@ -145,7 +145,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete System Code', 'The system code has been deleted.', 'success');
 
-                          initialize_system_code_table('#system-code-datatable');
+                          reload_datatable('#system-code-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete System Code', 'The system code does not exist.', 'info');
@@ -194,7 +194,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple System Codes', 'The system codes have been deleted.', 'success');
     
-                                initialize_system_code_table('#system-code-datatable');
+                                reload_datatable('#system-code-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple System Codes', 'The system code does not exist.', 'info');

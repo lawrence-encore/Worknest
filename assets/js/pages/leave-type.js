@@ -143,7 +143,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Leave Type', 'The leave type has been deleted.', 'success');
 
-                          initialize_leave_type_table('#leave-type-datatable');
+                          reload_datatable('#leave-type-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Leave Type', 'The leave type does not exist.', 'info');
@@ -190,7 +190,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Leave Types', 'The leave types have been deleted.', 'success');
     
-                                initialize_leave_type_table('#leave-type-datatable');
+                                reload_datatable('#leave-type-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Leave Types', 'The leave type does not exist.', 'info');

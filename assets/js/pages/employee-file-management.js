@@ -159,7 +159,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee File', 'The employee file has been deleted.', 'success');
 
-                          initialize_employee_file_management_table('#employee-file-datatable');
+                          reload_datatable('#employee-file-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee File', 'The employee file does not exist.', 'info');
@@ -206,7 +206,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Employee Files', 'The employee files have been deleted.', 'success');
     
-                                initialize_employee_file_management_table('#employee-file-datatable');
+                                reload_datatable('#employee-file-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Employee Files', 'The employee file does not exist.', 'info');

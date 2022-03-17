@@ -147,7 +147,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Holiday', 'The holiday has been deleted.', 'success');
 
-                          initialize_holiday_table('#holiday-datatable');
+                          reload_datatable('#holiday-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Holiday', 'The holiday does not exist.', 'info');
@@ -194,7 +194,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Holidays', 'The holidays have been deleted.', 'success');
     
-                                initialize_holiday_table('#holiday-datatable');
+                                reload_datatable('#holiday-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Holidays', 'The holiday does not exist.', 'info');

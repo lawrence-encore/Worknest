@@ -3656,6 +3656,28 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE update_attendance_creation_status(IN request_id VARCHAR(100), IN status VARCHAR(10), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @status = status;
+	SET @decision_remarks = decision_remarks;
+	SET @decision_date = decision_date;
+	SET @decision_time = decision_time;
+	SET @decision_by = decision_by;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	IF @status = 'APV' OR @status = 'REJ' OR @status = 'CAN' THEN
+		SET @query = 'UPDATE tblattendancecreation SET STATUS = @status, DECISION_REMARKS = @decision_remarks, DECISION_DATE = @decision_date, DECISION_TIME = @decision_time, DECISION_BY = @decision_by, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
+	ELSE
+		SET @query = 'UPDATE tblattendancecreation SET STATUS = @status, DECISION_REMARKS = null, DECISION_DATE = null, DECISION_TIME = null, DECISION_BY = null, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 /* Insert */
 
 INSERT INTO tbluseraccount (USERNAME, PASSWORD, USER_ROLE, ACTIVE, PASSWORD_EXPIRY_DATE, FAILED_LOGIN, TRANSACTION_LOG_ID) VALUES ('ADMIN', '68aff5412f35ed76', 'RL-1', 1, '2021-12-30', 0);

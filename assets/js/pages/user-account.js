@@ -162,7 +162,7 @@ function initialize_click_events(){
                         if(response === 'Unlocked'){
                           show_alert('Unlock User Account', 'The user account has been unlocked.', 'success');
 
-                          initialize_user_account_table('#user-account-datatable');
+                          reload_datatable('#user-account-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Unlock User Account', 'The user account does not exist.', 'info');
@@ -201,7 +201,7 @@ function initialize_click_events(){
                         if(response === 'Locked'){
                           show_alert('Lock User Account', 'The user account has been locked.', 'success');
 
-                          initialize_user_account_table('#user-account-datatable');
+                          reload_datatable('#user-account-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Lock User Account', 'The user account does not exist.', 'info');
@@ -240,7 +240,7 @@ function initialize_click_events(){
                         if(response === 'Activated'){
                           show_alert('Activate User Account', 'The user account has been activated.', 'success');
 
-                          initialize_user_account_table('#user-account-datatable');
+                          reload_datatable('#user-account-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Activate User Account', 'The user account does not exist.', 'info');
@@ -279,7 +279,7 @@ function initialize_click_events(){
                         if(response === 'Deactivated'){
                           show_alert('Deactivate User Account', 'The user account has been deactivated.', 'success');
 
-                          initialize_user_account_table('#user-account-datatable');
+                          reload_datatable('#user-account-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Deactivate User Account', 'The user account does not exist.', 'info');
@@ -325,7 +325,7 @@ function initialize_click_events(){
                             if(response === 'Locked'){
                               show_alert('Lock User Accounts', 'The user accounts have been locked.', 'success');
     
-                              initialize_user_account_table('#user-account-datatable');
+                              reload_datatable('#user-account-datatable');
                             }
                             else if(response === 'Not Found'){
                               show_alert('Lock User Accounts', 'The user account does not exist.', 'info');
@@ -375,7 +375,7 @@ function initialize_click_events(){
                             if(response === 'Unlocked'){
                               show_alert('Unlock User Accounts', 'The user accounts have been unlocked.', 'success');
     
-                              initialize_user_account_table('#user-account-datatable');
+                              reload_datatable('#user-account-datatable');
                             }
                             else if(response === 'Not Found'){
                               show_alert('Unlock User Accounts', 'The user account does not exist.', 'info');
@@ -425,7 +425,7 @@ function initialize_click_events(){
                             if(response === 'Activated'){
                               show_alert('Activate Multiple User Accounts', 'The user accounts have been activated.', 'success');
     
-                              initialize_user_account_table('#user-account-datatable');
+                              reload_datatable('#user-account-datatable');
                             }
                             else if(response === 'Not Found'){
                               show_alert('Activate Multiple User Accounts', 'The user account does not exist.', 'info');
@@ -475,7 +475,7 @@ function initialize_click_events(){
                             if(response === 'Deactivated'){
                               show_alert('Deactivate Multiple User Account', 'The user accounts have been deactivated.', 'success');
     
-                              initialize_user_account_table('#user-account-datatable');
+                              reload_datatable('#user-account-datatable');
                             }
                             else if(response === 'Not Found'){
                               show_alert('Deactivate Multiple User Account', 'The user account does not exist.', 'info');

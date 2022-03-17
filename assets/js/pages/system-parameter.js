@@ -149,7 +149,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete System Parameter', 'The system parameter has been deleted.', 'success');
 
-                          initialize_system_parameter_table('#system-parameter-datatable');
+                          reload_datatable('#system-parameter-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete System Parameter', 'The system parameter does not exist.', 'info');
@@ -196,7 +196,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple System Parameters', 'The system parameters have been deleted.', 'success');
     
-                                initialize_system_parameter_table('#system-parameter-datatable');
+                                reload_datatable('#system-parameter-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple System Parameters', 'The system parameter does not exist.', 'info');

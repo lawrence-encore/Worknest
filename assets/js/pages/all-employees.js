@@ -10,9 +10,7 @@
     });
 })(jQuery);
 
-function initialize_employee_table(datatable_name, buttons = false, show_all = false){
-    hide_multiple_buttons();
-    
+function initialize_employee_table(datatable_name, buttons = false, show_all = false){    
     var username = $('#username').text();
     var filter_branch = $('#filter_branch').val();
     var filter_department = $('#filter_department').val();
@@ -149,7 +147,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Employee', 'The employee has been deleted.', 'success');
 
-                          initialize_employee_table('#employee-datatable');
+                          reload_datatable('#employee-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Employee', 'The employee does not exist.', 'info');
@@ -196,7 +194,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Employees', 'The employees have been deleted.', 'success');
     
-                                initialize_employee_table('#employee-datatable');
+                                reload_datatable('#employee-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Employees', 'The employee does not exist.', 'info');
