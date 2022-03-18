@@ -30,6 +30,8 @@
     $employee_attendance_record_page = $api->check_role_permissions($username, 171);
     $attendance_creation_page = $api->check_role_permissions($username, 175);
     $attendance_adjustment_page = $api->check_role_permissions($username, 182);
+    $attendance_creation_recommendation_page = $api->check_role_permissions($username, 188);
+    $attendance_adjustment_recommendation_page = $api->check_role_permissions($username, 192);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -41,10 +43,10 @@
                     </li>';
     }
 
-    if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0){
+    if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0 || $attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Employee</li>';
 
-        if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0){
+        if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0 || $attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-calendar"></i>
@@ -60,8 +62,16 @@
                             $menu .= '<li><a href="attendance-creation.php" key="t-all-employees">Attendance Creation</a></li>';
                         }
 
+                        if($attendance_creation_recommendation_page > 0){
+                            $menu .= '<li><a href="attendance-creation-recommendation.php" key="t-all-employees">Attendance Creation Recommendation</a></li>';
+                        }
+
                         if($attendance_adjustment_page > 0){
                             $menu .= '<li><a href="attendance-adjustment.php" key="t-all-employees">Attendance Adjustment</a></li>';
+                        }
+
+                        if($attendance_adjustment_recommendation_page > 0){
+                            $menu .= '<li><a href="attendance-adjustment-recommendation.php" key="t-all-employees">Attendance Adjustment Recommendation</a></li>';
                         }
 
             $menu .= '</ul>

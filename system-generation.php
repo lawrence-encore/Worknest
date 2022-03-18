@@ -2952,11 +2952,14 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $department_id = $row['DEPARTMENT_ID'];
                     $department = $row['DEPARTMENT'];
                     $description = $row['DESCRIPTION'];
-                    $department_head = $row['DEPARTMENT_HEAD'];
+                    $department_head = $row['DEPARTMENT_HEAD'] ?? null;
                     $transaction_log_id = $row['TRANSACTION_LOG_ID'];
 
                     $parent_department_details = $api->get_department_details($row['PARENT_DEPARTMENT']);
                     $parent_department = $parent_department_details[0]['DEPARTMENT'] ?? null;
+
+                    $department_head_details = $api->get_employee_details($department_head, '');
+                    $department_head_file_as = $department_head_details[0]['FILE_AS'] ?? null;
 
                     if($update_department > 0){
                         $update = '<button type="button" class="btn btn-info waves-effect waves-light update-department" data-department-id="'. $department_id .'" title="Edit Department">
@@ -2988,7 +2991,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $response[] = array(
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $department_id .'">',
                         'DEPARTMENT' => $department . '<p class="text-muted mb-0">'. $description .'</p>',
-                        'DEPARTMENT_HEAD' => $department_head,
+                        'DEPARTMENT_HEAD' => $department_head_file_as,
                         'PARENT_DEPARTMENT' => $parent_department,
                         'ACTION' => '<div class="d-flex gap-2">
                             '. $update .'
@@ -5469,13 +5472,277 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
                             'REASON' => $reason,
                             'ACTION' => '<div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-adjustment" data-request-id="'. $request_id .'" title="View Attendance Creation">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-adjustment" data-request-id="'. $request_id .'" title="View Attendance Adjustment">
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $update .'
                                 '. $for_recommendation .'
                                 '. $cancel .'
                                 '. $delete .'
+                                '. $transaction_log .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance creation recommendation table
+    else if($type == 'attendance creation recommendation table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+                # Get permission
+                $recommend_attendance_creation = $api->check_role_permissions($username, 189);
+                $cancel_attendance_creation = $api->check_role_permissions($username, 190);
+                $view_transaction_log = $api->check_role_permissions($username, 191);
+
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendancecreation WHERE EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT IN (SELECT DEPARTMENT_ID FROM tbldepartment WHERE DEPARTMENT_HEAD = :employee_id)) AND STATUS = :status ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= 'AND FOR_RECOMMENDATION_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                }
+
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                $sql->bindValue(':status', 'FRREC');
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_creation_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $employee_file_as = $employee_details[0]['FILE_AS'];
+
+                        if($cancel_attendance_creation > 0 && $status == 'FRREC'){
+                            $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-attendance-creation" data-request-id="'. $request_id .'" title="Cancel Attendance Creation">
+                                        <i class="bx bx-calendar-x font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $cancel = '';
+                        }
+
+                        if($recommend_attendance_creation > 0 && $status == 'FRREC'){
+                            $recommend = '<button type="button" class="btn btn-success waves-effect waves-light recommend-attendance-creation" data-request-id="'. $request_id .'" title="Recommend Attendance Creation">
+                                        <i class="bx bx-check font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $recommend = '';
+                        }
+
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($status == 'FRREC'){
+                            $data_cancel = 1;
+                            $data_recommend = 1;
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" data-cancel="'. $data_cancel .'" data-recommend="'. $data_recommend .'" type="checkbox" value="'. $request_id .'">';
+                        }
+                        else{
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'EMPLOYEE_ID' => $employee_file_as,
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-creation" data-request-id="'. $request_id .'" title="View Attendance Creation">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $recommend .'
+                                '. $cancel .'
+                                '. $transaction_log .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance adjustment table
+    else if($type == 'attendance adjustment recommendation table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+
+                # Get permission
+                $recommend_attendance_adjustment = $api->check_role_permissions($username, 193);
+                $cancel_attendance_adjustment = $api->check_role_permissions($username, 194);
+                $view_transaction_log = $api->check_role_permissions($username, 195);
+
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendanceadjustment WHERE EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT IN (SELECT DEPARTMENT_ID FROM tbldepartment WHERE DEPARTMENT_HEAD = :employee_id)) AND STATUS = :status ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= 'AND FOR_RECOMMENDATION_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                }
+
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                $sql->bindValue(':status', 'FRREC');
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status)){
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'h:i a', '', '', '');
+                        $time_in_date_adjusted = $api->check_date('empty', $row['TIME_IN_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in_adjusted = $api->check_date('empty', $row['TIME_IN_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date_adjusted = $api->check_date('empty', $row['TIME_OUT_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out_adjusted = $api->check_date('empty', $row['TIME_OUT_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_adjustment_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $employee_file_as = $employee_details[0]['FILE_AS'];
+
+                        if($cancel_attendance_adjustment > 0 && $status == 'FRREC'){
+                            $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-attendance-adjustment" data-request-id="'. $request_id .'" title="Cancel Attendance Adjustment">
+                                        <i class="bx bx-calendar-x font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $cancel = '';
+                        }
+
+                        if($recommend_attendance_adjustment > 0 && $status == 'FRREC'){
+                            $recommend = '<button type="button" class="btn btn-success waves-effect waves-light recommend-attendance-adjustment" data-request-id="'. $request_id .'" title="Recommend Attendance Adjustment">
+                                        <i class="bx bx-check font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $recommend = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($status == 'FRREC'){
+                            $data_cancel = 1;
+                            $data_recommend = 1;
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" data-cancel="'. $data_cancel .'" data-recommend="'. $data_recommend .'" type="checkbox" value="'. $request_id .'">';
+                        }
+                        else{
+                            $check_box = '';
+                        }
+
+                        if(strtotime($time_in_date) != strtotime($time_in_date_adjusted)){
+                            $adjustment_time_in_date = $time_in_date . ' -> ' . $time_in_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in_date = $time_in_date;
+                        }
+
+                        if(strtotime($time_in) != strtotime($time_in_adjusted)){
+                            $adjustment_time_in = $time_in . ' -> ' . $time_in_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in = $time_in_date;
+                        }
+
+                        if(strtotime($time_out_date) != strtotime($time_out_date_adjusted)){
+                            $adjustment_time_out_date = $time_out_date . ' -> ' . $time_out_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out_date = $time_out_date;
+                        }
+
+                        if(strtotime($time_out) != strtotime($time_out_adjusted)){
+                            $adjustment_time_out = $time_out . ' -> ' . $time_out_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out = $time_out_date;
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'EMPLOYEE_ID' => $employee_file_as,
+                            'TIME_IN_DATE' => $adjustment_time_in_date,
+                            'TIME_IN' => $adjustment_time_in,
+                            'TIME_OUT_DATE' => $adjustment_time_out_date,
+                            'TIME_OUT' => $adjustment_time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-adjustment" data-request-id="'. $request_id .'" title="View Attendance Adjustment">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $recommend .'
+                                '. $cancel .'
                                 '. $transaction_log .'
                             </div>'
                         );

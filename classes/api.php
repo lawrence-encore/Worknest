@@ -328,6 +328,27 @@ class Api{
             $message = str_replace('@title', $subject, $message);
             $message = str_replace('@body', $body, $message);
         }
+        else if($notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6){
+            if(!empty($link)){
+                $message = file_get_contents('email_template/basic-notification-with-button.html');
+                $message = str_replace('@link', $link, $message);
+
+                if($notification_type == 3 || $notification_type == 5){
+                    $message = str_replace('@button_title', 'View Attendance Creation', $message);
+                }
+                else{
+                    $message = str_replace('@button_title', 'View Attendance Adjustment', $message);
+                }
+            }
+            else{
+                $message = file_get_contents('email_template/basic-notification.html'); 
+            }
+            
+            $message = str_replace('@company_name', $company_name, $message);
+            $message = str_replace('@year', date('Y'), $message);
+            $message = str_replace('@title', $subject, $message);
+            $message = str_replace('@body', $body, $message);
+        }
 
         if($is_html == 1){
             $mail->isHTML(true);
@@ -355,13 +376,13 @@ class Api{
     # Returns    : String
     #
     # -------------------------------------------------------------
-    public function send_notification($notification_id, $employee_id, $title, $message, $username){
+    public function send_notification($notification_id, $from, $sent_to, $title, $message, $username){
         $system_notification = $this->check_system_notification_exist($notification_id, 'S');
         $email_notification = $this->check_system_notification_exist($notification_id, 'E');
 
         if($system_notification > 0 || $email_notification > 0){
             $error = '';
-            $employee_details = $this->get_employee_details($employee_id, '');
+            $employee_details = $this->get_employee_details($sent_to, '');
             $email = $employee_details[0]['EMAIL'];
 
             $notification_details = $this->get_notification_details($notification_id);
@@ -369,9 +390,7 @@ class Api{
             $web_link = $notification_details[0]['WEB_LINK'] ?? null;
 
             if($system_notification > 0){
-                if($notification_id == 1 || $notification_id == 2){
-                    $insert_system_notification = $this->insert_system_notification($notification_id, '', $employee_id, $title, $message, $system_link, $username);
-                }
+                $insert_system_notification = $this->insert_system_notification($notification_id, $from, $sent_to, $title, $message, $system_link, $username);
 
                 if($insert_system_notification != 1){
                     $error = $insert_system_notification;
@@ -380,9 +399,7 @@ class Api{
 
             if($email_notification > 0){
                 if(!empty($email)){
-                    if($notification_id == 1 || $notification_id == 2){
-                        $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
-                    }
+                    $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
     
                     if($send_email_notification != 1){
                         $error = $send_email_notification;
@@ -1989,7 +2006,7 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_notification_details(:notification_id, :notification_title, :notification_message, $system_link, $web_link, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_notification_details(:notification_id, :notification_title, :notification_message, :system_link, :web_link, :transaction_log_id, :record_log)');
             $sql->bindValue(':notification_id', $notification_id);
             $sql->bindValue(':notification_title', $notification_title);
             $sql->bindValue(':notification_message', $notification_message);

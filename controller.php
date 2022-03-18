@@ -2090,7 +2090,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, $time_in_note, $late, $username);
 
                     if($insert_time_in > 0){
-                        $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+                        $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2112,7 +2112,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, $time_in_note, $late, $username);
 
                     if($insert_time_in > 0){
-                        $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+                        $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2172,7 +2172,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, $time_out_note, $early_leaving, $overtime, $total_hours_worked, $username);
 
                     if($update_time_out > 0){
-                        $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+                        $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2194,7 +2194,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, $time_out_note, $early_leaving, $overtime, $total_hours_worked, $username);
 
                     if($update_time_out > 0){
-                        $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+                        $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
                         if($send_notification == 1){
                             echo 'Recorded';
@@ -2306,7 +2306,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
     
                             if($update_time_out > 0){
-                                $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+                                $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
                                 if($send_notification == 1){
                                     echo 'Time Out';
@@ -2328,7 +2328,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             $update_time_out = $api->update_time_out($attendance_id, $time_out_date, $time_out, $attendance_position, $ip_address, $time_out_behavior, 'Scanned', $early_leaving, $overtime, $total_hours_worked, $username);
     
                             if($update_time_out > 0){
-                                $send_notification = $api->send_notification(2, $employee_id, $notification_title, $notification_message, $username);
+                                $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
                                 if($send_notification == 1){
                                     echo 'Time Out';
@@ -2367,7 +2367,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, 'Scanned', $late, $username);
     
                         if($insert_time_in > 0){
-                            $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+                            $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
                             if($send_notification == 1){
                                 echo 'Time In';
@@ -2389,7 +2389,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         $insert_time_in = $api->insert_time_in($employee_id, $time_in_date, $time_in, $attendance_position, $ip_address, $time_in_behavior, 'Scanned', $late, $username);
     
                         if($insert_time_in > 0){
-                            $send_notification = $api->send_notification(1, $employee_id, $notification_title, $notification_message, $username);
+                            $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
                             if($send_notification == 1){
                                 echo 'Time In';
@@ -4631,13 +4631,33 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $username = $_POST['username'];
             $request_id = $_POST['request_id'];
 
+            $from_details = $api->get_employee_details('', $username);
+            $from_id = $from_details[0]['EMPLOYEE_ID'] ?? null;
+            $from_department = $from_details[0]['DEPARTMENT'] ?? null;
+            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+            $department_details = $api->get_department_details($from_department);
+            $department_head = $department_details[0]['DEPARTMENT_HEAD'];
+
+            $notification_details = $api->get_notification_details(3);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
             $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
             if($check_attendance_creation_exist > 0){
                 $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, $username);
     
                 if($update_attendance_creation_status == 1){
-                    echo 'For Recommendation';
+                    $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
+
+                    if($send_notification == 1){
+                        echo 'For Recommendation';
+                    }
+                    else{
+                        echo $send_notification;
+                    }
                 }
                 else{
                     echo $update_attendance_creation_status;
@@ -4656,13 +4676,33 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $username = $_POST['username'];
             $request_ids = $_POST['request_id'];
 
+            $from_details = $api->get_employee_details('', $username);
+            $from_id = $from_details[0]['EMPLOYEE_ID'] ?? null;
+            $from_department = $from_details[0]['DEPARTMENT'] ?? null;
+            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+            $department_details = $api->get_department_details($from_department);
+            $department_head = $department_details[0]['DEPARTMENT_HEAD'];
+
+            $notification_details = $api->get_notification_details(3);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
             foreach($request_ids as $request_id){
                 $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
                 if($check_attendance_creation_exist > 0){
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, $username);
         
-                    if($update_attendance_creation_status != 1){
+                    if($update_attendance_creation_status == 1){
+                        $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
+
+                        if($send_notification != 1){
+                            $error = $send_notification;
+                        }
+                    }
+                    else{
                         $error = $update_attendance_creation_status;
                     }
                 }
@@ -4687,13 +4727,33 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $username = $_POST['username'];
             $request_id = $_POST['request_id'];
 
+            $from_details = $api->get_employee_details('', $username);
+            $from_id = $from_details[0]['EMPLOYEE_ID'] ?? null;
+            $from_department = $from_details[0]['DEPARTMENT'] ?? null;
+            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+            $department_details = $api->get_department_details($from_department);
+            $department_head = $department_details[0]['DEPARTMENT_HEAD'];
+
+            $notification_details = $api->get_notification_details(4);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
             $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
             if($check_attendance_adjustment_exist > 0){
                 $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, $username);
     
                 if($update_attendance_adjustment_status == 1){
-                    echo 'For Recommendation';
+                    $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
+
+                    if($send_notification == 1){
+                        echo 'For Recommendation';
+                    }
+                    else{
+                        echo $send_notification;
+                    }
                 }
                 else{
                     echo $update_attendance_adjustment_status;
@@ -4712,13 +4772,33 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $username = $_POST['username'];
             $request_ids = $_POST['request_id'];
 
+            $from_details = $api->get_employee_details('', $username);
+            $from_id = $from_details[0]['EMPLOYEE_ID'] ?? null;
+            $from_department = $from_details[0]['DEPARTMENT'] ?? null;
+            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+            $department_details = $api->get_department_details($from_department);
+            $department_head = $department_details[0]['DEPARTMENT_HEAD'];
+
+            $notification_details = $api->get_notification_details(4);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
             foreach($request_ids as $request_id){
                 $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
                 if($check_attendance_adjustment_exist > 0){
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, $username);
         
-                    if($update_attendance_adjustment_status != 1){
+                    if($update_attendance_adjustment_status == 1){
+                        $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
+
+                        if($send_notification != 1){
+                            $error = $send_notification;
+                        }
+                    }
+                    else{
                         $error = $update_attendance_adjustment_status;
                     }
                 }
@@ -4729,6 +4809,190 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             if(empty($error)){
                 echo 'For Recommendation';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recommend attendance creation
+    else if($transaction == 'recommend attendance creation'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id'])){
+            $username = $_POST['username'];
+            $request_id = $_POST['request_id'];
+
+            $from_details = $api->get_attendance_creation_details($request_id);
+            $from_id = $from_details[0]['RECOMMENDED_BY'];
+            $employee_id = $from_details[0]['EMPLOYEE_ID'];
+            $from_details = $api->get_employee_details('', $from_id);
+            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+            $notification_details = $api->get_notification_details(5);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
+            $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
+
+            if($check_attendance_creation_exist > 0){
+                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+    
+                if($update_attendance_creation_status == 1){
+                    $send_notification = $api->send_notification(5, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                    if($send_notification == 1){
+                        echo 'Recommended';
+                    }
+                    else{
+                        echo $send_notification;
+                    }
+                }
+                else{
+                    echo $update_attendance_creation_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recommend multiple attendance creation
+    else if($transaction == 'recommend multiple attendance creation'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id'])){
+            $username = $_POST['username'];
+            $request_ids = $_POST['request_id'];
+
+            foreach($request_ids as $request_id){
+                $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
+
+                if($check_attendance_creation_exist > 0){
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+        
+                    if($update_attendance_creation_status == 1){
+                        $from_details = $api->get_attendance_creation_details($request_id);
+                        $from_id = $from_details[0]['RECOMMENDED_BY'];
+                        $employee_id = $from_details[0]['EMPLOYEE_ID'];
+                        $from_details = $api->get_employee_details('', $from_id);
+                        $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                        $notification_details = $api->get_notification_details(5);
+                        $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                        $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                        $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
+                        $send_notification = $api->send_notification(5, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                        if($send_notification != 1){
+                            $error = $send_notification;
+                        }
+                    }
+                    else{
+                        $error = $update_attendance_creation_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Recommended';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recommend attendance adjustment
+    else if($transaction == 'recommend attendance adjustment'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id'])){
+            $username = $_POST['username'];
+            $request_id = $_POST['request_id'];
+
+            $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
+
+            if($check_attendance_adjustment_exist > 0){
+                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, $username);
+    
+                if($update_attendance_adjustment_status == 1){
+                    $from_details = $api->get_attendance_adjustment_details($request_id);
+                    $from_id = $from_details[0]['RECOMMENDED_BY'];
+                    $employee_id = $from_details[0]['EMPLOYEE_ID'];
+                    $from_details = $api->get_employee_details('', $from_id);
+                    $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+        
+                    $notification_details = $api->get_notification_details(6);
+                    $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                    $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                    $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
+                    $send_notification = $api->send_notification(6, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                    if($send_notification == 1){
+                        echo 'Recommended';
+                    }
+                    else{
+                        echo $send_notification;
+                    }
+                }
+                else{
+                    echo $update_attendance_adjustment_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recommend multiple attendance adjustment
+    else if($transaction == 'recommend multiple attendance adjustment'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id'])){
+            $username = $_POST['username'];
+            $request_ids = $_POST['request_id'];
+
+            foreach($request_ids as $request_id){
+                $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
+
+                if($check_attendance_adjustment_exist > 0){
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, $username);
+        
+                    if($update_attendance_adjustment_status == 1){
+                        $from_details = $api->get_attendance_adjustment_details($request_id);
+                        $from_id = $from_details[0]['RECOMMENDED_BY'];
+                        $employee_id = $from_details[0]['EMPLOYEE_ID'];
+                        $from_details = $api->get_employee_details('', $from_id);
+                        $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                        $notification_details = $api->get_notification_details(6);
+                        $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                        $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                        $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                        
+                        $send_notification = $api->send_notification(6, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                        if($send_notification != 1){
+                            $error = $send_notification;
+                        }
+                    }
+                    else{
+                        $error = $update_attendance_adjustment_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Recommended';
             }
             else{
                 echo $error;

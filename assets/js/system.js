@@ -5784,8 +5784,14 @@ function initialize_form_validation(form_type){
                             show_alert('Attendance Adjustment Cancellation Success', 'The attendance adjustment has been cancelled.', 'success');
 
                             $('#System-Modal').modal('hide');
-                            
-                            reload_datatable('#attendance-adjustment-datatable');
+
+                            if($('#attendance-adjustment-datatable').length){
+                                reload_datatable('#attendance-adjustment-datatable');
+                            }
+
+                            if($('#attendance-adjustment-datatable').length){
+                                reload_datatable('#attendance-creation-recommendation-datatable');
+                            }
                         }
                         else if(response === 'Not Found'){
                             show_alert('Attendance Adjustment Cancellation Error', 'The attendance adjustment does not exist.', 'info');
@@ -5851,12 +5857,18 @@ function initialize_form_validation(form_type){
                             show_alert('Multiple Attendance Adjustment Cancellation Success', 'The multiple attendance adjustment has been cancelled.', 'success');
                         }
                         else{
-                            show_alert('MultipleAttendance Adjustment Error', response, 'error');
+                            show_alert('Multiple Attendance Adjustment Error', response, 'error');
                         }
 
                         $('#System-Modal').modal('hide');
                             
-                        reload_datatable('#attendance-adjustment-datatable');
+                        if($('#attendance-adjustment-datatable').length){
+                            reload_datatable('#attendance-adjustment-datatable');
+                        }
+
+                        if($('#attendance-adjustment-datatable').length){
+                            reload_datatable('#attendance-creation-recommendation-datatable');
+                        }
                     },
                     complete: function(){
                         document.getElementById('submit-form').disabled = false;
@@ -7556,11 +7568,13 @@ function check_attendance_creation_adjustment_check_box(){
         var cancel_attendance_creation_array = [];
         var delete_attendance_creation_array = [];
         var for_recommendation_attendance_creation_array = [];
+        var recommend_array = [];
         
         $(".datatable-checkbox-children").each(function () {
             var cancel = $(this).data('cancel');
             var delete_attendance_creation = $(this).data('delete');
             var for_recommendation = $(this).data('for-recommendation');
+            var recommend = $(this).data('recommend');
 
             if($(this).prop('checked') === true){
                 cancel_attendance_creation_array.push(cancel);
@@ -7573,11 +7587,16 @@ function check_attendance_creation_adjustment_check_box(){
             if($(this).prop('checked') === true){
                 for_recommendation_attendance_creation_array.push(for_recommendation);
             }
+
+            if($(this).prop('checked') === true){
+                recommend_array.push(recommend);
+            }
         });
 
         var cancel_checker = arr => arr.every(v => v === 1);
         var delete_checker = arr => arr.every(v => v === 1);
         var for_recommendation_checker = arr => arr.every(v => v === 1);
+        var recommend_checker = arr => arr.every(v => v === 1);
         
         if(cancel_checker(cancel_attendance_creation_array) ){
             $('.multiple-attendance-cancel').removeClass('d-none');
@@ -7599,11 +7618,19 @@ function check_attendance_creation_adjustment_check_box(){
         else{
             $('.multiple-attendance-for-recommendation').addClass('d-none');
         }
+        
+        if(recommend_checker(recommend_array) ){
+            $('.multiple-attendance-recommendation').removeClass('d-none');
+        }
+        else{
+            $('.multiple-attendance-recommendation').addClass('d-none');
+        }
     }
     else{
         $('.multiple').addClass('d-none');
         $('.multiple-attendance-cancel').addClass('d-none');
         $('.multiple-attendance-for-recommendation').addClass('d-none');
+        $('.multiple-attendance-recommendation').addClass('d-none');
     }
 }
 

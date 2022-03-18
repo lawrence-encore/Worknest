@@ -1313,7 +1313,7 @@ BEGIN
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'UPDATE tblnotificationdetails SET NOTIFICATION_TITLE = @notification_title, DESCRIPTION = @description, SYSTEM_LINK = @system_link, WEB_LINK = @web_link, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE NOTIFICATION_ID = @notification_id';
+	SET @query = 'UPDATE tblnotificationdetails SET NOTIFICATION_TITLE = @notification_title, NOTIFICATION_MESSAGE = @notification_message, SYSTEM_LINK = @system_link, WEB_LINK = @web_link, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE NOTIFICATION_ID = @notification_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

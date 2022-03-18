@@ -103,25 +103,25 @@
                                                         <label for="notification_title" class="col-md-2 col-form-label">Notification Title <span class="required">*</span></label>
                                                         <div class="col-md-10">
                                                             <input type="hidden" id="notification_id" name="notification_id" value="<?php echo $notification_id; ?>">
-                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="notification_title" name="notification_title" maxlength="500" <?php echo $disabled; ?>>
+                                                            <input type="text" class="form-control form-maxlength" autocomplete="off" id="notification_title" name="notification_title" maxlength="500" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
                                                         <label for="notification_message" class="col-md-2 col-form-label">Notification Message <span class="required">*</span></label>
                                                         <div class="col-md-10">
-                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="notification_message" name="notification_message" maxlength="500" <?php echo $disabled; ?>>
+                                                            <input type="text" class="form-control form-maxlength" autocomplete="off" id="notification_message" name="notification_message" maxlength="500" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
                                                         <label for="system_link" class="col-md-2 col-form-label">Notification Link <span class="required">*</span></label>
                                                         <div class="col-md-10">
-                                                            <input type="text" class="form-control maxlength" autocomplete="off" id="system_link" name="system_link" maxlength="200" <?php echo $disabled; ?>>
+                                                            <input type="text" class="form-control form-maxlength" autocomplete="off" id="system_link" name="system_link" maxlength="200" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
                                                         <label for="web_link" class="col-md-2 col-form-label">Web Link <span class="required">*</span></label>
                                                         <div class="col-md-10">
-                                                            <input type="url" id="web_link" name="web_link" class="form-control maxlength" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
+                                                            <input type="url" id="web_link" name="web_link" class="form-control form-maxlength" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                 </form>
