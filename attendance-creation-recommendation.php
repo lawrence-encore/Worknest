@@ -8,7 +8,8 @@
 
     $page_access = $api->check_role_permissions($username, 188);
 	$recommend_attendance_creation = $api->check_role_permissions($username, 189);
-	$cancel_attendance_creation = $api->check_role_permissions($username, 190);
+	$reject_attendance_creation = $api->check_role_permissions($username, 190);
+	$cancel_attendance_creation = $api->check_role_permissions($username, 191);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -52,8 +53,8 @@
                                     <h4 class="mb-sm-0 font-size-18"><?php echo $page_title; ?></h4>
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Human Resource</a></li>
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Employee</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Recommendations</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -72,10 +73,14 @@
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                     <?php
-                                                        if($recommend_attendance_creation > 0 || $cancel_attendance_creation > 0){
+                                                        if($recommend_attendance_creation > 0 || $reject_attendance_creation > 0 || $cancel_attendance_creation > 0){
 
                                                             if($recommend_attendance_creation > 0){
                                                                 echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-recommendation" id="recommend-attendance-creation"><i class="bx bx-check label-icon"></i> Recommend</button>';
+                                                            }
+
+                                                            if($reject_attendance_creation > 0){
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-attendance-reject" id="reject-attendance-creation"><i class="bx bx-block label-icon"></i> Reject</button>';
                                                             }
 
                                                             if($cancel_attendance_creation > 0){

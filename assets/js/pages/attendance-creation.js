@@ -270,8 +270,14 @@ function initialize_click_events(){
                     url: 'controller.php',
                     data: {username : username, request_id : request_id, transaction : transaction},
                     success: function (response) {
-                        if(response === 'For Recommendation'){
-                          show_alert('Tag Attendance Creation For Recommendation', 'The attendance creation has been tagged for recommendation.', 'success');
+                        if(response === 'For Recommendation' || response == 'Recommended'){
+                         
+                            if(response === 'For Recommendation'){
+                                show_alert('Tag Attendance Creation For Recommendation', 'The attendance creation has been tagged for recommendation.', 'success');
+                            }
+                            else{
+                                show_alert('Tag Attendance Creation Recommendation', 'The attendance creation has been recommended automatically.', 'success');
+                            }     
 
                           reload_datatable('#attendance-creation-datatable');
                         }
@@ -317,8 +323,13 @@ function initialize_click_events(){
                         url: 'controller.php',
                         data: {username : username, request_id : request_id, transaction : transaction},
                         success: function (response) {
-                            if(response === 'For Recommendation'){
-                                show_alert('Tag Multiple Attendance Creations For Recommendation', 'The attendance creations have been tagged for recommendation.', 'success');
+                            if(response === 'For Recommendation' || response === 'Recommended'){
+                                if(response === 'For Recommendation'){
+                                    show_alert('Tag Multiple Attendance Creations For Recommendation', 'The attendance creations have been tagged for recommendation.', 'success');
+                                }
+                                else{
+                                    show_alert('Tag Multiple Attendance Creations Recommendation', 'The attendance creations have been recommended automatically.', 'success');
+                                }                                
     
                                 reload_datatable('#attendance-creation-datatable');
                             }

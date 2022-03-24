@@ -3,6 +3,7 @@
 
     $(function() {
         display_form_details('attendance setting form');
+        initialize_on_change_events();
 
         $('#attendance-setting-form').validate({
             submitHandler: function (form) {
@@ -10,6 +11,9 @@
                 var username = $('#username').text();
                 var attendance_creation_approval = $('#attendance_creation_approval').val();
                 var attendance_adjustment_approval = $('#attendance_adjustment_approval').val();
+                
+                document.getElementById('attendance_creation_approval').disabled = false;
+                document.getElementById('attendance_adjustment_approval').disabled = false;
 
                 $.ajax({
                     type: 'POST',
@@ -74,3 +78,27 @@
         });
     });
 })(jQuery);
+
+function initialize_on_change_events(){
+    $(document).on('change','#attendance_creation_recommendation',function() {
+        $('#attendance_creation_approval').val('').change();
+
+        if(this.checked){
+            document.getElementById('attendance_creation_approval').disabled = false;
+        }
+        else{
+            document.getElementById('attendance_creation_approval').disabled = true;
+        }
+    });
+
+    $(document).on('change','#attendance_adjustment_recommendation',function() {
+        $('#attendance_adjustment_approval').val('').change();
+
+        if(this.checked){
+            document.getElementById('attendance_adjustment_approval').disabled = false;
+        }
+        else{
+            document.getElementById('attendance_adjustment_approval').disabled = true;
+        }
+    });   
+}

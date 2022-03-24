@@ -2,21 +2,23 @@
     'use strict';
 
     $(function() {
-        if($('#attendance-adjustment-recommendation-datatable').length){
-            initialize_attendance_adjustment_recommendation_table('#attendance-adjustment-recommendation-datatable');
+        if($('#attendance-adjustment-approval-datatable').length){
+            initialize_attendance_adjustment_approval_table('#attendance-adjustment-approval-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_attendance_adjustment_recommendation_table(datatable_name, buttons = false, show_all = false){   
+function initialize_attendance_adjustment_approval_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
 
     var username = $('#username').text();
-    var type = 'attendance adjustment recommendation table';
+    var type = 'attendance adjustment approval table';
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
+    var filter_branch = $('#filter_branch').val();
+    var filter_department = $('#filter_department').val();
     var settings;
 
     var column = [ 
@@ -58,7 +60,7 @@ function initialize_attendance_adjustment_recommendation_table(datatable_name, b
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_branch' : filter_branch, 'filter_department' : filter_department },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -89,7 +91,7 @@ function initialize_attendance_adjustment_recommendation_table(datatable_name, b
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_branch' : filter_branch, 'filter_department' : filter_department },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'desc' ]],
@@ -151,48 +153,16 @@ function initialize_click_events(){
         generate_modal('cancel multiple attendance adjustment form', 'Cancel Multiple Attendance Adjustment', 'R' , '0', '1', 'form', 'cancel-multiple-attendance-adjustment-form', '1', username);
     });
 
-    $(document).on('click','.recommend-attendance-adjustment',function() {
+    $(document).on('click','.approve-attendance-adjustment',function() {
         var request_id = $(this).data('request-id');
-        var transaction = 'recommend attendance adjustment';
 
-        Swal.fire({
-            title: 'Recommend Attendance Adjustment',
-            text: 'Are you sure you want to recommend this attendance adjustment?',
-            icon: 'info',
-            showCancelButton: !0,
-            confirmButtonText: 'Recommend',
-            cancelButtonText: 'Cancel',
-            confirmButtonClass: 'btn btn-success mt-2',
-            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'controller.php',
-                    data: {username : username, request_id : request_id, transaction : transaction},
-                    success: function (response) {
-                        if(response === 'Recommended'){
-                          show_alert('Recommend Attendance Adjustment', 'The attendance adjustment has been recommended.', 'success');
-
-                          reload_datatable('#attendance-adjustment-recommendation-datatable');
-                        }
-                        else if(response === 'Not Found'){
-                          show_alert('Recommend Attendance Adjustment', 'The attendance adjustment does not exist.', 'info');
-                        }
-                        else{
-                          show_alert('Recommend Attendance Adjustment', response, 'error');
-                        }
-                    }
-                });
-                return false;
-            }
-        });
+        sessionStorage.setItem('request_id', request_id);
+        
+        generate_modal('approve attendance adjustment form', 'Approve Attendance Adjustment', 'R' , '0', '1', 'form', 'approve-attendance-adjustment-form', '1', username);
     });
 
-    $(document).on('click','#recommend-attendance-adjustment',function() {
+    $(document).on('click','#approve-attendance-adjustment',function() {
         var request_id = [];
-        var transaction = 'recommend multiple attendance adjustment';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
@@ -201,45 +171,10 @@ function initialize_click_events(){
         });
 
         if(request_id.length > 0){
-            Swal.fire({
-                title: 'Recommend Multiple Attendance Adjustment',
-                text: 'Are you sure you want to recommend these attendance adjustments?',
-                icon: 'info',
-                showCancelButton: !0,
-                confirmButtonText: 'Recommend',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller.php',
-                        data: {username : username, request_id : request_id, transaction : transaction},
-                        success: function (response) {
-                            if(response === 'Recommended'){
-                                show_alert('Recommend Multiple Attendance Adjustment', 'The attendance adjustments have been recommended.', 'success');
-    
-                                reload_datatable('#attendance-adjustment-recommendation-datatable');
-                            }
-                            else if(response === 'Not Found'){
-                                show_alert('Recommend Multiple Attendance Adjustment', 'The attendance adjustment does not exist.', 'info');
-                            }
-                            else{
-                                show_alert('Recommend Multiple Attendance Adjustment', response, 'error');
-                            }
-                        }
-                    });
-                    
-                    return false;
-                }
-            });
+            sessionStorage.setItem('request_id', request_id);
         }
-        else{
-            show_alert('Recommend Multiple Attendance Adjustment', 'Please select the attendance adjustments you want to delete.', 'error');
-        }
+
+        generate_modal('approve multiple attendance adjustment form', 'Approve Multiple Attendance Adjustment', 'R' , '0', '1', 'form', 'approve-multiple-attendance-adjustment-form', '1', username);
     });
 
     $(document).on('click','.reject-attendance-adjustment',function() {
@@ -267,6 +202,6 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#apply-filter',function() {
-        initialize_attendance_adjustment_recommendation_table('#attendance-adjustment-recommendation-datatable');
+        initialize_attendance_adjustment_approval_table('#attendance-adjustment-approval-datatable');
     });
 }

@@ -84,7 +84,7 @@
                                                             }
                                                             
                                                             if($delete_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-attendance-delete" id="delete-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                             }
                                                         }
                                                     ?>
@@ -116,7 +116,7 @@
 
                                                                 <select class="form-control filter-select2" id="filter_attendance_adjustment_status">
                                                                     <option value="">All Attendance Adjustment Status</option>
-                                                                    <option value="APV">Approve</option>
+                                                                    <option value="APV">Approved</option>
                                                                     <option value="CAN">Cancelled</option>
                                                                     <option value="FRREC">For Recommendation</option>
                                                                     <option value="PEN" selected>Pending</option>

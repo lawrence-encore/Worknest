@@ -123,6 +123,12 @@ CREATE TABLE tblnotificationdetails(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblnotificationrecipient(
+	NOTIFICATION_ID INT(50) NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
 CREATE TABLE tblsystemnotification(
 	NOTIFICATION_ID INT(50),
 	NOTIFICATION VARCHAR(5) NOT NULL,
@@ -3672,6 +3678,69 @@ BEGIN
 	ELSE
 		SET @query = 'UPDATE tblattendancecreation SET STATUS = @status, DECISION_REMARKS = null, DECISION_DATE = null, DECISION_TIME = null, DECISION_BY = null, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE REQUEST_ID = @request_id';
     END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_attendance_creation_recommendation_exception_exist(IN employee_id VARCHAR(100))
+BEGIN
+	SET @employee_id = employee_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblattendancecreationexception WHERE EMPLOYEE_ID = @employee_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_attendance_adjustment_recommendation_exception_exist(IN employee_id VARCHAR(100))
+BEGIN
+	SET @employee_id = employee_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblattendanceadjustmentexception WHERE EMPLOYEE_ID = @employee_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblnotificationrecipient(
+	NOTIFICATION_ID INT(50) NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE delete_notification_recipient(IN notification_id INT(50))
+BEGIN
+	SET @notification_id = notification_id;
+
+	SET @query = 'DELETE FROM tblnotificationrecipient WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_notification_recipient(IN notification_id INT(50), IN employee_id VARCHAR(100), IN record_log VARCHAR(100))
+BEGIN
+	SET @notification_id = notification_id;
+	SET @employee_id = employee_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblnotificationrecipient (NOTIFICATION_ID, EMPLOYEE_ID, RECORD_LOG) VALUES(@notification_id, @employee_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_notification_recipient_details(IN notification_id INT(50))
+BEGIN
+	SET @notification_id = notification_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, RECORD_LOG FROM tblnotificationrecipient WHERE NOTIFICATION_ID = @notification_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

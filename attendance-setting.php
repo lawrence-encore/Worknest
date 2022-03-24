@@ -125,17 +125,33 @@
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="attendance_creation_approval" class="col-md-4 col-form-label">Attendance Creation Approval Exception</label>
+                                                        <label for="attendance_creation_recommendaiton" class="col-md-4 col-form-label">Attendance Creation Recommendation <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets if the attendance creation recommendation is required."></i></label>
                                                         <div class="col-md-8">
-                                                            <select class="form-control select2" id="attendance_creation_approval" multiple="multiple" name="attendance_creation_approval">
+                                                            <div class="form-check form-switch mb-3">
+                                                                <input class="form-check-input" type="checkbox" id="attendance_creation_recommendation" name="attendance_creation_recommendation" value="1">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="attendance_creation_approval" class="col-md-4 col-form-label">Attendance Creation Recommendation Exception</label>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control select2" id="attendance_creation_approval" multiple="multiple" name="attendance_creation_approval" disabled>
                                                                 <?php echo $api->generate_active_employee_options(); ?>
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="attendance_adjustment_approval" class="col-md-4 col-form-label">Attendance Adjustment Approval Exception</label>
+                                                        <label for="attendance_creation_recommendaiton" class="col-md-4 col-form-label">Attendance Adjustment Recommendation <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets if the attendance adjustment recommendation is required."></i></label>
                                                         <div class="col-md-8">
-                                                            <select class="form-control select2" id="attendance_adjustment_approval" multiple="multiple" name="attendance_adjustment_approval">
+                                                            <div class="form-check form-switch mb-3">
+                                                                <input class="form-check-input" type="checkbox" id="attendance_adjustment_recommendation" name="attendance_adjustment_recommendation" value="1">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="attendance_adjustment_approval" class="col-md-4 col-form-label">Attendance Adjustment Recommendation Exception</label>
+                                                        <div class="col-md-8">
+                                                            <select class="form-control select2" id="attendance_adjustment_approval" multiple="multiple" name="attendance_adjustment_approval" disabled>
                                                                 <?php echo $api->generate_active_employee_options(); ?>
                                                             </select>
                                                         </div>

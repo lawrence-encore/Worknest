@@ -278,8 +278,13 @@ function initialize_click_events(){
                     url: 'controller.php',
                     data: {username : username, request_id : request_id, transaction : transaction},
                     success: function (response) {
-                        if(response === 'For Recommendation'){
-                          show_alert('Tag Attendance Adjustment For Recommendation', 'The attendance adjustment has been tagged for recommendation.', 'success');
+                        if(response === 'For Recommendation' || response === 'Recommended'){
+                          if(response === 'For Recommendation'){
+                            show_alert('Tag Attendance Adjustment For Recommendation', 'The attendance adjustment has been tagged for recommendation.', 'success');
+                          }
+                          else{
+                            show_alert('Tag Attendance Adjustment Recommendation', 'The attendance adjustment has been recommended automatically.', 'success');
+                          }
 
                           reload_datatable('#attendance-adjustment-datatable');
                         }
@@ -325,11 +330,16 @@ function initialize_click_events(){
                         url: 'controller.php',
                         data: {username : username, request_id : request_id, transaction : transaction},
                         success: function (response) {
-                            if(response === 'For Recommendation'){
-                                show_alert('Tag Multiple Attendance Adjustments For Recommendation', 'The attendance adjustments have been tagged for recommendation.', 'success');
-    
+                            if(response === 'For Recommendation' || response === 'Recommended'){
+                                if(response === 'For Recommendation'){
+                                    show_alert('Tag Multiple Attendance Adjustments For Recommendation', 'The attendance adjustments have been tagged for recommendation.', 'success');
+                                }
+                                else{
+                                    show_alert('Tag Multiple Attendance Adjustments Recommendation', 'The attendance adjustments have been recommended automatically.', 'success');
+                                }
+      
                                 reload_datatable('#attendance-adjustment-datatable');
-                            }
+                              }
                             else if(response === 'Not Found'){
                                 show_alert('Tag Multiple Attendance Adjustments For Recommendation', 'The attendance adjustment does not exist.', 'info');
                             }

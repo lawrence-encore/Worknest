@@ -10,11 +10,12 @@
             submitHandler: function (form) {
                 var transaction = 'submit notification details';
                 var username = $('#username').text();
+                var notification_recipient = $('#notification_recipient').val();
 
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&notification_recipient=' + notification_recipient,
                     beforeSend: function(){
                         document.getElementById('submit-form').disabled = true;
                         $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');

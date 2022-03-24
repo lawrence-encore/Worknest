@@ -35,6 +35,7 @@
 <html lang="en">
     <head>
         <?php require('views/_head.php'); ?>
+        <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="assets/libs/sweetalert2/sweetalert2.min.css">
         <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
         <?php require('views/_required_css.php'); ?>
@@ -124,6 +125,14 @@
                                                             <input type="url" id="web_link" name="web_link" class="form-control form-maxlength" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
+                                                    <div class="row mb-3">
+                                                        <label for="notification_recipient" class="col-md-2 col-form-label">Notification Recipient</label>
+                                                        <div class="col-md-10">
+                                                            <select class="form-control select2" id="notification_recipient" multiple="multiple" name="notification_recipient">
+                                                                <?php echo $api->generate_active_employee_options(); ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>       
@@ -147,6 +156,7 @@
         <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
         <script src="assets/libs/jquery-validation/js/jquery.validate.min.js"></script>
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
+        <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
         <script src="assets/js/pages/notification-details.js?v=<?php echo rand(); ?>"></script>
     </body>

@@ -2,21 +2,23 @@
     'use strict';
 
     $(function() {
-        if($('#attendance-creation-recommendation-datatable').length){
-            initialize_attendance_creation_recommendation_table('#attendance-creation-recommendation-datatable');
+        if($('#attendance-creation-approval-datatable').length){
+            initialize_attendance_creation_approval_table('#attendance-creation-approval-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_attendance_creation_recommendation_table(datatable_name, buttons = false, show_all = false){   
+function initialize_attendance_creation_approval_table(datatable_name, buttons = false, show_all = false){   
     hide_multiple_buttons();
 
     var username = $('#username').text();
-    var type = 'attendance creation recommendation table';
+    var type = 'attendance creation approval table';
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
+    var filter_branch = $('#filter_branch').val();
+    var filter_department = $('#filter_department').val();
     var settings;
 
     var column = [ 
@@ -54,7 +56,7 @@ function initialize_attendance_creation_recommendation_table(datatable_name, but
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_branch' : filter_branch, 'filter_department' : filter_department },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -85,7 +87,7 @@ function initialize_attendance_creation_recommendation_table(datatable_name, but
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_branch' : filter_branch, 'filter_department' : filter_department },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'desc' ]],
@@ -147,48 +149,16 @@ function initialize_click_events(){
         generate_modal('cancel multiple attendance creation form', 'Cancel Multiple Attendance Creation', 'R' , '0', '1', 'form', 'cancel-multiple-attendance-creation-form', '1', username);
     });
 
-    $(document).on('click','.recommend-attendance-creation',function() {
+    $(document).on('click','.approve-attendance-creation',function() {
         var request_id = $(this).data('request-id');
-        var transaction = 'recommend attendance creation';
 
-        Swal.fire({
-            title: 'Recommend Attendance Creation',
-            text: 'Are you sure you want to recommmend this attendance creation?',
-            icon: 'info',
-            showCancelButton: !0,
-            confirmButtonText: 'Recommend',
-            cancelButtonText: 'Cancel',
-            confirmButtonClass: 'btn btn-success mt-2',
-            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'controller.php',
-                    data: {username : username, request_id : request_id, transaction : transaction},
-                    success: function (response) {
-                        if(response === 'Recommended'){
-                          show_alert('Recommend Attendance Creation', 'The attendance creation has been recommended.', 'success');
-
-                          reload_datatable('#attendance-creation-recommendation-datatable');
-                        }
-                        else if(response === 'Not Found'){
-                          show_alert('Recommend Attendance Creation', 'The attendance creation does not exist.', 'info');
-                        }
-                        else{
-                          show_alert('Recommend Attendance Creation', response, 'error');
-                        }
-                    }
-                });
-                return false;
-            }
-        });
+        sessionStorage.setItem('request_id', request_id);
+        
+        generate_modal('approve attendance creation form', 'Approve Attendance Creation', 'R' , '0', '1', 'form', 'approve-attendance-creation-form', '1', username);
     });
 
-    $(document).on('click','#recommend-attendance-creation',function() {
+    $(document).on('click','#approve-attendance-creation',function() {
         var request_id = [];
-        var transaction = 'recommend multiple attendance creation';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
@@ -197,45 +167,10 @@ function initialize_click_events(){
         });
 
         if(request_id.length > 0){
-            Swal.fire({
-                title: 'Recommend Multiple Attendance Creations',
-                text: 'Are you sure you want to recommend these attendance creations?',
-                icon: 'info',
-                showCancelButton: !0,
-                confirmButtonText: 'Recommend',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller.php',
-                        data: {username : username, request_id : request_id, transaction : transaction},
-                        success: function (response) {
-                            if(response === 'Recommended'){
-                                show_alert('Recommend Multiple Attendance Creations', 'The attendance creations have been recommended.', 'success');
-    
-                                reload_datatable('#attendance-creation-recommendation-datatable');
-                            }
-                            else if(response === 'Not Found'){
-                                show_alert('Recommend Multiple Attendance Creations', 'The attendance creation does not exist.', 'info');
-                            }
-                            else{
-                                show_alert('Recommend Multiple Attendance Creations', response, 'error');
-                            }
-                        }
-                    });
-                    
-                    return false;
-                }
-            });
+            sessionStorage.setItem('request_id', request_id);
         }
-        else{
-            show_alert('Recommend Multiple Attendance Creations', 'Please select the attendance creations you want to delete.', 'error');
-        }
+
+        generate_modal('approve multiple attendance creation form', 'Approve Multiple Attendance Creation', 'R' , '0', '1', 'form', 'approve-multiple-attendance-creation-form', '1', username);
     });
 
     $(document).on('click','.reject-attendance-creation',function() {
@@ -263,6 +198,6 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#apply-filter',function() {
-        initialize_attendance_creation_recommendation_table('#attendance-creation-recommendation-datatable');
+        initialize_attendance_creation_approval_table('#attendance-creation-approval-datatable');
     });
 }
