@@ -81,15 +81,15 @@
                                                             }
 
                                                             if($tag_attendance_creation_for_recommendation > 0){
-                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-for-recommendation" id="for-recommend-attendance-creation"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
+                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-for-recommendation" id="for-recommend-attendance-creation"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
                                                             }
 
                                                             if($cancel_attendance_creation > 0){
-                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-attendance-cancel" id="cancel-attendance-creation"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
+                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-attendance-creation"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
                                                             }
 
                                                             if($delete_attendance_creation > 0){
-                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-attendance-delete" id="delete-attendance-creation"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-delete" id="delete-attendance-creation"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                             }
                                                         }
                                                     ?>

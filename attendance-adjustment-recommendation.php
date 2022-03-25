@@ -76,15 +76,15 @@
                                                         if($recommend_attendance_adjustment > 0 || $reject_attendance_adjustment > 0 || $cancel_attendance_adjustment > 0){
 
                                                             if($recommend_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-recommendation" id="recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> Recommend</button>';
+                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-recommendation" id="recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> Recommend</button>';
                                                             }
 
                                                             if($reject_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-attendance-reject" id="reject-attendance-adjustment"><i class="bx bx-block label-icon"></i> Reject</button>';
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-reject" id="reject-attendance-adjustment"><i class="bx bx-block label-icon"></i> Reject</button>';
                                                             }
 
                                                             if($cancel_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-attendance-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
+                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
                                                             }
                                                         }
                                                     ?>

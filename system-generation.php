@@ -1135,6 +1135,14 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="attachment" class="form-label">Attachment</label><br/>
+                                        <input class="form-control" type="file" name="attachment" id="attachment">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="leave_status" class="form-label">Status <span class="required">*</span></label>
@@ -1219,6 +1227,40 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         $form .='</select>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row" id="leave-date-container"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="reason" class="form-label">Reason <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="reason" name="reason" maxlength="500" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'employee leave management form'){
+                $form .= '<div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="leave_type" class="form-label">Leave Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="leave_type" name="leave_type">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_leave_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="leave_duration" class="form-label">Duration <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="leave_duration" name="leave_duration">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('LEAVEDURATION');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                
                             </div>
                             <div class="row" id="leave-date-container"></div>
                             <div class="row">
@@ -6081,11 +6123,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $employee_id = $employee_details[0]['EMPLOYEE_ID'];
 
                 # Get permission
-                $delete_leave = $api->check_role_permissions($username, 121);
-                $approve_leave = $api->check_role_permissions($username, 122);
-                $reject_leave = $api->check_role_permissions($username, 123);
-                $cancel_leave = $api->check_role_permissions($username, 124);
-                $view_transaction_log = $api->check_role_permissions($username, 125);
+                $delete_leave = $api->check_role_permissions($username, 211);
+                $cancel_leave = $api->check_role_permissions($username, 212);
+                $view_transaction_log = $api->check_role_permissions($username, 213);
     
                 $filter_leave_status = $_POST['filter_leave_status'];
                 $filter_leave_type = $_POST['filter_leave_type'];
@@ -6095,18 +6135,18 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $query = 'SELECT LEAVE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE EMPLOYEE_ID = :employee_id';
     
                 if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
-                    $query = ' AND ';
+                    $query .= ' AND ';
 
                     if(!empty($filter_start_date) && !empty($filter_end_date)){
                         $filter[] = 'LEAVE_DATE BETWEEN :filter_start_date AND :filter_end_date';
                     }
 
-                    if(!empty($filter_leave_type)){
-                        $filter[] = 'LEAVE_TYPE = :filter_leave_type';
-                    }
-
                     if(!empty($filter_leave_status)){
                         $filter[] = 'LEAVE_STATUS = :filter_leave_status';
+                    }
+
+                    if(!empty($filter_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_leave_type';
                     }
                 }               
     
@@ -6152,33 +6192,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $leave_type_details = $api->get_leave_type_details($leave_type);
                         $leave_name = $leave_type_details[0]['LEAVE_NAME'];
     
-                        if($delete_leave > 0 && $leave_status == 'PEN'){
+                        if($delete_leave > 0){
                             $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-leave" data-leave-id="'. $leave_id .'" title="Delete Leave">
                                         <i class="bx bx-trash font-size-16 align-middle"></i>
                                     </button>';
-                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-leave-status="'. $leave_status .'" value="'. $leave_id .'">';
                         }
                         else{
                             $delete = '';
-                            $check_box = '';
-                        }
-    
-                        if($approve_leave > 0 && $leave_status == 'PEN'){
-                            $approve = '<button type="button" class="btn btn-success waves-effect waves-light approve-leave" data-leave-id="'. $leave_id .'" title="Approve Leave">
-                                        <i class="bx bx-check font-size-16 align-middle"></i>
-                                    </button>';
-                        }
-                        else{
-                            $approve = '';
-                        }
-    
-                        if($reject_leave > 0 && $leave_status == 'PEN'){
-                            $reject = '<button type="button" class="btn btn-danger waves-effect waves-light reject-leave" data-leave-id="'. $leave_id .'" title="Reject Leave">
-                                        <i class="bx bx-x font-size-16 align-middle"></i>
-                                    </button>';
-                        }
-                        else{
-                            $reject = '';
                         }
     
                         if($cancel_leave > 0 && ($leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
@@ -6198,10 +6218,27 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         else{
                             $transaction_log = '';
                         }
+
+                        if($leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date))){
+                            $data_cancel = 1;
+
+                            if($leave_status == 'PEN'){
+                                $data_for_approval = 1;
+                                $data_delete = 1;
+                            }
+                            else{
+                                $data_for_approval = 0;
+                                $data_delete = 0;
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" data-cancel="'. $data_cancel .'" data-delete="'. $data_delete .'" type="checkbox" value="'. $leave_id .'">';
+                        }
+                        else{
+                            $check_box = '';
+                        }
     
                         $response[] = array(
                             'CHECK_BOX' => $check_box,
-                            'FILE_AS' => $file_as,
                             'LEAVE_NAME' => $leave_name,
                             'LEAVE_ENTITLMENT' => $leave_entitlement_status,
                             'LEAVE_DATE' => $leave_date . '<br/>' . $start_time . ' - ' . $end_time,
@@ -6210,8 +6247,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <button type="button" class="btn btn-primary waves-effect waves-light view-leave" data-leave-id="'. $leave_id .'" title="View Leave">
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
-                                '. $approve .'
-                                '. $reject .'
                                 '. $cancel .'
                                 '. $transaction_log .'
                                 '. $delete .'

@@ -76,15 +76,15 @@
                                                         if($delete_attendance_adjustment > 0 || $cancel_attendance_adjustment > 0 || $tag_attendance_adjustment_for_recommendation > 0){
 
                                                             if($tag_attendance_adjustment_for_recommendation > 0){
-                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-for-recommendation" id="for-recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
+                                                                echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-for-recommendation" id="for-recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
                                                             }
 
                                                             if($cancel_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-attendance-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
+                                                                echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
                                                             }
                                                             
                                                             if($delete_attendance_adjustment > 0){
-                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-attendance-delete" id="delete-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-delete" id="delete-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                             }
                                                         }
                                                     ?>

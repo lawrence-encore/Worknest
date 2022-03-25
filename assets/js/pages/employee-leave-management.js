@@ -2,8 +2,8 @@
     'use strict';
 
     $(function() {
-        if($('#leave-datatable').length){
-            initialize_leave_table('#leave-datatable');
+        if($('#employee-leave-datatable').length){
+            initialize_leave_table('#employee-leave-datatable');
         }
 
         initialize_click_events();
@@ -24,7 +24,6 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_NAME' },
         { 'data' : 'LEAVE_ENTITLMENT' },
         { 'data' : 'LEAVE_DATE' },
@@ -124,7 +123,7 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#add-leave',function() {
-        generate_modal('leave form', 'Leave', 'R' , '0', '1', 'form', 'leave-form', '1', username);
+        generate_modal('employee leave management form', 'Leave', 'R' , '0', '1', 'form', 'employee-leave-management-form', '1', username);
     });
 
     $(document).on('click','.cancel-leave',function() {
@@ -243,7 +242,7 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#apply-filter',function() {
-        initialize_leave_table('#leave-datatable');
+        initialize_leave_table('#employee-leave-datatable');
     });
 }
 

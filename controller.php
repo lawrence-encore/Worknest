@@ -1608,6 +1608,27 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $reason = $_POST['reason'];
             $leave_dates = explode(',', $_POST['leave_date']);
 
+            $attachment_file_name = $_FILES['attachment']['name'];
+            $attachment_file_size = $_FILES['attachment']['size'];
+            $attachment_file_error = $_FILES['attachment']['error'];
+            $attachment_file_tmp_name = $_FILES['attachment']['tmp_name'];
+            $attachment_file_ext = explode('.', $attachment_file_name);
+            $attachment_file_actual_ext = strtolower(end($attachment_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(11);
+            $upload_file_type_details = $api->get_upload_file_type_details(11);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
             if($leave_status == 'APV'){
                 $decision_date = date('Y-m-d');
                 $decision_time = date('H:i:s');
@@ -2764,6 +2785,90 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo $check_attendance_validation;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit employee leave
+    else if($transaction == 'submit employee leave'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['leave_duration']) && !empty($_POST['leave_duration']) && isset($_POST['reason']) && !empty($_POST['reason']) && isset($_POST['leave_date']) && !empty($_POST['leave_date'])){
+            $error = '';
+            $username = $_POST['username'];
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+            $leave_type = $_POST['leave_type'];
+            $leave_duration = $_POST['leave_duration'];
+            $reason = $_POST['reason'];
+            $leave_dates = explode(',', $_POST['leave_date']);
+
+            foreach($leave_dates as $leave_date){
+                $leave_date = $api->check_date('empty', $leave_date, '', 'Y-m-d', '', '', '');
+                $leave_day = $api->check_week_day($api->check_date('empty', $leave_date, '', 'w', '', '', ''));
+
+                $work_shift_schedule = $api->get_work_shift_schedule($employee_id, $leave_date, $leave_day);
+                $work_shift_time_in = $work_shift_schedule[0]['START_TIME'];
+                $work_shift_time_out = $work_shift_schedule[0]['END_TIME'];
+                $work_shift_half_day_mark = $work_shift_schedule[0]['HALF_DAY_MARK'];
+
+                if($leave_duration == 'CUSTOM'){
+                    $start_time = $api->check_date('empty', $_POST['start_time'], '', 'H:i:00', '', '', '');
+                    $end_time = $api->check_date('empty', $_POST['start_time'], '', 'H:i:00', '', '', '');
+                }
+                else if($leave_duration == 'HLFDAYMOR' || $leave_duration == 'HLFDAYAFT'){
+                    if($leave_duration == 'HLFDAYMOR'){
+                        $start_time = $api->check_date('empty', $work_shift_time_in, '', 'H:i:00', '', '', '');
+                        $end_time = $api->check_date('empty', $work_shift_half_day_mark, '', 'H:i:00', '', '', '');
+                    }
+                    else{
+                        $start_time = $api->check_date('empty', $work_shift_half_day_mark, '', 'H:i:00', '', '', '');
+                        $end_time = $api->check_date('empty', $work_shift_time_out, '', 'H:i:00', '', '', '');
+                    }
+                }
+                else{
+                    $start_time = $api->check_date('empty', $work_shift_time_in, '', 'H:i:00', '', '', '');
+                    $end_time = $api->check_date('empty', $work_shift_time_out, '', 'H:i:00', '', '', '');
+                }
+
+                $total_working_hours = round(abs(strtotime($work_shift_time_out) - strtotime($work_shift_time_in)) / 3600, 2);
+                $total_leave_hours = round(abs(strtotime($end_time) - strtotime($start_time)) / 3600, 2);
+
+                if($total_working_hours != $total_leave_hours){
+                    $total_hours = ($total_working_hours - $total_leave_hours) / $total_working_hours;
+                }
+                else{
+                    $total_hours = 1;
+                }
+                
+                $get_available_leave_entitlement = $api->get_available_leave_entitlement($employee_id, $leave_type, $leave_date);
+
+                if($get_available_leave_entitlement > 0){
+                    $insert_leave = $api->insert_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, 'PEN', $reason, null, null, null, $username);
+
+                    if($insert_leave == 1){
+                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+
+                        if($update_leave_entitlement_count != 1){
+                            $error = $update_leave_entitlement_count;
+                            break;
+                        }
+                    }
+                    else{
+                        $error = $insert_leave;
+                        break;
+                    }
+                }
+                else{
+                    $error = 'Leave Entitlement';
+                    break;
+                }
+            }
+
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
             }
         }
     }

@@ -13,16 +13,12 @@ function initialize_global_functions(){
         $('.datatable-checkbox-children').prop('checked',status);
 
         check_table_check_box();
-        check_lock_unlock_check_box();
-        check_activate_deactivate_check_box();
-        check_attendance_creation_adjustment_check_box();
+        check_table_multiple_button();
     });
     
     $(document).on('click','.datatable-checkbox-children',function() {
         check_table_check_box();
-        check_lock_unlock_check_box();
-        check_activate_deactivate_check_box();
-        check_attendance_creation_adjustment_check_box();
+        check_table_multiple_button();
     });
 
     $(document).on('click','.view-transaction-log',function() {
@@ -3560,7 +3556,7 @@ function initialize_form_validation(form_type){
         $('#leave-entitlement-form').validate({
             submitHandler: function (form) {
                 transaction = 'submit leave entitlement update';
-                document.getElementById('employee').disabled = false;
+                document.getElementById('employee_id').disabled = false;
                 document.getElementById('leave_type').disabled = false;
 
                 $.ajax({
@@ -5505,7 +5501,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'cancel multiple attendance creation form'){
-        $('#cancel-multiple-attendance-creation-form').validate({
+        $('#cancel-multiple-creation-form').validate({
             submitHandler: function (form) {
                 transaction = 'cancel multiple attendance creation';
 
@@ -5656,7 +5652,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'reject multiple attendance creation form'){
-        $('#reject-multiple-attendance-creation-form').validate({
+        $('#reject-multiple-creation-form').validate({
             submitHandler: function (form) {
                 transaction = 'reject multiple attendance creation';
 
@@ -5800,7 +5796,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'approve multiple attendance creation form'){
-        $('#approve-multiple-attendance-creation-form').validate({
+        $('#approve-multiple-creation-form').validate({
             submitHandler: function (form) {
                 transaction = 'approve multiple attendance creation';
 
@@ -6149,7 +6145,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'cancel multiple attendance adjustment form'){
-        $('#cancel-multiple-attendance-adjustment-form').validate({
+        $('#cancel-multiple-adjustment-form').validate({
             submitHandler: function (form) {
                 transaction = 'cancel multiple attendance adjustment';
 
@@ -6300,7 +6296,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'reject multiple attendance adjustment form'){
-        $('#reject-multiple-attendance-adjustment-form').validate({
+        $('#reject-multiple-adjustment-form').validate({
             submitHandler: function (form) {
                 transaction = 'reject multiple attendance adjustment';
 
@@ -6447,7 +6443,7 @@ function initialize_form_validation(form_type){
         });
     }
     else if(form_type == 'approve multiple attendance adjustment form'){
-        $('#approve-multiple-attendance-adjustment-form').validate({
+        $('#approve-multiple-adjustment-form').validate({
             submitHandler: function (form) {
                 transaction = 'approve multiple attendance adjustment';
 
@@ -6487,6 +6483,102 @@ function initialize_form_validation(form_type){
                     }
                 });
                 return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'employee leave management form'){
+        $('#employee-leave-management-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit employee leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Leave Success', 'The employee leave has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#employee-leave-datatable');
+                        }
+                        else if(response === 'Leave Entitlement'){
+                            show_alert('Insert Leave Error', 'The leave entitlement was consumed.', 'error');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                leave_type: {
+                    required: true
+                },
+                leave_duration: {
+                    required: true
+                },
+                leave_date: {
+                    required: true
+                },
+                start_time: {
+                    required: true
+                },
+                end_time: {
+                    required: true
+                },
+                reason: {
+                    required: true
+                }
+            },
+            messages: {
+                leave_type: {
+                    required: 'Please choose the leave type',
+                },
+                leave_duration: {
+                    required: 'Please choose the duration',
+                },
+                leave_date: {
+                    required: 'Please choose the leave date',
+                },
+                start_time: {
+                    required: 'Please choose the start time',
+                },
+                end_time: {
+                    required: 'Please choose the end time',
+                },
+                reason: {
+                    required: 'Please enter the reason',
+                }
             },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
@@ -8112,24 +8204,56 @@ function check_table_check_box(){
     }
 }
 
-function check_lock_unlock_check_box(){
+function check_table_multiple_button(){
     var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
     var checked_value = input_elements.filter(chk => chk.checked).length;
 
     if(checked_value > 0){
         var lock_array = [];
+        var cancel_array = [];
+        var delete_array = [];
+        var reject_array = [];
+        var approve_array = [];
+        var for_recommendation_array = [];
+        var for_approval_array = [];
+        var recommend_array = [];
+        var active_array = [];
         
         $(".datatable-checkbox-children").each(function () {
+            var cancel_data = $(this).data('cancel');
+            var delete_data = $(this).data('delete');
+            var for_recommendation_data = $(this).data('for-recommendation');
+            var for_approval_data = $(this).data('for-approval');
+            var recommend_data = $(this).data('recommend');
+            var reject_data = $(this).data('reject');
+            var approve_data = $(this).data('approve');
             var lock = $(this).data('lock');
+            var active = $(this).data('active');
 
             if($(this).prop('checked') === true){
                 lock_array.push(lock);
+                cancel_array.push(cancel_data);
+                approve_array.push(approve_data);
+                reject_array.push(reject_data);
+                delete_array.push(delete_data);
+                for_recommendation_array.push(for_recommendation_data);
+                recommend_array.push(recommend_data);
+                active_array.push(active);
             }
         });
 
+        var cancel_checker = arr => arr.every(v => v === 1);
+        var delete_checker = arr => arr.every(v => v === 1);
+        var for_recommendation_checker = arr => arr.every(v => v === 1);
+        var for_approval_checker = arr => arr.every(v => v === 1);
+        var recommend_checker = arr => arr.every(v => v === 1);
+        var reject_checker = arr => arr.every(v => v === 1);
+        var approve_checker = arr => arr.every(v => v === 1);
         var unlock_checker = arr => arr.every(v => v === 1);
         var lock_checker = arr => arr.every(v => v === 0);
-        
+        var activate_checker = arr => arr.every(v => v === 0);
+        var deactivate_checker = arr => arr.every(v => v === 1);
+
         if(lock_checker(lock_array) || unlock_checker(lock_array)){
             if(lock_checker(lock_array)){
                 $('.multiple-lock').removeClass('d-none');
@@ -8145,31 +8269,7 @@ function check_lock_unlock_check_box(){
             $('.multiple-lock').addClass('d-none');
             $('.multiple-unlock').addClass('d-none');
         }
-    }
-    else{
-        $('.multiple-lock').addClass('d-none');
-        $('.multiple-unlock').addClass('d-none');
-    }
-}
 
-function check_activate_deactivate_check_box(){
-    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
-    var checked_value = input_elements.filter(chk => chk.checked).length;
-
-    if(checked_value > 0){
-        var active_array = [];
-        
-        $(".datatable-checkbox-children").each(function () {
-            var active = $(this).data('active');
-
-            if($(this).prop('checked') === true){
-                active_array.push(active);
-            }
-        });
-
-        var activate_checker = arr => arr.every(v => v === 0);
-        var deactivate_checker = arr => arr.every(v => v === 1);
-        
         if(activate_checker(active_array) || deactivate_checker(active_array)){
             if(activate_checker(active_array)){
                 $('.multiple-activate').removeClass('d-none');
@@ -8185,99 +8285,68 @@ function check_activate_deactivate_check_box(){
             $('.multiple-activate').addClass('d-none');
             $('.multiple-deactivate').addClass('d-none');
         }
-    }
-    else{
-        $('.multiple-activate').addClass('d-none');
-        $('.multiple-deactivate').addClass('d-none');
-    }
-}
-
-function check_attendance_creation_adjustment_check_box(){
-    var input_elements = [].slice.call(document.querySelectorAll('.datatable-checkbox-children'));
-    var checked_value = input_elements.filter(chk => chk.checked).length;
-
-    if(checked_value > 0){
-        var cancel_array = [];
-        var delete_array = [];
-        var reject_array = [];
-        var approve_array = [];
-        var for_recommendation_array = [];
-        var recommend_array = [];
         
-        $(".datatable-checkbox-children").each(function () {
-            var cancel_data = $(this).data('cancel');
-            var delete_data = $(this).data('delete');
-            var for_recommendation_data = $(this).data('for-recommendation');
-            var recommend_data = $(this).data('recommend');
-            var reject_data = $(this).data('reject');
-            var approve_data = $(this).data('approve');
-
-            if($(this).prop('checked') === true){
-                cancel_array.push(cancel_data);
-                approve_array.push(approve_data);
-                reject_array.push(reject_data);
-                delete_array.push(delete_data);
-                for_recommendation_array.push(for_recommendation_data);
-                recommend_array.push(recommend_data);
-            }
-        });
-
-        var cancel_checker = arr => arr.every(v => v === 1);
-        var delete_checker = arr => arr.every(v => v === 1);
-        var for_recommendation_checker = arr => arr.every(v => v === 1);
-        var recommend_checker = arr => arr.every(v => v === 1);
-        var reject_checker = arr => arr.every(v => v === 1);
-        var approve_checker = arr => arr.every(v => v === 1);
-        
-        if(cancel_checker(cancel_array) ){
-            $('.multiple-attendance-cancel').removeClass('d-none');
+        if(for_approval_checker(for_approval_array) ){
+            $('.multiple-for-approval').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-cancel').addClass('d-none');
+            $('.multiple-for-approval').addClass('d-none');
+        }
+        
+        if(cancel_checker(cancel_array) ){
+            $('.multiple-cancel').removeClass('d-none');
+        }
+        else{
+            $('.multiple-cancel').addClass('d-none');
         }
         
         if(reject_checker(reject_array)){
-            $('.multiple-attendance-reject').removeClass('d-none');
+            $('.multiple-reject').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-reject').addClass('d-none');
+            $('.multiple-reject').addClass('d-none');
         }
         
         if(approve_checker(approve_array)){
-            $('.multiple-attendance-approve').removeClass('d-none');
+            $('.multiple-approve').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-approve').addClass('d-none');
+            $('.multiple-approve').addClass('d-none');
         }
         
         if(delete_checker(delete_array)){
-            $('.multiple-attendance-delete').removeClass('d-none');
+            $('.multiple-delete').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-delete').addClass('d-none');
+            $('.multiple-delete').addClass('d-none');
         }
         
         if(for_recommendation_checker(for_recommendation_array) ){
-            $('.multiple-attendance-for-recommendation').removeClass('d-none');
+            $('.multiple-for-recommendation').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-for-recommendation').addClass('d-none');
+            $('.multiple-for-recommendation').addClass('d-none');
         }
         
         if(recommend_checker(recommend_array) ){
-            $('.multiple-attendance-recommendation').removeClass('d-none');
+            $('.multiple-recommendation').removeClass('d-none');
         }
         else{
-            $('.multiple-attendance-recommendation').addClass('d-none');
+            $('.multiple-recommendation').addClass('d-none');
         }
     }
     else{
-        $('.multiple-attendance-delete').addClass('d-none');
-        $('.multiple-attendance-cancel').addClass('d-none');
-        $('.multiple-attendance-for-recommendation').addClass('d-none');
-        $('.multiple-attendance-recommendation').addClass('d-none');
-        $('.multiple-attendance-reject').addClass('d-none');
-        $('.multiple-attendance-approve').addClass('d-none');
+        $('.multiple-delete').addClass('d-none');
+        $('.multiple-cancel').addClass('d-none');
+        $('.multiple-for-recommendation').addClass('d-none');
+        $('.multiple-for-approval').addClass('d-none');
+        $('.multiple-recommendation').addClass('d-none');
+        $('.multiple-reject').addClass('d-none');
+        $('.multiple-approve').addClass('d-none');
+        $('.multiple-lock').addClass('d-none');
+        $('.multiple-unlock').addClass('d-none');
+        $('.multiple-activate').addClass('d-none');
+        $('.multiple-deactivate').addClass('d-none');
     }
 }
 
@@ -8355,12 +8424,12 @@ function hide_multiple_buttons(){
     $('.multiple-approve').addClass('d-none');
     $('.multiple-reject').addClass('d-none');
     $('.multiple-cancel').addClass('d-none');
-    $('.multiple-attendance-delete').addClass('d-none');
-    $('.multiple-attendance-cancel').addClass('d-none');
-    $('.multiple-attendance-for-recommendation').addClass('d-none');
-    $('.multiple-attendance-recommendation').addClass('d-none');
-    $('.multiple-attendance-reject').addClass('d-none');
-    $('.multiple-attendance-approve').addClass('d-none');
+    $('.multiple-delete').addClass('d-none');
+    $('.multiple-cancel').addClass('d-none');
+    $('.multiple-for-recommendation').addClass('d-none');
+    $('.multiple-recommendation').addClass('d-none');
+    $('.multiple-reject').addClass('d-none');
+    $('.multiple-approve').addClass('d-none');
 }
 
 // Form validation rules
