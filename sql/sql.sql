@@ -2834,6 +2834,20 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE update_leave_file(IN leave_id VARCHAR(50), IN file_path VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @leave_id = leave_id;
+	SET @file_path = file_path;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblleave SET FILE_PATH = @file_path, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE LEAVE_ID = @leave_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 CREATE PROCEDURE check_leave_exist(IN leave_id VARCHAR(50))
 BEGIN
 	SET @leave_id = leave_id;

@@ -3859,6 +3859,10 @@ function initialize_form_validation(form_type){
                             if($('#employee-leave-datatable').length){
                                 reload_datatable('#employee-leave-datatable');
                             }
+
+                            if($('#leave-approval-datatable').length){
+                                reload_datatable('#leave-approval-datatable');
+                            }
                         }
                         else if(response === 'Not Found'){
                             show_alert('Leave Approval Error', 'The leave does not exist.', 'info');
@@ -3962,6 +3966,10 @@ function initialize_form_validation(form_type){
                             if($('#employee-leave-datatable').length){
                                 reload_datatable('#employee-leave-datatable');
                             }
+
+                            if($('#leave-approval-datatable').length){
+                                reload_datatable('#leave-approval-datatable');
+                            }
                         }
                         else if(response === 'Not Found'){
                             show_alert('Leave Rejection Error', 'The leave does not exist.', 'info');
@@ -4035,12 +4043,220 @@ function initialize_form_validation(form_type){
                             if($('#employee-leave-datatable').length){
                                 reload_datatable('#employee-leave-datatable');
                             }
+
+                            if($('#leave-approval-datatable').length){
+                                reload_datatable('#leave-approval-datatable');
+                            }
                         }
                         else if(response === 'Not Found'){
                             show_alert('Leave Cancellation Error', 'The leave does not exist.', 'info');
                         }
                         else{
                             show_alert('Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the cancellation remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'approve multiple leave form'){
+        $('#approve-multiple-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'approve multiple leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Approved'){
+                            show_alert('Leave Approval Success', 'The leave has been approved.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+
+                        if($('#leave-datatable').length){
+                            reload_datatable('#leave-datatable');
+                        }
+
+                        if($('#leave-approval-datatable').length){
+                            reload_datatable('#leave-approval-datatable');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'reject multiple leave form'){
+        $('#reject-multiple-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'reject multiple leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Rejected'){
+                            show_alert('Leave Rejection Success', 'The leave has been rejected.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+
+                        if($('#leave-datatable').length){
+                            reload_datatable('#leave-datatable');
+                        }
+
+                        if($('#leave-approval-datatable').length){
+                            reload_datatable('#leave-approval-datatable');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                decision_remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                decision_remarks: {
+                    required: 'Please enter the rejection remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'cancel multiple leave form'){
+        $('#cancel-multiple-leave-form').validate({
+            submitHandler: function (form) {
+                transaction = 'cancel multiple leave';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Cancelled'){
+                            show_alert('Leave Cancellation Success', 'The leave has been cancelled.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            show_alert('Leave Error', response, 'error');
+                        }
+
+                        if($('#leave-datatable').length){
+                            reload_datatable('#leave-datatable');
+                        }
+
+                        if($('#employee-leave-datatable').length){
+                            reload_datatable('#employee-leave-datatable');
+                        }
+
+                        if($('#leave-approval-datatable').length){
+                            reload_datatable('#leave-approval-datatable');
                         }
                     },
                     complete: function(){
@@ -6728,7 +6944,7 @@ function generate_form(form_type, form_id, add, username){
                     var employee_id = $('#employee-id').text();
                     $('#employee_id').val(employee_id);
                 }
-                else if(form_type == 'approve leave form' || form_type == 'reject leave form' || form_type == 'cancel leave form' || form_type == 'approve employee leave form' || form_type == 'reject employee leave form' || form_type == 'cancel employee leave form'){
+                else if(form_type == 'approve leave form' || form_type == 'reject leave form' || form_type == 'cancel leave form' || form_type == 'approve multiple leave form' || form_type == 'reject multiple leave form' || form_type == 'cancel multiple leave form' || form_type == 'approve employee leave form' || form_type == 'reject employee leave form' || form_type == 'cancel employee leave form'){
                     var leave_id = sessionStorage.getItem('leave_id');
                     $('#leave_id').val(leave_id);
                 }
@@ -8234,6 +8450,7 @@ function check_table_multiple_button(){
                 lock_array.push(lock);
                 cancel_array.push(cancel_data);
                 approve_array.push(approve_data);
+                for_approval_array.push(for_approval_data);
                 reject_array.push(reject_data);
                 delete_array.push(delete_data);
                 for_recommendation_array.push(for_recommendation_data);

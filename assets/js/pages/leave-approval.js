@@ -2,8 +2,8 @@
     'use strict';
 
     $(function() {
-        if($('#employee-leave-datatable').length){
-            initialize_leave_table('#employee-leave-datatable');
+        if($('#leave-approval-datatable').length){
+            initialize_leave_table('#leave-approval-datatable');
         }
 
         initialize_click_events();
@@ -15,15 +15,15 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var filter_leave_status = $('#filter_leave_status').val();
     var filter_leave_type = $('#filter_leave_type').val();
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
-    var type = 'employee leave management table';
+    var type = 'leave approval table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
+        { 'data' : 'FILE_AS' },
         { 'data' : 'LEAVE_NAME' },
         { 'data' : 'LEAVE_ENTITLMENT' },
         { 'data' : 'LEAVE_DATE' },
@@ -33,11 +33,12 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '34%', 'aTargets': 1 },
+        { 'width': '29%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '10%', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
-        { 'width': '20%','bSortable': false, 'aTargets': 5 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '20%','bSortable': false, 'aTargets': 6 },
     ];
 
     if(show_all){
@@ -53,7 +54,7 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
+                'data': {'type' : type, 'username' : username, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -84,7 +85,7 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
+                'data': {'type' : type, 'username' : username, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],
@@ -123,7 +124,23 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#add-leave',function() {
-        generate_modal('employee leave management form', 'Leave', 'R' , '0', '1', 'form', 'employee-leave-management-form', '1', username);
+        generate_modal('leave form', 'Leave', 'R' , '0', '1', 'form', 'leave-form', '1', username);
+    });
+
+    $(document).on('click','.approve-leave',function() {
+        var leave_id = $(this).data('leave-id');
+
+        sessionStorage.setItem('leave_id', leave_id);
+        
+        generate_modal('approve leave form', 'Approve Leave', 'R' , '0', '1', 'form', 'approve-leave-form', '1', username);
+    });
+
+    $(document).on('click','.reject-leave',function() {
+        var leave_id = $(this).data('leave-id');
+
+        sessionStorage.setItem('leave_id', leave_id);
+        
+        generate_modal('reject leave form', 'Reject Leave', 'R' , '0', '1', 'form', 'reject-leave-form', '1', username);
     });
 
     $(document).on('click','.cancel-leave',function() {
@@ -158,7 +175,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Leave', 'The leave has been deleted.', 'success');
 
-                          reload_datatable('#employee-leave-datatable');
+                          reload_datatable('#leave-approval-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Leave', 'The leave does not exist.', 'info');
@@ -205,7 +222,7 @@ function initialize_click_events(){
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Leaves', 'The leaves have been deleted.', 'success');
     
-                                reload_datatable('#employee-leave-datatable');
+                                reload_datatable('#leave-approval-datatable');
                             }
                             else if(response === 'Not Found'){
                                 show_alert('Delete Multiple Leaves', 'The leave does not exist.', 'info');
@@ -222,6 +239,38 @@ function initialize_click_events(){
         }
         else{
             show_alert('Delete Multiple Leaves', 'Please select the leaves you want to delete.', 'error');
+        }
+    });
+
+    $(document).on('click','#approve-leave',function() {
+        var leave_id = [];
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                leave_id.push(this.value);  
+            }
+        });
+
+        sessionStorage.setItem('leave_id', leave_id);
+        
+        if(leave_id.length > 0){
+            generate_modal('approve multiple leave form', 'Approve Multiple Leave', 'R' , '0', '1', 'form', 'approve-multiple-leave-form', '1', username);
+        }
+    });
+
+    $(document).on('click','#reject-leave',function() {
+        var leave_id = [];
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                leave_id.push(this.value);  
+            }
+        });
+
+        sessionStorage.setItem('leave_id', leave_id);
+
+        if(leave_id.length > 0){
+            generate_modal('reject multiple leave form', 'Reject Multiple Leave', 'R' , '0', '1', 'form', 'reject-multiple-leave-form', '1', username);
         }
     });
 
@@ -242,7 +291,7 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#apply-filter',function() {
-        initialize_leave_table('#employee-leave-datatable');
+        initialize_leave_table('#leave-approval-datatable');
     });
 }
 

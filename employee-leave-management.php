@@ -7,9 +7,9 @@
     $page_title = 'Leave Management';
 
     $page_access = $api->check_role_permissions($username, 208);
-	$add_leave = $api->check_role_permissions($username, 120);
-	$delete_leave = $api->check_role_permissions($username, 121);
-	$tag_leave_for_approval = $api->check_role_permissions($username, 122);
+	$add_leave = $api->check_role_permissions($username, 209);
+	$delete_leave = $api->check_role_permissions($username, 210);
+	$cancel_leave = $api->check_role_permissions($username, 211);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -72,14 +72,14 @@
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_leave > 0 || $delete_leave > 0){
+                                                            if($add_leave > 0 || $delete_leave > 0 || $cancel_leave > 0){
 
                                                                 if($add_leave > 0){
                                                                     echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($tag_leave_for_approval > 0){
-                                                                    echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-attendance-for-recommendation" id="for-recommend-attendance-adjustment"><i class="bx bx-check label-icon"></i> For Recommendation</button>';
+                                                                if($cancel_leave > 0){
+                                                                    echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-leave"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
                                                                 }
 
                                                                 if($delete_leave > 0){

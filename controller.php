@@ -1600,6 +1600,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     else if($transaction == 'submit leave'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['leave_status']) && !empty($_POST['leave_status']) && isset($_POST['leave_duration']) && !empty($_POST['leave_duration']) && isset($_POST['reason']) && !empty($_POST['reason']) && isset($_POST['leave_date']) && !empty($_POST['leave_date'])){
             $error = '';
+            $file_type = '';
             $username = $_POST['username'];
             $employee_id = $_POST['employee_id'];
             $leave_type = $_POST['leave_type'];
@@ -1607,27 +1608,6 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $leave_duration = $_POST['leave_duration'];
             $reason = $_POST['reason'];
             $leave_dates = explode(',', $_POST['leave_date']);
-
-            $attachment_file_name = $_FILES['attachment']['name'];
-            $attachment_file_size = $_FILES['attachment']['size'];
-            $attachment_file_error = $_FILES['attachment']['error'];
-            $attachment_file_tmp_name = $_FILES['attachment']['tmp_name'];
-            $attachment_file_ext = explode('.', $attachment_file_name);
-            $attachment_file_actual_ext = strtolower(end($attachment_file_ext));
-
-            $upload_setting_details = $api->get_upload_setting_details(11);
-            $upload_file_type_details = $api->get_upload_file_type_details(11);
-            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
-
-            for($i = 0; $i < count($upload_file_type_details); $i++) {
-                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
-
-                if($i != (count($upload_file_type_details) - 1)){
-                    $file_type .= ',';
-                }
-            }
-
-            $allowed_ext = explode(',', $file_type);
 
             if($leave_status == 'APV'){
                 $decision_date = date('Y-m-d');
@@ -2802,6 +2782,17 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $reason = $_POST['reason'];
             $leave_dates = explode(',', $_POST['leave_date']);
 
+            $from_department = $employee_details[0]['DEPARTMENT'] ?? null;
+            $from_file_as = $employee_details[0]['FILE_AS'] ?? null;
+
+            $department_details = $api->get_department_details($from_department);
+            $department_head = $department_details[0]['DEPARTMENT_HEAD'];
+
+            $notification_details = $api->get_notification_details(15);
+            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+
             foreach($leave_dates as $leave_date){
                 $leave_date = $api->check_date('empty', $leave_date, '', 'Y-m-d', '', '', '');
                 $leave_day = $api->check_week_day($api->check_date('empty', $leave_date, '', 'w', '', '', ''));
@@ -2865,7 +2856,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if(empty($error)){
-                echo 'Inserted';
+                $send_notification = $api->send_notification(15, $employee_id, $department_head, $notification_title, $notification_message, $username);
+    
+                if($send_notification == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $send_notification;
+                }
             }
             else{
                 echo $error;
@@ -4216,7 +4214,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
     
                     if($update_leave_status == 1){
-                        echo 'Approved';
+                        $from_details = $api->get_leave_details($leave_id);
+                        $from_id = $from_details[0]['DECISION_BY'];
+                        $from_details = $api->get_employee_details('', $from_id);
+                        $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                        $notification_details = $api->get_notification_details(16);
+                        $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                        $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                        $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                
+                        $send_notification = $api->send_notification(16, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                        if($send_notification == 1){
+                            echo 'Approved';
+                        }
+                        else{
+                            echo $send_notification;
+                        }
                     }
                     else{
                         echo $update_leave_status;
@@ -4228,6 +4243,80 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Approve multiple leave
+    else if($transaction == 'approve multiple leave'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && !empty($_POST['leave_id']) && isset($_POST['decision_remarks'])){
+            $username = $_POST['username'];
+            $leave_ids = explode(',', $_POST['leave_id']);
+            $decision_remarks = $_POST['decision_remarks'];
+            $error_count = 0;
+            $error = '';
+
+            foreach($leave_ids as $leave_id){
+                $check_leave_exist = $api->check_leave_exist($leave_id);
+
+                if($check_leave_exist > 0){
+                    $leave_details = $api->get_leave_details($leave_id);
+                    $employee_id = $leave_details[0]['EMPLOYEE_ID'];
+                    $leave_date = $leave_details[0]['LEAVE_DATE'];
+                    $start_time = $leave_details[0]['START_TIME'];
+                    $end_time = $leave_details[0]['END_TIME'];
+
+                    $check_leave_overlap_start = $api->check_leave_overlap($leave_id, $employee_id, $leave_date, $start_time);
+                    $check_leave_overlap_end = $api->check_leave_overlap($leave_id, $employee_id, $leave_date, $end_time);
+
+                    if($check_leave_overlap_start == 0 && $check_leave_overlap_end == 0){
+                        $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
+        
+                        if($update_leave_status == 1){
+                            $from_details = $api->get_leave_details($leave_id);
+                            $from_id = $from_details[0]['DECISION_BY'];
+                            $from_details = $api->get_employee_details('', $from_id);
+                            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                            $notification_details = $api->get_notification_details(16);
+                            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                        
+                            $send_notification = $api->send_notification(16, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                            if($send_notification != 1){
+                                $error_count = $error_count + 1;
+                            }
+                        }
+                        else{
+                            $error_count = $error_count + 1;
+                        }
+                    }
+                    else{
+                        $error_count = $error_count + 1;
+                    }
+                }
+                else{
+                    $error_count = $error_count + 1;
+                }
+            }
+
+            if($error_count > 0){
+                if($error_count == 1){
+                    $error = 'There was an error approving '. number_format($error_count) .' leave.<br/>';
+                }
+                else{
+                    $error = 'There was an error approving '. number_format($error_count) .' leaves.<br/>';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Approved';
+            }
+            else{
+                echo $error;
             }
         }
     }
@@ -4252,7 +4341,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
     
                 if($update_leave_status == 1){
-                    echo 'Approved';
+                    $from_details = $api->get_leave_details($leave_id);
+                    $from_id = $from_details[0]['DECISION_BY'];
+                    $from_details = $api->get_employee_details('', $from_id);
+                    $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                    $notification_details = $api->get_notification_details(16);
+                    $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                    $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                    $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                
+                    $send_notification = $api->send_notification(16, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
+
+                    if($send_notification == 1){
+                        echo 'Approved';
+                    }
+                    else{
+                        echo $send_notification;
+                    }
                 }
                 else{
                     echo $update_leave_status;
@@ -4779,7 +4885,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
                     if($update_leave_entitlement_count == 1){
-                        echo 'Rejected';
+                        $from_details = $api->get_leave_details($leave_id);
+                        $from_id = $from_details[0]['DECISION_BY'];
+                        $from_details = $api->get_employee_details('', $from_id);
+                        $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                        $notification_details = $api->get_notification_details(17);
+                        $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                        $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                        $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                
+                        $send_notification = $api->send_notification(17, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                        if($send_notification == 1){
+                            echo 'Rejected';
+                        }
+                        else{
+                            echo $send_notification;
+                        }
                     }
                     else{
                         echo $update_leave_entitlement_count;
@@ -4791,6 +4914,96 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Reject multiple leave
+    else if($transaction == 'reject multiple leave'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && !empty($_POST['leave_id']) && isset($_POST['decision_remarks']) && !empty($_POST['decision_remarks'])){
+            $username = $_POST['username'];
+            $leave_ids = explode(',', $_POST['leave_id']);
+            $decision_remarks = $_POST['decision_remarks'];
+            $error_count = 0;
+            $error = '';
+
+            foreach($leave_ids as $leave_id){
+                $leave_details = $api->get_leave_details($leave_id);
+                $employee_id = $leave_details[0]['EMPLOYEE_ID'];
+                $leave_type = $leave_details[0]['LEAVE_TYPE'];
+                $leave_date = $leave_details[0]['LEAVE_DATE'];
+                $start_time = $leave_details[0]['START_TIME'];
+                $end_time = $leave_details[0]['END_TIME'];
+
+                $leave_day = date('N', strtotime($leave_date));
+
+                $work_shift_schedule = $api->get_work_shift_schedule($employee_id, $leave_date, $leave_day);
+                $work_shift_time_in = $work_shift_schedule[0]['START_TIME'];
+                $work_shift_time_out = $work_shift_schedule[0]['END_TIME'];
+
+                $total_working_hours = round(abs(strtotime($work_shift_time_out) - strtotime($work_shift_time_in)) / 3600, 2);
+                $total_leave_hours = round(abs(strtotime($end_time) - strtotime($start_time)) / 3600, 2);
+
+                if($total_working_hours == $total_leave_hours){
+                    $total_hours =  - 1;
+                }
+                else{
+                    $total_hours =  - 1 * abs(($total_working_hours - $total_leave_hours) / $total_working_hours);
+                }
+
+                $check_leave_exist = $api->check_leave_exist($leave_id);
+
+                if($check_leave_exist > 0){
+                    $update_leave_status = $api->update_leave_status($leave_id, 'REJ', $decision_remarks, $username);
+        
+                    if($update_leave_status == 1){
+                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+
+                        if($update_leave_entitlement_count == 1){
+                            $from_details = $api->get_leave_details($leave_id);
+                            $from_id = $from_details[0]['DECISION_BY'];
+                            $from_details = $api->get_employee_details('', $from_id);
+                            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+    
+                            $notification_details = $api->get_notification_details(17);
+                            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                    
+                            $send_notification = $api->send_notification(17, $from_id, $employee_id, $notification_title, $notification_message, $username);
+    
+                            if($send_notification != 1){
+                                $error_count = $error_count + 1;
+                            }
+                        }
+                        else{
+                            $error_count = $error_count + 1;
+                        }
+                    }
+                    else{
+                        $error_count = $error_count + 1;
+                    }
+                }
+                else{
+                    $error_count = $error_count + 1;
+                }
+            }
+
+            if($error_count > 0){
+                if($error_count == 1){
+                    $error = 'There was an error rejecting '. number_format($error_count) .' leave.<br/>';
+                }
+                else{
+                    $error = 'There was an error rejecting '. number_format($error_count) .' leaves.<br/>';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Rejected';
+            }
+            else{
+                echo $error;
             }
         }
     }
@@ -5049,7 +5262,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
                     if($update_leave_entitlement_count == 1){
-                        echo 'Cancelled';
+                        $from_details = $api->get_leave_details($leave_id);
+                        $from_id = $from_details[0]['DECISION_BY'];
+                        $from_details = $api->get_employee_details('', $from_id);
+                        $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+
+                        $notification_details = $api->get_notification_details(18);
+                        $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                        $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                        $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                
+                        $send_notification = $api->send_notification(18, $from_id, $employee_id, $notification_title, $notification_message, $username);
+
+                        if($send_notification == 1){
+                            echo 'Cancelled';
+                        }
+                        else{
+                            echo $send_notification;
+                        }
                     }
                     else{
                         echo $update_leave_entitlement_count;
@@ -5061,6 +5291,97 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # Cancel multiple leave
+    else if($transaction == 'cancel multiple leave'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && !empty($_POST['leave_id']) && isset($_POST['decision_remarks']) && !empty($_POST['decision_remarks'])){
+            $username = $_POST['username'];
+            $username = $_POST['username'];
+            $leave_ids = explode(',', $_POST['leave_id']);
+            $decision_remarks = $_POST['decision_remarks'];
+            $error_count = 0;
+            $error = '';
+
+            foreach($leave_ids as $leave_id){
+                $leave_details = $api->get_leave_details($leave_id);
+                $employee_id = $leave_details[0]['EMPLOYEE_ID'];
+                $leave_type = $leave_details[0]['LEAVE_TYPE'];
+                $leave_date = $leave_details[0]['LEAVE_DATE'];
+                $start_time = $leave_details[0]['START_TIME'];
+                $end_time = $leave_details[0]['END_TIME'];
+
+                $leave_day = date('N', strtotime($leave_date));
+
+                $work_shift_schedule = $api->get_work_shift_schedule($employee_id, $leave_date, $leave_day);
+                $work_shift_time_in = $work_shift_schedule[0]['START_TIME'];
+                $work_shift_time_out = $work_shift_schedule[0]['END_TIME'];
+
+                $total_working_hours = round(abs(strtotime($work_shift_time_out) - strtotime($work_shift_time_in)) / 3600, 2);
+                $total_leave_hours = round(abs(strtotime($end_time) - strtotime($start_time)) / 3600, 2);
+
+                if($total_working_hours == $total_leave_hours){
+                    $total_hours =  - 1;
+                }
+                else{
+                    $total_hours =  - 1 * abs(($total_working_hours - $total_leave_hours) / $total_working_hours);
+                }
+
+                $check_leave_exist = $api->check_leave_exist($leave_id);
+
+                if($check_leave_exist > 0){
+                    $update_leave_status = $api->update_leave_status($leave_id, 'CAN', $decision_remarks, $username);
+        
+                    if($update_leave_status == 1){
+                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+
+                        if($update_leave_entitlement_count == 1){
+                            $from_details = $api->get_leave_details($leave_id);
+                            $from_id = $from_details[0]['DECISION_BY'];
+                            $from_details = $api->get_employee_details('', $from_id);
+                            $from_file_as = $from_details[0]['FILE_AS'] ?? null;
+    
+                            $notification_details = $api->get_notification_details(18);
+                            $notification_title = $notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                            $notification_message = $notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                            $notification_message = str_replace('{name}', $from_file_as, $notification_message);
+                                    
+                            $send_notification = $api->send_notification(18, $from_id, $employee_id, $notification_title, $notification_message, $username);
+    
+                            if($send_notification != 1){
+                                $error_count = $error_count + 1;
+                            }
+                        }
+                        else{
+                            $error_count = $error_count + 1;
+                        }
+                    }
+                    else{
+                        $error_count = $error_count + 1;
+                    }
+                }
+                else{
+                    $error_count = $error_count + 1;
+                }
+            }
+
+            if($error_count > 0){
+                if($error_count == 1){
+                    $error = 'There was an error cancelling '. number_format($error_count) .' leave.<br/>';
+                }
+                else{
+                    $error = 'There was an error cancelling '. number_format($error_count) .' leaves.<br/>';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Cancelled';
+            }
+            else{
+                echo $error;
             }
         }
     }

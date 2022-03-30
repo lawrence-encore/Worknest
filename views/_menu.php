@@ -35,6 +35,7 @@
     $attendance_creation_approval_page = $api->check_role_permissions($username, 198);
     $attendance_adjustment_approval_page = $api->check_role_permissions($username, 203);
     $leave_management_page = $api->check_role_permissions($username, 208);
+    $leave_approval_page = $api->check_role_permissions($username, 213);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -46,7 +47,7 @@
                     </li>';
     }
 
-    if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0 || $attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0 || $leave_management_page > 0){
+    if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0 || $leave_management_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Employee</li>';
 
         if($employee_attendance_record_page > 0 || $attendance_creation_page > 0 || $attendance_adjustment_page > 0){
@@ -81,50 +82,12 @@
                         </a>
                     </li>';
         }
-
-        if($attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
-            $menu .= '<li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="bx bx-badge-check"></i>
-                            <span key="t-leave">Recommendation</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">';
-
-                        if($attendance_adjustment_recommendation_page > 0){
-                            $menu .= '<li><a href="attendance-adjustment-recommendation.php" key="t-all-employees">Attendance Adjustment</a></li>';
-                        }
-
-                        if($attendance_creation_recommendation_page > 0){
-                            $menu .= '<li><a href="attendance-creation-recommendation.php" key="t-all-employees">Attendance Creation</a></li>';
-                        }
-
-            $menu .= '</ul>
-                    </li>';
-        }
     }
 
-    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_creation_approval_page > 0 || $attendance_adjustment_approval_page > 0){
+    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Human Resource</li>';
 
-        if($attendance_creation_approval_page > 0 || $attendance_adjustment_approval_page > 0){
-            $menu .= '<li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="bx bx-check"></i>
-                            <span key="t-leave">Approval</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">';
-
-                        if($attendance_adjustment_approval_page > 0){
-                            $menu .= '<li><a href="attendance-adjustment-approval.php" key="t-all-employees">Attendance Adjustment</a></li>';
-                        }
-
-                        if($attendance_creation_approval_page > 0){
-                            $menu .= '<li><a href="attendance-creation-approval.php" key="t-all-employees">Attendance Creation</a></li>';
-                        }
-
-            $menu .= '</ul>
-                    </li>';
-        }
+        
 
         if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 ){
             $menu .= '<li>
@@ -195,6 +158,59 @@
                         <a href="holiday.php" class="waves-effect">
                             <i class="bx bx-calendar-event"></i>
                             <span key="t-holiday">Holiday</span>
+                        </a>
+                    </li>';
+        }
+    }
+
+    if($attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Recommendation</li>';
+
+        if($attendance_creation_recommendation_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-adjustment-recommendation.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-event"></i>
+                            <span key="t-dashboard">Attendance Adjustment</span>
+                        </a>
+                    </li>';
+        }
+
+        if($attendance_adjustment_recommendation_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-creation-recommendation.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-plus"></i>
+                            <span key="t-dashboard">Attendance Creation</span>
+                        </a>
+                    </li>';
+        }
+    }
+
+    if($attendance_creation_approval_page > 0 || $attendance_adjustment_approval_page > 0 || $leave_approval_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Approval</li>';
+
+        if($attendance_adjustment_approval_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-adjustment-approval.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-event"></i>
+                            <span key="t-dashboard">Attendance Adjustment</span>
+                        </a>
+                    </li>';
+        }
+
+        if($attendance_creation_approval_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-creation-approval.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-plus"></i>
+                            <span key="t-dashboard">Attendance Creation</span>
+                        </a>
+                    </li>';
+        }
+
+        if($leave_approval_page > 0){
+            $menu .= '<li>
+                        <a href="leave-approval.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-check"></i>
+                            <span key="t-dashboard">Leave Approval</span>
                         </a>
                     </li>';
         }

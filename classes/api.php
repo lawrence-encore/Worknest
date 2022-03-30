@@ -310,7 +310,7 @@ class Api{
         $mail->addAddress($email, $email);
         $mail->Subject = $subject;
 
-        if($notification_type == 1 || $notification_type == 2){
+        if($notification_type == 1 || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14 || $notification_type == 15 || $notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
             if(!empty($link)){
                 $message = file_get_contents('email_template/basic-notification-with-button.html');
 
@@ -318,26 +318,14 @@ class Api{
                     $message = str_replace('@link', $link, $message);
                     $message = str_replace('@button_title', 'View Attendance Record', $message);
                 }
-            }
-            else{
-                $message = file_get_contents('email_template/basic-notification.html'); 
-            }
-            
-            $message = str_replace('@company_name', $company_name, $message);
-            $message = str_replace('@year', date('Y'), $message);
-            $message = str_replace('@title', $subject, $message);
-            $message = str_replace('@body', $body, $message);
-        }
-        else if($notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14){
-            if(!empty($link)){
-                $message = file_get_contents('email_template/basic-notification-with-button.html');
-                $message = str_replace('@link', $link, $message);
-
-                if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type == 11 || $notification_type == 13){
+                else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type == 11 || $notification_type == 13){
                     $message = str_replace('@button_title', 'View Attendance Creation', $message);
                 }
-                else{
+                else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type == 10 || $notification_type == 12 || $notification_type == 14){
                     $message = str_replace('@button_title', 'View Attendance Adjustment', $message);
+                }
+                else if($notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
+                    $message = str_replace('@button_title', 'View Leave Application', $message);
                 }
             }
             else{
@@ -1782,7 +1770,7 @@ class Api{
                 }
 
                 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/assets/images/application-settings/' . $file_new;
-                $file_path ='./assets/images/application-settings/' . $file_new;
+                $file_path = './assets/images/application-settings/' . $file_new;
                 
                 if(file_exists($image)){
                     if (unlink($image)) {
@@ -2328,7 +2316,7 @@ class Api{
                 $file_name = $this->generate_file_name(10);
                 $file_new = $file_name . '.' . $job_description_actual_ext;
                 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/job_description/' . $file_new;
-                $file_path ='./job_description/' . $file_new;
+                $file_path = './job_description/' . $file_new;
                 
                 $designation_details = $this->get_designation_details($designation_id);
                 $job_description_path = $designation_details[0]['JOB_DESCRIPTION'];
@@ -3298,6 +3286,93 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : update_leave_file
+    # Purpose    : Updates designation file
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function update_leave_file($attachment_file_tmp_name, $attachment_file_actual_ext, $leave_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            if(!empty($attachment_file_tmp_name)){ 
+                $file_name = $this->generate_file_name(10);
+                $file_new = $file_name . '.' . $attachment_file_actual_ext;
+                $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/leave_attachment/' . $file_new;
+                $file_path = './leave_attachment/' . $file_new;
+                
+                $leave_details = $this->get_leave_details($leave_id);
+                $leave_attachment_path = $leave_details[0]['FILE_PATH'];
+                $transaction_log_id = $leave_details[0]['TRANSACTION_LOG_ID'];
+
+                if(file_exists($leave_attachment_path)){
+                    if (unlink($leave_attachment_path)) {
+                        if(move_uploaded_file($attachment_file_tmp_name, $file_destination)){
+                            $sql = $this->db_connection->prepare('CALL update_leave_file(:leave_id, :file_path, :transaction_log_id, :record_log)');
+                            $sql->bindValue(':leave_id', $leave_id);
+                            $sql->bindValue(':file_path', $file_path);
+                            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                            $sql->bindValue(':record_log', $record_log);
+                        
+                            if($sql->execute()){
+                                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
+                                    
+                                if($insert_transaction_log == 1){
+                                    return 1;
+                                }
+                                else{
+                                    return $insert_transaction_log;
+                                }
+                            }
+                            else{
+                                return $sql->errorInfo()[2];
+                            }
+                        }
+                        else{
+                            return 'There was an error uploading your file.';
+                        }
+                    }
+                    else {
+                        return $leave_attachment_path . ' cannot be deleted due to an error.';
+                    }
+                }
+                else{
+                    if(move_uploaded_file($attachment_file_tmp_name, $file_destination)){
+                        $sql = $this->db_connection->prepare('CALL update_leave_file(:leave_id, :file_path, :transaction_log_id, :record_log)');
+                        $sql->bindValue(':leave_id', $leave_id);
+                        $sql->bindValue(':file_path', $file_path);
+                        $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                        $sql->bindValue(':record_log', $record_log);
+                        
+                        if($sql->execute()){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
+                                    
+                            if($insert_transaction_log == 1){
+                                return 1;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $sql->errorInfo()[2];
+                        }
+                    }
+                    else{
+                        return 'There was an error uploading your file.';
+                    }
+                }
+            }
+            else{
+                return 1;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : update_leave_status
     # Purpose    : Update leave status
     #
@@ -3446,7 +3521,7 @@ class Api{
                 $file_name = $this->generate_file_name(10);
                 $file_new = $file_name . '.' . $file_actual_ext;
                 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/employee_file/' . $file_new;
-                $file_path ='./employee_file/' . $file_new;
+                $file_path = './employee_file/' . $file_new;
                 
                 $employee_file_details = $this->get_employee_file_details($file_id);
                 $employee_file_path = $employee_file_details[0]['FILE_PATH'];
@@ -4047,7 +4122,7 @@ class Api{
                 $file_name = $this->generate_file_name(10);
                 $file_new = $file_name . '.' . $attendance_creation_file_actual_ext;
                 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/attendance_creation/' . $file_new;
-                $file_path ='./attendance_creation/' . $file_new;
+                $file_path = './attendance_creation/' . $file_new;
                 
                 $attendance_creation_details = $this->get_attendance_creation_details($request_id);
                 $attendance_creation_file_path = $attendance_creation_details[0]['FILE_PATH'];
@@ -4204,7 +4279,7 @@ class Api{
                 $file_name = $this->generate_file_name(10);
                 $file_new = $file_name . '.' . $attendance_adjustment_file_actual_ext;
                 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/attendance_adjustment/' . $file_new;
-                $file_path ='./attendance_adjustment/' . $file_new;
+                $file_path = './attendance_adjustment/' . $file_new;
                 
                 $attendance_adjustment_details = $this->get_attendance_adjustment_details($request_id);
                 $attendance_adjustment_file_path = $attendance_adjustment_details[0]['FILE_PATH'];
@@ -9377,6 +9452,7 @@ class Api{
                         'END_TIME' => $row['END_TIME'],
                         'LEAVE_STATUS' => $row['LEAVE_STATUS'],
                         'LEAVE_REASON' => $row['LEAVE_REASON'],
+                        'FILE_PATH' => $row['FILE_PATH'],
                         'DECISION_REMARKS' => $row['DECISION_REMARKS'],
                         'DECISION_DATE' => $row['DECISION_DATE'],
                         'DECISION_TIME' => $row['DECISION_TIME'],
@@ -9980,10 +10056,6 @@ class Api{
                 $status = 'Approved';
                 $button_class = 'bg-success';
             }
-        }
-        else if($stat == 'FAPV'){
-            $status = 'For Approval';
-            $button_class = 'bg-info';
         }
         else if($stat == 'PEN'){
             $status = 'Pending';

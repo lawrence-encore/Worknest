@@ -9,6 +9,9 @@
     $page_access = $api->check_role_permissions($username, 119);
 	$add_leave = $api->check_role_permissions($username, 120);
 	$delete_leave = $api->check_role_permissions($username, 121);
+	$approve_leave = $api->check_role_permissions($username, 122);
+	$reject_leave = $api->check_role_permissions($username, 123);
+	$cancel_leave = $api->check_role_permissions($username, 124);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -76,6 +79,18 @@
 
                                                                 if($add_leave > 0){
                                                                     echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                }
+
+                                                                if($approve_leave > 0){
+                                                                    echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-approve" id="approve-leave"><i class="bx bx-check label-icon"></i> Approve</button>';
+                                                                }
+
+                                                                if($reject_leave > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-reject" id="reject-leave"><i class="bx bx-block label-icon"></i> Reject</button>';
+                                                                }
+
+                                                                if($cancel_leave > 0){
+                                                                    echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-leave"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
                                                                 }
 
                                                                 if($delete_leave > 0){
