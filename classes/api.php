@@ -2961,14 +2961,14 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username){
+    public function update_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
 
             $work_shift_details = $this->get_work_shift_details($work_shift_id);
             $transaction_log_id = $work_shift_details[0]['TRANSACTION_LOG_ID'];
 
-            $sql = $this->db_connection->prepare('CALL update_work_shift_schedule(:work_shift_id, :start_date, :end_date, :monday_start_time, :monday_end_time, :monday_lunch_start_time, :monday_lunch_end_time, :monday_late_mark, :monday_half_day_mark, :tuesday_start_time, :tuesday_end_time, :tuesday_lunch_start_time, :tuesday_lunch_end_time, :tuesday_late_mark, :tuesday_half_day_mark, :wednesday_start_time, :wednesday_end_time, :wednesday_lunch_start_time, :wednesday_lunch_end_time, :wednesday_late_mark, :wednesday_half_day_mark, :thursday_start_time, :thursday_end_time, :thursday_lunch_start_time, :thursday_lunch_end_time, :thursday_late_mark, :thursday_half_day_mark, :friday_start_time, :friday_end_time, :friday_lunch_start_time, :friday_lunch_end_time, :friday_late_mark, :friday_half_day_mark, :saturday_start_time, :saturday_end_time, :saturday_lunch_start_time, :saturday_lunch_end_time, :saturday_late_mark, :saturday_half_day_mark, :sunday_start_time, :sunday_end_time, :sunday_lunch_start_time, :sunday_lunch_end_time, :sunday_late_mark, :sunday_half_day_mark, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_work_shift_schedule(:work_shift_id, :start_date, :end_date, :monday_start_time, :monday_end_time, :monday_lunch_start_time, :monday_lunch_end_time, :monday_half_day_mark, :tuesday_start_time, :tuesday_end_time, :tuesday_lunch_start_time, :tuesday_lunch_end_time, :tuesday_half_day_mark, :wednesday_start_time, :wednesday_end_time, :wednesday_lunch_start_time, :wednesday_lunch_end_time, :wednesday_half_day_mark, :thursday_start_time, :thursday_end_time, :thursday_lunch_start_time, :thursday_lunch_end_time, :thursday_half_day_mark, :friday_start_time, :friday_end_time, :friday_lunch_start_time, :friday_lunch_end_time, :friday_half_day_mark, :saturday_start_time, :saturday_end_time, :saturday_lunch_start_time, :saturday_lunch_end_time, :saturday_half_day_mark, :sunday_start_time, :sunday_end_time, :sunday_lunch_start_time, :sunday_lunch_end_time, :sunday_half_day_mark, :record_log)');
             $sql->bindValue(':work_shift_id', $work_shift_id);
             $sql->bindValue(':start_date', $start_date);
             $sql->bindValue(':end_date', $end_date);
@@ -2976,43 +2976,36 @@ class Api{
             $sql->bindValue(':monday_end_time', $monday_end_time);
             $sql->bindValue(':monday_lunch_start_time', $monday_lunch_start_time);
             $sql->bindValue(':monday_lunch_end_time', $monday_lunch_end_time);
-            $sql->bindValue(':monday_late_mark', $monday_late_mark);
             $sql->bindValue(':monday_half_day_mark', $monday_half_day_mark);
             $sql->bindValue(':tuesday_start_time', $tuesday_start_time);
             $sql->bindValue(':tuesday_end_time', $tuesday_end_time);
             $sql->bindValue(':tuesday_lunch_start_time', $tuesday_lunch_start_time);
             $sql->bindValue(':tuesday_lunch_end_time', $tuesday_lunch_end_time);
-            $sql->bindValue(':tuesday_late_mark', $tuesday_late_mark);
             $sql->bindValue(':tuesday_half_day_mark', $tuesday_half_day_mark);
             $sql->bindValue(':wednesday_start_time', $wednesday_start_time);
             $sql->bindValue(':wednesday_end_time', $wednesday_end_time);
             $sql->bindValue(':wednesday_lunch_start_time', $wednesday_lunch_start_time);
             $sql->bindValue(':wednesday_lunch_end_time', $wednesday_lunch_end_time);
-            $sql->bindValue(':wednesday_late_mark', $wednesday_late_mark);
             $sql->bindValue(':wednesday_half_day_mark', $wednesday_half_day_mark);
             $sql->bindValue(':thursday_start_time', $thursday_start_time);
             $sql->bindValue(':thursday_end_time', $thursday_end_time);
             $sql->bindValue(':thursday_lunch_start_time', $thursday_lunch_start_time);
             $sql->bindValue(':thursday_lunch_end_time', $thursday_lunch_end_time);
-            $sql->bindValue(':thursday_late_mark', $thursday_late_mark);
             $sql->bindValue(':thursday_half_day_mark', $thursday_half_day_mark);
             $sql->bindValue(':friday_start_time', $friday_start_time);
             $sql->bindValue(':friday_end_time', $friday_end_time);
             $sql->bindValue(':friday_lunch_start_time', $friday_lunch_start_time);
             $sql->bindValue(':friday_lunch_end_time', $friday_lunch_end_time);
-            $sql->bindValue(':friday_late_mark', $friday_late_mark);
             $sql->bindValue(':friday_half_day_mark', $friday_half_day_mark);
             $sql->bindValue(':saturday_start_time', $saturday_start_time);
             $sql->bindValue(':saturday_end_time', $saturday_end_time);
             $sql->bindValue(':saturday_lunch_start_time', $saturday_lunch_start_time);
             $sql->bindValue(':saturday_lunch_end_time', $saturday_lunch_end_time);
-            $sql->bindValue(':saturday_late_mark', $saturday_late_mark);
             $sql->bindValue(':saturday_half_day_mark', $saturday_half_day_mark);
             $sql->bindValue(':sunday_start_time', $sunday_start_time);
             $sql->bindValue(':sunday_end_time', $sunday_end_time);
             $sql->bindValue(':sunday_lunch_start_time', $sunday_lunch_start_time);
             $sql->bindValue(':sunday_lunch_end_time', $sunday_lunch_end_time);
-            $sql->bindValue(':sunday_late_mark', $sunday_late_mark);
             $sql->bindValue(':sunday_half_day_mark', $sunday_half_day_mark);
             $sql->bindValue(':record_log', $record_log);
         
@@ -5900,14 +5893,14 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username){
+    public function insert_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
             $work_shift_details = $this->get_work_shift_details($work_shift_id);
             $transaction_log_id = $work_shift_details[0]['TRANSACTION_LOG_ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_work_shift_schedule(:work_shift_id, :start_date, :end_date, :monday_start_time, :monday_end_time, :monday_lunch_start_time, :monday_lunch_end_time, :monday_late_mark, :monday_half_day_mark, :tuesday_start_time, :tuesday_end_time, :tuesday_lunch_start_time, :tuesday_lunch_end_time, :tuesday_late_mark, :tuesday_half_day_mark, :wednesday_start_time, :wednesday_end_time, :wednesday_lunch_start_time, :wednesday_lunch_end_time, :wednesday_late_mark, :wednesday_half_day_mark, :thursday_start_time, :thursday_end_time, :thursday_lunch_start_time, :thursday_lunch_end_time, :thursday_late_mark, :thursday_half_day_mark, :friday_start_time, :friday_end_time, :friday_lunch_start_time, :friday_lunch_end_time, :friday_late_mark, :friday_half_day_mark, :saturday_start_time, :saturday_end_time, :saturday_lunch_start_time, :saturday_lunch_end_time, :saturday_late_mark, :saturday_half_day_mark, :sunday_start_time, :sunday_end_time, :sunday_lunch_start_time, :sunday_lunch_end_time, :sunday_late_mark, :sunday_half_day_mark, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_work_shift_schedule(:work_shift_id, :start_date, :end_date, :monday_start_time, :monday_end_time, :monday_lunch_start_time, :monday_lunch_end_time, :monday_half_day_mark, :tuesday_start_time, :tuesday_end_time, :tuesday_lunch_start_time, :tuesday_lunch_end_time, :tuesday_half_day_mark, :wednesday_start_time, :wednesday_end_time, :wednesday_lunch_start_time, :wednesday_lunch_end_time, :wednesday_half_day_mark, :thursday_start_time, :thursday_end_time, :thursday_lunch_start_time, :thursday_lunch_end_time, :thursday_half_day_mark, :friday_start_time, :friday_end_time, :friday_lunch_start_time, :friday_lunch_end_time, :friday_half_day_mark, :saturday_start_time, :saturday_end_time, :saturday_lunch_start_time, :saturday_lunch_end_time, :saturday_half_day_mark, :sunday_start_time, :sunday_end_time, :sunday_lunch_start_time, :sunday_lunch_end_time, :sunday_half_day_mark, :record_log)');
             $sql->bindValue(':work_shift_id', $work_shift_id);
             $sql->bindValue(':start_date', $start_date);
             $sql->bindValue(':end_date', $end_date);
@@ -5916,43 +5909,36 @@ class Api{
             $sql->bindValue(':monday_lunch_start_time', $monday_lunch_start_time);
             $sql->bindValue(':monday_lunch_end_time', $monday_lunch_end_time);
             $sql->bindValue(':monday_half_day_mark', $monday_half_day_mark);
-            $sql->bindValue(':monday_late_mark', $monday_late_mark);
             $sql->bindValue(':tuesday_start_time', $tuesday_start_time);
             $sql->bindValue(':tuesday_end_time', $tuesday_end_time);
             $sql->bindValue(':tuesday_lunch_start_time', $tuesday_lunch_start_time);
             $sql->bindValue(':tuesday_lunch_end_time', $tuesday_lunch_end_time);
             $sql->bindValue(':tuesday_half_day_mark', $tuesday_half_day_mark);
-            $sql->bindValue(':tuesday_late_mark', $tuesday_late_mark);
             $sql->bindValue(':wednesday_start_time', $wednesday_start_time);
             $sql->bindValue(':wednesday_end_time', $wednesday_end_time);
             $sql->bindValue(':wednesday_lunch_start_time', $wednesday_lunch_start_time);
             $sql->bindValue(':wednesday_lunch_end_time', $wednesday_lunch_end_time);
             $sql->bindValue(':wednesday_half_day_mark', $wednesday_half_day_mark);
-            $sql->bindValue(':wednesday_late_mark', $wednesday_late_mark);
             $sql->bindValue(':thursday_start_time', $thursday_start_time);
             $sql->bindValue(':thursday_end_time', $thursday_end_time);
             $sql->bindValue(':thursday_lunch_start_time', $thursday_lunch_start_time);
             $sql->bindValue(':thursday_lunch_end_time', $thursday_lunch_end_time);
             $sql->bindValue(':thursday_half_day_mark', $thursday_half_day_mark);
-            $sql->bindValue(':thursday_late_mark', $thursday_late_mark);
             $sql->bindValue(':friday_start_time', $friday_start_time);
             $sql->bindValue(':friday_end_time', $friday_end_time);
             $sql->bindValue(':friday_lunch_start_time', $friday_lunch_start_time);
             $sql->bindValue(':friday_lunch_end_time', $friday_lunch_end_time);
             $sql->bindValue(':friday_half_day_mark', $friday_half_day_mark);
-            $sql->bindValue(':friday_late_mark', $friday_late_mark);
             $sql->bindValue(':saturday_start_time', $saturday_start_time);
             $sql->bindValue(':saturday_end_time', $saturday_end_time);
             $sql->bindValue(':saturday_lunch_start_time', $saturday_lunch_start_time);
             $sql->bindValue(':saturday_lunch_end_time', $saturday_lunch_end_time);
             $sql->bindValue(':saturday_half_day_mark', $saturday_half_day_mark);
-            $sql->bindValue(':saturday_late_mark', $saturday_late_mark);
             $sql->bindValue(':sunday_start_time', $sunday_start_time);
             $sql->bindValue(':sunday_end_time', $sunday_end_time);
             $sql->bindValue(':sunday_lunch_start_time', $sunday_lunch_start_time);
             $sql->bindValue(':sunday_lunch_end_time', $sunday_lunch_end_time);
             $sql->bindValue(':sunday_half_day_mark', $sunday_half_day_mark);
-            $sql->bindValue(':sunday_late_mark', $sunday_late_mark);
             $sql->bindValue(':record_log', $record_log);
         
             if($sql->execute()){
@@ -7742,9 +7728,6 @@ class Api{
     # -------------------------------------------------------------
     public function delete_work_shift_schedule($work_shift_id, $username){
         if ($this->databaseConnection()) {
-            $work_shift_details = $this->get_work_shift_details($work_shift_id);
-            $transaction_log_id = $work_shift_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_work_shift_schedule(:work_shift_id)');
             $sql->bindValue(':work_shift_id', $work_shift_id);
         
@@ -9146,43 +9129,36 @@ class Api{
                         'MONDAY_END_TIME' => $row['MONDAY_END_TIME'],
                         'MONDAY_LUNCH_START_TIME' => $row['MONDAY_LUNCH_START_TIME'],
                         'MONDAY_LUNCH_END_TIME' => $row['MONDAY_LUNCH_END_TIME'],
-                        'MONDAY_LATE_MARK' => $row['MONDAY_LATE_MARK'],
                         'MONDAY_HALF_DAY_MARK' => $row['MONDAY_HALF_DAY_MARK'],
                         'TUESDAY_START_TIME' => $row['TUESDAY_START_TIME'],
                         'TUESDAY_END_TIME' => $row['TUESDAY_END_TIME'],
                         'TUESDAY_LUNCH_START_TIME' => $row['TUESDAY_LUNCH_START_TIME'],
                         'TUESDAY_LUNCH_END_TIME' => $row['TUESDAY_LUNCH_END_TIME'],
-                        'TUESDAY_LATE_MARK' => $row['TUESDAY_LATE_MARK'],
                         'TUESDAY_HALF_DAY_MARK' => $row['TUESDAY_HALF_DAY_MARK'],
                         'WEDNESDAY_START_TIME' => $row['WEDNESDAY_START_TIME'],
                         'WEDNESDAY_END_TIME' => $row['WEDNESDAY_END_TIME'],
                         'WEDNESDAY_LUNCH_START_TIME' => $row['WEDNESDAY_LUNCH_START_TIME'],
                         'WEDNESDAY_LUNCH_END_TIME' => $row['WEDNESDAY_LUNCH_END_TIME'],
-                        'WEDNESDAY_LATE_MARK' => $row['WEDNESDAY_LATE_MARK'],
                         'WEDNESDAY_HALF_DAY_MARK' => $row['WEDNESDAY_HALF_DAY_MARK'],
                         'THURSDAY_START_TIME' => $row['THURSDAY_START_TIME'],
                         'THURSDAY_END_TIME' => $row['THURSDAY_END_TIME'],
                         'THURSDAY_LUNCH_START_TIME' => $row['THURSDAY_LUNCH_START_TIME'],
                         'THURSDAY_LUNCH_END_TIME' => $row['THURSDAY_LUNCH_END_TIME'],
-                        'THURSDAY_LATE_MARK' => $row['THURSDAY_LATE_MARK'],
                         'THURSDAY_HALF_DAY_MARK' => $row['THURSDAY_HALF_DAY_MARK'],
                         'FRIDAY_START_TIME' => $row['FRIDAY_START_TIME'],
                         'FRIDAY_END_TIME' => $row['FRIDAY_END_TIME'],
                         'FRIDAY_LUNCH_START_TIME' => $row['FRIDAY_LUNCH_START_TIME'],
                         'FRIDAY_LUNCH_END_TIME' => $row['FRIDAY_LUNCH_END_TIME'],
-                        'FRIDAY_LATE_MARK' => $row['FRIDAY_LATE_MARK'],
                         'FRIDAY_HALF_DAY_MARK' => $row['FRIDAY_HALF_DAY_MARK'],
                         'SATURDAY_START_TIME' => $row['SATURDAY_START_TIME'],
                         'SATURDAY_END_TIME' => $row['SATURDAY_END_TIME'],
                         'SATURDAY_LUNCH_START_TIME' => $row['SATURDAY_LUNCH_START_TIME'],
                         'SATURDAY_LUNCH_END_TIME' => $row['SATURDAY_LUNCH_END_TIME'],
-                        'SATURDAY_LATE_MARK' => $row['SATURDAY_LATE_MARK'],
                         'SATURDAY_HALF_DAY_MARK' => $row['SATURDAY_HALF_DAY_MARK'],
                         'SUNDAY_START_TIME' => $row['SUNDAY_START_TIME'],
                         'SUNDAY_END_TIME' => $row['SUNDAY_END_TIME'],
                         'SUNDAY_LUNCH_START_TIME' => $row['SUNDAY_LUNCH_START_TIME'],
                         'SUNDAY_LUNCH_END_TIME' => $row['SUNDAY_LUNCH_END_TIME'],
-                        'SUNDAY_LATE_MARK' => $row['SUNDAY_LATE_MARK'],
                         'SUNDAY_HALF_DAY_MARK' => $row['SUNDAY_HALF_DAY_MARK'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -10284,14 +10260,12 @@ class Api{
                         $end_time = $work_shift_schedule_details[0]['MONDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['MONDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['MONDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['MONDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['MONDAY_HALF_DAY_MARK'];
                     case 2:
                         $start_time = $work_shift_schedule_details[0]['TUESDAY_START_TIME'];
                         $end_time = $work_shift_schedule_details[0]['TUESDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['TUESDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['TUESDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['TUESDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['TUESDAY_HALF_DAY_MARK'];
                         break;
                     case 3:
@@ -10299,14 +10273,12 @@ class Api{
                         $end_time = $work_shift_schedule_details[0]['WEDNESDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['WEDNESDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['WEDNESDAY_HALF_DAY_MARK'];
                     case 4:
                         $start_time = $work_shift_schedule_details[0]['THURSDAY_START_TIME'];
                         $end_time = $work_shift_schedule_details[0]['THURSDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['THURSDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['THURSDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['THURSDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['THURSDAY_HALF_DAY_MARK'];
                         break;
                     case 5:
@@ -10314,7 +10286,6 @@ class Api{
                         $end_time = $work_shift_schedule_details[0]['FRIDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['FRIDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['FRIDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['FRIDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['FRIDAY_HALF_DAY_MARK'];
                         break;
                     case 6:
@@ -10322,7 +10293,6 @@ class Api{
                         $end_time = $work_shift_schedule_details[0]['SATURDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['SATURDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['SATURDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['SATURDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['SATURDAY_HALF_DAY_MARK'];
                         break;
                     default:
@@ -10330,7 +10300,6 @@ class Api{
                         $end_time = $work_shift_schedule_details[0]['SUNDAY_END_TIME'];
                         $lunch_start_time = $work_shift_schedule_details[0]['SUNDAY_LUNCH_START_TIME'];
                         $lunch_end_time = $work_shift_schedule_details[0]['SUNDAY_LUNCH_END_TIME'];
-                        $late_mark = $work_shift_schedule_details[0]['SUNDAY_LATE_MARK'];
                         $half_day_mark = $work_shift_schedule_details[0]['SUNDAY_HALF_DAY_MARK'];
                 }
 
@@ -10340,7 +10309,6 @@ class Api{
                     'END_TIME' => $end_time,
                     'LUNCH_START_TIME' => $lunch_start_time,
                     'LUNCH_END_TIME' => $lunch_end_time,
-                    'LATE_MARK' => $late_mark,
                     'HALF_DAY_MARK' => $half_day_mark
                 );
             }
@@ -10783,6 +10751,36 @@ class Api{
         return $response;
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Name       : get_allowance_type_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_allowance_type_status($stat){
+        $response = array();
+
+        switch ($stat) {
+            case 1:
+                $status = 'Taxable';
+                $button_class = 'bg-info';
+                break;
+            default:
+                $status = 'Non-Taxable';
+                $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Check methods
@@ -10905,6 +10903,14 @@ class Api{
             }
             else{
                 return null;
+            }
+        }
+        else if($type == 'summary'){
+            if(!empty($date)){
+                return $this->format_date($format, $date, $modify);
+            }
+            else{
+                return '--';
             }
         }
         else if($type == 'na'){
@@ -11637,6 +11643,41 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : generate_employee_options
+    # Purpose    : Generates employee options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_employee_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_employee_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $file_as = $row['FILE_AS'];
+    
+                        $option .= "<option value='". $employee_id ."'>". $file_as ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : generate_leave_type_options
     # Purpose    : Generates active employee options of dropdown.
     #
@@ -11684,122 +11725,106 @@ class Api{
             $column = '';
             $status = '1';
         
-            $sql = $this->db_connection->prepare('SELECT WORK_SHIFT_ID, MONDAY_START_TIME, MONDAY_END_TIME, MONDAY_LUNCH_START_TIME, MONDAY_LUNCH_END_TIME, MONDAY_LATE_MARK, MONDAY_HALF_DAY_MARK, TUESDAY_START_TIME, TUESDAY_END_TIME, TUESDAY_LUNCH_START_TIME, TUESDAY_LUNCH_END_TIME, TUESDAY_LATE_MARK, TUESDAY_HALF_DAY_MARK, WEDNESDAY_START_TIME, WEDNESDAY_END_TIME, WEDNESDAY_LUNCH_START_TIME, WEDNESDAY_LUNCH_END_TIME, WEDNESDAY_LATE_MARK, WEDNESDAY_HALF_DAY_MARK, THURSDAY_START_TIME, THURSDAY_END_TIME, THURSDAY_LUNCH_START_TIME, THURSDAY_LUNCH_END_TIME, THURSDAY_LATE_MARK, THURSDAY_HALF_DAY_MARK, FRIDAY_START_TIME, FRIDAY_END_TIME, FRIDAY_LUNCH_START_TIME, FRIDAY_LUNCH_END_TIME, FRIDAY_LATE_MARK, FRIDAY_HALF_DAY_MARK, SATURDAY_START_TIME, SATURDAY_END_TIME, SATURDAY_LUNCH_START_TIME, SATURDAY_LUNCH_END_TIME, SATURDAY_LATE_MARK, SATURDAY_HALF_DAY_MARK, SUNDAY_START_TIME, SUNDAY_END_TIME, SUNDAY_LUNCH_START_TIME, SUNDAY_LUNCH_END_TIME, SUNDAY_LATE_MARK, SUNDAY_HALF_DAY_MARK FROM tblworkshiftschedule WHERE WORK_SHIFT_ID IN (SELECT WORK_SHIFT_ID FROM tblemployeeworkshift WHERE EMPLOYEE_ID = :employee_id)');
+            $sql = $this->db_connection->prepare('SELECT WORK_SHIFT_ID, MONDAY_START_TIME, MONDAY_END_TIME, MONDAY_LUNCH_START_TIME, MONDAY_LUNCH_END_TIME, MONDAY_HALF_DAY_MARK, TUESDAY_START_TIME, TUESDAY_END_TIME, TUESDAY_LUNCH_START_TIME, TUESDAY_LUNCH_END_TIME, TUESDAY_HALF_DAY_MARK, WEDNESDAY_START_TIME, WEDNESDAY_END_TIME, WEDNESDAY_LUNCH_START_TIME, WEDNESDAY_LUNCH_END_TIME, WEDNESDAY_HALF_DAY_MARK, THURSDAY_START_TIME, THURSDAY_END_TIME, THURSDAY_LUNCH_START_TIME, THURSDAY_LUNCH_END_TIME, THURSDAY_HALF_DAY_MARK, FRIDAY_START_TIME, FRIDAY_END_TIME, FRIDAY_LUNCH_START_TIME, FRIDAY_LUNCH_END_TIME, FRIDAY_HALF_DAY_MARK, SATURDAY_START_TIME, SATURDAY_END_TIME, SATURDAY_LUNCH_START_TIME, SATURDAY_LUNCH_END_TIME, SATURDAY_HALF_DAY_MARK, SUNDAY_START_TIME, SUNDAY_END_TIME, SUNDAY_LUNCH_START_TIME, SUNDAY_LUNCH_END_TIME, SUNDAY_HALF_DAY_MARK FROM tblworkshiftschedule WHERE WORK_SHIFT_ID IN (SELECT WORK_SHIFT_ID FROM tblemployeeworkshift WHERE EMPLOYEE_ID = :employee_id)');
             $sql->bindValue(':employee_id', $employee_id);
         
             if($sql->execute()){
                 $column .= '<div class="table-responsive">
                                     <table class="table table-bordered mb-0">
-
                                         <thead>
                                             <tr>
                                                 <th>Weekday</th>
                                                 <th>Time</th>
                                                 <th>Lunch</th>
                                                 <th>Half Day Mark</th>
-                                                <th>Late Mark</th>
                                             </tr>
                                         </thead>
                                         <tbody>';
 
                 while($row = $sql->fetch()){
-                    $monday_start_time = $this->check_date('empty', $row['MONDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $monday_end_time = $this->check_date('empty', $row['MONDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $monday_lunch_start_time = $this->check_date('empty', $row['MONDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $monday_lunch_end_time = $this->check_date('empty', $row['MONDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $monday_half_day_mark = $this->check_date('empty', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $monday_late_mark = $row['MONDAY_LATE_MARK'];
+                    $monday_start_time = $this->check_date('empty', $row['MONDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $monday_end_time = $this->check_date('empty', $row['MONDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $monday_lunch_start_time = $this->check_date('empty', $row['MONDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $monday_lunch_end_time = $this->check_date('empty', $row['MONDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $monday_half_day_mark = $this->check_date('empty', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $tuesday_start_time = $this->check_date('empty', $row['TUESDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $tuesday_end_time = $this->check_date('empty', $row['TUESDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $tuesday_lunch_start_time = $this->check_date('empty', $row['TUESDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $tuesday_lunch_end_time = $this->check_date('empty', $row['TUESDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $tuesday_half_day_mark = $this->check_date('empty', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $tuesday_late_mark = $row['TUESDAY_LATE_MARK'];
+                    $tuesday_start_time = $this->check_date('empty', $row['TUESDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $tuesday_end_time = $this->check_date('empty', $row['TUESDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $tuesday_lunch_start_time = $this->check_date('empty', $row['TUESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $tuesday_lunch_end_time = $this->check_date('empty', $row['TUESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $tuesday_half_day_mark = $this->check_date('empty', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $wednesday_start_time = $this->check_date('empty', $row['WEDNESDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $wednesday_end_time = $this->check_date('empty', $row['WEDNESDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $wednesday_lunch_start_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $wednesday_lunch_end_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $wednesday_half_day_mark = $this->check_date('empty', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $wednesday_late_mark = $row['WEDNESDAY_LATE_MARK'];
+                    $wednesday_start_time = $this->check_date('empty', $row['WEDNESDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $wednesday_end_time = $this->check_date('empty', $row['WEDNESDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $wednesday_lunch_start_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $wednesday_lunch_end_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $wednesday_half_day_mark = $this->check_date('empty', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $thursday_start_time = $this->check_date('empty', $row['THURSDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $thursday_end_time = $this->check_date('empty', $row['THURSDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $thursday_lunch_start_time = $this->check_date('empty', $row['THURSDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $thursday_lunch_end_time = $this->check_date('empty', $row['THURSDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $thursday_half_day_mark = $this->check_date('empty', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $thursday_late_mark = $row['THURSDAY_LATE_MARK'];
+                    $thursday_start_time = $this->check_date('empty', $row['THURSDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $thursday_end_time = $this->check_date('empty', $row['THURSDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $thursday_lunch_start_time = $this->check_date('empty', $row['THURSDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $thursday_lunch_end_time = $this->check_date('empty', $row['THURSDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $thursday_half_day_mark = $this->check_date('empty', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $friday_start_time = $this->check_date('empty', $row['FRIDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $friday_end_time = $this->check_date('empty', $row['FRIDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $friday_lunch_start_time = $this->check_date('empty', $row['FRIDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $friday_lunch_end_time = $this->check_date('empty', $row['FRIDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $friday_half_day_mark = $this->check_date('empty', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $friday_late_mark = $row['FRIDAY_LATE_MARK'];
+                    $friday_start_time = $this->check_date('empty', $row['FRIDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $friday_end_time = $this->check_date('empty', $row['FRIDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $friday_lunch_start_time = $this->check_date('empty', $row['FRIDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $friday_lunch_end_time = $this->check_date('empty', $row['FRIDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $friday_half_day_mark = $this->check_date('empty', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $saturday_start_time = $this->check_date('empty', $row['SATURDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $saturday_end_time = $this->check_date('empty', $row['SATURDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $saturday_lunch_start_time = $this->check_date('empty', $row['SATURDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $saturday_lunch_end_time = $this->check_date('empty', $row['SATURDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $saturday_half_day_mark = $this->check_date('empty', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $saturday_late_mark = $row['SATURDAY_LATE_MARK'];
+                    $saturday_start_time = $this->check_date('empty', $row['SATURDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $saturday_end_time = $this->check_date('empty', $row['SATURDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $saturday_lunch_start_time = $this->check_date('empty', $row['SATURDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $saturday_lunch_end_time = $this->check_date('empty', $row['SATURDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $saturday_half_day_mark = $this->check_date('empty', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
-                    $sunday_start_time = $this->check_date('empty', $row['SUNDAY_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $sunday_end_time = $this->check_date('empty', $row['SUNDAY_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $sunday_lunch_start_time = $this->check_date('empty', $row['SUNDAY_LUNCH_START_TIME'], '', 'h:i:s a', '', '', '');
-                    $sunday_lunch_end_time = $this->check_date('empty', $row['SUNDAY_LUNCH_END_TIME'], '', 'h:i:s a', '', '', '');
-                    $sunday_half_day_mark = $this->check_date('empty', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i:s a', '', '', '');
-                    $sunday_late_mark = $row['SUNDAY_LATE_MARK'];
+                    $sunday_start_time = $this->check_date('empty', $row['SUNDAY_START_TIME'], '', 'h:i a', '', '', '');
+                    $sunday_end_time = $this->check_date('empty', $row['SUNDAY_END_TIME'], '', 'h:i a', '', '', '');
+                    $sunday_lunch_start_time = $this->check_date('empty', $row['SUNDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                    $sunday_lunch_end_time = $this->check_date('empty', $row['SUNDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                    $sunday_half_day_mark = $this->check_date('empty', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $column .= '<tr>
                                     <td>Monday</td>
                                     <td>'. $monday_start_time .' - <br/>'. $monday_end_time .'</td>
                                     <td>'. $monday_lunch_start_time .' - <br/>'. $monday_lunch_end_time .'</td>
                                     <td>'. $monday_half_day_mark .'</td>
-                                    <td>'. $monday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Tuesday</td>
                                     <td>'. $tuesday_start_time .' - <br/>'. $tuesday_end_time .'</td>
                                     <td>'. $tuesday_lunch_start_time .' - <br/>'. $tuesday_lunch_end_time .'</td>
                                     <td>'. $tuesday_half_day_mark .'</td>
-                                    <td>'. $tuesday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Wednesday</td>
                                     <td>'. $wednesday_start_time .' - <br/>'. $wednesday_end_time .'</td>
                                     <td>'. $wednesday_lunch_start_time .' - <br/>'. $wednesday_lunch_end_time .'</td>
                                     <td>'. $wednesday_half_day_mark .'</td>
-                                    <td>'. $wednesday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Thursday</td>
                                     <td>'. $thursday_start_time .' - <br/>'. $thursday_end_time .'</td>
                                     <td>'. $thursday_lunch_start_time .' - <br/>'. $thursday_lunch_end_time .'</td>
                                     <td>'. $thursday_half_day_mark .'</td>
-                                    <td>'. $thursday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Friday</td>
                                     <td>'. $friday_start_time .' - <br/>'. $friday_end_time .'</td>
                                     <td>'. $friday_lunch_start_time .' - <br/>'. $friday_lunch_end_time .'</td>
                                     <td>'. $friday_half_day_mark .'</td>
-                                    <td>'. $friday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Saturday</td>
                                     <td>'. $saturday_start_time .' - <br/>'. $saturday_end_time .'</td>
                                     <td>'. $saturday_lunch_start_time .' - <br/>'. $saturday_lunch_end_time .'</td>
                                     <td>'. $saturday_half_day_mark .'</td>
-                                    <td>'. $saturday_late_mark .' minute(s)</td>
                                 </tr>
                                 <tr>
                                     <td>Sunday</td>
                                     <td>'. $sunday_start_time .' - <br/>'. $sunday_end_time .'</td>
                                     <td>'. $sunday_lunch_start_time .' - <br/>'. $sunday_lunch_end_time .'</td>
                                     <td>'. $sunday_half_day_mark .'</td>
-                                    <td>'. $sunday_late_mark .' minute(s)</td>
                                 </tr>';
                 }
 

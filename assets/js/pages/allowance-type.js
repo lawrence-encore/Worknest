@@ -2,32 +2,32 @@
     'use strict';
 
     $(function() {
-        if($('#work-shift-datatable').length){
-            initialize_work_shift_table('#work-shift-datatable');
+        if($('#allowance-type-datatable').length){
+            initialize_allowance_type_table('#allowance-type-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_work_shift_table(datatable_name, buttons = false, show_all = false){
+function initialize_allowance_type_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var type = 'work shift table';
+    var type = 'allowance type table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'WORK_SHIFT' },
-        { 'data' : 'WORK_SHIFT_TYPE' },
+        { 'data' : 'ALLOWANCE_TYPE' },
+        { 'data' : 'TAXABLE' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '19%', 'aTargets': 2 },
+        { 'width': '59%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
         { 'width': '20%','bSortable': false, 'aTargets': 3 },
     ];
 
@@ -105,61 +105,25 @@ function initialize_work_shift_table(datatable_name, buttons = false, show_all =
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','.view-work-shift',function() {
-        var work_shift_id = $(this).data('work-shift-id');
-        var work_shift_type = $(this).data('work-shift-type');
-
-        sessionStorage.setItem('work_shift_id', work_shift_id);
-
-        if(work_shift_type == 'REGULAR'){
-            generate_modal('work shift regular details', 'Work Shift Details', 'R' , '1', '0', 'element', '', '0', username);
-        }
-        else{
-            generate_modal('work shift scheduled details', 'Work Shift Details', 'R' , '1', '0', 'element', '', '0', username);
-        }
+    $(document).on('click','#add-allowance-type',function() {
+        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '1', username);
     });
 
-    $(document).on('click','#add-work-shift',function() {
-        generate_modal('work shift form', 'Work Shift', 'R' , '1', '1', 'form', 'work-shift-form', '1', username);
-    });
+    $(document).on('click','.update-allowance-type',function() {
+        var allowance_typeid = $(this).data('allowance-type-id');
 
-    $(document).on('click','.update-work-shift',function() {
-        var work_shift_id = $(this).data('work-shift-id');
-
-        sessionStorage.setItem('work_shift_id', work_shift_id);
+        sessionStorage.setItem('allowance_typeid', allowance_typeid);
         
-        generate_modal('work shift form', 'Work Shift', 'R' , '1', '1', 'form', 'work-shift-form', '0', username);
-    });
-
-    $(document).on('click','.update-work-shift-schedule',function() {
-        var work_shift_id = $(this).data('work-shift-id');
-        var work_shift_type = $(this).data('work-shift-type');
-
-        sessionStorage.setItem('work_shift_id', work_shift_id);
-        
-        if(work_shift_type == 'REGULAR'){
-            generate_modal('regular work shift schedule form', 'Work Shift Schedule', 'XL' , '1', '1', 'form', 'regular-work-shift-schedule-form', '0', username);
-        }
-        else{
-            generate_modal('scheduled work shift schedule form', 'Work Shift Schedule', 'XL' , '1', '1', 'form', 'scheduled-work-shift-schedule-form', '0', username);
-        }
-    });
-
-    $(document).on('click','.assign-work-shift',function() {
-        var work_shift_id = $(this).data('work-shift-id');
-
-        sessionStorage.setItem('work_shift_id', work_shift_id);
-        
-        generate_modal('assign work shift form', 'Assign Work Shift', 'LG' , '1', '1', 'form', 'assign-work-shift-form', '0', username);
+        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '0', username);
     });
     
-    $(document).on('click','.delete-work-shift',function() {
-        var work_shift_id = $(this).data('work-shift-id');
-        var transaction = 'delete work shift';
+    $(document).on('click','.delete-allowance-type',function() {
+        var allowance_typeid = $(this).data('allowance-type-id');
+        var transaction = 'delete allowance type';
 
         Swal.fire({
-            title: 'Delete Work Shift',
-            text: 'Are you sure you want to delete this work shift?',
+            title: 'Delete Allowance Type',
+            text: 'Are you sure you want to delete this allowance type?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -172,18 +136,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, work_shift_id : work_shift_id, transaction : transaction},
+                    data: {username : username, allowance_typeid : allowance_typeid, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Work Shift', 'The work shift has been deleted.', 'success');
+                          show_alert('Delete Allowance Type', 'The allowance type has been deleted.', 'success');
 
-                          reload_datatable('#work-shift-datatable');
+                          reload_datatable('#allowance-type-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Work Shift', 'The work shift does not exist.', 'info');
+                          show_alert('Delete Allowance Type', 'The allowance type does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Work Shift', response, 'error');
+                          show_alert('Delete Allowance Type', response, 'error');
                         }
                     }
                 });
@@ -192,20 +156,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-work-shift',function() {
-        var work_shift_id = [];
-        var transaction = 'delete multiple work shift';
+    $(document).on('click','#delete-allowance-type',function() {
+        var allowance_typeid = [];
+        var transaction = 'delete multiple allowance type';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                work_shift_id.push(this.value);  
+                allowance_typeid.push(this.value);  
             }
         });
 
-        if(work_shift_id.length > 0){
+        if(allowance_typeid.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Work Shifts',
-                text: 'Are you sure you want to delete these work shifts?',
+                title: 'Delete Multiple Allowance Types',
+                text: 'Are you sure you want to delete these allowance types?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -219,18 +183,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, work_shift_id : work_shift_id, transaction : transaction},
+                        data: {username : username, allowance_typeid : allowance_typeid, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Work Shifts', 'The work shifts have been deleted.', 'success');
+                                show_alert('Delete Multiple Allowance Types', 'The allowance types have been deleted.', 'success');
     
-                                reload_datatable('#work-shift-datatable');
+                                reload_datatable('#allowance-type-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Work Shifts', 'The work shift does not exist.', 'info');
+                                show_alert('Delete Multiple Allowance Types', 'The allowance type does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Work Shifts', response, 'error');
+                                show_alert('Delete Multiple Allowance Types', response, 'error');
                             }
                         }
                     });
@@ -240,7 +204,8 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Work Shifts', 'Please select the work shifts you want to delete.', 'error');
+            show_alert('Delete Multiple Allowance Types', 'Please select the allowance types you want to delete.', 'error');
         }
     });
+
 }

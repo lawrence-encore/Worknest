@@ -699,7 +699,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <th>Lunch Start Time</th>
                                             <th>Lunch End Time</th>
                                             <th>Half Day Mark</th>
-                                            <th>Late Mark (Minutes)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -710,7 +709,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="monday_lunch_start_time" name="monday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="monday_lunch_end_time" name="monday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="monday_half_day_mark" name="monday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="monday_late_mark" name="monday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Tuesday</th>
@@ -719,7 +717,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="tuesday_lunch_start_time" name="tuesday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="tuesday_lunch_end_time" name="tuesday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="tuesday_half_day_mark" name="tuesday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="tuesday_late_mark" name="tuesday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Wednesday</th>
@@ -728,7 +725,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="wednesday_lunch_start_time" name="wednesday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="wednesday_lunch_end_time" name="wednesday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="wednesday_half_day_mark" name="wednesday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="wednesday_late_mark" name="wednesday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Thursday</th>
@@ -737,7 +733,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="thursday_lunch_start_time" name="thursday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="thursday_lunch_end_time" name="thursday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="thursday_half_day_mark" name="thursday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="thursday_late_mark" name="thursday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Friday</th>
@@ -746,7 +741,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="friday_lunch_start_time" name="friday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="friday_lunch_end_time" name="friday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="friday_half_day_mark" name="friday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="friday_late_mark" name="friday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Saturday</th>
@@ -755,7 +749,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="saturday_lunch_start_time" name="saturday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="saturday_lunch_end_time" name="saturday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="saturday_half_day_mark" name="saturday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="saturday_late_mark" name="saturday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Sunday</th>
@@ -764,7 +757,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="sunday_lunch_start_time" name="sunday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="sunday_lunch_end_time" name="sunday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="sunday_half_day_mark" name="sunday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="sunday_late_mark" name="sunday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -804,7 +796,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <th>Lunch Start Time</th>
                                             <th>Lunch End Time</th>
                                             <th>Half Day Mark</th>
-                                            <th>Late Mark (Minutes)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -815,7 +806,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="monday_lunch_start_time" name="monday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="monday_lunch_end_time" name="monday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="monday_half_day_mark" name="monday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="monday_late_mark" name="monday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Tuesday</th>
@@ -824,7 +814,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="tuesday_lunch_start_time" name="tuesday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="tuesday_lunch_end_time" name="tuesday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="tuesday_half_day_mark" name="tuesday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="tuesday_late_mark" name="tuesday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Wednesday</th>
@@ -833,7 +822,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="wednesday_lunch_start_time" name="wednesday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="wednesday_lunch_end_time" name="wednesday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="wednesday_half_day_mark" name="wednesday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="wednesday_late_mark" name="wednesday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Thursday</th>
@@ -842,7 +830,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="thursday_lunch_start_time" name="thursday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="thursday_lunch_end_time" name="thursday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="thursday_half_day_mark" name="thursday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="thursday_late_mark" name="thursday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Friday</th>
@@ -851,7 +838,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="friday_lunch_start_time" name="friday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="friday_lunch_end_time" name="friday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="friday_half_day_mark" name="friday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="friday_late_mark" name="friday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Saturday</th>
@@ -860,7 +846,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="saturday_lunch_start_time" name="saturday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="saturday_lunch_end_time" name="saturday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="saturday_half_day_mark" name="saturday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="saturday_late_mark" name="saturday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Sunday</th>
@@ -869,7 +854,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             <td><input type="time" id="sunday_lunch_start_time" name="sunday_lunch_start_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="sunday_lunch_end_time" name="sunday_lunch_end_time" class="form-control" autocomplete="off"></td>
                                             <td><input type="time" id="sunday_half_day_mark" name="sunday_half_day_mark" class="form-control" autocomplete="off"></td>
-                                            <td><input id="sunday_late_mark" name="sunday_late_mark" class="form-control" type="number" min="0"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -882,7 +866,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="mb-3">
                                     <label class="form-label">Employee <span class="required">*</span></label>
                                     <input type="hidden" id="work_shift_id" name="work_shift_id">
-                                    <select class="form-control form-select2" multiple="multiple" id="employee" name="employee"></select>
+                                    <select class="form-control form-select2" multiple="multiple" id="employee" name="employee">';
+                                    $form .= $api->generate_active_employee_options();
+                                    $form .='</select>
                                 </div>
                             </div>
                         </div>';
@@ -974,8 +960,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Employee <span class="required">*</span></label>
-                                        <select class="form-control form-select2" multiple="multiple" id="employee" name="employee">
-                                            <option value="">--</option>';
+                                        <select class="form-control form-select2" multiple="multiple" id="employee" name="employee">';
                                         $form .= $api->generate_active_employee_options();
                                         $form .='</select>
                                     </div>
@@ -2061,6 +2046,114 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else if($element_type == 'transaction log'){
                 $element = '<ul class="verti-timeline list-unstyled" id="transaction-log-timeline"></ul>';
+            }
+            else if($element_type == 'work shift regular details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Work Shift :</th>
+                                        <td id="work_shift"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description :</th>
+                                        <td id="description"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Work Shift Type :</th>
+                                        <td id="work_shift_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Monday :</th>
+                                        <td id="monday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Tuesday :</th>
+                                        <td id="tuesday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Wednesday :</th>
+                                        <td id="wednesday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Thursday :</th>
+                                        <td id="thursday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Friday :</th>
+                                        <td id="friday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Saturday :</th>
+                                        <td id="saturday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Sunday :</th>
+                                        <td id="sunday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Assigned To :</th>
+                                        <td id="assigned_to"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'work shift scheduled details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Work Shift :</th>
+                                        <td id="work_shift"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description :</th>
+                                        <td id="description"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Work Shift Type :</th>
+                                        <td id="work_shift_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Start Date :</th>
+                                        <td id="start_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">End Date :</th>
+                                        <td id="end_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Monday :</th>
+                                        <td id="monday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Tuesday :</th>
+                                        <td id="tuesday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Wednesday :</th>
+                                        <td id="wednesday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Thursday :</th>
+                                        <td id="thursday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Friday :</th>
+                                        <td id="friday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Saturday :</th>
+                                        <td id="saturday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Sunday :</th>
+                                        <td id="sunday"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Assigned To :</th>
+                                        <td id="assigned_to"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
             }
             else if($element_type == 'leave duration'){
                 $element .= '<label class="form-label">Leave Date <span class="required">*</span></label>';
@@ -3731,10 +3824,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $update = '';
                     }
 
-                    if($assign_work_shift > 0){
-                        $assign = '<button type="button" class="btn btn-success waves-effect waves-light assign-work-shift" data-work-shift-id="'. $work_shift_id .'" title="Assign Work Shift">
-                                        <i class="bx bx-calendar-plus font-size-16 align-middle"></i>
-                                    </button>';
+                    $check_work_shift_schedule_exist = $api->check_work_shift_schedule_exist($work_shift_id);
+
+                    if($check_work_shift_schedule_exist > 0){
+                        if($assign_work_shift > 0){
+                            $assign = '<button type="button" class="btn btn-success waves-effect waves-light assign-work-shift" data-work-shift-id="'. $work_shift_id .'" title="Assign Work Shift">
+                                            <i class="bx bx-calendar-plus font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $assign = '';
+                        }
                     }
                     else{
                         $assign = '';
@@ -3772,6 +3872,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'WORK_SHIFT' => $work_shift . '<p class="text-muted mb-0">'. $description .'</p>',
                         'WORK_SHIFT_TYPE' => $work_shift_type_name,
                         'ACTION' => '<div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light view-work-shift" data-work-shift-id="'. $work_shift_id .'" data-work-shift-type="'. $work_shift_type .'" title="View Work Shift">
+                                <i class="bx bx-show font-size-16 align-middle"></i>
+                            </button>
                             '. $update .'
                             '. $work_schedule .'
                             '. $assign .'
@@ -6399,6 +6502,73 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Allowance type table
+    else if($type == 'allowance type table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_allowance_type = $api->check_role_permissions($username, 220);
+            $delete_allowance_type = $api->check_role_permissions($username, 221);
+            $view_transaction_log = $api->check_role_permissions($username, 222);
+
+            $sql = $api->db_connection->prepare('SELECT ALLOWANCE_TYPE_ID, DESCRIPTION, ALLOWANCE_TYPE, TAXABLE, TRANSACTION_LOG_ID FROM tblallowancetype ORDER BY ALLOWANCE_TYPE');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $allowance_type_id = $row['ALLOWANCE_TYPE_ID'];
+                    $allowance_type = $row['ALLOWANCE_TYPE'];
+                    $description = $row['DESCRIPTION'];
+                    $taxable = $row['TAXABLE'];
+                    $allowance_type_status_name = $api->get_allowance_type_status($taxable)[0]['BADGE'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_allowance_type > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-allowance-type" data-allowance-type-id="'. $allowance_type_id .'" title="Edit Allowance Type">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_allowance_type > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-allowance-type" data-allowance-type-id="'. $allowance_type_id .'" title="Delete Allowance Type">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $allowance_type_id .'">',
+                        'ALLOWANCE_TYPE' => $allowance_type . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'TAXABLE' => $allowance_type_status_name,
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Generate option functions
     # -------------------------------------------------------------
@@ -6417,33 +6587,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $response[] = array(
                             'CITY_ID' => $row['CITY_ID'],
                             'CITY' => $row['CITY']
-                        );
-                    }
-
-                    echo json_encode($response);
-                }
-                else{
-                    echo $sql->errorInfo();
-                }
-            }
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # Employee work shift options
-    else if($type == 'employee work shift options'){
-        if ($api->databaseConnection()) {
-            if(isset($_POST['work_shift_id']) && !empty($_POST['work_shift_id'])){
-                $work_shift_id = $_POST['work_shift_id'];
-                
-                $sql = $api->db_connection->prepare('CALL generate_employee_work_shift(:work_shift_id)');
-                $sql->bindParam(':work_shift_id', $work_shift_id);
-
-                if($sql->execute()){
-                    while($row = $sql->fetch()){
-                        $response[] = array(
-                            'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
-                            'FILE_AS' => $row['FILE_AS']
                         );
                     }
 

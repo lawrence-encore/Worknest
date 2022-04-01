@@ -36,6 +36,7 @@
     $attendance_adjustment_approval_page = $api->check_role_permissions($username, 203);
     $leave_management_page = $api->check_role_permissions($username, 208);
     $leave_approval_page = $api->check_role_permissions($username, 213);
+    $allowance_type_page = $api->check_role_permissions($username, 218);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -86,8 +87,6 @@
 
     if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Human Resource</li>';
-
-        
 
         if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 ){
             $menu .= '<li>
@@ -159,6 +158,26 @@
                             <i class="bx bx-calendar-event"></i>
                             <span key="t-holiday">Holiday</span>
                         </a>
+                    </li>';
+        }
+    }
+
+    if($allowance_type_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
+
+        if($allowance_type_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-dollar-circle"></i>
+                            <span key="t-allowance">Allowance</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($allowance_type_page > 0){
+                            $menu .= '<li><a href="allowance-type.php" key="t-allowance-type">Allowance Type</a></li>';
+                        }
+
+            $menu .= '</ul>
                     </li>';
         }
     }

@@ -6992,7 +6992,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details'){
+                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -7102,32 +7102,6 @@ function generate_city_option(province, selected){
         complete: function(){
             if(selected != ''){
                 $('#city').val(selected).change();
-            }
-        }
-    });
-}
-
-function generate_employee_work_shift_option(work_shift_id, selected){
-    var username = $('#username').text();
-    var type = 'employee work shift options';
-
-    $.ajax({
-        url: 'system-generation.php',
-        method: 'POST',
-        dataType: 'JSON',
-        data: {type : type, work_shift_id : work_shift_id, username : username},
-        beforeSend: function(){
-            $('#employee').empty();
-        },
-        success: function(response) {
-            for(var i = 0; i < response.length; i++) {
-                newOption = new Option(response[i].FILE_AS, response[i].EMPLOYEE_ID, false, false);
-                $('#employee').append(newOption);
-            }
-        },
-        complete: function(){
-            if(selected != ''){
-                check_empty(selected.split(','), '#employee', 'select');
             }
         }
     });
@@ -7663,6 +7637,40 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'work shift regular details' || form_type == 'work shift shceduled details'){
+        transaction = 'work shift summary details';
+
+        var work_shift_id = sessionStorage.getItem('work_shift_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {work_shift_id : work_shift_id, transaction : transaction},
+            success: function(response) {
+                $('#work_shift').text(response[0].WORK_SHIFT);
+                $('#description').text(response[0].DESCRIPTION);
+                $('#work_shift_type').text(response[0].WORK_SHIFT_TYPE);
+
+                if($('#start_date').length){
+                    $('#start_date').text(response[0].START_DATE);
+                }
+
+                if($('#end_date').length){
+                    $('#end_date').text(response[0].END_DATE);
+                }
+
+                document.getElementById('monday').innerHTML = response[0].MONDAY;
+                document.getElementById('tuesday').innerHTML = response[0].TUESDAY;
+                document.getElementById('wednesday').innerHTML = response[0].WEDNESDAY;
+                document.getElementById('thursday').innerHTML = response[0].THURSDAY;
+                document.getElementById('friday').innerHTML = response[0].FRIDAY;
+                document.getElementById('saturday').innerHTML = response[0].SATURDAY;
+                document.getElementById('sunday').innerHTML = response[0].SUNDAY;
+                document.getElementById('assigned_to').innerHTML = response[0].EMPLOYEE;
+            }
+        });
+    }
     else if(form_type == 'regular work shift schedule form'){
         transaction = 'work shift schedule details';
 
@@ -7807,7 +7815,7 @@ function display_form_details(form_type){
             success: function(response) {
                 $('#work_shift_id').val(work_shift_id);
 
-                generate_employee_work_shift_option(work_shift_id, response[0].EMPLOYEE_ID);
+                check_empty(response[0].EMPLOYEE_ID.split(','), '#employee', 'select');
             }
         });
     }

@@ -1103,7 +1103,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit regular work shift schedule
     else if($transaction == 'submit regular work shift schedule'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['work_shift_id']) && isset($_POST['monday_start_time']) && isset($_POST['monday_end_time']) && isset($_POST['monday_lunch_start_time']) && isset($_POST['monday_lunch_end_time']) && isset($_POST['monday_half_day_mark']) && isset($_POST['monday_late_mark']) && isset($_POST['tuesday_start_time']) && isset($_POST['tuesday_end_time']) && isset($_POST['tuesday_lunch_start_time']) && isset($_POST['tuesday_lunch_end_time']) && isset($_POST['tuesday_half_day_mark']) && isset($_POST['tuesday_late_mark']) && isset($_POST['wednesday_start_time']) && isset($_POST['wednesday_end_time']) && isset($_POST['wednesday_lunch_start_time']) && isset($_POST['wednesday_lunch_end_time']) && isset($_POST['wednesday_half_day_mark']) && isset($_POST['wednesday_late_mark']) && isset($_POST['thursday_start_time']) && isset($_POST['thursday_end_time']) && isset($_POST['thursday_lunch_start_time']) && isset($_POST['thursday_lunch_end_time']) && isset($_POST['thursday_half_day_mark']) && isset($_POST['thursday_late_mark']) && isset($_POST['friday_start_time']) && isset($_POST['friday_end_time']) && isset($_POST['friday_lunch_start_time']) && isset($_POST['friday_lunch_end_time']) && isset($_POST['friday_half_day_mark']) && isset($_POST['friday_late_mark']) && isset($_POST['saturday_start_time']) && isset($_POST['saturday_end_time']) && isset($_POST['saturday_lunch_start_time']) && isset($_POST['saturday_lunch_end_time']) && isset($_POST['saturday_half_day_mark']) && isset($_POST['saturday_late_mark']) && isset($_POST['sunday_start_time']) && isset($_POST['sunday_end_time']) && isset($_POST['sunday_lunch_start_time']) && isset($_POST['sunday_lunch_end_time']) && isset($_POST['sunday_half_day_mark']) && isset($_POST['sunday_late_mark'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['work_shift_id']) && isset($_POST['monday_start_time']) && isset($_POST['monday_end_time']) && isset($_POST['monday_lunch_start_time']) && isset($_POST['monday_lunch_end_time']) && isset($_POST['monday_half_day_mark']) && isset($_POST['tuesday_start_time']) && isset($_POST['tuesday_end_time']) && isset($_POST['tuesday_lunch_start_time']) && isset($_POST['tuesday_lunch_end_time']) && isset($_POST['tuesday_half_day_mark']) && isset($_POST['wednesday_start_time']) && isset($_POST['wednesday_end_time']) && isset($_POST['wednesday_lunch_start_time']) && isset($_POST['wednesday_lunch_end_time']) && isset($_POST['wednesday_half_day_mark']) && isset($_POST['thursday_start_time']) && isset($_POST['thursday_end_time']) && isset($_POST['thursday_lunch_start_time']) && isset($_POST['thursday_lunch_end_time']) && isset($_POST['thursday_half_day_mark']) && isset($_POST['friday_start_time']) && isset($_POST['friday_end_time']) && isset($_POST['friday_lunch_start_time']) && isset($_POST['friday_lunch_end_time']) && isset($_POST['friday_half_day_mark']) && isset($_POST['saturday_start_time']) && isset($_POST['saturday_end_time']) && isset($_POST['saturday_lunch_start_time']) && isset($_POST['saturday_lunch_end_time']) && isset($_POST['saturday_half_day_mark']) && isset($_POST['sunday_start_time']) && isset($_POST['sunday_end_time']) && isset($_POST['sunday_lunch_start_time']) && isset($_POST['sunday_lunch_end_time']) && isset($_POST['sunday_half_day_mark'])){
             $username = $_POST['username'];
             $work_shift_id = $_POST['work_shift_id'];
             $monday_start_time = $api->check_date('empty', $_POST['monday_start_time'], '', 'H:i:s', '', '', '');
@@ -1111,48 +1111,41 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $monday_lunch_start_time = $api->check_date('empty', $_POST['monday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $monday_lunch_end_time = $api->check_date('empty', $_POST['monday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $monday_half_day_mark = $api->check_date('empty', $_POST['monday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $monday_late_mark = $_POST['monday_late_mark'];
             $tuesday_start_time = $api->check_date('empty', $_POST['tuesday_start_time'], '', 'H:i:s', '', '', '');
             $tuesday_end_time = $api->check_date('empty', $_POST['tuesday_end_time'], '', 'H:i:s', '', '', '');
             $tuesday_lunch_start_time = $api->check_date('empty', $_POST['tuesday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $tuesday_lunch_end_time = $api->check_date('empty', $_POST['tuesday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $tuesday_half_day_mark = $api->check_date('empty', $_POST['tuesday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $tuesday_late_mark = $_POST['tuesday_late_mark'];
             $wednesday_start_time = $api->check_date('empty', $_POST['wednesday_start_time'], '', 'H:i:s', '', '', '');
             $wednesday_end_time = $api->check_date('empty', $_POST['wednesday_end_time'], '', 'H:i:s', '', '', '');
             $wednesday_lunch_start_time = $api->check_date('empty', $_POST['wednesday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $wednesday_lunch_end_time = $api->check_date('empty', $_POST['wednesday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $wednesday_half_day_mark = $api->check_date('empty', $_POST['wednesday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $wednesday_late_mark = $_POST['wednesday_late_mark'];
             $thursday_start_time = $api->check_date('empty', $_POST['thursday_start_time'], '', 'H:i:s', '', '', '');
             $thursday_end_time = $api->check_date('empty', $_POST['thursday_end_time'], '', 'H:i:s', '', '', '');
             $thursday_lunch_start_time = $api->check_date('empty', $_POST['thursday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $thursday_lunch_end_time = $api->check_date('empty', $_POST['thursday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $thursday_half_day_mark = $api->check_date('empty', $_POST['thursday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $thursday_late_mark = $_POST['thursday_late_mark'];
             $friday_start_time = $api->check_date('empty', $_POST['friday_start_time'], '', 'H:i:s', '', '', '');
             $friday_end_time = $api->check_date('empty', $_POST['friday_end_time'], '', 'H:i:s', '', '', '');
             $friday_lunch_start_time = $api->check_date('empty', $_POST['friday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $friday_lunch_end_time = $api->check_date('empty', $_POST['friday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $friday_half_day_mark = $api->check_date('empty', $_POST['friday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $friday_late_mark = $_POST['friday_late_mark'];
             $saturday_start_time = $api->check_date('empty', $_POST['saturday_start_time'], '', 'H:i:s', '', '', '');
             $saturday_end_time = $api->check_date('empty', $_POST['saturday_end_time'], '', 'H:i:s', '', '', '');
             $saturday_lunch_start_time = $api->check_date('empty', $_POST['saturday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $saturday_lunch_end_time = $api->check_date('empty', $_POST['saturday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $saturday_half_day_mark = $api->check_date('empty', $_POST['saturday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $saturday_late_mark = $_POST['saturday_late_mark'];
             $sunday_start_time = $api->check_date('empty', $_POST['sunday_start_time'], '', 'H:i:s', '', '', '');
             $sunday_end_time = $api->check_date('empty', $_POST['sunday_end_time'], '', 'H:i:s', '', '', '');
             $sunday_lunch_start_time = $api->check_date('empty', $_POST['sunday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $sunday_lunch_end_time = $api->check_date('empty', $_POST['sunday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $sunday_half_day_mark = $api->check_date('empty', $_POST['sunday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $sunday_late_mark = $_POST['sunday_late_mark'];
 
             $check_work_shift_schedule_exist = $api->check_work_shift_schedule_exist($work_shift_id);
 
             if($check_work_shift_schedule_exist > 0){
-                $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username);
+                $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
                 if($update_work_shift_schedule == 1){
                     echo 'Updated';
@@ -1162,7 +1155,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username);
+                $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
                 if($insert_work_shift_schedule == 1){
                     echo 'Inserted';
@@ -1177,7 +1170,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit scheduled work shift schedule
     else if($transaction == 'submit scheduled work shift schedule'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['work_shift_id']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date']) && isset($_POST['monday_start_time']) && isset($_POST['monday_end_time']) && isset($_POST['monday_lunch_start_time']) && isset($_POST['monday_lunch_end_time']) && isset($_POST['monday_half_day_mark']) && isset($_POST['monday_late_mark']) && isset($_POST['tuesday_start_time']) && isset($_POST['tuesday_end_time']) && isset($_POST['tuesday_lunch_start_time']) && isset($_POST['tuesday_lunch_end_time']) && isset($_POST['tuesday_half_day_mark']) && isset($_POST['tuesday_late_mark']) && isset($_POST['wednesday_start_time']) && isset($_POST['wednesday_end_time']) && isset($_POST['wednesday_lunch_start_time']) && isset($_POST['wednesday_lunch_end_time']) && isset($_POST['wednesday_half_day_mark']) && isset($_POST['wednesday_late_mark']) && isset($_POST['thursday_start_time']) && isset($_POST['thursday_end_time']) && isset($_POST['thursday_lunch_start_time']) && isset($_POST['thursday_lunch_end_time']) && isset($_POST['thursday_half_day_mark']) && isset($_POST['thursday_late_mark']) && isset($_POST['friday_start_time']) && isset($_POST['friday_end_time']) && isset($_POST['friday_lunch_start_time']) && isset($_POST['friday_lunch_end_time']) && isset($_POST['friday_half_day_mark']) && isset($_POST['friday_late_mark']) && isset($_POST['saturday_start_time']) && isset($_POST['saturday_end_time']) && isset($_POST['saturday_lunch_start_time']) && isset($_POST['saturday_lunch_end_time']) && isset($_POST['saturday_half_day_mark']) && isset($_POST['saturday_late_mark']) && isset($_POST['sunday_start_time']) && isset($_POST['sunday_end_time']) && isset($_POST['sunday_lunch_start_time']) && isset($_POST['sunday_lunch_end_time']) && isset($_POST['sunday_half_day_mark']) && isset($_POST['sunday_late_mark'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['work_shift_id']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date']) && isset($_POST['monday_start_time']) && isset($_POST['monday_end_time']) && isset($_POST['monday_lunch_start_time']) && isset($_POST['monday_lunch_end_time']) && isset($_POST['monday_half_day_mark']) && isset($_POST['tuesday_start_time']) && isset($_POST['tuesday_end_time']) && isset($_POST['tuesday_lunch_start_time']) && isset($_POST['tuesday_lunch_end_time']) && isset($_POST['tuesday_half_day_mark']) && isset($_POST['wednesday_start_time']) && isset($_POST['wednesday_end_time']) && isset($_POST['wednesday_lunch_start_time']) && isset($_POST['wednesday_lunch_end_time']) && isset($_POST['wednesday_half_day_mark']) && isset($_POST['thursday_start_time']) && isset($_POST['thursday_end_time']) && isset($_POST['thursday_lunch_start_time']) && isset($_POST['thursday_lunch_end_time']) && isset($_POST['thursday_half_day_mark']) && isset($_POST['friday_start_time']) && isset($_POST['friday_end_time']) && isset($_POST['friday_lunch_start_time']) && isset($_POST['friday_lunch_end_time']) && isset($_POST['friday_half_day_mark']) && isset($_POST['saturday_start_time']) && isset($_POST['saturday_end_time']) && isset($_POST['saturday_lunch_start_time']) && isset($_POST['saturday_lunch_end_time']) && isset($_POST['saturday_half_day_mark']) && isset($_POST['sunday_start_time']) && isset($_POST['sunday_end_time']) && isset($_POST['sunday_lunch_start_time']) && isset($_POST['sunday_lunch_end_time']) && isset($_POST['sunday_half_day_mark'])){
             $username = $_POST['username'];
             $work_shift_id = $_POST['work_shift_id'];
             $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
@@ -1187,48 +1180,41 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $monday_lunch_start_time = $api->check_date('empty', $_POST['monday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $monday_lunch_end_time = $api->check_date('empty', $_POST['monday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $monday_half_day_mark = $api->check_date('empty', $_POST['monday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $monday_late_mark = $_POST['monday_late_mark'];
             $tuesday_start_time = $api->check_date('empty', $_POST['tuesday_start_time'], '', 'H:i:s', '', '', '');
             $tuesday_end_time = $api->check_date('empty', $_POST['tuesday_end_time'], '', 'H:i:s', '', '', '');
             $tuesday_lunch_start_time = $api->check_date('empty', $_POST['tuesday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $tuesday_lunch_end_time = $api->check_date('empty', $_POST['tuesday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $tuesday_half_day_mark = $api->check_date('empty', $_POST['tuesday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $tuesday_late_mark = $_POST['tuesday_late_mark'];
             $wednesday_start_time = $api->check_date('empty', $_POST['wednesday_start_time'], '', 'H:i:s', '', '', '');
             $wednesday_end_time = $api->check_date('empty', $_POST['wednesday_end_time'], '', 'H:i:s', '', '', '');
             $wednesday_lunch_start_time = $api->check_date('empty', $_POST['wednesday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $wednesday_lunch_end_time = $api->check_date('empty', $_POST['wednesday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $wednesday_half_day_mark = $api->check_date('empty', $_POST['wednesday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $wednesday_late_mark = $_POST['wednesday_late_mark'];
             $thursday_start_time = $api->check_date('empty', $_POST['thursday_start_time'], '', 'H:i:s', '', '', '');
             $thursday_end_time = $api->check_date('empty', $_POST['thursday_end_time'], '', 'H:i:s', '', '', '');
             $thursday_lunch_start_time = $api->check_date('empty', $_POST['thursday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $thursday_lunch_end_time = $api->check_date('empty', $_POST['thursday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $thursday_half_day_mark = $api->check_date('empty', $_POST['thursday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $thursday_late_mark = $_POST['thursday_late_mark'];
             $friday_start_time = $api->check_date('empty', $_POST['friday_start_time'], '', 'H:i:s', '', '', '');
             $friday_end_time = $api->check_date('empty', $_POST['friday_end_time'], '', 'H:i:s', '', '', '');
             $friday_lunch_start_time = $api->check_date('empty', $_POST['friday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $friday_lunch_end_time = $api->check_date('empty', $_POST['friday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $friday_half_day_mark = $api->check_date('empty', $_POST['friday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $friday_late_mark = $_POST['friday_late_mark'];
             $saturday_start_time = $api->check_date('empty', $_POST['saturday_start_time'], '', 'H:i:s', '', '', '');
             $saturday_end_time = $api->check_date('empty', $_POST['saturday_end_time'], '', 'H:i:s', '', '', '');
             $saturday_lunch_start_time = $api->check_date('empty', $_POST['saturday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $saturday_lunch_end_time = $api->check_date('empty', $_POST['saturday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $saturday_half_day_mark = $api->check_date('empty', $_POST['saturday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $saturday_late_mark = $_POST['saturday_late_mark'];
             $sunday_start_time = $api->check_date('empty', $_POST['sunday_start_time'], '', 'H:i:s', '', '', '');
             $sunday_end_time = $api->check_date('empty', $_POST['sunday_end_time'], '', 'H:i:s', '', '', '');
             $sunday_lunch_start_time = $api->check_date('empty', $_POST['sunday_lunch_start_time'], '', 'H:i:s', '', '', '');
             $sunday_lunch_end_time = $api->check_date('empty', $_POST['sunday_lunch_end_time'], '', 'H:i:s', '', '', '');
             $sunday_half_day_mark = $api->check_date('empty', $_POST['sunday_half_day_mark'], '', 'H:i:s', '', '', '');
-            $sunday_late_mark = $_POST['sunday_late_mark'];
 
             $check_work_shift_schedule_exist = $api->check_work_shift_schedule_exist($work_shift_id);
 
             if($check_work_shift_schedule_exist > 0){
-                $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username);
+                $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
                 if($update_work_shift_schedule == 1){
                     echo 'Updated';
@@ -1238,7 +1224,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_late_mark, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_late_mark, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_late_mark, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_late_mark, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_late_mark, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_late_mark, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_late_mark, $sunday_half_day_mark, $username);
+                $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
                 if($insert_work_shift_schedule == 1){
                     echo 'Inserted';
@@ -6968,6 +6954,91 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Work shift summary details
+    else if($transaction == 'work shift summary details'){
+        if(isset($_POST['work_shift_id']) && !empty($_POST['work_shift_id'])){
+            $employee = '';
+            $work_shift_id = $_POST['work_shift_id'];
+            $work_shift_details = $api->get_work_shift_details($work_shift_id);
+            $work_shift_schedule_details = $api->get_work_shift_schedule_details($work_shift_id);
+            $work_shift_assignment_details = $api->get_work_shift_assignment_details($work_shift_id);
+
+            $work_shift_type = $work_shift_details[0]['WORK_SHIFT_TYPE'];
+            $work_shift_type_name = $api->get_system_code_details('WORKSHIFT', $work_shift_type)[0]['DESCRIPTION'] ?? null;
+
+            $monday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['MONDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $monday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['MONDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $monday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['MONDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $monday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['MONDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $monday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['MONDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $tuesday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['TUESDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $tuesday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['TUESDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $tuesday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['TUESDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $tuesday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['TUESDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $tuesday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['TUESDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $wednesday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['WEDNESDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $wednesday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['WEDNESDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $wednesday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $wednesday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $wednesday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['WEDNESDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $thursday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['THURSDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $thursday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['THURSDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $thursday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['THURSDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $thursday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['THURSDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $thursday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['THURSDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $friday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['FRIDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $friday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['FRIDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $friday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['FRIDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $friday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['FRIDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $friday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['FRIDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $saturday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SATURDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $saturday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SATURDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $saturday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SATURDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $saturday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SATURDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $saturday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SATURDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            $sunday = 'Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SUNDAY_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $sunday .= 'End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SUNDAY_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $sunday .= 'Lunch Start Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SUNDAY_LUNCH_START_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $sunday .= 'Lunch End Time: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SUNDAY_LUNCH_END_TIME'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+            $sunday .= 'Half Day Mark: ' . $api->check_date('summary', $work_shift_schedule_details[0]['SUNDAY_HALF_DAY_MARK'] ?? null, '', 'h:i a', '', '', '') . '<br/>';
+
+            for($i = 0; $i < count($work_shift_assignment_details); $i++) {
+                $employee_id = $work_shift_assignment_details[$i]['EMPLOYEE_ID'];
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $file_as = $employee_details[0]['FILE_AS'];
+
+                if($i != (count($work_shift_assignment_details) - 1)){
+                    $employee .= $file_as . '<br/>';
+                }
+            }
+
+            $response[] = array(
+                'WORK_SHIFT' => $work_shift_details[0]['WORK_SHIFT'],
+                'WORK_SHIFT_TYPE' => $work_shift_type_name,
+                'DESCRIPTION' => $work_shift_details[0]['DESCRIPTION'],
+                'START_DATE' => $api->check_date('summary', $work_shift_schedule_details[0]['START_DATE'] ?? null, '', 'F d, Y', '', '', ''),
+                'END_DATE' => $api->check_date('summary', $work_shift_schedule_details[0]['END_DATE'] ?? null, '', 'F d, Y', '', '', ''),
+                'MONDAY' => $monday,
+                'TUESDAY' => $tuesday,
+                'WEDNESDAY' => $wednesday,
+                'THURSDAY' => $thursday,
+                'FRIDAY' => $friday,
+                'SATURDAY' => $saturday,
+                'SUNDAY' => $sunday,
+                'EMPLOYEE' => $employee
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
     # Work shift schedule details
     else if($transaction == 'work shift schedule details'){
         if(isset($_POST['work_shift_id']) && !empty($_POST['work_shift_id'])){
@@ -6981,43 +7052,36 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'MONDAY_END_TIME' => $work_shift_schedule_details[0]['MONDAY_END_TIME'] ?? null,
                 'MONDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['MONDAY_LUNCH_START_TIME'] ?? null,
                 'MONDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['MONDAY_LUNCH_END_TIME'] ?? null,
-                'MONDAY_LATE_MARK' => $work_shift_schedule_details[0]['MONDAY_LATE_MARK'] ?? null,
                 'MONDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['MONDAY_HALF_DAY_MARK'] ?? null,
                 'TUESDAY_START_TIME' => $work_shift_schedule_details[0]['TUESDAY_START_TIME'] ?? null,
                 'TUESDAY_END_TIME' => $work_shift_schedule_details[0]['TUESDAY_END_TIME'] ?? null,
                 'TUESDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['TUESDAY_LUNCH_START_TIME'] ?? null,
                 'TUESDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['TUESDAY_LUNCH_END_TIME'] ?? null,
-                'TUESDAY_LATE_MARK' => $work_shift_schedule_details[0]['TUESDAY_LATE_MARK'] ?? null,
                 'TUESDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['TUESDAY_HALF_DAY_MARK'] ?? null,
                 'WEDNESDAY_START_TIME' => $work_shift_schedule_details[0]['WEDNESDAY_START_TIME'] ?? null,
                 'WEDNESDAY_END_TIME' => $work_shift_schedule_details[0]['WEDNESDAY_END_TIME'] ?? null,
                 'WEDNESDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_START_TIME'] ?? null,
                 'WEDNESDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['WEDNESDAY_LUNCH_END_TIME'] ?? null,
-                'WEDNESDAY_LATE_MARK' => $work_shift_schedule_details[0]['WEDNESDAY_LATE_MARK'] ?? null,
                 'WEDNESDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['WEDNESDAY_HALF_DAY_MARK'] ?? null,
                 'THURSDAY_START_TIME' => $work_shift_schedule_details[0]['THURSDAY_START_TIME'] ?? null,
                 'THURSDAY_END_TIME' => $work_shift_schedule_details[0]['THURSDAY_END_TIME'] ?? null,
                 'THURSDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['THURSDAY_LUNCH_START_TIME'] ?? null,
                 'THURSDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['THURSDAY_LUNCH_END_TIME'] ?? null,
-                'THURSDAY_LATE_MARK' => $work_shift_schedule_details[0]['THURSDAY_LATE_MARK'] ?? null,
                 'THURSDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['THURSDAY_HALF_DAY_MARK'] ?? null,
                 'FRIDAY_START_TIME' => $work_shift_schedule_details[0]['FRIDAY_START_TIME'] ?? null,
                 'FRIDAY_END_TIME' => $work_shift_schedule_details[0]['FRIDAY_END_TIME'] ?? null,
                 'FRIDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['FRIDAY_LUNCH_START_TIME'] ?? null,
                 'FRIDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['FRIDAY_LUNCH_END_TIME'] ?? null,
-                'FRIDAY_LATE_MARK' => $work_shift_schedule_details[0]['FRIDAY_LATE_MARK'] ?? null,
                 'FRIDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['FRIDAY_HALF_DAY_MARK'] ?? null,
                 'SATURDAY_START_TIME' => $work_shift_schedule_details[0]['SATURDAY_START_TIME'] ?? null,
                 'SATURDAY_END_TIME' => $work_shift_schedule_details[0]['SATURDAY_END_TIME'] ?? null,
                 'SATURDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['SATURDAY_LUNCH_START_TIME'] ?? null,
                 'SATURDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['SATURDAY_LUNCH_END_TIME'] ?? null,
-                'SATURDAY_LATE_MARK' => $work_shift_schedule_details[0]['SATURDAY_LATE_MARK'] ?? null,
                 'SATURDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['SATURDAY_HALF_DAY_MARK'] ?? null,
                 'SUNDAY_START_TIME' => $work_shift_schedule_details[0]['SUNDAY_START_TIME'] ?? null,
                 'SUNDAY_END_TIME' => $work_shift_schedule_details[0]['SUNDAY_END_TIME'] ?? null,
                 'SUNDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['SUNDAY_LUNCH_START_TIME'] ?? null,
                 'SUNDAY_LUNCH_END_TIME' => $work_shift_schedule_details[0]['SUNDAY_LUNCH_END_TIME'] ?? null,
-                'SUNDAY_LATE_MARK' => $work_shift_schedule_details[0]['SUNDAY_LATE_MARK'] ?? null,
                 'SUNDAY_HALF_DAY_MARK' => $work_shift_schedule_details[0]['SUNDAY_HALF_DAY_MARK'] ?? null
             );
 
