@@ -52,7 +52,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Allowance</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Allowance</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -97,7 +97,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="allowance-typedatatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="allowance-type-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -136,6 +136,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/department.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/allowance-type.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

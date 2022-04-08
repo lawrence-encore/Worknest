@@ -6818,6 +6818,499 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'allowance type form'){
+        $('#allowance-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit allowance type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Allowance Type Success', 'The allowance type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Allowance Type Success', 'The allowance type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#allowance-type-datatable');
+                        }
+                        else{
+                            show_alert('Allowance Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                allowance_type: {
+                    required: true
+                },
+                taxable: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                allowance_type: {
+                    required: 'Please enter the allowance type',
+                },
+                taxable: {
+                    required: 'Please choose the tax type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'allowance form'){
+        $('#allowance-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit allowance';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Allowance Success', 'The allowance has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#allowance-datatable');
+                        }
+                        else{
+                            show_alert('Allowance Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                allowance_type: {
+                    required: true
+                },
+                amount: {
+                    required: true
+                },
+                recurrence_pattern: {
+                    required:  function(element){
+                        var recurrence = $('#recurrence').val();
+
+                        if(recurrence > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                recurrence: {
+                    required:  function(element){
+                        var recurrence_pattern = $('#recurrence_pattern').val();
+
+                        if(recurrence_pattern != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                allowance_type: {
+                    required: 'Please choose the allowance type',
+                },
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                recurrence_pattern: {
+                    required: 'Please choose the recurrence pattern',
+                },
+                recurrence: {
+                    required: 'Please enter the recurrence',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'allowance update form'){
+        $('#allowance-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit allowance update';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Allowance Success', 'The allowance has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#allowance-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Update Allowance Error', 'The allowance does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Allowance Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                amount: {
+                    required: true
+                },
+                payroll_date: {
+                    required: true
+                }
+            },
+            messages: {
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                payroll_date: {
+                    required: 'Please choose the payroll date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'deduction type form'){
+        $('#deduction-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit deduction type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Deduction Type Success', 'The deduction type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Deduction Type Success', 'The deduction type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#deduction-type-datatable');
+                        }
+                        else{
+                            show_alert('Deduction Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                deduction_type: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                deduction_type: {
+                    required: 'Please enter the deduction type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'government contribution form'){
+        $('#government-contribution-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit government contribution';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Government Contribution Success', 'The government contribution has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Government Contribution Success', 'The government contribution has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#government-contribution-datatable');
+                        }
+                        else{
+                            show_alert('Government Contribution Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                government_contribution: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                government_contribution: {
+                    required: 'Please enter the government contribution',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'contribution bracket form'){
+        $('#contribution-bracket-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit contribution bracket';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Contribution Bracket Success', 'The contribution bracket has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Contribution Bracket Success', 'The contribution bracket has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#contribution-bracket-datatable');
+                        }
+                        else{
+                            show_alert('Contribution Bracket Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                start_range: {
+                    required: true
+                },
+                end_range: {
+                    required: true
+                },
+                deduction_amount: {
+                    required: true
+                }
+            },
+            messages: {
+                start_range: {
+                    required: 'Please enter the start range',
+                },
+                end_range: {
+                    required: 'Please enter the end range',
+                },
+                deduction_amount: {
+                    required: 'Please enter the deduction amount',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 // Get location function
@@ -6955,6 +7448,10 @@ function generate_form(form_type, form_id, add, username){
                     var request_id = sessionStorage.getItem('request_id');
                     $('#request_id').val(request_id);
                 }
+                else if(form_type == 'contribution bracket form'){
+                    var government_contribution_id = $('#government-contribution-id').text();
+                    $('#government_contribution_id').val(government_contribution_id);
+                }
             }
 
             initialize_elements();
@@ -6992,7 +7489,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details'){
+                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -8362,6 +8859,118 @@ function display_form_details(form_type){
                 $('#time_in').val(response[0].TIME_IN_ADJUSTED);
                 $('#reason').val(response[0].REASON);
                 $('#request_id').val(request_id);
+            }
+        });
+    }
+    else if(form_type == 'allowance type form'){
+        transaction = 'allowance type details';
+        
+        var allowance_type_id = sessionStorage.getItem('allowance_type_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {allowance_type_id : allowance_type_id, transaction : transaction},
+            success: function(response) {
+                $('#allowance_type_id').val(allowance_type_id);
+                $('#allowance_type').val(response[0].ALLOWANCE_TYPE);
+                $('#description').val(response[0].DESCRIPTION);
+
+                check_option_exist('#taxable', response[0].TAXABLE, '');
+            }
+        });
+    }
+    else if(form_type == 'allowance update form'){
+        transaction = 'allowance details';
+        
+        var allowance_id = sessionStorage.getItem('allowance_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {allowance_id : allowance_id, transaction : transaction},
+            success: function(response) {
+                $('#allowance_id').val(allowance_id);
+                $('#amount').val(response[0].AMOUNT);
+                $('#payroll_date').val(response[0].PAYROLL_DATE);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#allowance_type', response[0].ALLOWANCE_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'allowance details'){
+        transaction = 'allowance summary details';
+
+        var allowance_id = sessionStorage.getItem('allowance_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {allowance_id : allowance_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#allowance_type').text(response[0].ALLOWANCE_TYPE);
+                $('#payroll_date').text(response[0].PAYROLL_DATE);
+                $('#amount').text(response[0].AMOUNT);
+                document.getElementById('payroll').innerHTML = response[0].PAYROLL;
+            }
+        });
+    }
+    else if(form_type == 'deduction type form'){
+        transaction = 'deduction type details';
+        
+        var deduction_type_id = sessionStorage.getItem('deduction_type_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {deduction_type_id : deduction_type_id, transaction : transaction},
+            success: function(response) {
+                $('#deduction_type_id').val(deduction_type_id);
+                $('#deduction_type').val(response[0].DEDUCTION_TYPE);
+                $('#description').val(response[0].DESCRIPTION);
+            }
+        });
+    }
+    else if(form_type == 'government contribution form'){
+        transaction = 'government contribution details';
+        
+        var government_contribution_id = sessionStorage.getItem('government_contribution_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {government_contribution_id : government_contribution_id, transaction : transaction},
+            success: function(response) {
+                $('#government_contribution_id').val(government_contribution_id);
+                $('#government_contribution').val(response[0].GOVERNMENT_CONTRIBUTION);
+                $('#description').val(response[0].DESCRIPTION);
+            }
+        });
+    }
+    else if(form_type == 'contribution bracket form'){
+        transaction = 'contribution bracket details';
+        
+        var contribution_bracket_id = sessionStorage.getItem('contribution_bracket_id');
+        var government_contribution_id = $('#government-contribution-id').text();
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {contribution_bracket_id : contribution_bracket_id, transaction : transaction},
+            success: function(response) {
+                $('#contribution_bracket_id').val(contribution_bracket_id);
+                $('#government_contribution_id').val(government_contribution_id);
+                $('#start_range').val(response[0].START_RANGE);
+                $('#end_range').val(response[0].END_RANGE);
+                $('#deduction_amount').val(response[0].DEDUCTION_AMOUNT);
             }
         });
     }

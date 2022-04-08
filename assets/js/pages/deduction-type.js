@@ -2,33 +2,31 @@
     'use strict';
 
     $(function() {
-        if($('#allowance-type-datatable').length){
-            initialize_allowance_type_table('#allowance-type-datatable');
+        if($('#deduction-type-datatable').length){
+            initialize_deduction_type_table('#deduction-type-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_allowance_type_table(datatable_name, buttons = false, show_all = false){
+function initialize_deduction_type_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var type = 'allowance type table';
+    var type = 'deduction type table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ALLOWANCE_TYPE' },
-        { 'data' : 'TAXABLE' },
+        { 'data' : 'DEDUCTION_TYPE' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '59%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
-        { 'width': '20%','bSortable': false, 'aTargets': 3 },
+        { 'width': '79%', 'aTargets': 1 },
+        { 'width': '20%','bSortable': false, 'aTargets': 2 },
     ];
 
     if(show_all){
@@ -105,25 +103,25 @@ function initialize_allowance_type_table(datatable_name, buttons = false, show_a
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#add-allowance-type',function() {
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '1', username);
+    $(document).on('click','#add-deduction-type',function() {
+        generate_modal('deduction type form', 'Deduction Type', 'R' , '1', '1', 'form', 'deduction-type-form', '1', username);
     });
 
-    $(document).on('click','.update-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
+    $(document).on('click','.update-deduction-type',function() {
+        var deduction_type_id = $(this).data('deduction-type-id');
 
-        sessionStorage.setItem('allowance_type_id', allowance_type_id);
+        sessionStorage.setItem('deduction_type_id', deduction_type_id);
         
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '0', username);
+        generate_modal('deduction type form', 'Deduction Type', 'R' , '1', '1', 'form', 'deduction-type-form', '0', username);
     });
     
-    $(document).on('click','.delete-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
-        var transaction = 'delete allowance type';
+    $(document).on('click','.delete-deduction-type',function() {
+        var deduction_type_id = $(this).data('deduction-type-id');
+        var transaction = 'delete deduction type';
 
         Swal.fire({
-            title: 'Delete Allowance Type',
-            text: 'Are you sure you want to delete this allowance type?',
+            title: 'Delete Deduction Type',
+            text: 'Are you sure you want to delete this deduction type?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -136,18 +134,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                    data: {username : username, deduction_type_id : deduction_type_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Allowance Type', 'The allowance type has been deleted.', 'success');
+                          show_alert('Delete Deduction Type', 'The deduction type has been deleted.', 'success');
 
-                          reload_datatable('#allowance-type-datatable');
+                          reload_datatable('#deduction-type-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Allowance Type', 'The allowance type does not exist.', 'info');
+                          show_alert('Delete Deduction Type', 'The deduction type does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Allowance Type', response, 'error');
+                          show_alert('Delete Deduction Type', response, 'error');
                         }
                     }
                 });
@@ -156,20 +154,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-allowance-type',function() {
-        var allowance_type_id = [];
-        var transaction = 'delete multiple allowance type';
+    $(document).on('click','#delete-deduction-type',function() {
+        var deduction_type_id = [];
+        var transaction = 'delete multiple deduction type';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                allowance_type_id.push(this.value);  
+                deduction_type_id.push(this.value);  
             }
         });
 
-        if(allowance_type_id.length > 0){
+        if(deduction_type_id.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Allowance Types',
-                text: 'Are you sure you want to delete these allowance types?',
+                title: 'Delete Multiple Deduction Types',
+                text: 'Are you sure you want to delete these deduction types?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -183,18 +181,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                        data: {username : username, deduction_type_id : deduction_type_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance types have been deleted.', 'success');
+                                show_alert('Delete Multiple Deduction Types', 'The deduction types have been deleted.', 'success');
     
-                                reload_datatable('#allowance-type-datatable');
+                                reload_datatable('#deduction-type-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance type does not exist.', 'info');
+                                show_alert('Delete Multiple Deduction Types', 'The deduction type does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Allowance Types', response, 'error');
+                                show_alert('Delete Multiple Deduction Types', response, 'error');
                             }
                         }
                     });
@@ -204,7 +202,7 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Allowance Types', 'Please select the allowance types you want to delete.', 'error');
+            show_alert('Delete Multiple Deduction Types', 'Please select the deduction types you want to delete.', 'error');
         }
     });
 

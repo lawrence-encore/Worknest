@@ -2,32 +2,33 @@
     'use strict';
 
     $(function() {
-        if($('#allowance-type-datatable').length){
-            initialize_allowance_type_table('#allowance-type-datatable');
+        if($('#contribution-bracket-datatable').length){
+            initialize_contribution_bracket_table('#contribution-bracket-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_allowance_type_table(datatable_name, buttons = false, show_all = false){
+function initialize_contribution_bracket_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var type = 'allowance type table';
+    var government_contribution_id = $('#government-contribution-id').text();
+    var type = 'contribution bracket table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ALLOWANCE_TYPE' },
-        { 'data' : 'TAXABLE' },
+        { 'data' : 'BRACKET' },
+        { 'data' : 'DEDUCTION_AMOUNT' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '59%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
+        { 'width': '39%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
         { 'width': '20%','bSortable': false, 'aTargets': 3 },
     ];
 
@@ -44,7 +45,7 @@ function initialize_allowance_type_table(datatable_name, buttons = false, show_a
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'username' : username, 'government_contribution_id' : government_contribution_id},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -75,7 +76,7 @@ function initialize_allowance_type_table(datatable_name, buttons = false, show_a
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'username' : username, 'government_contribution_id' : government_contribution_id},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],
@@ -105,25 +106,25 @@ function initialize_allowance_type_table(datatable_name, buttons = false, show_a
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#add-allowance-type',function() {
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '1', username);
+    $(document).on('click','#add-contribution-bracket',function() {
+        generate_modal('contribution bracket form', 'Contribution Bracket', 'R' , '1', '1', 'form', 'contribution-bracket-form', '1', username);
     });
 
-    $(document).on('click','.update-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
-
-        sessionStorage.setItem('allowance_type_id', allowance_type_id);
+    $(document).on('click','.update-contribution-bracket',function() {
+        var contribution_bracket_id = $(this).data('contribution-bracket-id'); 
         
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '0', username);
+        sessionStorage.setItem('contribution_bracket_id', contribution_bracket_id);
+        
+        generate_modal('contribution bracket form', 'Contribution Bracket', 'R' , '1', '1', 'form', 'contribution-bracket-form', '0', username);
     });
     
-    $(document).on('click','.delete-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
-        var transaction = 'delete allowance type';
+    $(document).on('click','.delete-contribution-bracket',function() {
+        var contribution_bracket_id = $(this).data('contribution-bracket-id'); 
+        var transaction = 'delete contribution bracket';
 
         Swal.fire({
-            title: 'Delete Allowance Type',
-            text: 'Are you sure you want to delete this allowance type?',
+            title: 'Delete Contribution Bracket',
+            text: 'Are you sure you want to delete this contribution bracket?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -136,18 +137,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                    data: {username : username, contribution_bracket_id : contribution_bracket_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Allowance Type', 'The allowance type has been deleted.', 'success');
+                          show_alert('Delete Contribution Bracket', 'The contribution bracket has been deleted.', 'success');
 
-                          reload_datatable('#allowance-type-datatable');
+                          reload_datatable('#contribution-bracket-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Allowance Type', 'The allowance type does not exist.', 'info');
+                          show_alert('Delete Contribution Bracket', 'The contribution bracket does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Allowance Type', response, 'error');
+                          show_alert('Delete Contribution Bracket', response, 'error');
                         }
                     }
                 });
@@ -156,20 +157,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-allowance-type',function() {
-        var allowance_type_id = [];
-        var transaction = 'delete multiple allowance type';
+    $(document).on('click','#delete-contribution-bracket',function() {
+        var contribution_bracket_id = [];
+        var transaction = 'delete multiple contribution bracket';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                allowance_type_id.push(this.value);  
+                contribution_bracket_id.push(this.value);  
             }
         });
 
-        if(allowance_type_id.length > 0){
+        if(contribution_bracket_id.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Allowance Types',
-                text: 'Are you sure you want to delete these allowance types?',
+                title: 'Delete Multiple Contribution Brackets',
+                text: 'Are you sure you want to delete these contribution brackets?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -183,18 +184,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                        data: {username : username, contribution_bracket_id : contribution_bracket_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance types have been deleted.', 'success');
+                                show_alert('Delete Multiple Contribution Brackets', 'The contribution brackets have been deleted.', 'success');
     
-                                reload_datatable('#allowance-type-datatable');
+                                reload_datatable('#contribution-bracket-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance type does not exist.', 'info');
+                                show_alert('Delete Multiple Contribution Brackets', 'The contribution bracket does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Allowance Types', response, 'error');
+                                show_alert('Delete Multiple Contribution Brackets', response, 'error');
                             }
                         }
                     });
@@ -204,8 +205,7 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Allowance Types', 'Please select the allowance types you want to delete.', 'error');
+            show_alert('Delete Multiple Contribution Brackets', 'Please select the policies you want to delete.', 'error');
         }
     });
-
 }

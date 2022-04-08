@@ -65,6 +65,33 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Calculation transactions
+    # -------------------------------------------------------------
+
+    # Calculate allowance end date
+    else if($transaction == 'calculate allowance end date'){
+        if(isset($_POST['recurrence_pattern']) && isset($_POST['recurrence']) && isset($_POST['start_date'])){
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                $payroll_date = $start_date;
+
+                for($i = 0; $i < $recurrence; $i++){
+                    $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Submit transactions
     # -------------------------------------------------------------
 
@@ -2858,6 +2885,219 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit allowance type
+    else if($transaction == 'submit allowance type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_type_id']) && isset($_POST['allowance_type']) && !empty($_POST['allowance_type']) && isset($_POST['taxable']) && !empty($_POST['taxable']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $allowance_type_id = $_POST['allowance_type_id'];
+            $allowance_type = $_POST['allowance_type'];
+            $taxable = $_POST['taxable'];
+            $description = $_POST['description'];
+
+            $check_allowance_type_exist = $api->check_allowance_type_exist($allowance_type_id);
+
+            if($check_allowance_type_exist > 0){
+                $update_allowance_type = $api->update_allowance_type($allowance_type_id, $allowance_type, $taxable, $description, $username);
+
+                if($update_allowance_type == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_allowance_type;
+                }
+            }
+            else{
+                $insert_allowance_type = $api->insert_allowance_type($allowance_type, $taxable, $description, $username);
+
+                if($insert_allowance_type == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_allowance_type;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit allowance
+    else if($transaction == 'submit allowance'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['allowance_type']) && !empty($_POST['allowance_type']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['recurrence_pattern']) && isset($_POST['recurrence'])){
+            $username = $_POST['username'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+            $allowance_type = $_POST['allowance_type'];
+            $amount = $_POST['amount'];
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            foreach($employee_ids as $employee_id){
+                if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                    for($i = 0; $i <= $recurrence; $i++){
+                        if($i == 0){
+                            $payroll_date = $start_date;
+                        }
+                        else{
+                            $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                        }
+    
+                        $insert_allowance = $api->insert_allowance($employee_id, $allowance_type, $payroll_date, $amount, $username);
+    
+                        if($insert_allowance != 1){
+                            $error = $insert_allowance;
+                        }
+                    }
+                }
+                else{
+                    $insert_allowance = $api->insert_allowance($employee_id, $allowance_type, $start_date, $amount, $username);
+
+                    if($insert_allowance != '1'){
+                        $error =  $insert_allowance;
+                    }
+                }
+            }
+            
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
+            }              
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit allowance update
+    else if($transaction == 'submit allowance update'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_id']) && !empty($_POST['allowance_id']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['payroll_date']) && !empty($_POST['payroll_date'])){
+            $username = $_POST['username'];
+            $allowance_id = $_POST['allowance_id'];
+            $amount = $_POST['amount'];
+            $payroll_date = $api->check_date('empty', $_POST['payroll_date'], '', 'Y-m-d', '', '', '');
+
+            $check_allowance_exist = $api->check_allowance_exist($allowance_id);
+
+            if($check_allowance_exist > 0){
+                $update_allowance = $api->update_allowance($allowance_id, $payroll_date, $amount, $username);
+
+                if($update_allowance == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_allowance;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit deduction type
+    else if($transaction == 'submit deduction type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_type_id']) && isset($_POST['deduction_type']) && !empty($_POST['deduction_type']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $deduction_type_id = $_POST['deduction_type_id'];
+            $deduction_type = $_POST['deduction_type'];
+            $description = $_POST['description'];
+
+            $check_deduction_type_exist = $api->check_deduction_type_exist($deduction_type_id);
+
+            if($check_deduction_type_exist > 0){
+                $update_deduction_type = $api->update_deduction_type($deduction_type_id, $deduction_type, $description, $username);
+
+                if($update_deduction_type == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_deduction_type;
+                }
+            }
+            else{
+                $insert_deduction_type = $api->insert_deduction_type($deduction_type, $description, $username);
+
+                if($insert_deduction_type == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_deduction_type;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit government contribution
+    else if($transaction == 'submit government contribution'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['government_contribution_id']) && isset($_POST['government_contribution']) && !empty($_POST['government_contribution']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $government_contribution_id = $_POST['government_contribution_id'];
+            $government_contribution = $_POST['government_contribution'];
+            $description = $_POST['description'];
+
+            $check_government_contribution_exist = $api->check_government_contribution_exist($government_contribution_id);
+
+            if($check_government_contribution_exist > 0){
+                $update_government_contribution = $api->update_government_contribution($government_contribution_id, $government_contribution, $description, $username);
+
+                if($update_government_contribution == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_government_contribution;
+                }
+            }
+            else{
+                $insert_government_contribution = $api->insert_government_contribution($government_contribution, $description, $username);
+
+                if($insert_government_contribution == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_government_contribution;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # Submit contribution bracket
+    else if($transaction == 'submit contribution bracket'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_bracket_id']) && isset($_POST['government_contribution_id']) && !empty($_POST['government_contribution_id']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['deduction_amount'])){
+            $username = $_POST['username'];
+            $contribution_bracket_id = $_POST['contribution_bracket_id'];
+            $government_contribution_id = $_POST['government_contribution_id'];
+            $start_range = $_POST['start_range'];
+            $end_range = $_POST['end_range'];
+            $deduction_amount = $_POST['deduction_amount'];
+
+            $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id);
+
+            if($check_contribution_bracket_exist > 0){
+                $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
+
+                if($update_contribution_bracket == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_contribution_bracket;
+                }
+            }
+            else{
+                $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
+
+                if($insert_contribution_bracket == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_contribution_bracket;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -4156,6 +4396,301 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if($delete_attendance_creation != 1){
                         $error = $delete_attendance_creation;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete allowance type
+    else if($transaction == 'delete allowance type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_type_id']) && !empty($_POST['allowance_type_id'])){
+            $username = $_POST['username'];
+            $allowance_type_id = $_POST['allowance_type_id'];
+
+            $check_allowance_type_exist = $api->check_allowance_type_exist($allowance_type_id);
+
+            if($check_department_exist > 0){
+                $delete_allowance_type = $api->delete_allowance_type($allowance_type_id, $username);
+                                    
+                if($delete_allowance_type == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_allowance_type;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple allowance type
+    else if($transaction == 'delete multiple allowance type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_type_id'])){
+            $username = $_POST['username'];
+            $allowance_type_ids = $_POST['allowance_type_id'];
+
+            foreach($allowance_type_ids as $allowance_type_id){
+                $check_allowance_type_exist = $api->check_allowance_type_exist($allowance_type_id);
+
+                if($check_allowance_type_exist > 0){
+                    $delete_allowance_type = $api->delete_allowance_type($allowance_type_id, $username);
+                                    
+                    if($delete_allowance_type != 1){
+                        $error = $delete_allowance_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete allowance
+    else if($transaction == 'delete allowance'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_id']) && !empty($_POST['allowance_id'])){
+            $username = $_POST['username'];
+            $allowance_id = $_POST['allowance_id'];
+
+            $check_allowance_exist = $api->check_allowance_exist($allowance_id);
+
+            if($check_allowance_exist > 0){
+                $delete_allowance = $api->delete_allowance($allowance_id, $username);
+                                    
+                if($delete_allowance == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_allowance;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple allowance
+    else if($transaction == 'delete multiple allowance'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_id'])){
+            $username = $_POST['username'];
+            $allowance_ids = $_POST['allowance_id'];
+
+            foreach($allowance_ids as $allowance_id){
+                $check_allowance_exist = $api->check_allowance_exist($allowance_id);
+
+                if($check_allowance_exist > 0){
+                    $delete_allowance = $api->delete_allowance($allowance_id, $username);
+                                    
+                    if($delete_allowance != 1){
+                        $error = $delete_allowance;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete deduction type
+    else if($transaction == 'delete deduction type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_type_id']) && !empty($_POST['deduction_type_id'])){
+            $username = $_POST['username'];
+            $deduction_type_id = $_POST['deduction_type_id'];
+
+            $check_deduction_type_exist = $api->check_deduction_type_exist($deduction_type_id);
+
+            if($check_department_exist > 0){
+                $delete_deduction_type = $api->delete_deduction_type($deduction_type_id, $username);
+                                    
+                if($delete_deduction_type == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_deduction_type;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple deduction type
+    else if($transaction == 'delete multiple deduction type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_type_id'])){
+            $username = $_POST['username'];
+            $deduction_type_ids = $_POST['deduction_type_id'];
+
+            foreach($deduction_type_ids as $deduction_type_id){
+                $check_deduction_type_exist = $api->check_deduction_type_exist($deduction_type_id);
+
+                if($check_deduction_type_exist > 0){
+                    $delete_deduction_type = $api->delete_deduction_type($deduction_type_id, $username);
+                                    
+                    if($delete_deduction_type != 1){
+                        $error = $delete_deduction_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # Delete government contribution
+    else if($transaction == 'delete government contribution'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['government_contribution_id']) && !empty($_POST['government_contribution_id'])){
+            $username = $_POST['username'];
+            $government_contribution_id = $_POST['government_contribution_id'];
+
+            $check_government_contribution_exist = $api->check_government_contribution_exist($government_contribution_id);
+
+            if($check_government_contribution_exist > 0){
+                $delete_government_contribution = $api->delete_government_contribution($government_contribution_id, $username);
+                                    
+                if($delete_government_contribution == 1){
+                    $delete_all_contribution_bracket = $api->delete_all_contribution_bracket($government_contribution_id, $username);
+                                    
+                    if($delete_all_contribution_bracket == 1){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_all_contribution_bracket;
+                    }
+                }
+                else{
+                    echo $delete_government_contribution;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple government contribution
+    else if($transaction == 'delete multiple government contribution'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['government_contribution_id'])){
+            $username = $_POST['username'];
+            $government_contribution_ids = $_POST['government_contribution_id'];
+
+            foreach($government_contribution_ids as $government_contribution_id){
+                $check_government_contribution_exist = $api->check_government_contribution_exist($government_contribution_id);
+
+                if($check_government_contribution_exist > 0){
+                    $delete_government_contribution = $api->delete_government_contribution($government_contribution_id, $username);
+                                    
+                    if($delete_government_contribution == 1){
+                        
+                        $delete_all_contribution_bracket = $api->delete_all_contribution_bracket($government_contribution_id, $username);
+                                    
+                        if($delete_all_contribution_bracket != 1){
+                            $error = $delete_all_contribution_bracket;
+                        }
+                    }
+                    else{
+                        $error = $delete_government_contribution;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete contribution bracket
+    else if($transaction == 'delete contribution bracket'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_bracket_id']) && !empty($_POST['contribution_bracket_id'])){
+            $username = $_POST['username'];
+            $contribution_bracket_id = $_POST['contribution_bracket_id'];
+
+            $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id);
+
+            if($check_contribution_bracket_exist > 0){
+                $delete_contribution_bracket = $api->delete_contribution_bracket($contribution_bracket_id, $username);
+                                    
+                if($delete_contribution_bracket == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_contribution_bracket;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple contribution bracket
+    else if($transaction == 'delete multiple contribution bracket'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_bracket_id'])){
+            $username = $_POST['username'];
+            $contribution_bracket_ids = $_POST['contribution_bracket_id'];
+
+            foreach($contribution_bracket_ids as $contribution_bracket_id){
+                $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id);
+
+                if($check_contribution_bracket_exist > 0){
+                    $delete_contribution_bracket = $api->delete_contribution_bracket($contribution_bracket_id, $username);
+                                    
+                    if($delete_contribution_bracket != 1){
+                        $error = $delete_contribution_bracket;
                     }
                 }
                 else{
@@ -6854,15 +7389,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $response[] = array(
                 'ID_NUMBER' => $employee_details[0]['ID_NUMBER'],
-                'JOIN_DATE' => $api->check_date('empty', $employee_details[0]['JOIN_DATE'], '', 'm/d/Y', '', '', ''),
-                'PERMANENCY_DATE' => $api->check_date('empty', $employee_details[0]['PERMANENCY_DATE'], '', 'm/d/Y', '', '', ''),
-                'EXIT_DATE' => $api->check_date('empty', $employee_details[0]['EXIT_DATE'], '', 'm/d/Y', '', '', ''),
+                'JOIN_DATE' => $api->check_date('empty', $employee_details[0]['JOIN_DATE'], '', 'n/d/Y', '', '', ''),
+                'PERMANENCY_DATE' => $api->check_date('empty', $employee_details[0]['PERMANENCY_DATE'], '', 'n/d/Y', '', '', ''),
+                'EXIT_DATE' => $api->check_date('empty', $employee_details[0]['EXIT_DATE'], '', 'n/d/Y', '', '', ''),
                 'EXIT_REASON' => $employee_details[0]['EXIT_REASON'],
                 'FIRST_NAME' => $employee_details[0]['FIRST_NAME'],
                 'MIDDLE_NAME' => $employee_details[0]['MIDDLE_NAME'],
                 'LAST_NAME' => $employee_details[0]['LAST_NAME'],
                 'SUFFIX' => $employee_details[0]['SUFFIX'],
-                'BIRTHDAY' => $api->check_date('empty', $employee_details[0]['BIRTHDAY'], '', 'm/d/Y', '', '', ''),
+                'BIRTHDAY' => $api->check_date('empty', $employee_details[0]['BIRTHDAY'], '', 'n/d/Y', '', '', ''),
                 'EMAIL' => $employee_details[0]['EMAIL'],
                 'PHONE' => $employee_details[0]['PHONE'],
                 'TELEPHONE' => $employee_details[0]['TELEPHONE'],
@@ -7046,8 +7581,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $work_shift_schedule_details = $api->get_work_shift_schedule_details($work_shift_id);
 
             $response[] = array(
-                'START_DATE' => $api->check_date('empty', $work_shift_schedule_details[0]['START_DATE'] ?? null, '', 'm/d/Y', '', '', ''),
-                'END_DATE' => $api->check_date('empty', $work_shift_schedule_details[0]['END_DATE'] ?? null, '', 'm/d/Y', '', '', ''),
+                'START_DATE' => $api->check_date('empty', $work_shift_schedule_details[0]['START_DATE'] ?? null, '', 'n/d/Y', '', '', ''),
+                'END_DATE' => $api->check_date('empty', $work_shift_schedule_details[0]['END_DATE'] ?? null, '', 'n/d/Y', '', '', ''),
                 'MONDAY_START_TIME' => $work_shift_schedule_details[0]['MONDAY_START_TIME'] ?? null,
                 'MONDAY_END_TIME' => $work_shift_schedule_details[0]['MONDAY_END_TIME'] ?? null,
                 'MONDAY_LUNCH_START_TIME' => $work_shift_schedule_details[0]['MONDAY_LUNCH_START_TIME'] ?? null,
@@ -7122,9 +7657,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
 
             $response[] = array(
-                'TIME_IN_DATE' => $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_IN_DATE' => $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_IN' => $get_employee_attendance_details[0]['TIME_IN'],
-                'TIME_OUT_DATE' => $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_OUT_DATE' => $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_OUT' => $get_employee_attendance_details[0]['TIME_OUT'],
                 'REMARKS' => $get_employee_attendance_details[0]['REMARKS']
             );
@@ -7162,8 +7697,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'EMPLOYEE_ID' => $leave_entitlement_details[0]['EMPLOYEE_ID'],
                 'LEAVE_TYPE' => $leave_entitlement_details[0]['LEAVE_TYPE'],
                 'NO_LEAVES' => $leave_entitlement_details[0]['NO_LEAVES'],
-                'START_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['START_DATE'] ?? null, '', 'm/d/Y', '', '', ''),
-                'END_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['END_DATE'] ?? null, '', 'm/d/Y', '', '', '')
+                'START_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['START_DATE'] ?? null, '', 'n/d/Y', '', '', ''),
+                'END_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['END_DATE'] ?? null, '', 'n/d/Y', '', '', '')
             );
 
             echo json_encode($response);
@@ -7234,7 +7769,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'FILE_NAME' => $get_employee_file_details[0]['FILE_NAME'],
                 'FILE_CATEGORY' => $get_employee_file_details[0]['FILE_CATEGORY'],
                 'REMARKS' => $get_employee_file_details[0]['REMARKS'],
-                'FILE_DATE' => $api->check_date('empty', $get_employee_file_details[0]['FILE_DATE'], '', 'm/d/Y', '', '', '')
+                'FILE_DATE' => $api->check_date('empty', $get_employee_file_details[0]['FILE_DATE'], '', 'n/d/Y', '', '', '')
             );
 
             echo json_encode($response);
@@ -7363,7 +7898,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $response[] = array(
                 'HOLIDAY' => $holiday_details[0]['HOLIDAY'],
-                'HOLIDAY_DATE' => $api->check_date('empty', $holiday_details[0]['HOLIDAY_DATE'], '', 'm/d/Y', '', '', ''),
+                'HOLIDAY_DATE' => $api->check_date('empty', $holiday_details[0]['HOLIDAY_DATE'], '', 'n/d/Y', '', '', ''),
                 'HOLIDAY_TYPE' => $holiday_details[0]['HOLIDAY_TYPE'],
                 'BRANCH' => $branch
             );
@@ -7513,9 +8048,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $response[] = array(
                 'EMPLOYEE_ID' => $employee_attendance_details[0]['EMPLOYEE_ID'],
-                'TIME_IN_DATE' => $api->check_date('empty', $employee_attendance_details[0]['TIME_IN_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_IN_DATE' => $api->check_date('empty', $employee_attendance_details[0]['TIME_IN_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_IN' => $employee_attendance_details[0]['TIME_IN'],
-                'TIME_OUT_DATE' => $api->check_date('empty', $employee_attendance_details[0]['TIME_OUT_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_OUT_DATE' => $api->check_date('empty', $employee_attendance_details[0]['TIME_OUT_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_OUT' => $employee_attendance_details[0]['TIME_OUT'],
                 'REMARKS' => $employee_attendance_details[0]['REMARKS']
             );
@@ -7533,9 +8068,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $attendance_creation_details = $api->get_attendance_creation_details($request_id);
 
             $response[] = array(
-                'TIME_IN_DATE' => $api->check_date('empty', $attendance_creation_details[0]['TIME_IN_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_IN_DATE' => $api->check_date('empty', $attendance_creation_details[0]['TIME_IN_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_IN' => $attendance_creation_details[0]['TIME_IN'],
-                'TIME_OUT_DATE' => $api->check_date('empty', $attendance_creation_details[0]['TIME_OUT_DATE'], '', 'm/d/Y', '', '', ''),
+                'TIME_OUT_DATE' => $api->check_date('empty', $attendance_creation_details[0]['TIME_OUT_DATE'], '', 'n/d/Y', '', '', ''),
                 'TIME_OUT' => $attendance_creation_details[0]['TIME_OUT'],
                 'REASON' => $attendance_creation_details[0]['REASON']
             );
@@ -7620,9 +8155,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $attendance_adjustment_details = $api->get_attendance_adjustment_details($request_id);
             
             $response[] = array(
-                'TIME_IN_DATE_ADJUSTED' => $api->check_date('empty', $attendance_adjustment_details[0]['TIME_IN_DATE_ADJUSTED'], '', 'm/d/Y', '', '', ''),
+                'TIME_IN_DATE_ADJUSTED' => $api->check_date('empty', $attendance_adjustment_details[0]['TIME_IN_DATE_ADJUSTED'], '', 'n/d/Y', '', '', ''),
                 'TIME_IN_ADJUSTED' => $attendance_adjustment_details[0]['TIME_IN_ADJUSTED'],
-                'TIME_OUT_DATE_ADJUSTED' => $api->check_date('empty', $attendance_adjustment_details[0]['TIME_OUT_DATE_ADJUSTED'], '', 'm/d/Y', '', '', ''),
+                'TIME_OUT_DATE_ADJUSTED' => $api->check_date('empty', $attendance_adjustment_details[0]['TIME_OUT_DATE_ADJUSTED'], '', 'n/d/Y', '', '', ''),
                 'TIME_OUT_ADJUSTED' => $attendance_adjustment_details[0]['TIME_OUT_ADJUSTED'],
                 'REASON' => $attendance_adjustment_details[0]['REASON']
             );
@@ -7703,6 +8238,126 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'DECISION_TIME' => $decision_time ?? '--',
                 'DECISION_REMARKS' => $decision_remarks,
                 'DECISION_BY' => $decision_by_file_as,
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Allowance type details
+    else if($transaction == 'allowance type details'){
+        if(isset($_POST['allowance_type_id']) && !empty($_POST['allowance_type_id'])){
+            $allowance_type_id = $_POST['allowance_type_id'];
+            $allowance_type_details = $api->get_allowance_type_details($allowance_type_id);
+
+            $response[] = array(
+                'ALLOWANCE_TYPE' => $allowance_type_details[0]['ALLOWANCE_TYPE'],
+                'TAXABLE' => $allowance_type_details[0]['TAXABLE'],
+                'DESCRIPTION' => $allowance_type_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Allowance details
+    else if($transaction == 'allowance details'){
+        if(isset($_POST['allowance_id']) && !empty($_POST['allowance_id'])){
+            $allowance_id = $_POST['allowance_id'];
+            $allowance_details = $api->get_allowance_details($allowance_id);
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $allowance_details[0]['EMPLOYEE_ID'],
+                'ALLOWANCE_TYPE' => $allowance_details[0]['ALLOWANCE_TYPE'],
+                'PAYROLL_DATE' => $api->check_date('empty', $allowance_details[0]['PAYROLL_DATE'], '', 'n/d/Y', '', '', ''),
+                'AMOUNT' => $allowance_details[0]['AMOUNT']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Allowance summary details
+    else if($transaction == 'allowance summary details'){
+        if(isset($_POST['allowance_id']) && !empty($_POST['allowance_id'])){
+            $allowance_id = $_POST['allowance_id'];
+            $allowance_details = $api->get_allowance_details($allowance_id);
+            $employee_id = $allowance_details[0]['EMPLOYEE_ID'];
+            $allowance_type = $allowance_details[0]['ALLOWANCE_TYPE'];
+            $payroll_id = $allowance_details[0]['PAYROLL_ID'];
+            $payroll_date = $api->check_date('empty', $allowance_details[0]['PAYROLL_DATE'], '', 'F d, Y', '', '', '');
+            $amount = $allowance_details[0]['AMOUNT'];
+            $allowance_type_details = $api->get_allowance_type_details($allowance_type);
+            $allowance_type_name = $allowance_type_details[0]['ALLOWANCE_TYPE'];
+
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
+
+            if(!empty($payroll_id)){
+                $payroll = '<a href="#">View Payroll</a>';
+            }
+            else{
+                $payroll = '--';
+            }
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $employee_file_as,
+                'ALLOWANCE_TYPE' => $allowance_type_name,
+                'PAYROLL' => $payroll,
+                'PAYROLL_DATE' => $payroll_date,
+                'AMOUNT' => number_format($amount, 2)
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Deduction type details
+    else if($transaction == 'deduction type details'){
+        if(isset($_POST['deduction_type_id']) && !empty($_POST['deduction_type_id'])){
+            $deduction_type_id = $_POST['deduction_type_id'];
+            $deduction_type_details = $api->get_deduction_type_details($deduction_type_id);
+
+            $response[] = array(
+                'DEDUCTION_TYPE' => $deduction_type_details[0]['DEDUCTION_TYPE'],
+                'DESCRIPTION' => $deduction_type_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Government contribution details
+    else if($transaction == 'government contribution details'){
+        if(isset($_POST['government_contribution_id']) && !empty($_POST['government_contribution_id'])){
+            $government_contribution_id = $_POST['government_contribution_id'];
+            $government_contribution_details = $api->get_government_contribution_details($government_contribution_id);
+
+            $response[] = array(
+                'GOVERNMENT_CONTRIBUTION' => $government_contribution_details[0]['GOVERNMENT_CONTRIBUTION'],
+                'DESCRIPTION' => $government_contribution_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution bracket details
+    else if($transaction == 'contribution bracket details'){
+        if(isset($_POST['contribution_bracket_id']) && !empty($_POST['contribution_bracket_id'])){
+            $contribution_bracket_id = $_POST['contribution_bracket_id'];
+            $contribution_bracket_details = $api->get_contribution_bracket_details($contribution_bracket_id);
+
+            $response[] = array(
+                'START_RANGE' => $contribution_bracket_details[0]['START_RANGE'],
+                'END_RANGE' => $contribution_bracket_details[0]['END_RANGE'],
+                'DEDUCTION_AMOUNT' => $contribution_bracket_details[0]['DEDUCTION_AMOUNT']
             );
 
             echo json_encode($response);

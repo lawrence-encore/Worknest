@@ -1290,6 +1290,131 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_allowance_type_exist
+    # Purpose    : Checks if the allowance type exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_allowance_type_exist($allowance_type_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_allowance_type_exist(:allowance_type_id)');
+            $sql->bindValue(':allowance_type_id', $allowance_type_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_allowance_exist
+    # Purpose    : Checks if the allowance exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_allowance_exist($allowance_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_allowance_exist(:allowance_id)');
+            $sql->bindValue(':allowance_id', $allowance_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_deduction_type_exist
+    # Purpose    : Checks if the deduction type exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_deduction_type_exist($deduction_type_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_deduction_type_exist(:deduction_type_id)');
+            $sql->bindValue(':deduction_type_id', $deduction_type_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_government_contribution_exist
+    # Purpose    : Checks if the government contribution exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_government_contribution_exist($government_contribution_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_government_contribution_exist(:government_contribution_id)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_contribution_bracket_exist
+    # Purpose    : Checks if the contribution bracket exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_contribution_bracket_exist($contribution_bracket_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_contribution_bracket_exist(:contribution_bracket_id)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -4494,6 +4619,343 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_allowance_type
+    # Purpose    : Updates allowance type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_allowance_type($allowance_type_id, $allowance_type, $taxable, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $allowance_type_details = $this->get_allowance_type_details($allowance_type_id);
+
+            if(!empty($allowance_type_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $allowance_type_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_allowance_type(:allowance_type_id, :allowance_type, :taxable, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':allowance_type_id', $allowance_type_id);
+            $sql->bindValue(':allowance_type', $allowance_type);
+            $sql->bindValue(':taxable', $taxable);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($allowance_type_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_allowance
+    # Purpose    : Updates allowance.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_allowance($allowance_id, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $allowance_details = $this->get_allowance_details($allowance_id);
+
+            if(!empty($allowance_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $allowance_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_allowance(:allowance_id, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':allowance_id', $allowance_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($allowance_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_deduction_type
+    # Purpose    : Updates deduction type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_deduction_type($deduction_type_id, $deduction_type, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $deduction_type_details = $this->get_deduction_type_details($deduction_type_id);
+
+            if(!empty($deduction_type_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $deduction_type_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_deduction_type(:deduction_type_id, :deduction_type, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':deduction_type_id', $deduction_type_id);
+            $sql->bindValue(':deduction_type', $deduction_type);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($deduction_type_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_government_contribution
+    # Purpose    : Updates government contribution.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_government_contribution($government_contribution_id, $government_contribution, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $government_contribution_details = $this->get_government_contribution_details($government_contribution_id);
+
+            if(!empty($government_contribution_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $government_contribution_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_government_contribution(:government_contribution_id, :government_contribution, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+            $sql->bindValue(':government_contribution', $government_contribution);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($government_contribution_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_contribution_bracket
+    # Purpose    : Updates contribution bracket.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $contribution_bracket_details = $this->get_contribution_bracket_details($contribution_bracket_id);
+
+            if(!empty($contribution_bracket_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $contribution_bracket_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_contribution_bracket(:contribution_bracket_id, :start_range, :end_range, :deduction_amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':deduction_amount', $deduction_amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($contribution_bracket_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -7026,6 +7488,322 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_allowance_type
+    # Purpose    : Insert allowance type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_allowance_type($allowance_type, $taxable, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(28, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_allowance_type(:id, :allowance_type, :taxable, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':allowance_type', $allowance_type);
+            $sql->bindValue(':taxable', $taxable);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 28, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance type (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_allowance
+    # Purpose    : Insert allowance.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_allowance($employee_id, $allowance_type, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(29, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_allowance(:id, :employee_id, :allowance_type, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':allowance_type', $allowance_type);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 29, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_deduction_type
+    # Purpose    : Insert deduction type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_deduction_type($deduction_type, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(30, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_deduction_type(:id, :deduction_type, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':deduction_type', $deduction_type);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 30, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction type (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # ------------------------------------------------------------
+    #
+    # Name       : insert_government_contribution
+    # Purpose    : Insert government contribution.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_government_contribution($government_contribution, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(31, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_government_contribution(:id, :government_contribution, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':government_contribution', $government_contribution);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 31, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted government contribution (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # ------------------------------------------------------------
+    #
+    # Name       : insert_contribution_bracket
+    # Purpose    : Insert contribution bracket.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(32, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_contribution_bracket(:id, :government_contribution_id, :start_range, :end_range, :deduction_amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':deduction_amount', $deduction_amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 32, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution bracket (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -8089,6 +8867,144 @@ class Api{
                 else{
                     return $insert_transaction_log;
                 }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_allowance_type
+    # Purpose    : Delete allowance type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_allowance_type($allowance_type_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_allowance_type(:allowance_type_id)');
+            $sql->bindValue(':allowance_type_id', $allowance_type_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_allowance
+    # Purpose    : Delete allowance type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_allowance($allowance_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_allowance(:allowance_id)');
+            $sql->bindValue(':allowance_id', $allowance_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_deduction_type
+    # Purpose    : Delete deduction type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_deduction_type($deduction_type_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_deduction_type(:deduction_type_id)');
+            $sql->bindValue(':deduction_type_id', $deduction_type_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_government_contribution
+    # Purpose    : Delete government contribution.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_government_contribution($government_contribution_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_government_contribution(:government_contribution_id)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_all_contribution_bracket
+    # Purpose    : Delete all contribution bracket.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_all_contribution_bracket($government_contribution_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_all_contribution_bracket(:government_contribution_id)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_contribution_bracket
+    # Purpose    : Delete contribution bracket.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_contribution_bracket($contribution_bracket_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_contribution_bracket(:contribution_bracket_id)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+        
+            if($sql->execute()){
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9798,7 +10714,216 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_allowance_type_details
+    # Purpose    : Gets the allowance type details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_allowance_type_details($allowance_type_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_allowance_type_details(:allowance_type_id)');
+            $sql->bindValue(':allowance_type_id', $allowance_type_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'ALLOWANCE_TYPE' => $row['ALLOWANCE_TYPE'],
+                        'TAXABLE' => $row['TAXABLE'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_allowance_details
+    # Purpose    : Gets the allowance details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_allowance_details($allowance_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_allowance_details(:allowance_id)');
+            $sql->bindValue(':allowance_id', $allowance_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'ALLOWANCE_TYPE' => $row['ALLOWANCE_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
+                        'AMOUNT' => $row['AMOUNT'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_deduction_type_details
+    # Purpose    : Gets the deduction type details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_deduction_type_details($deduction_type_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_deduction_type_details(:deduction_type_id)');
+            $sql->bindValue(':deduction_type_id', $deduction_type_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'DEDUCTION_TYPE' => $row['DEDUCTION_TYPE'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_government_contribution_details
+    # Purpose    : Gets the government contribution details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_government_contribution_details($government_contribution_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_government_contribution_details(:government_contribution_id)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'GOVERNMENT_CONTRIBUTION' => $row['GOVERNMENT_CONTRIBUTION'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_contribution_bracket_details
+    # Purpose    : Gets the contribution bracket details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_contribution_bracket_details($contribution_bracket_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_contribution_bracket_details(:contribution_bracket_id)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'GOVERNMENT_CONTRIBUTION_ID' => $row['GOVERNMENT_CONTRIBUTION_ID'],
+                        'START_RANGE' => $row['START_RANGE'],
+                        'END_RANGE' => $row['END_RANGE'],
+                        'DEDUCTION_AMOUNT' => $row['DEDUCTION_AMOUNT'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_next_date
+    # Purpose    : Returns the calculated date 
+    #              based on the frequency
+    #
+    # Returns    : Date
+    #
+    # -------------------------------------------------------------
+    public function get_next_date($previous_date, $frequency){   
+        if($frequency == 'MONTHLY'){
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+1 month', '', '');
+        }
+        else if($frequency == 'DAILY'){
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+1 day', '', '');
+        }
+        else if($frequency == 'WEEKLY'){
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+1 week', '', '');
+        }
+        else if($frequency == 'BIWEEKLY'){
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+2 weeks', '', '');
+        }
+        else if($frequency == 'QUARTERLY'){
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+3 months', '', '');
+        }
+        else{
+            $date = $this->check_date('empty', $previous_date, '', 'Y-m-d', '+1 year', '', '');
+        }
+    
+        return $date;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -10612,8 +11737,6 @@ class Api{
     # -------------------------------------------------------------
     public function get_attendance_by_date($attendance_date){
         if ($this->databaseConnection()) {
-            $overlap_count = 0;
-
             $sql = $this->db_connection->prepare('SELECT ATTENDANCE_ID FROM tblattendancerecord WHERE TIME_IN_DATE = :attendance_date ORDER BY TIME_IN_DATE DESC, TIME_IN DESC LIMIT 1');
             $sql->bindParam(':attendance_date', $attendance_date);
                                                         
@@ -10764,13 +11887,13 @@ class Api{
         $response = array();
 
         switch ($stat) {
-            case 1:
+            case 'TAX':
                 $status = 'Taxable';
                 $button_class = 'bg-info';
                 break;
             default:
                 $status = 'Non-Taxable';
-                $button_class = 'bg-warning';
+                $button_class = 'bg-success';
         }
 
         $response[] = array(
@@ -11911,7 +13034,40 @@ class Api{
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_allowance_type_options
+    # Purpose    : Generates allowance type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_allowance_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_allowance_type_options()');
 
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $allowance_type_id = $row['ALLOWANCE_TYPE_ID'];
+                        $allowance_type = $row['ALLOWANCE_TYPE'];
+    
+                        $option .= "<option value='". $allowance_type_id ."'>". $allowance_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
 }
 
 ?>

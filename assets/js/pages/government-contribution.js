@@ -2,33 +2,31 @@
     'use strict';
 
     $(function() {
-        if($('#allowance-type-datatable').length){
-            initialize_allowance_type_table('#allowance-type-datatable');
+        if($('#government-contribution-datatable').length){
+            initialize_government_contribution_table('#government-contribution-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_allowance_type_table(datatable_name, buttons = false, show_all = false){
+function initialize_government_contribution_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var type = 'allowance type table';
+    var type = 'government contribution table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ALLOWANCE_TYPE' },
-        { 'data' : 'TAXABLE' },
+        { 'data' : 'GOVERNMENT_CONTRIBUTION' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '59%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
-        { 'width': '20%','bSortable': false, 'aTargets': 3 },
+        { 'width': '79%', 'aTargets': 1 },
+        { 'width': '20%','bSortable': false, 'aTargets': 2 },
     ];
 
     if(show_all){
@@ -105,25 +103,25 @@ function initialize_allowance_type_table(datatable_name, buttons = false, show_a
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#add-allowance-type',function() {
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '1', username);
+    $(document).on('click','#add-government-contribution',function() {
+        generate_modal('government contribution form', 'Government Contribution', 'R' , '1', '1', 'form', 'government-contribution-form', '1', username);
     });
 
-    $(document).on('click','.update-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
+    $(document).on('click','.update-government-contribution',function() {
+        var government_contribution_id = $(this).data('government-contribution-id');
 
-        sessionStorage.setItem('allowance_type_id', allowance_type_id);
+        sessionStorage.setItem('government_contribution_id', government_contribution_id);
         
-        generate_modal('allowance type form', 'Allowance Type', 'R' , '1', '1', 'form', 'allowance-type-form', '0', username);
+        generate_modal('government contribution form', 'Government Contribution', 'R' , '1', '1', 'form', 'government-contribution-form', '0', username);
     });
     
-    $(document).on('click','.delete-allowance-type',function() {
-        var allowance_type_id = $(this).data('allowance-type-id');
-        var transaction = 'delete allowance type';
+    $(document).on('click','.delete-government-contribution',function() {
+        var government_contribution_id = $(this).data('government-contribution-id');
+        var transaction = 'delete government contribution';
 
         Swal.fire({
-            title: 'Delete Allowance Type',
-            text: 'Are you sure you want to delete this allowance type?',
+            title: 'Delete Government Contribution',
+            text: 'Are you sure you want to delete this government contribution?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -136,18 +134,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                    data: {username : username, government_contribution_id : government_contribution_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Allowance Type', 'The allowance type has been deleted.', 'success');
+                          show_alert('Delete Government Contribution', 'The government contribution has been deleted.', 'success');
 
-                          reload_datatable('#allowance-type-datatable');
+                          reload_datatable('#government-contribution-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Allowance Type', 'The allowance type does not exist.', 'info');
+                          show_alert('Delete Government Contribution', 'The government contribution does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Allowance Type', response, 'error');
+                          show_alert('Delete Government Contribution', response, 'error');
                         }
                     }
                 });
@@ -156,20 +154,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-allowance-type',function() {
-        var allowance_type_id = [];
-        var transaction = 'delete multiple allowance type';
+    $(document).on('click','#delete-government-contribution',function() {
+        var government_contribution_id = [];
+        var transaction = 'delete multiple government contribution';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                allowance_type_id.push(this.value);  
+                government_contribution_id.push(this.value);  
             }
         });
 
-        if(allowance_type_id.length > 0){
+        if(government_contribution_id.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Allowance Types',
-                text: 'Are you sure you want to delete these allowance types?',
+                title: 'Delete Multiple Government Contributions',
+                text: 'Are you sure you want to delete these government contributions?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -183,18 +181,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                        data: {username : username, government_contribution_id : government_contribution_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance types have been deleted.', 'success');
+                                show_alert('Delete Multiple Government Contributions', 'The government contributions have been deleted.', 'success');
     
-                                reload_datatable('#allowance-type-datatable');
+                                reload_datatable('#government-contribution-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Allowance Types', 'The allowance type does not exist.', 'info');
+                                show_alert('Delete Multiple Government Contributions', 'The government contribution does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Allowance Types', response, 'error');
+                                show_alert('Delete Multiple Government Contributions', response, 'error');
                             }
                         }
                     });
@@ -204,7 +202,7 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Allowance Types', 'Please select the allowance types you want to delete.', 'error');
+            show_alert('Delete Multiple Government Contributions', 'Please select the government contributions you want to delete.', 'error');
         }
     });
 

@@ -2,8 +2,21 @@
     require('config/config.php');
     require('classes/api.php');
     $api = new Api;
-    
-    $test = $api->get_attendance_creation_details('5');
+    $start_date = '01-Jan-2022';
+    $recurrence_pattern = 'MONTHLY';
+    $recurrence = 12;
 
-    echo $test[0]['EMPLOYEE_ID'];
+    $payroll_date = $start_date;
+    
+    for($i = 0; $i <= $recurrence; $i++){
+        if($i == 0){
+            $payroll_date = $start_date;
+        }
+        else{
+            $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'F d, Y', '', '', '');
+        }
+        
+
+        echo $payroll_date . '<br/>';
+    }
 ?>

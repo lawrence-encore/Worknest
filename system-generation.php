@@ -1981,6 +1981,207 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'allowance type form'){
+                $form .= '<div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="allowance_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <input type="hidden" id="allowance_type_id" name="allowance_type_id">
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="allowance_type" name="allowance_type" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taxable" class="form-label">Tax Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="taxable" name="taxable">
+                                            <option value="">--</option>
+                                            <option value="TAX">Taxable</option>
+                                            <option value="NTAX">Non-Taxable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="description" name="description" maxlength="200" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'allowance form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="allowance_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="allowance_type" name="allowance_type">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_allowance_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">End Date</label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'allowance update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="allowance_id" name="allowance_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="allowance_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="allowance_type" name="allowance_type" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_allowance_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'deduction type form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="deduction_type" class="form-label">Deduction Type <span class="required">*</span></label>
+                                        <input type="hidden" id="deduction_type_id" name="deduction_type_id">
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="deduction_type" name="deduction_type" maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="description" name="description" maxlength="200" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'government contribution form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="government_contribution" class="form-label">Government Contribution <span class="required">*</span></label>
+                                        <input type="hidden" id="government_contribution_id" name="government_contribution_id">
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="government_contribution" name="government_contribution" maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="description" name="description" maxlength="200" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'contribution bracket form'){
+                $form .= '<div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="start_range" class="form-label">Start Range <span class="required">*</span></label>
+                                        <input type="hidden" id="contribution_bracket_id" name="contribution_bracket_id">
+                                        <input type="hidden" id="government_contribution_id" name="government_contribution_id">
+                                        <input id="start_range" name="start_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
+                                        <input id="end_range" name="end_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="deduction_amount" class="form-label">Deduction Amount <span class="required">*</span></label>
+                                        <input id="deduction_amount" name="deduction_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -2601,6 +2802,32 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <tr>
                                         <th scope="row">Decision By :</th>
                                         <td id="decision_by"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'allowance details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Allowance Type :</th>
+                                        <td id="allowance_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Amount :</th>
+                                        <td id="amount"></td>
                                     </tr>
                                 </tbody>
                             </table>';
@@ -4221,7 +4448,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $query = 'SELECT LEAVE_ID, EMPLOYEE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE ';
     
-                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || $filter_leave_status != '' || !empty($filter_leave_type)){
+                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
                     if(!empty($filter_department)){
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
@@ -4234,7 +4461,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $filter[] = 'LEAVE_TYPE = :filter_leave_type';
                     }
 
-                    if($filter_leave_status != ''){
+                    if(!empty($filter_leave_status)){
                         $filter[] = 'LEAVE_STATUS = :filter_leave_status';
                     }
                 }
@@ -4248,7 +4475,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) ||  $filter_leave_status != '' || !empty($filter_leave_type)){
+                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
                     if(!empty($filter_department)){
                         $sql->bindValue(':filter_department', $filter_department);
                     }
@@ -4258,7 +4485,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $sql->bindValue(':filter_end_date', $filter_end_date);
                     }
 
-                    if($filter_leave_status != ''){
+                    if(!empty($filter_leave_status)){
                         $sql->bindValue(':filter_leave_status', $filter_leave_status);
                     }
 
@@ -4301,7 +4528,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         }
                         else{
                             $delete = '';
-                            $check_box = '';
                         }
     
                         if($approve_leave > 0 && $leave_status == 'PEN'){
@@ -6564,6 +6790,355 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else{
                 echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Allowance table
+    else if($type == 'allowance table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_allowance_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_allowance = $api->check_role_permissions($username, 225);
+                $delete_allowance = $api->check_role_permissions($username, 226);
+                $view_transaction_log = $api->check_role_permissions($username, 125);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_allowance_type = $_POST['filter_allowance_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT ALLOWANCE_ID, EMPLOYEE_ID, ALLOWANCE_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID FROM tblallowance WHERE ';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_allowance_type)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_allowance_type)){
+                        $filter[] = 'ALLOWANCE_TYPE = :filter_allowance_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_allowance_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_allowance_type)){
+                        $sql->bindValue(':filter_allowance_type', $filter_allowance_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $allowance_id = $row['ALLOWANCE_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $allowance_type = $row['ALLOWANCE_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $amount = $row['AMOUNT'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $allowance_type_details = $api->get_allowance_type_details($allowance_type);
+                        $allowance_type_name = $allowance_type_details[0]['ALLOWANCE_TYPE'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if(empty($payroll_id)){
+                            if($update_allowance > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-allowance" data-allowance-id="'. $allowance_id .'" title="Edit Allowance">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
+                            }
+        
+                            if($delete_allowance > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-allowance" data-allowance-id="'. $allowance_id .'" title="Delete Allowance">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $allowance_id .'">';
+                        }
+                        else{
+                            $update = '';
+                            $delete = '';
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'FILE_AS' => $file_as,
+                            'ALLOWANCE_TYPE' => $allowance_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'AMOUNT' => number_format($amount, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-allowance" data-allowance-id="'. $allowance_id .'" title="View Allowance">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Deduction type table
+    else if($type == 'deduction type table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_deduction_type = $api->check_role_permissions($username, 230);
+            $delete_deduction_type = $api->check_role_permissions($username, 231);
+            $view_transaction_log = $api->check_role_permissions($username, 232);
+
+            $sql = $api->db_connection->prepare('SELECT DEDUCTION_TYPE_ID, DESCRIPTION, DEDUCTION_TYPE, TRANSACTION_LOG_ID FROM tbldeductiontype ORDER BY DEDUCTION_TYPE');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $deduction_type_id = $row['DEDUCTION_TYPE_ID'];
+                    $deduction_type = $row['DEDUCTION_TYPE'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_deduction_type > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-deduction-type" data-deduction-type-id="'. $deduction_type_id .'" title="Edit Allowance Type">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_deduction_type > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-deduction-type" data-deduction-type-id="'. $deduction_type_id .'" title="Delete Allowance Type">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $deduction_type_id .'">',
+                        'DEDUCTION_TYPE' => $deduction_type . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Government contribution table
+    else if($type == 'government contribution table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_government_contribution = $api->check_role_permissions($username, 235);
+            $delete_government_contribution = $api->check_role_permissions($username, 236);
+            $view_transaction_log = $api->check_role_permissions($username, 237);
+            $view_contribution_bracket_page = $api->check_role_permissions($username, 238);
+
+            $sql = $api->db_connection->prepare('SELECT GOVERNMENT_CONTRIBUTION_ID, DESCRIPTION, GOVERNMENT_CONTRIBUTION, TRANSACTION_LOG_ID FROM tblgovernmentcontribution ORDER BY GOVERNMENT_CONTRIBUTION');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $government_contribution_id = $row['GOVERNMENT_CONTRIBUTION_ID'];
+                    $government_contribution = $row['GOVERNMENT_CONTRIBUTION'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                    $government_contribution_id_encrypted = $api->encrypt_data($government_contribution_id);
+
+                    if($update_government_contribution > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-government-contribution" data-government-contribution-id="'. $government_contribution_id .'" title="Edit Allowance Type">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($view_contribution_bracket_page > 0){
+                        $view_page = '<a href="contribution-bracket.php?id='. $government_contribution_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Contribution Bracket">
+                                            <i class="bx bx-spreadsheet font-size-16 align-middle"></i>
+                                        </a>';
+                    }
+                    else{
+                        $view_page = '';
+                    }
+
+                    if($delete_government_contribution > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-government-contribution" data-government-contribution-id="'. $government_contribution_id .'" title="Delete Allowance Type">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $government_contribution_id .'">',
+                        'GOVERNMENT_CONTRIBUTION' => $government_contribution . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $view_page .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution bracket table
+    else if($type == 'contribution bracket table'){
+        if(isset($_POST['government_contribution_id']) && !empty($_POST['government_contribution_id'])){
+            if ($api->databaseConnection()) {
+                $government_contribution_id = $_POST['government_contribution_id'];
+
+                # Get permission
+                $update_contribution_bracket = $api->check_role_permissions($username, 8);
+                $delete_contribution_bracket = $api->check_role_permissions($username, 10);
+                $view_transaction_log = $api->check_role_permissions($username, 10);
+    
+                $sql = $api->db_connection->prepare('SELECT CONTRIBUTION_BRACKET_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT, TRANSACTION_LOG_ID FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = :government_contribution_id ORDER BY CONTRIBUTION_BRACKET_ID');
+                $sql->bindValue(':government_contribution_id', $government_contribution_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $contribution_bracket_id = $row['CONTRIBUTION_BRACKET_ID'];
+                        $start_range = $row['START_RANGE'];
+                        $end_rage = $row['END_RANGE'];
+                        $deduction_amount = $row['DEDUCTION_AMOUNT'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        if($update_contribution_bracket > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-contribution-bracket" data-contribution-bracket-id="'. $contribution_bracket_id .'" title="Edit Contribution Bracket">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_contribution_bracket > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-contribution-bracket" data-contribution-bracket-id="'. $contribution_bracket_id .'" title="Delete Contribution Bracket">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $contribution_bracket_id .'">',
+                            'BRACKET' => number_format($start_range, 2) . ' - ' . number_format($end_range, 2),
+                            'DEDUCTION_AMOUNT' => number_format($deduction_amount, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
             }
         }
     }

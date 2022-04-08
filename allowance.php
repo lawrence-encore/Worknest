@@ -4,12 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Attendance Adjustment Approval';
+    $page_title = 'Allowance';
 
-    $page_access = $api->check_role_permissions($username, 203);
-	$approve_attendance_adjustment = $api->check_role_permissions($username, 204);
-	$reject_attendance_adjustment = $api->check_role_permissions($username, 205);
-	$cancel_attendance_adjustment = $api->check_role_permissions($username, 206);
+    $page_access = $api->check_role_permissions($username, 218);
+	$add_allowance_type = $api->check_role_permissions($username, 219);
+	$delete_allowance_type = $api->check_role_permissions($username, 221);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -53,7 +52,8 @@
                                     <h4 class="mb-sm-0 font-size-18"><?php echo $page_title; ?></h4>
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Approval</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Allowance</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -68,29 +68,23 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Attendance Adjustment Approval List</h4>
+                                                        <h4 class="card-title">Allowance List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($approve_attendance_adjustment > 0 || $reject_attendance_adjustment > 0 || $cancel_attendance_adjustment > 0){
+                                                            if($add_allowance_type > 0 || $delete_allowance_type > 0){
 
-                                                                if($approve_attendance_adjustment > 0){
-                                                                    echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-approve" id="approve-attendance-adjustment"><i class="bx bx-check label-icon"></i> Approve</button>';
+                                                                if($add_allowance_type > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-allowance"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($reject_attendance_adjustment > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-reject" id="reject-attendance-adjustment"><i class="bx bx-block label-icon"></i> Reject</button>';
-                                                                }
-
-                                                                if($cancel_attendance_adjustment > 0){
-                                                                    echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-attendance-adjustment"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
+                                                                if($delete_allowance_type > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-allowance"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
                                                         ?>
-
                                                         <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
                                                     </div>
-
                                                     <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-off-canvas" data-bs-backdrop="true" aria-labelledby="filter-off-canvas-label">
                                                         <div class="offcanvas-header">
                                                             <h5 class="offcanvas-title" id="filter-off-canvas-label">Filter</h5>
@@ -98,15 +92,15 @@
                                                         </div>
                                                         <div class="offcanvas-body">
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Attendance Adjustment Recommended Date</p>
+                                                                <p class="text-muted">Payroll Date</p>
 
-                                                                <div class="input-group mb-3" id="filter-file-start-date-container">
-                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-file-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('n/01/Y'); ?>">
+                                                                <div class="input-group mb-3" id="filter-start-date-container">
+                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('n/01/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
 
-                                                                <div class="input-group" id="filter-file-end-date-container">
-                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-file-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('n/t/Y'); ?>">
+                                                                <div class="input-group" id="filter-end-date-container">
+                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('n/t/Y'); ?>">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
                                                             </div>
@@ -126,6 +120,14 @@
                                                                     <?php echo $api->generate_department_options(); ?>
                                                                 </select>
                                                             </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Allowance Type</p>
+
+                                                                <select class="form-control filter-select2" id="filter_allowance_type">
+                                                                    <option value="">All Allowance Type</option>
+                                                                    <?php echo $api->generate_allowance_type_options(); ?>
+                                                                </select>
+                                                            </div>
                                                             <div>
                                                                 <button type="button" class="btn btn-primary waves-effect waves-light" id="apply-filter" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas">Apply Filter</button>
                                                             </div>
@@ -136,7 +138,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="attendance-adjustment-approval-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="allowance-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -145,20 +147,16 @@
                                                                 </div>
                                                             </th>
                                                             <th class="all">Employee</th>
-                                                            <th class="all">Time In Date</th>
-                                                            <th class="all">Time In</th>
-                                                            <th class="all">Time Out Date</th>
-                                                            <th class="all">Time Out</th>
-                                                            <th class="all">Status</th>
-                                                            <th class="all">Attachment</th>
-                                                            <th class="all">Reason</th>
+                                                            <th class="all">Allowance Type</th>
+                                                            <th class="all">Payroll Date</th>
+                                                            <th class="all">Amount</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
                                                 </table>
                                             </div>
-                                        </div>       
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -182,6 +180,6 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/attendance-adjustment-approval.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/allowance.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

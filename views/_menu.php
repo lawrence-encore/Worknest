@@ -37,6 +37,9 @@
     $leave_management_page = $api->check_role_permissions($username, 208);
     $leave_approval_page = $api->check_role_permissions($username, 213);
     $allowance_type_page = $api->check_role_permissions($username, 218);
+    $allowance_page = $api->check_role_permissions($username, 223);
+    $deduction_type_page = $api->check_role_permissions($username, 228);
+    $government_contribution_page = $api->check_role_permissions($username, 233);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -162,19 +165,43 @@
         }
     }
 
-    if($allowance_type_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
 
-        if($allowance_type_page > 0){
+        if($allowance_type_page > 0 || $allowance_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-dollar-circle"></i>
-                            <span key="t-allowance">Allowance</span>
+                            <span key="t-allowance">Manage Allowance</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">';
 
+                        if($allowance_page > 0){
+                            $menu .= '<li><a href="allowance.php" key="t-allowance-type">Allowance</a></li>';
+                        }
+
                         if($allowance_type_page > 0){
                             $menu .= '<li><a href="allowance-type.php" key="t-allowance-type">Allowance Type</a></li>';
+                        }
+
+            $menu .= '</ul>
+                    </li>';
+        }
+
+        if($deduction_type_page > 0 || $government_contribution_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-minus"></i>
+                            <span key="t-deduction">Manage Deduction</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($deduction_type_page > 0){
+                            $menu .= '<li><a href="deduction-type.php" key="t-deduction-type">Deduction Type</a></li>';
+                        }
+
+                        if($government_contribution_page > 0){
+                            $menu .= '<li><a href="government-contribution.php" key="t-deduction-type">Government Contribution</a></li>';
                         }
 
             $menu .= '</ul>

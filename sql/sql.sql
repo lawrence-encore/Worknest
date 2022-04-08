@@ -567,7 +567,44 @@ CREATE TABLE tblallowancetype(
 	ALLOWANCE_TYPE_ID VARCHAR(100) PRIMARY KEY,
 	ALLOWANCE_TYPE VARCHAR(50),
 	DESCRIPTION VARCHAR(100),
-	TAXABLE INT(1),
+	TAXABLE VARCHAR(5),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblallowance(
+	ALLOWANCE_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	ALLOWANCE_TYPE VARCHAR(50) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbldeductiontype(
+	DEDUCTION_TYPE_ID VARCHAR(100) PRIMARY KEY,
+	DEDUCTION_TYPE VARCHAR(50),
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblgovernmentcontribution(
+	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100) PRIMARY KEY,
+	GOVERNMENT_CONTRIBUTION VARCHAR(50),
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblcontributionbracket(
+	CONTRIBUTION_BRACKET_ID VARCHAR(100) PRIMARY KEY,
+	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100),
+	START_RANGE DOUBLE,
+	END_RANGE DOUBLE,
+	DEDUCTION_AMOUNT DOUBLE,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
@@ -613,6 +650,9 @@ CREATE INDEX notification_index ON tblnotification(NOTIFICATION_ID);
 CREATE INDEX attendance_creation_index ON tblattendancecreation(REQUEST_ID);
 CREATE INDEX attendance_adjustment_index ON tblattendanceadjustment(REQUEST_ID);
 CREATE INDEX allowance_type_index ON tblallowancetype(ALLOWANCE_TYPE_ID);
+CREATE INDEX deduction_type_index ON tbldeductiontype(DEDUCTION_TYPE_ID);
+CREATE INDEX government_contribution_index ON tblgovernmentcontribution(GOVERNMENT_CONTRIBUTION_ID);
+CREATE INDEX contribution_bracket_index ON tblcontributionbracket(CONTRIBUTION_BRACKET_ID);
 
 /* Stored Procedure */
 
@@ -3785,6 +3825,387 @@ BEGIN
 	SET @notification_id = notification_id;
 
 	SET @query = 'SELECT EMPLOYEE_ID, RECORD_LOG FROM tblnotificationrecipient WHERE NOTIFICATION_ID = @notification_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_allowance_type_exist(IN allowance_type_id VARCHAR(100))
+BEGIN
+	SET @allowance_type_id = allowance_type_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblallowancetype WHERE ALLOWANCE_TYPE_ID = @allowance_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_allowance_type(IN allowance_type_id VARCHAR(100), IN allowance_type VARCHAR(50), IN taxable VARCHAR(5), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @allowance_type_id = allowance_type_id;
+	SET @allowance_type = allowance_type;
+	SET @taxable = taxable;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblallowancetype SET ALLOWANCE_TYPE = @allowance_type, TAXABLE = @taxable, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE ALLOWANCE_TYPE_ID = @allowance_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_allowance_type(IN allowance_type_id VARCHAR(100), IN allowance_type VARCHAR(50), IN taxable VARCHAR(5), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @allowance_type_id = allowance_type_id;
+	SET @allowance_type = allowance_type;
+	SET @taxable = taxable;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblallowancetype (ALLOWANCE_TYPE_ID, ALLOWANCE_TYPE, TAXABLE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@allowance_type_id, @allowance_type, @taxable, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_allowance_type_details(IN allowance_type_id VARCHAR(100))
+BEGIN
+	SET @allowance_type_id = allowance_type_id;
+
+	SET @query = 'SELECT ALLOWANCE_TYPE, TAXABLE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblallowancetype WHERE ALLOWANCE_TYPE_ID = @allowance_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_allowance_type(IN allowance_type_id VARCHAR(100))
+BEGIN
+	SET @allowance_type_id = allowance_type_id;
+
+	SET @query = 'DELETE FROM tblallowancetype WHERE ALLOWANCE_TYPE_ID = @allowance_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_allowance_type_options()
+BEGIN
+	SET @query = 'SELECT ALLOWANCE_TYPE_ID, ALLOWANCE_TYPE FROM tblallowancetype ORDER BY ALLOWANCE_TYPE';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_allowance_exist(IN allowance_id VARCHAR(100))
+BEGIN
+	SET @allowance_id = allowance_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblallowance WHERE ALLOWANCE_ID = @allowance_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_allowance(IN allowance_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @allowance_id = allowance_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblallowance SET PAYROLL_DATE = @payroll_date, AMOUNT = @amount, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE ALLOWANCE_ID = @allowance_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_allowance(IN allowance_id VARCHAR(100), IN employee_id VARCHAR(100), IN allowance_type VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @allowance_id = allowance_id;
+	SET @employee_id = employee_id;
+	SET @allowance_type = allowance_type;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblallowance (ALLOWANCE_ID, EMPLOYEE_ID, ALLOWANCE_TYPE, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@allowance_id, @employee_id, @allowance_type, @payroll_date, @amount, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_allowance_details(IN allowance_id VARCHAR(100))
+BEGIN
+	SET @allowance_id = allowance_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, ALLOWANCE_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG FROM tblallowance WHERE ALLOWANCE_ID = @allowance_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_allowance(IN allowance_id VARCHAR(100))
+BEGIN
+	SET @allowance_id = allowance_id;
+
+	SET @query = 'DELETE FROM tblallowance WHERE ALLOWANCE_ID = @allowance_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_deduction_type_exist(IN deduction_type_id VARCHAR(100))
+BEGIN
+	SET @deduction_type_id = deduction_type_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tbldeductiontype WHERE DEDUCTION_TYPE_ID = @deduction_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_deduction_type(IN deduction_type_id VARCHAR(100), IN deduction_type VARCHAR(50), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @deduction_type_id = deduction_type_id;
+	SET @deduction_type = deduction_type;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbldeductiontype SET DEDUCTION_TYPE = @deduction_type, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE DEDUCTION_TYPE_ID = @deduction_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_deduction_type(IN deduction_type_id VARCHAR(100), IN deduction_type VARCHAR(50), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @deduction_type_id = deduction_type_id;
+	SET @deduction_type = deduction_type;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbldeductiontype (DEDUCTION_TYPE_ID, DEDUCTION_TYPE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@deduction_type_id, @deduction_type, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_deduction_type_details(IN deduction_type_id VARCHAR(100))
+BEGIN
+	SET @deduction_type_id = deduction_type_id;
+
+	SET @query = 'SELECT DEDUCTION_TYPE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tbldeductiontype WHERE DEDUCTION_TYPE_ID = @deduction_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_deduction_type(IN deduction_type_id VARCHAR(100))
+BEGIN
+	SET @deduction_type_id = deduction_type_id;
+
+	SET @query = 'DELETE FROM tbldeductiontype WHERE DEDUCTION_TYPE_ID = @deduction_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_deduction_type_options()
+BEGIN
+	SET @query = 'SELECT DEDUCTION_TYPE_ID, DEDUCTION_TYPE FROM tbldeductiontype ORDER BY DEDUCTION_TYPE';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_government_contribution_exist(IN government_contribution_id VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblgovernmentcontribution WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_government_contribution(IN government_contribution_id VARCHAR(100), IN government_contribution VARCHAR(50), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+	SET @government_contribution = government_contribution;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblgovernmentcontribution SET GOVERNMENT_CONTRIBUTION = @government_contribution, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_government_contribution(IN government_contribution_id VARCHAR(100), IN government_contribution VARCHAR(50), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+	SET @government_contribution = government_contribution;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblgovernmentcontribution (GOVERNMENT_CONTRIBUTION_ID, GOVERNMENT_CONTRIBUTION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@government_contribution_id, @government_contribution, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_government_contribution_details(IN government_contribution_id VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblgovernmentcontribution WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_government_contribution(IN government_contribution_id VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+
+	SET @query = 'DELETE FROM tblgovernmentcontribution WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_government_contribution_options()
+BEGIN
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_ID, GOVERNMENT_CONTRIBUTION FROM tblgovernmentcontribution ORDER BY GOVERNMENT_CONTRIBUTION';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblcontributionbracket(
+	CONTRIBUTION_BRACKET_ID VARCHAR(100) PRIMARY KEY,
+	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100),
+	START_RANGE DOUBLE,
+	END_RANGE DOUBLE,
+	DEDUCTION_AMOUNT DOUBLE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE delete_all_contribution_bracket(IN government_contribution_id VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+
+	SET @query = 'DELETE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_contribution_bracket_exist(IN contribution_bracket_id VARCHAR(100))
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblcontributionbracket WHERE CONTRIBUTION_BRACKET_ID = @contribution_bracket_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_contribution_bracket(IN contribution_bracket_id VARCHAR(100), IN start_range DOUBLE, IN end_range DOUBLE, IN deduction_amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @deduction_amount = deduction_amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblcontributionbracket SET START_RANGE = @start_range, END_RANGE = @end_range, DEDUCTION_AMOUNT = @deduction_amount, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE CONTRIBUTION_BRACKET_ID = @contribution_bracket_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_contribution_bracket(IN contribution_bracket_id VARCHAR(100), IN government_contribution_id VARCHAR(100), IN start_range DOUBLE, IN end_range DOUBLE, IN deduction_amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+	SET @government_contribution_id = government_contribution_id;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @deduction_amount = deduction_amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblcontributionbracket (CONTRIBUTION_BRACKET_ID, GOVERNMENT_CONTRIBUTION_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@contribution_bracket_id, @government_contribution_id, @start_range, @end_range, @deduction_amount, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_contribution_bracket_details(IN contribution_bracket_id VARCHAR(100))
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG FROM tblcontributionbracket WHERE CONTRIBUTION_BRACKET_ID = @contribution_bracket_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_contribution_bracket(IN contribution_bracket_id VARCHAR(100))
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+
+	SET @query = 'DELETE FROM tblcontributionbracket WHERE CONTRIBUTION_BRACKET_ID = @contribution_bracket_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_contribution_bracket_overlap(IN government_contribution_id VARCHAR(100))
+BEGIN
+	SET @government_contribution_id = government_contribution_id;
+
+	SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
