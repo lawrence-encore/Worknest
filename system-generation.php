@@ -2163,13 +2163,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <label for="start_range" class="form-label">Start Range <span class="required">*</span></label>
                                         <input type="hidden" id="contribution_bracket_id" name="contribution_bracket_id">
                                         <input type="hidden" id="government_contribution_id" name="government_contribution_id">
-                                        <input id="start_range" name="start_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                        <input id="start_range" name="start_range" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
-                                        <input id="end_range" name="end_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                        <input id="end_range" name="end_range" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
                             </div>
@@ -2177,7 +2177,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="deduction_amount" class="form-label">Deduction Amount <span class="required">*</span></label>
-                                        <input id="deduction_amount" name="deduction_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                        <input id="deduction_amount" name="deduction_amount" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
                             </div>';
@@ -7091,7 +7091,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     while($row = $sql->fetch()){
                         $contribution_bracket_id = $row['CONTRIBUTION_BRACKET_ID'];
                         $start_range = $row['START_RANGE'];
-                        $end_rage = $row['END_RANGE'];
+                        $end_range = $row['END_RANGE'];
                         $deduction_amount = $row['DEDUCTION_AMOUNT'];
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
     

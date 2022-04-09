@@ -12379,6 +12379,45 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_contribution_bracket_overlap
+    # Purpose    : Checks the contribution bracket overlap.
+    #
+    # Returns    : Date
+    #
+    # -------------------------------------------------------------
+    public function check_contribution_bracket_overlap($contribution_bracket_id, $government_contribution_id, $range){
+        if ($this->databaseConnection()) {
+            $overlap_count = 0;
+
+            $sql = $this->db_connection->prepare('CALL check_contribution_bracket_overlap(:contribution_bracket_id, :government_contribution_id)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+                                                        
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $start_range = $row['START_RANGE'];
+                        $end_range = $row['END_RANGE'];
+
+                        if(($range >= $start_range && $range <= $end_range)){
+                            $overlap_count++;
+                        }                        
+                    }
+    
+                    return $overlap_count;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Generate methods
     # -------------------------------------------------------------
 

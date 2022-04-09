@@ -3075,23 +3075,39 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id);
 
             if($check_contribution_bracket_exist > 0){
-                $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
+                $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id, $government_contribution_id, $start_range);
+                $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id, $government_contribution_id, $end_range);
 
-                if($update_contribution_bracket == 1){
-                    echo 'Updated';
+                if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                    $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
+
+                    if($update_contribution_bracket == 1){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_contribution_bracket;
+                    }
                 }
                 else{
-                    echo $update_contribution_bracket;
+                    echo 'Overlap';
                 }
             }
             else{
-                $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
+                $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id, $start_range);
+                $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id, $end_range);
 
-                if($insert_contribution_bracket == 1){
-                    echo 'Inserted';
+                if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                    $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
+
+                    if($insert_contribution_bracket == 1){
+                        echo 'Inserted';
+                    }
+                    else{
+                        echo $insert_contribution_bracket;
+                    }
                 }
                 else{
-                    echo $insert_contribution_bracket;
+                    echo 'Overlap';
                 }
             }
         }

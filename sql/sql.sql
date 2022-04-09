@@ -609,6 +609,33 @@ CREATE TABLE tblcontributionbracket(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblloans(
+	LOAN_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	LOAN_TYPE VARCHAR(20) NOT NULL,
+	START_DATE DATE NOT NULL,
+	MATURITY_DATE DATE NOT NULL,
+	LOAN_AMOUNT DOUBLE NOT NULL,
+	INTEREST_RATE DOUBLE,
+	PAYMENT_NUMBER INT NOT NULL,
+	FREQUENCY VARCHAR(20) NOT NULL,
+	REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	TOTAL_LOAN_AMOUNT DOUBLE NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblloandetails(
+	LOAN_ID VARCHAR(100) NOT NULL,
+	REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	DUE_DATE DATE NOT NULL,
+	PAYROLL_ID DATE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX loans_index ON tblloans(LOAN_ID);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -4201,11 +4228,16 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE check_contribution_bracket_overlap(IN government_contribution_id VARCHAR(100))
+CREATE PROCEDURE check_contribution_bracket_overlap(IN contribution_bracket_id VARCHAR(100), IN government_contribution_id VARCHAR(100))
 BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
 	SET @government_contribution_id = government_contribution_id;
 
-	SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+	IF @contribution_bracket_id IS NULL OR @contribution_bracket_id = '' THEN
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+	ELSE
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE CONTRIBUTION_BRACKET_ID != @contribution_bracket_id AND GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+    END IF;
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
