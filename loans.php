@@ -7,8 +7,8 @@
     $page_title = 'Loans';
 
     $page_access = $api->check_role_permissions($username, 243);
-	$add_loans = $api->check_role_permissions($username, 244);
-	$delete_loans = $api->check_role_permissions($username, 246);
+	$add_loan = $api->check_role_permissions($username, 244);
+	$delete_loan = $api->check_role_permissions($username, 246);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -28,6 +28,7 @@
 <html lang="en">
     <head>
         <?php require('views/_head.php'); ?>
+        <link href="assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
         <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="assets/libs/sweetalert2/sweetalert2.min.css">
         <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
@@ -52,7 +53,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Deduction</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Loan</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -69,35 +70,62 @@
                                                     <div class="flex-grow-1 align-self-center">
                                                         <h4 class="card-title">Loans List</h4>
                                                     </div>
-                                                    <?php
-                                                        if($add_loans > 0 || $delete_loans > 0){
+                                                    <div class="d-flex gap-2">
+                                                        <?php
+                                                            if($add_loan > 0 || $delete_loan > 0){
 
-                                                            if($add_loans > 0){
-                                                                $add = '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-loans"><i class="bx bx-plus label-icon"></i> Add</button>';
-                                                            }
-                                                            else{
-                                                                $add = '';
-                                                            }
+                                                                if($add_loan > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-loan"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                }
 
-                                                            if($delete_loans > 0){
-                                                                $delete = '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-loans"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_loan > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-loan"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                }
                                                             }
-                                                            else{
-                                                                $delete = '';
-                                                            }
+                                                        ?>
+                                                        <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
+                                                    </div>
+                                                    <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-off-canvas" data-bs-backdrop="true" aria-labelledby="filter-off-canvas-label">
+                                                        <div class="offcanvas-header">
+                                                            <h5 class="offcanvas-title" id="filter-off-canvas-label">Filter</h5>
+                                                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="offcanvas-body">
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Branch</p>
 
-                                                            echo '<div class="d-flex gap-2">
-                                                                    '. $add .'
-                                                                    '. $delete .'
-                                                                </div>';
-                                                        }
-                                                    ?>
+                                                                <select class="form-control filter-select2" id="filter_branch">
+                                                                    <option value="">All Branch</option>
+                                                                    <?php echo $api->generate_branch_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Department</p>
+
+                                                                <select class="form-control filter-select2" id="filter_department">
+                                                                    <option value="">All Department</option>
+                                                                    <?php echo $api->generate_department_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Loan Type</p>
+
+                                                                <select class="form-control filter-select2" id="filter_loan_type">
+                                                                    <option value="">All Loan Type</option>
+                                                                    <?php echo $api->generate_system_code_options('LOANTYPE'); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <button type="button" class="btn btn-primary waves-effect waves-light" id="apply-filter" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas">Apply Filter</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="loans-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="loan-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -105,7 +133,11 @@
                                                                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                                                                 </div>
                                                             </th>
-                                                            <th class="all">Loans</th>
+                                                            <th class="all">Employee</th>
+                                                            <th class="all">Loan Type</th>
+                                                            <th class="all">Start Date</th>
+                                                            <th class="all">Maturity Date</th>
+                                                            <th class="all">Outstanding Balance</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -134,6 +166,7 @@
         <script src="assets/libs/jquery-validation/js/jquery.validate.min.js"></script>
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/select2/js/select2.min.js"></script>
+        <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
         <script src="assets/js/pages/loans.js?v=<?php echo rand(); ?>"></script>
     </body>

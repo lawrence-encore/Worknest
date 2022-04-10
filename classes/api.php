@@ -11906,6 +11906,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_loan_outstading_balance
+    # Purpose    : Gets the outstanding balance of the loan.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_loan_outstading_balance($loan_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_loan_outstading_balance(:loan_id)');
+            $sql->bindParam(':loan_id', $loan_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
 

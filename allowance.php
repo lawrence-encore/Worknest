@@ -7,8 +7,8 @@
     $page_title = 'Allowance';
 
     $page_access = $api->check_role_permissions($username, 218);
-	$add_allowance_type = $api->check_role_permissions($username, 219);
-	$delete_allowance_type = $api->check_role_permissions($username, 221);
+	$add_allowance = $api->check_role_permissions($username, 219);
+	$delete_allowance = $api->check_role_permissions($username, 221);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -72,13 +72,13 @@
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_allowance_type > 0 || $delete_allowance_type > 0){
+                                                            if($add_allowance > 0 || $delete_allowance > 0){
 
-                                                                if($add_allowance_type > 0){
+                                                                if($add_allowance > 0){
                                                                     echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-allowance"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($delete_allowance_type > 0){
+                                                                if($delete_allowance > 0){
                                                                     echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-allowance"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
@@ -123,9 +123,9 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Allowance Type</p>
 
-                                                                <select class="form-control filter-select2" id="filter_allowance_type">
+                                                                <select class="form-control filter-select2" id="filter_allowance">
                                                                     <option value="">All Allowance Type</option>
-                                                                    <?php echo $api->generate_allowance_type_options(); ?>
+                                                                    <?php echo $api->generate_allowance_options(); ?>
                                                                 </select>
                                                             </div>
                                                             <div>
