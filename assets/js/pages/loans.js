@@ -231,31 +231,62 @@ function initialize_click_events(){
 
 function calculate_loan_end_date(){
     var transaction = 'calculate loan end date';
-    var recurrence_pattern = $('#recurrence_pattern').val();
-    var recurrence = $('#recurrence').val();
+    var payment_frequency = $('#payment_frequency').val();
+    var number_of_payments = $('#number_of_payments').val();
     var start_date = $('#start_date').val();
 
     $.ajax({
         url: 'controller.php',
         method: 'POST',
         dataType: 'TEXT',
-        data: {recurrence_pattern : recurrence_pattern, recurrence : recurrence, start_date : start_date, transaction : transaction},
+        data: {payment_frequency : payment_frequency, number_of_payments : number_of_payments, start_date : start_date, transaction : transaction},
         success: function(response) {
             $('#end_date').val(response);
         }
     });
 }
 
+function calculate_loan_amount(){
+    var transaction = 'calculate loan amount';
+    var loan_amount = $('#loan_amount').val();
+    var payment_frequency = $('#payment_frequency').val();
+    var number_of_payments = $('#number_of_payments').val();
+    var interest_rate = $('#interest_rate').val();
+
+    $.ajax({
+        url: 'controller.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {loan_amount : loan_amount, payment_frequency : payment_frequency, number_of_payments : number_of_payments, interest_rate : interest_rate, transaction : transaction},
+        success: function(response) {
+            $('#repayment_amount').val(response[0].REPAYMENT_AMOUNT);
+            $('#interest_amount').val(response[0].INTEREST_AMOUNT);
+            $('#total_repayment_amount').val(response[0].TOTAL_REPAYMENT_AMOUNT);
+            $('#outstanding_balance').val(response[0].OUTSTANDING_BALANCE);
+        }
+    });
+}
+
 function initialize_on_change_events(){
-    // $(document).on('change','#recurrence_pattern',function() {
-    //     calculate_loan_end_date();
-    // });
+    $(document).on('change','#loan_amount',function() {
+        calculate_loan_amount();
+    });
 
-    // $(document).on('change','#recurrence',function() {
-    //     calculate_loan_end_date();
-    // });
+    $(document).on('change','#interest_rate',function() {
+        calculate_loan_amount();
+    });
 
-    // $(document).on('change','#start_date',function() {
-    //     calculate_loan_end_date();
-    // });
+    $(document).on('change','#payment_frequency',function() {
+        calculate_loan_end_date();
+        calculate_loan_amount();
+    });
+
+    $(document).on('change','#number_of_payments',function() {
+        calculate_loan_end_date();
+        calculate_loan_amount();
+    });
+
+    $(document).on('change','#start_date',function() {
+        calculate_loan_end_date();
+    });
 }

@@ -2041,17 +2041,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
                                         <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
                                         <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
                                         <option value="">--</option>'; 
                                         $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
                                         $form .='</select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="recurrence" class="form-label">Recurrence</label>
-                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
                                     </div>
                                 </div>
                             </div>
@@ -2215,13 +2215,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="number_of_payments" class="form-label">Term Length <span class="required">*</span></label>
+                                        <label for="number_of_payments" class="form-label">Number of Payments <span class="required">*</span></label>
                                         <input id="number_of_payments" name="number_of_payments" class="form-control" type="number" min="1">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="payment_frequency" class="form-label">Term <span class="required">*</span></label>
+                                        <label for="payment_frequency" class="form-label">Payment Frequency <span class="required">*</span></label>
                                         <select class="form-control form-select2" id="payment_frequency" name="payment_frequency">
                                         <option value="">--</option>'; 
                                         $form .= $api->generate_system_code_options('LOANTERM');
@@ -2230,8 +2230,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="interest_rate" class="form-label">Interest Rate (%) <span class="required">*</span></label>
-                                        <input id="interest_rate" name="interest_rate" class="form-control" type="number" min="0" step="0.01">
+                                        <label for="interest_rate" class="form-label">Interest Rate (%)</label>
+                                        <input id="interest_rate" name="interest_rate" class="form-control" type="number" value="0" min="0" step="0.01">
                                     </div>
                                 </div>
                             </div>
@@ -2256,16 +2256,28 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label class="form-label">Repayment Amount</label>
                                         <input id="repayment_amount" name="repayment_amount" class="form-control" type="number" readonly>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="mb-3">
-                                        <label class="form-label">Total Loan Amount</label>
-                                        <input id="total_loan_amount" name="total_loan_amount" class="form-control" type="number" readonly>
+                                        <label class="form-label">Interest Amount</label>
+                                        <input id="interest_amount" name="interest_amount" class="form-control" type="number" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Total Repayment</label>
+                                        <input id="total_repayment_amount" name="total_repayment_amount" class="form-control" type="number" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Outstanding Balance</label>
+                                        <input id="outstanding_balance" name="outstanding_balance" class="form-control" type="number" readonly>
                                     </div>
                                 </div>
                             </div>';

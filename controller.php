@@ -91,6 +91,59 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Calculate loan end date
+    else if($transaction == 'calculate loan end date'){
+        if(isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['start_date'])){
+            $payment_frequency = $_POST['payment_frequency'];
+            $number_of_payments = $_POST['number_of_payments'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($payment_frequency) && $number_of_payments > 0){
+                if($number_of_payments > 1){
+                    $payroll_date = $start_date;
+
+                    for($i = 0; $i < ($number_of_payments - 1); $i++){
+                        $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $payment_frequency), '', 'Y-m-d', '', '', '');
+                    }
+                }
+                else{
+                    $payroll_date = $start_date;
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Calculate loan amount
+    else if($transaction == 'calculate loan amount'){
+        if(isset($_POST['loan_amount']) && isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['interest_rate'])){
+            $loan_amount = $_POST['loan_amount'];
+            $payment_frequency = $_POST['payment_frequency'];
+            $number_of_payments = $_POST['number_of_payments'];
+            $interest_rate = $_POST['interest_rate'] / 100;
+
+            $repayment_amount = ceil($loan_amount / $number_of_payments);
+            $interest_amount = ceil(ceil(($loan_amount * $interest_rate)) / $number_of_payments);
+            $total_repayment_amount = $repayment_amount + $interest_amount;
+            $outstanding_balance = $total_repayment_amount * $number_of_payments;
+
+            $response[] = array(
+                'REPAYMENT_AMOUNT' => number_format($repayment_amount, 2, '.', ''),
+                'INTEREST_AMOUNT' => number_format($interest_amount, 2, '.', ''),
+                'TOTAL_REPAYMENT_AMOUNT' => number_format($total_repayment_amount, 2, '.', ''),
+                'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2, '.', '')
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Submit transactions
     # -------------------------------------------------------------

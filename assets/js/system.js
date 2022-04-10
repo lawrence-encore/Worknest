@@ -7311,6 +7311,104 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'loan form'){
+        $('#loan-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit loan';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Loan Success', 'The loan has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Loan Success', 'The loan has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loans-datatable');
+                        }
+                        else{
+                            show_alert('Loan Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                loan_type: {
+                    required: true
+                },
+                loan_amount: {
+                    required: true
+                },
+                number_of_payments: {
+                    required: true
+                },
+                payment_frequency: {
+                    required: true
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose the employee',
+                },
+                loan_type: {
+                    required: 'Please choose the loan type',
+                },
+                loan_amount: {
+                    required: 'Please enter the loan amount',
+                },
+                number_of_payments: {
+                    required: 'Please enter the number of payments',
+                },
+                payment_frequency: {
+                    required: 'Please choose the payment frequency',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 // Get location function
