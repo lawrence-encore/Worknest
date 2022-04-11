@@ -4,11 +4,9 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Contribution Bracket';
+    $page_title = 'Loan Details';
 
-    $page_access = $api->check_role_permissions($username, 238);
-	$add_contribution_bracket = $api->check_role_permissions($username, 239);
-	$delete_contribution_bracket = $api->check_role_permissions($username, 241);
+    $page_access = $api->check_role_permissions($username, 248);
     
     $check_user_account_status = $api->check_user_account_status($username);
 
@@ -18,7 +16,7 @@
         }
         else{
             $id = $_GET['id'];
-            $government_contribution_id = $api->decrypt_data($id);
+            $loan_id = $api->decrypt_data($id);
         }
     }
     else{
@@ -56,9 +54,9 @@
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Deduction</a></li>
-                                            <li class="breadcrumb-item"><a href="government-contribution.php">Government Contribution</a></li>
+                                            <li class="breadcrumb-item"><a href="loans.php">Loans</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
-                                            <li class="breadcrumb-item" id="government-contribution-id"><a href="javascript: void(0);"><?php echo $government_contribution_id; ?></a></li>
+                                            <li class="breadcrumb-item" id="loan-id"><a href="javascript: void(0);"><?php echo $loan_id; ?></a></li>
                                         </ol>
                                     </div>
                                 </div>
@@ -72,37 +70,14 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Contribution Bracket List</h4>
+                                                        <h4 class="card-title">Loan Details List</h4>
                                                     </div>
-                                                    <?php
-                                                        if($add_contribution_bracket > 0 || $delete_contribution_bracket > 0){
-
-                                                            if($add_contribution_bracket > 0){
-                                                                $add = '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-contribution-bracket"><i class="bx bx-plus label-icon"></i> Add</button>';
-                                                            }
-                                                            else{
-                                                                $add = '';
-                                                            }
-
-                                                            if($delete_contribution_bracket > 0){
-                                                                $delete = '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-contribution-bracket"><i class="bx bx-trash label-icon"></i> Delete</button>';
-                                                            }
-                                                            else{
-                                                                $delete = '';
-                                                            }
-
-                                                            echo '<div class="d-flex gap-2">
-                                                                    '. $add .'
-                                                                    '. $delete .'
-                                                                </div>';
-                                                        }
-                                                    ?>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="contribution-bracket-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="loan-details-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -110,8 +85,10 @@
                                                                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                                                                 </div>
                                                             </th>
-                                                            <th class="all">Bracket</th>
-                                                            <th class="all">Deduction Amount</th>
+                                                            <th class="all">Repayment Amount</th>
+                                                            <th class="all">Interest Amount</th>
+                                                            <th class="all">Total Repayment Amount</th>
+                                                            <th class="all">Due Date</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -142,4 +119,4 @@
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
         <script src="assets/js/pages/contribution-bracket.js?v=<?php echo rand(); ?>"></script>
     </body>
-</html>
+</html> 

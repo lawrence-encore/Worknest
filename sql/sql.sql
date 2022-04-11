@@ -609,6 +609,36 @@ CREATE TABLE tblcontributionbracket(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblloans(
+	LOAN_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	LOAN_TYPE VARCHAR(20) NOT NULL,
+	START_DATE DATE NOT NULL,
+	MATURITY_DATE DATE NOT NULL,
+	LOAN_AMOUNT DOUBLE NOT NULL,
+	INTEREST_RATE DOUBLE,
+	TERM_LENGTH INT NOT NULL,
+	TERM VARCHAR(20) NOT NULL,
+	REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	TOTAL_LOAN_AMOUNT DOUBLE NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblloandetails(
+	LOAN_DETAILS_ID VARCHAR(100) PRIMARY KEY,
+	LOAN_ID VARCHAR(100) NOT NULL,
+	REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	INTEREST_AMOUNT DOUBLE NOT NULL,
+	TOTAL_REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	DUE_DATE DATE NOT NULL,
+	PAYROLL_ID DATE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX loans_details_index ON tblloandetails(LOAN_ID);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -653,6 +683,7 @@ CREATE INDEX allowance_type_index ON tblallowancetype(ALLOWANCE_TYPE_ID);
 CREATE INDEX deduction_type_index ON tbldeductiontype(DEDUCTION_TYPE_ID);
 CREATE INDEX government_contribution_index ON tblgovernmentcontribution(GOVERNMENT_CONTRIBUTION_ID);
 CREATE INDEX contribution_bracket_index ON tblcontributionbracket(CONTRIBUTION_BRACKET_ID);
+CREATE INDEX loans_index ON tblloans(LOAN_ID);
 
 /* Stored Procedure */
 
@@ -4114,16 +4145,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE tblcontributionbracket(
-	CONTRIBUTION_BRACKET_ID VARCHAR(100) PRIMARY KEY,
-	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100),
-	START_RANGE DOUBLE,
-	END_RANGE DOUBLE,
-	DEDUCTION_AMOUNT DOUBLE,
-	TRANSACTION_LOG_ID VARCHAR(500),
-	RECORD_LOG VARCHAR(100)
-);
-
 CREATE PROCEDURE delete_all_contribution_bracket(IN government_contribution_id VARCHAR(100))
 BEGIN
 	SET @government_contribution_id = government_contribution_id;
@@ -4201,11 +4222,146 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE check_contribution_bracket_overlap(IN government_contribution_id VARCHAR(100))
+CREATE PROCEDURE check_contribution_bracket_overlap(IN contribution_bracket_id VARCHAR(100), IN government_contribution_id VARCHAR(100))
 BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
 	SET @government_contribution_id = government_contribution_id;
 
-	SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+	IF @contribution_bracket_id IS NULL OR @contribution_bracket_id = '' THEN
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+	ELSE
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblcontributionbracket WHERE CONTRIBUTION_BRACKET_ID != @contribution_bracket_id AND GOVERNMENT_CONTRIBUTION_ID = @government_contribution_id';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_loan_outstading_balance(IN loan_id VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+
+	SET @query = 'SELECT SUM(TOTAL_REPAYMENT_AMOUNT) AS TOTAL FROM tblloandetails WHERE LOAN_ID = @loan_id AND PAYROLL_ID IS NULL';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_loan_exist(IN loan_id VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblloans WHERE LOAN_ID = @loan_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_loan(IN loan_id VARCHAR(100), IN loan_type VARCHAR(20), IN start_date DATE, IN maturity_date DATE, IN loan_amount DOUBLE, IN interest_rate DOUBLE, IN term_length INT, IN term VARCHAR(20), IN repayment_amount DOUBLE, IN total_loan_amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+	SET @loan_type = loan_type;
+	SET @start_date = start_date;
+	SET @maturity_date = maturity_date;
+	SET @loan_amount = loan_amount;
+	SET @interest_rate = interest_rate;
+	SET @term_length = term_length;
+	SET @term = term;
+	SET @repayment_amount = repayment_amount;
+	SET @total_loan_amount = total_loan_amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblloans SET LOAN_TYPE = @loan_type, START_DATE = @start_date, MATURITY_DATE = @maturity_date, LOAN_AMOUNT = @loan_amount, INTEREST_RATE = @interest_rate, TERM_LENGTH = @term_length, TERM = @term, REPAYMENT_AMOUNT = @repayment_amount, TOTAL_LOAN_AMOUNT = @total_loan_amount, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE LOAN_ID = @loan_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_loan(IN loan_id VARCHAR(100), IN employee_id VARCHAR(100), IN loan_type VARCHAR(20), IN start_date DATE, IN maturity_date DATE, IN loan_amount DOUBLE, IN interest_rate DOUBLE, IN term_length INT, IN term VARCHAR(20), IN repayment_amount DOUBLE, IN total_loan_amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+	SET @employee_id = employee_id;
+	SET @loan_type = loan_type;
+	SET @start_date = start_date;
+	SET @maturity_date = maturity_date;
+	SET @loan_amount = loan_amount;
+	SET @interest_rate = interest_rate;
+	SET @term_length = term_length;
+	SET @term = term;
+	SET @repayment_amount = repayment_amount;
+	SET @total_loan_amount = total_loan_amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblloans (LOAN_ID, EMPLOYEE_ID, LOAN_TYPE, START_DATE, MATURITY_DATE, LOAN_AMOUNT, INTEREST_RATE, TERM_LENGTH, TERM, REPAYMENT_AMOUNT, TOTAL_LOAN_AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@loan_id, @employee_id, @loan_type, @start_date, @maturity_date, @loan_amount, @interest_rate, @term_length, @term, @repayment_amount, @total_loan_amount, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_loan_details(IN loan_id VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, LOAN_TYPE, START_DATE, MATURITY_DATE, LOAN_AMOUNT, INTEREST_RATE, TERM_LENGTH, TERM, REPAYMENT_AMOUNT, TOTAL_LOAN_AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG FROM tblloans WHERE LOAN_ID = @loan_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_loan(IN loan_id VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+
+	SET @query = 'DELETE FROM tblloans WHERE LOAN_ID = @loan_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_loan_details(IN loan_id VARCHAR(100))
+BEGIN
+	SET @loan_id = loan_id;
+
+	SET @query = 'DELETE FROM tblloandetails WHERE LOAN_ID = @loan_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblloandetails(
+	LOAN_DETAILS_ID VARCHAR(100) PRIMARY KEY,
+	LOAN_ID VARCHAR(100) NOT NULL,
+	REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	INTEREST_AMOUNT DOUBLE NOT NULL,
+	TOTAL_REPAYMENT_AMOUNT DOUBLE NOT NULL,
+	DUE_DATE DATE NOT NULL,
+	PAYROLL_ID DATE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE insert_loan_details(IN loan_details_id VARCHAR(100), IN loan_id VARCHAR(100), IN repayment_amount DOUBLE, IN interest_amount DOUBLE, IN total_repayment_amount DOUBLE, IN due_date DATE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @loan_details_id = loan_details_id;
+	SET @loan_id = loan_id;
+	SET @repayment_amount = repayment_amount;
+	SET @interest_amount = interest_amount;
+	SET @total_repayment_amount = total_repayment_amount;
+	SET @due_date = due_date;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblloandetails (LOAN_DETAILS_ID, LOAN_ID, REPAYMENT_AMOUNT, INTEREST_AMOUNT, TOTAL_REPAYMENT_AMOUNT, DUE_DATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@loan_details_id, @loan_id, @repayment_amount, @interest_amount, @total_repayment_amount, @due_date, @transaction_log_id, @record_log)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

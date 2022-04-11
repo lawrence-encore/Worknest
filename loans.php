@@ -4,11 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Allowance';
+    $page_title = 'Loans';
 
-    $page_access = $api->check_role_permissions($username, 218);
-	$add_allowance = $api->check_role_permissions($username, 219);
-	$delete_allowance = $api->check_role_permissions($username, 221);
+    $page_access = $api->check_role_permissions($username, 243);
+	$add_loan = $api->check_role_permissions($username, 244);
+	$delete_loan = $api->check_role_permissions($username, 246);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -53,7 +53,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Allowance</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Loan</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -68,18 +68,18 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Allowance List</h4>
+                                                        <h4 class="card-title">Loans List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_allowance > 0 || $delete_allowance > 0){
+                                                            if($add_loan > 0 || $delete_loan > 0){
 
-                                                                if($add_allowance > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-allowance"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                if($add_loan > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-loan"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($delete_allowance > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-allowance"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_loan > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-loan"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
                                                         ?>
@@ -91,19 +91,6 @@
                                                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                                                         </div>
                                                         <div class="offcanvas-body">
-                                                            <div class="mb-3">
-                                                                <p class="text-muted">Payroll Date</p>
-
-                                                                <div class="input-group mb-3" id="filter-start-date-container">
-                                                                    <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('n/01/Y'); ?>">
-                                                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                                                </div>
-
-                                                                <div class="input-group" id="filter-end-date-container">
-                                                                    <input type="text" class="form-control" id="filter_end_date" name="filter_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="<?php echo date('n/t/Y'); ?>">
-                                                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                                                </div>
-                                                            </div>
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Branch</p>
 
@@ -121,11 +108,11 @@
                                                                 </select>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Allowance Type</p>
+                                                                <p class="text-muted">Loan Type</p>
 
-                                                                <select class="form-control filter-select2" id="filter_allowance_type">
-                                                                    <option value="">All Allowance Type</option>
-                                                                    <?php echo $api->generate_allowance_type_options(); ?>
+                                                                <select class="form-control filter-select2" id="filter_loan_type">
+                                                                    <option value="">All Loan Type</option>
+                                                                    <?php echo $api->generate_system_code_options('LOANTYPE'); ?>
                                                                 </select>
                                                             </div>
                                                             <div>
@@ -138,7 +125,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="allowance-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="loan-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -147,9 +134,10 @@
                                                                 </div>
                                                             </th>
                                                             <th class="all">Employee</th>
-                                                            <th class="all">Allowance Type</th>
-                                                            <th class="all">Payroll Date</th>
-                                                            <th class="all">Amount</th>
+                                                            <th class="all">Loan Type</th>
+                                                            <th class="all">Start Date</th>
+                                                            <th class="all">Maturity Date</th>
+                                                            <th class="all">Outstanding Balance</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -180,6 +168,6 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/allowance.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/loans.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

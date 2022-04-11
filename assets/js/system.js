@@ -7311,6 +7311,105 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'loan form'){
+        $('#loan-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit loan';
+                document.getElementById('maturity_date').disabled = false;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Loan Success', 'The loan has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Loan Success', 'The loan has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loan-datatable');
+                        }
+                        else{
+                            show_alert('Loan Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                loan_type: {
+                    required: true
+                },
+                loan_amount: {
+                    required: true
+                },
+                number_of_payments: {
+                    required: true
+                },
+                payment_frequency: {
+                    required: true
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose the employee',
+                },
+                loan_type: {
+                    required: 'Please choose the loan type',
+                },
+                loan_amount: {
+                    required: 'Please enter the loan amount',
+                },
+                number_of_payments: {
+                    required: 'Please enter the number of payments',
+                },
+                payment_frequency: {
+                    required: 'Please choose the payment frequency',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 // Get location function
@@ -7489,7 +7588,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details'){
+                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'loan details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -8971,6 +9070,55 @@ function display_form_details(form_type){
                 $('#start_range').val(response[0].START_RANGE);
                 $('#end_range').val(response[0].END_RANGE);
                 $('#deduction_amount').val(response[0].DEDUCTION_AMOUNT);
+            }
+        });
+    }
+    else if(form_type == 'loan form'){
+        transaction = 'loan details';
+        
+        var loan_id = sessionStorage.getItem('loan_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {loan_id : loan_id, transaction : transaction},
+            success: function(response) {
+                $('#loan_id').val(loan_id);
+                $('#loan_amount').val(response[0].LOAN_AMOUNT);
+                $('#number_of_payments').val(response[0].TERM_LENGTH);
+                $('#interest_rate').val(response[0].INTEREST_RATE);
+                $('#start_date').val(response[0].START_DATE);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#loan_type', response[0].LOAN_TYPE, '');
+                check_option_exist('#payment_frequency', response[0].TERM, '');
+            }
+        });
+    }
+    else if(form_type == 'loan details'){
+        transaction = 'loan summary details';
+
+        var loan_id = sessionStorage.getItem('loan_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {loan_id : loan_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#loan_type').text(response[0].LOAN_TYPE);
+                $('#start_date').text(response[0].START_DATE);
+                $('#maturity_date').text(response[0].MATURITY_DATE);
+                $('#loan_amount').text(response[0].LOAN_AMOUNT);
+                $('#interest_rate').text(response[0].INTEREST_RATE);
+                $('#number_of_payments').text(response[0].TERM_LENGTH);
+                $('#payment_frequency').text(response[0].TERM);
+                $('#repayment_amount').text(response[0].REPAYMENT_AMOUNT);
+                $('#total_loan_amount').text(response[0].TOTAL_LOAN_AMOUNT);
+                $('#outstanding_balance').text(response[0].OUTSTANDING_BALANCE);
+                document.getElementById('amortization_schedule').innerHTML = response[0].AMORTIZATION_SCHEDULE;
             }
         });
     }

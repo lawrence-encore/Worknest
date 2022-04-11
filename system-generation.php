@@ -2041,17 +2041,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
                                         <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
                                         <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
                                         <option value="">--</option>'; 
                                         $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
                                         $form .='</select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="recurrence" class="form-label">Recurrence</label>
-                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
                                     </div>
                                 </div>
                             </div>
@@ -2163,13 +2163,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <label for="start_range" class="form-label">Start Range <span class="required">*</span></label>
                                         <input type="hidden" id="contribution_bracket_id" name="contribution_bracket_id">
                                         <input type="hidden" id="government_contribution_id" name="government_contribution_id">
-                                        <input id="start_range" name="start_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                        <input id="start_range" name="start_range" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
-                                        <input id="end_range" name="end_range" class="form-control" type="number" min="0" value="0" step="0.01">
+                                        <input id="end_range" name="end_range" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
                             </div>
@@ -2177,7 +2177,107 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="deduction_amount" class="form-label">Deduction Amount <span class="required">*</span></label>
-                                        <input id="deduction_amount" name="deduction_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                        <input id="deduction_amount" name="deduction_amount" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'loan form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="loan_id" name="loan_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id">
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="loan_type" class="form-label">Loan Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="loan_type" name="loan_type">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('LOANTYPE');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="loan_amount" class="form-label">Loan Amount <span class="required">*</span></label>
+                                        <input id="loan_amount" name="loan_amount" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="number_of_payments" class="form-label">Number of Payments <span class="required">*</span></label>
+                                        <input id="number_of_payments" name="number_of_payments" class="form-control" type="number" min="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="payment_frequency" class="form-label">Payment Frequency <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="payment_frequency" name="payment_frequency">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('LOANTERM');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="interest_rate" class="form-label">Interest Rate (%)</label>
+                                        <input id="interest_rate" name="interest_rate" class="form-control" type="number" value="0" min="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Maturity Date</label>
+                                        <div class="input-group" id="maturity-date-container">
+                                            <input type="text" class="form-control" id="maturity_date" name="maturity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#maturity-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Repayment Amount</label>
+                                        <input id="repayment_amount" name="repayment_amount" class="form-control" type="number" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Interest Amount</label>
+                                        <input id="interest_amount" name="interest_amount" class="form-control" type="number" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Total Repayment</label>
+                                        <input id="total_repayment_amount" name="total_repayment_amount" class="form-control" type="number" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Outstanding Balance</label>
+                                        <input id="outstanding_balance" name="outstanding_balance" class="form-control" type="number" readonly>
                                     </div>
                                 </div>
                             </div>';
@@ -2828,6 +2928,60 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <tr>
                                         <th scope="row">Amount :</th>
                                         <td id="amount"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'loan details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Loan Type :</th>
+                                        <td id="loan_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Start Date :</th>
+                                        <td id="start_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Maturity Date :</th>
+                                        <td id="maturity_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Loan Amount :</th>
+                                        <td id="loan_amount"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Interest Rate :</th>
+                                        <td id="interest_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Number of Payments :</th>
+                                        <td id="number_of_payments"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payment Frequency :</th>
+                                        <td id="payment_frequency"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Repayment Amount :</th>
+                                        <td id="repayment_amount"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Total Loan Amount :</th>
+                                        <td id="total_loan_amount"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Outstanding Balance :</th>
+                                        <td id="outstanding_balance"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Amortization Schedule :</th>
+                                        <td id="amortization_schedule"></td>
                                     </tr>
                                 </tbody>
                             </table>';
@@ -6802,7 +6956,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 # Get permission
                 $update_allowance = $api->check_role_permissions($username, 225);
                 $delete_allowance = $api->check_role_permissions($username, 226);
-                $view_transaction_log = $api->check_role_permissions($username, 125);
+                $view_transaction_log = $api->check_role_permissions($username, 227);
     
                 $filter_branch = $_POST['filter_branch'];
                 $filter_department = $_POST['filter_department'];
@@ -7091,7 +7245,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     while($row = $sql->fetch()){
                         $contribution_bracket_id = $row['CONTRIBUTION_BRACKET_ID'];
                         $start_range = $row['START_RANGE'];
-                        $end_rage = $row['END_RANGE'];
+                        $end_range = $row['END_RANGE'];
                         $deduction_amount = $row['DEDUCTION_AMOUNT'];
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
     
@@ -7128,6 +7282,150 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'DEDUCTION_AMOUNT' => number_format($deduction_amount, 2),
                             'ACTION' => '<div class="d-flex gap-2">
                                 '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Loan table
+    else if($type == 'loan table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_loan_type'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_loan = $api->check_role_permissions($username, 245);
+                $delete_loan = $api->check_role_permissions($username, 246);
+                $view_transaction_log = $api->check_role_permissions($username, 247);
+                $view_loan_details_page = $api->check_role_permissions($username, 248);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_loan_type = $_POST['filter_loan_type'];
+    
+                $query = 'SELECT LOAN_ID, EMPLOYEE_ID, LOAN_TYPE, START_DATE, MATURITY_DATE, TOTAL_LOAN_AMOUNT, TRANSACTION_LOG_ID FROM tblloans';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
+                    $query .= ' WHERE ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_loan_type)){
+                        $filter[] = 'LOAN_TYPE = :filter_loan_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_loan_type)){
+                        $sql->bindValue(':filter_loan_type', $filter_loan_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $loan_id = $row['LOAN_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $loan_type = $row['LOAN_TYPE'];
+                        $total_loan_amount = $row['TOTAL_LOAN_AMOUNT'];
+                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $maturity_date = $api->check_date('empty', $row['MATURITY_DATE'], '', 'm/d/Y', '', '', '');
+                        $loan_id_encrypted = $api->encrypt_data($loan_id);
+
+                        $system_code_details = $api->get_system_code_details('LOANTYPE', $loan_type);
+                        $loan_type_name = $system_code_details[0]['DESCRIPTION'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+
+                        $outstanding_balance = $api->get_loan_outstading_balance($loan_id);
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($view_loan_details_page > 0){
+                            $view_page = '<a href="loan-details.php?id='. $loan_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Loan Details">
+                                                <i class="bx bx-spreadsheet font-size-16 align-middle"></i>
+                                            </a>';
+                        }
+                        else{
+                            $view_page = '';
+                        }
+
+                        if($total_loan_amount == $outstanding_balance){
+                            if($update_loan > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-loan" data-loan-id="'. $loan_id .'" title="Edit Loan">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
+                            }
+        
+                            if($delete_loan > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-loan" data-loan-id="'. $loan_id .'" title="Delete Loan">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $loan_id .'">';
+                        }
+                        else{
+                            $update = '';
+                            $delete = '';
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'FILE_AS' => $file_as,
+                            'LOAN_TYPE' => $loan_type_name,
+                            'START_DATE' => $start_date,
+                            'MATURITY_DATE' => $maturity_date,
+                            'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-loan" data-loan-id="'. $loan_id .'" title="View Loan">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $view_page .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'

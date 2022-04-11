@@ -79,7 +79,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $payroll_date = $start_date;
 
                 for($i = 0; $i < $recurrence; $i++){
-                    $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                    if($i == 0){
+                        $payroll_date = $start_date;
+                    }
+                    else{
+                        $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                    }
                 }
 
                 echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
@@ -87,6 +92,54 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
             }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Calculate loan maturity date
+    else if($transaction == 'calculate loan maturity date'){
+        if(isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['start_date'])){
+            $payment_frequency = $_POST['payment_frequency'];
+            $number_of_payments = $_POST['number_of_payments'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($payment_frequency) && $number_of_payments > 0){
+                $payroll_date = $start_date;
+
+                for($i = 0; $i < $number_of_payments; $i++){
+                    $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $payment_frequency), '', 'Y-m-d', '', '', '');
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Calculate loan amount
+    else if($transaction == 'calculate loan amount'){
+        if(isset($_POST['loan_amount']) && isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['interest_rate'])){
+            $loan_amount = $_POST['loan_amount'];
+            $payment_frequency = $_POST['payment_frequency'];
+            $number_of_payments = $_POST['number_of_payments'];
+            $interest_rate = $_POST['interest_rate'] / 100;
+
+            $repayment_amount = ceil($loan_amount / $number_of_payments);
+            $interest_amount = ceil(ceil(($loan_amount * $interest_rate)) / $number_of_payments);
+            $total_repayment_amount = $repayment_amount + $interest_amount;
+            $outstanding_balance = $total_repayment_amount * $number_of_payments;
+
+            $response[] = array(
+                'REPAYMENT_AMOUNT' => number_format($repayment_amount, 2, '.', ''),
+                'INTEREST_AMOUNT' => number_format($interest_amount, 2, '.', ''),
+                'TOTAL_REPAYMENT_AMOUNT' => number_format($total_repayment_amount, 2, '.', ''),
+                'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2, '.', '')
+            );
+
+            echo json_encode($response);
         }
     }
     # -------------------------------------------------------------
@@ -2933,7 +2986,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             foreach($employee_ids as $employee_id){
                 if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
-                    for($i = 0; $i <= $recurrence; $i++){
+                    for($i = 0; $i < $recurrence; $i++){
                         if($i == 0){
                             $payroll_date = $start_date;
                         }
@@ -3075,23 +3128,107 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id);
 
             if($check_contribution_bracket_exist > 0){
-                $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
+                $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id, $government_contribution_id, $start_range);
+                $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id, $government_contribution_id, $end_range);
 
-                if($update_contribution_bracket == 1){
-                    echo 'Updated';
+                if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                    $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
+
+                    if($update_contribution_bracket == 1){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_contribution_bracket;
+                    }
                 }
                 else{
-                    echo $update_contribution_bracket;
+                    echo 'Overlap';
                 }
             }
             else{
-                $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
+                $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id, $start_range);
+                $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id, $end_range);
 
-                if($insert_contribution_bracket == 1){
+                if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                    $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
+
+                    if($insert_contribution_bracket == 1){
+                        echo 'Inserted';
+                    }
+                    else{
+                        echo $insert_contribution_bracket;
+                    }
+                }
+                else{
+                    echo 'Overlap';
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit loan
+    else if($transaction == 'submit loan'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['loan_type']) && !empty($_POST['loan_type']) && isset($_POST['loan_amount']) && !empty($_POST['loan_amount']) && isset($_POST['number_of_payments']) && !empty($_POST['number_of_payments']) && isset($_POST['payment_frequency']) && !empty($_POST['payment_frequency']) && isset($_POST['interest_rate']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['maturity_date']) && !empty($_POST['maturity_date']) && isset($_POST['repayment_amount']) && !empty($_POST['repayment_amount']) && isset($_POST['interest_amount']) && isset($_POST['total_repayment_amount']) && !empty($_POST['total_repayment_amount']) && isset($_POST['outstanding_balance']) && !empty($_POST['outstanding_balance'])){
+            $username = $_POST['username'];
+            $loan_id = $_POST['loan_id'];
+            $employee_id = $_POST['employee_id'];
+            $loan_type = $_POST['loan_type'];
+            $loan_amount = $_POST['loan_amount'];
+            $number_of_payments = $_POST['number_of_payments'];
+            $payment_frequency = $_POST['payment_frequency'];
+            $interest_rate = $_POST['interest_rate'];
+            $repayment_amount = $_POST['repayment_amount'];
+            $interest_amount = $_POST['interest_amount'];
+            $total_repayment_amount = $_POST['total_repayment_amount'];
+            $outstanding_balance = $_POST['outstanding_balance'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+            $maturity_date = $api->check_date('empty', $_POST['maturity_date'], '', 'Y-m-d', '', '', '');
+
+            $check_loan_exist = $api->check_loan_exist($loan_id);
+
+            if($check_loan_exist > 0){
+                $update_loan = $api->update_loan($loan_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $username);
+
+                if($update_loan == 1){
+                    $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
+
+                    if($delete_all_loan_details == 1){
+                        $due_date = $start_date;
+
+                        for($i = 0; $i < $number_of_payments; $i++){
+                            $due_date = $api->check_date('empty', $api->get_next_date($due_date, $payment_frequency), '', 'Y-m-d', '', '', '');
+        
+                            $insert_loan_details = $api->insert_loan_details($loan_id, $repayment_amount, $interest_amount, $total_repayment_amount, $due_date, $username);
+        
+                            if($insert_loan_details != 1){
+                                $error = $insert_loan_details;
+                            }
+                        }
+                    }
+                    else{
+                        $error = $delete_all_loan_details;
+                    }                   
+                }
+                else{
+                    $error = $update_loan;
+                }
+
+                if(empty($error)){
+                    echo 'Updated';
+                }
+                else{
+                    echo $error;
+                }
+            }
+            else{
+                $insert_loan = $api->insert_loan($employee_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $repayment_amount, $interest_amount, $username);
+
+                if($insert_loan == 1){
                     echo 'Inserted';
                 }
                 else{
-                    echo $insert_contribution_bracket;
+                    echo $insert_loan;
                 }
             }
         }
@@ -4691,6 +4828,76 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if($delete_contribution_bracket != 1){
                         $error = $delete_contribution_bracket;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete loan
+    else if($transaction == 'delete loan'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
+            $username = $_POST['username'];
+            $loan_id = $_POST['loan_id'];
+
+            $check_loan_exist = $api->check_loan_exist($loan_id);
+
+            if($check_loan_exist > 0){
+                $delete_loan = $api->delete_loan($loan_id, $username);
+                                    
+                if($delete_loan == 1){
+                    $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
+                                    
+                    if($delete_all_loan_details == 1){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_all_loan_details;
+                    }
+                }
+                else{
+                    echo $delete_loan;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple loan
+    else if($transaction == 'delete multiple loan'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id'])){
+            $username = $_POST['username'];
+            $loan_ids = $_POST['loan_id'];
+
+            foreach($loan_ids as $loan_id){
+                $check_loan_exist = $api->check_loan_exist($loan_id);
+
+                if($check_loan_exist > 0){
+                    $delete_loan = $api->delete_loan($loan_id, $username);
+                                    
+                    if($delete_loan == 1){
+                        $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
+                                        
+                        if($delete_all_loan_details == 1){
+                            $error = $delete_all_loan_details;
+                        }
+                    }
+                    else{
+                        $error = $delete_loan;
                     }
                 }
                 else{
@@ -8358,6 +8565,76 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'START_RANGE' => $contribution_bracket_details[0]['START_RANGE'],
                 'END_RANGE' => $contribution_bracket_details[0]['END_RANGE'],
                 'DEDUCTION_AMOUNT' => $contribution_bracket_details[0]['DEDUCTION_AMOUNT']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Loan details
+    else if($transaction == 'loan details'){
+        if(isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
+            $loan_id = $_POST['loan_id'];
+            $get_loan_details = $api->get_loan_details($loan_id);
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $get_loan_details[0]['EMPLOYEE_ID'],
+                'LOAN_TYPE' => $get_loan_details[0]['LOAN_TYPE'],
+                'START_DATE' => $api->check_date('empty', $get_loan_details[0]['START_DATE'], '', 'n/d/Y', '', '', ''),
+                'LOAN_AMOUNT' => $get_loan_details[0]['LOAN_AMOUNT'],
+                'INTEREST_RATE' => $get_loan_details[0]['INTEREST_RATE'],
+                'TERM_LENGTH' => $get_loan_details[0]['TERM_LENGTH'],
+                'TERM' => $get_loan_details[0]['TERM']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Loan summary details
+    else if($transaction == 'loan summary details'){
+        if(isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
+            $loan_id = $_POST['loan_id'];
+            $loan_details = $api->get_loan_details($loan_id);
+            $employee_id = $loan_details[0]['EMPLOYEE_ID'];
+            $loan_type = $loan_details[0]['LOAN_TYPE'];
+            $loan_amount = $loan_details[0]['LOAN_AMOUNT'];
+            $interest_rate = $loan_details[0]['INTEREST_RATE'];
+            $term_length = $loan_details[0]['TERM_LENGTH'];
+            $term = $loan_details[0]['TERM'];
+            $repayment_amount = $loan_details[0]['REPAYMENT_AMOUNT'];
+            $total_loan_amount = $loan_details[0]['TOTAL_LOAN_AMOUNT'];
+            $start_date = $api->check_date('empty', $loan_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
+            $maturity_date = $api->check_date('empty', $loan_details[0]['MATURITY_DATE'], '', 'F d, Y', '', '', '');
+
+            $loan_id_encrypted = $api->encrypt_data($loan_id);
+
+            $outstanding_balance = $api->get_loan_outstading_balance($loan_id);
+
+            $system_code_details = $api->get_system_code_details('LOANTYPE', $loan_type);
+            $loan_type_name = $system_code_details[0]['DESCRIPTION'] ?? '--';
+
+            $term_details = $api->get_system_code_details('LOANTERM', $term);
+            $term_name = $term_details[0]['DESCRIPTION'] ?? '--';
+
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $employee_file_as,
+                'LOAN_TYPE' => $loan_type_name,
+                'START_DATE' => $start_date,
+                'MATURITY_DATE' => $maturity_date,
+                'LOAN_AMOUNT' => number_format($loan_amount, 2),
+                'INTEREST_RATE' => number_format($interest_rate, 2),
+                'TERM_LENGTH' => number_format($term_length),
+                'TERM' => $term_name,
+                'REPAYMENT_AMOUNT' => number_format($repayment_amount, 2),
+                'TOTAL_LOAN_AMOUNT' => number_format($total_loan_amount, 2),
+                'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2),
+                'AMORTIZATION_SCHEDULE' => '<a href="loan-details.php?id='. $loan_id_encrypted .'">View Amortization Schedule</a>'
             );
 
             echo json_encode($response);
