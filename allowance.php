@@ -123,9 +123,9 @@
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Allowance Type</p>
 
-                                                                <select class="form-control filter-select2" id="filter_allowance_type">
+                                                                <select class="form-control filter-select2" id="filter_allowance">
                                                                     <option value="">All Allowance Type</option>
-                                                                    <?php echo $api->generate_allowance_type_options(); ?>
+                                                                    <?php echo $api->generate_allowance_options(); ?>
                                                                 </select>
                                                             </div>
                                                             <div>

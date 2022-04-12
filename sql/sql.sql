@@ -4237,7 +4237,6 @@ BEGIN
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
-
 CREATE PROCEDURE get_loan_outstading_balance(IN loan_id VARCHAR(100))
 BEGIN
 	SET @loan_id = loan_id;
