@@ -4,11 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Allowance';
+    $page_title = 'Contribution Deduction';
 
-    $page_access = $api->check_role_permissions($username, 218);
-	$add_allowance = $api->check_role_permissions($username, 219);
-	$delete_allowance = $api->check_role_permissions($username, 221);
+    $page_access = $api->check_role_permissions($username, 248);
+	$add_contribution_deduction = $api->check_role_permissions($username, 249);
+	$delete_contribution_deduction = $api->check_role_permissions($username, 251);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -53,7 +53,7 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Allowance</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Deduction</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -68,18 +68,18 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Allowance List</h4>
+                                                        <h4 class="card-title">Deduction List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_allowance > 0 || $delete_allowance > 0){
+                                                            if($add_contribution_deduction > 0 || $delete_contribution_deduction > 0){
 
-                                                                if($add_allowance > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-allowance"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                if($add_contribution_deduction > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-contribution-deduction"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($delete_allowance > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-allowance"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_contribution_deduction > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-contribution-deduction"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
                                                         ?>
@@ -121,11 +121,11 @@
                                                                 </select>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Allowance Type</p>
+                                                                <p class="text-muted">Contribution Deduction Type</p>
 
-                                                                <select class="form-control filter-select2" id="filter_allowance_type">
-                                                                    <option value="">All Allowance Type</option>
-                                                                    <?php echo $api->generate_allowance_type_options(); ?>
+                                                                <select class="form-control filter-select2" id="filter_contribution_deduction_type">
+                                                                    <option value="">All Contribution Deduction Type</option>
+                                                                    <?php echo $api->generate_contribution_deduction_type_options(); ?>
                                                                 </select>
                                                             </div>
                                                             <div>
@@ -138,7 +138,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="allowance-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="contribution-deduction-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -147,9 +147,8 @@
                                                                 </div>
                                                             </th>
                                                             <th class="all">Employee</th>
-                                                            <th class="all">Allowance Type</th>
+                                                            <th class="all">Government Contribution Type</th>
                                                             <th class="all">Payroll Date</th>
-                                                            <th class="all">Amount</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -180,6 +179,6 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/allowance.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/contribution-deduction.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

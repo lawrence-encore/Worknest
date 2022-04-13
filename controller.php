@@ -96,6 +96,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Calculate deduction end date
+    else if($transaction == 'calculate deduction end date'){
+        if(isset($_POST['recurrence_pattern']) && isset($_POST['recurrence']) && isset($_POST['start_date'])){
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                $payroll_date = $start_date;
+
+                for($i = 0; $i < $recurrence; $i++){
+                    if($i == 0){
+                        $payroll_date = $start_date;
+                    }
+                    else{
+                        $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                    }
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Calculate contribution deduction end date
+    else if($transaction == 'calculate contribution deduction end date'){
+        if(isset($_POST['recurrence_pattern']) && isset($_POST['recurrence']) && isset($_POST['start_date'])){
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                $payroll_date = $start_date;
+
+                for($i = 0; $i < $recurrence; $i++){
+                    if($i == 0){
+                        $payroll_date = $start_date;
+                    }
+                    else{
+                        $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                    }
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Calculate loan maturity date
     else if($transaction == 'calculate loan maturity date'){
         if(isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['start_date'])){
@@ -3235,6 +3291,152 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit deduction
+    else if($transaction == 'submit deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['deduction_type']) && !empty($_POST['deduction_type']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['recurrence_pattern']) && isset($_POST['recurrence'])){
+            $username = $_POST['username'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+            $deduction_type = $_POST['deduction_type'];
+            $amount = $_POST['amount'];
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            foreach($employee_ids as $employee_id){
+                if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                    for($i = 0; $i < $recurrence; $i++){
+                        if($i == 0){
+                            $payroll_date = $start_date;
+                        }
+                        else{
+                            $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                        }
+    
+                        $insert_deduction = $api->insert_deduction($employee_id, $deduction_type, $payroll_date, $amount, $username);
+    
+                        if($insert_deduction != 1){
+                            $error = $insert_deduction;
+                        }
+                    }
+                }
+                else{
+                    $insert_deduction = $api->insert_deduction($employee_id, $deduction_type, $start_date, $amount, $username);
+
+                    if($insert_deduction != '1'){
+                        $error =  $insert_deduction;
+                    }
+                }
+            }
+            
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
+            }              
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit deduction update
+    else if($transaction == 'submit deduction update'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_id']) && !empty($_POST['deduction_id']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['payroll_date']) && !empty($_POST['payroll_date'])){
+            $username = $_POST['username'];
+            $deduction_id = $_POST['deduction_id'];
+            $amount = $_POST['amount'];
+            $payroll_date = $api->check_date('empty', $_POST['payroll_date'], '', 'Y-m-d', '', '', '');
+
+            $check_deduction_exist = $api->check_deduction_exist($deduction_id);
+
+            if($check_deduction_exist > 0){
+                $update_deduction = $api->update_deduction($deduction_id, $payroll_date, $amount, $username);
+
+                if($update_deduction == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_deduction;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit contribution deduction
+    else if($transaction == 'submit contribution deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['government_contribution']) && !empty($_POST['government_contribution']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['recurrence_pattern']) && isset($_POST['recurrence'])){
+            $username = $_POST['username'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+            $government_contribution = $_POST['government_contribution'];
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            foreach($employee_ids as $employee_id){
+                if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                    for($i = 0; $i < $recurrence; $i++){
+                        if($i == 0){
+                            $payroll_date = $start_date;
+                        }
+                        else{
+                            $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                        }
+    
+                        $insert_contribution_deduction = $api->insert_contribution_deduction($employee_id, $government_contribution, $payroll_date, $username);
+    
+                        if($insert_contribution_deduction != 1){
+                            $error = $insert_contribution_deduction;
+                        }
+                    }
+                }
+                else{
+                    $insert_contribution_deduction = $api->insert_contribution_deduction($employee_id, $government_contribution, $start_date, $username);
+
+                    if($insert_contribution_deduction != '1'){
+                        $error =  $insert_contribution_deduction;
+                    }
+                }
+            }
+            
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
+            }              
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit contribution deduction update
+    else if($transaction == 'submit contribution deduction update'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_deduction_id']) && !empty($_POST['contribution_deduction_id']) && isset($_POST['payroll_date']) && !empty($_POST['payroll_date'])){
+            $username = $_POST['username'];
+            $contribution_deduction_id = $_POST['contribution_deduction_id'];
+            $payroll_date = $api->check_date('empty', $_POST['payroll_date'], '', 'Y-m-d', '', '', '');
+
+            $check_contribution_deduction_exist = $api->check_contribution_deduction_exist($contribution_deduction_id);
+
+            if($check_contribution_deduction_exist > 0){
+                $update_contribution_deduction = $api->update_contribution_deduction($contribution_deduction_id, $payroll_date, $username);
+
+                if($update_contribution_deduction == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_contribution_deduction;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -4892,12 +5094,124 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($delete_loan == 1){
                         $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
                                         
-                        if($delete_all_loan_details == 1){
+                        if($delete_all_loan_details != 1){
                             $error = $delete_all_loan_details;
                         }
                     }
                     else{
                         $error = $delete_loan;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete deduction
+    else if($transaction == 'delete deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_id']) && !empty($_POST['deduction_id'])){
+            $username = $_POST['username'];
+            $deduction_id = $_POST['deduction_id'];
+
+            $check_deduction_exist = $api->check_deduction_exist($deduction_id);
+
+            if($check_deduction_exist > 0){
+                $delete_deduction = $api->delete_deduction($deduction_id, $username);
+                                    
+                if($delete_deduction == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_deduction;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple deduction
+    else if($transaction == 'delete multiple deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_id'])){
+            $username = $_POST['username'];
+            $deduction_ids = $_POST['deduction_id'];
+
+            foreach($deduction_ids as $deduction_id){
+                $check_deduction_exist = $api->check_deduction_exist($deduction_id);
+
+                if($check_deduction_exist > 0){
+                    $delete_deduction = $api->delete_deduction($deduction_id, $username);
+                                    
+                    if($delete_deduction != 1){
+                        $error = $delete_deduction;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # Delete contribution deduction
+    else if($transaction == 'delete contribution deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_deduction_id']) && !empty($_POST['contribution_deduction_id'])){
+            $username = $_POST['username'];
+            $contribution_deduction_id = $_POST['contribution_deduction_id'];
+
+            $check_contribution_deduction_exist = $api->check_contribution_deduction_exist($contribution_deduction_id);
+
+            if($check_contribution_deduction_exist > 0){
+                $delete_contribution_deduction_exist = $api->delete_contribution_deduction_exist($contribution_deduction_id, $username);
+                                    
+                if($delete_contribution_deduction_exist == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_contribution_deduction_exist;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple contribution deduction
+    else if($transaction == 'delete multiple contribution deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_deduction_id'])){
+            $username = $_POST['username'];
+            $contribution_deduction_ids = $_POST['contribution_deduction_id'];
+
+            foreach($contribution_deduction_ids as $contribution_deduction_id){
+                $check_contribution_deduction_exist = $api->check_contribution_deduction_exist($contribution_deduction_id);
+
+                if($check_contribution_deduction_exist > 0){
+                    $delete_contribution_deduction_exist = $api->delete_contribution_deduction_exist($contribution_deduction_id, $username);
+                                    
+                    if($delete_contribution_deduction_exist != 1){
+                        $error = $delete_contribution_deduction_exist;
                     }
                 }
                 else{
@@ -8572,20 +8886,17 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
-    # Loan details
-    else if($transaction == 'loan details'){
-        if(isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
-            $loan_id = $_POST['loan_id'];
-            $get_loan_details = $api->get_loan_details($loan_id);
+    # Deduction details
+    else if($transaction == 'deduction details'){
+        if(isset($_POST['deduction_id']) && !empty($_POST['deduction_id'])){
+            $deduction_id = $_POST['deduction_id'];
+            $deduction_details = $api->get_deduction_details($deduction_id);
 
             $response[] = array(
-                'EMPLOYEE_ID' => $get_loan_details[0]['EMPLOYEE_ID'],
-                'LOAN_TYPE' => $get_loan_details[0]['LOAN_TYPE'],
-                'START_DATE' => $api->check_date('empty', $get_loan_details[0]['START_DATE'], '', 'n/d/Y', '', '', ''),
-                'LOAN_AMOUNT' => $get_loan_details[0]['LOAN_AMOUNT'],
-                'INTEREST_RATE' => $get_loan_details[0]['INTEREST_RATE'],
-                'TERM_LENGTH' => $get_loan_details[0]['TERM_LENGTH'],
-                'TERM' => $get_loan_details[0]['TERM']
+                'EMPLOYEE_ID' => $deduction_details[0]['EMPLOYEE_ID'],
+                'DEDUCTION_TYPE' => $deduction_details[0]['DEDUCTION_TYPE'],
+                'PAYROLL_DATE' => $api->check_date('empty', $deduction_details[0]['PAYROLL_DATE'], '', 'n/d/Y', '', '', ''),
+                'AMOUNT' => $deduction_details[0]['AMOUNT']
             );
 
             echo json_encode($response);
@@ -8593,48 +8904,86 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
-    # Loan summary details
-    else if($transaction == 'loan summary details'){
-        if(isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
-            $loan_id = $_POST['loan_id'];
-            $loan_details = $api->get_loan_details($loan_id);
-            $employee_id = $loan_details[0]['EMPLOYEE_ID'];
-            $loan_type = $loan_details[0]['LOAN_TYPE'];
-            $loan_amount = $loan_details[0]['LOAN_AMOUNT'];
-            $interest_rate = $loan_details[0]['INTEREST_RATE'];
-            $term_length = $loan_details[0]['TERM_LENGTH'];
-            $term = $loan_details[0]['TERM'];
-            $repayment_amount = $loan_details[0]['REPAYMENT_AMOUNT'];
-            $total_loan_amount = $loan_details[0]['TOTAL_LOAN_AMOUNT'];
-            $start_date = $api->check_date('empty', $loan_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
-            $maturity_date = $api->check_date('empty', $loan_details[0]['MATURITY_DATE'], '', 'F d, Y', '', '', '');
-
-            $loan_id_encrypted = $api->encrypt_data($loan_id);
-
-            $outstanding_balance = $api->get_loan_outstading_balance($loan_id);
-
-            $system_code_details = $api->get_system_code_details('LOANTYPE', $loan_type);
-            $loan_type_name = $system_code_details[0]['DESCRIPTION'] ?? '--';
-
-            $term_details = $api->get_system_code_details('LOANTERM', $term);
-            $term_name = $term_details[0]['DESCRIPTION'] ?? '--';
+    # Deduction summary details
+    else if($transaction == 'deduction summary details'){
+        if(isset($_POST['deduction_id']) && !empty($_POST['deduction_id'])){
+            $deduction_id = $_POST['deduction_id'];
+            $deduction_details = $api->get_deduction_details($deduction_id);
+            $employee_id = $deduction_details[0]['EMPLOYEE_ID'];
+            $deduction_type = $deduction_details[0]['DEDUCTION_TYPE'];
+            $payroll_id = $deduction_details[0]['PAYROLL_ID'];
+            $payroll_date = $api->check_date('empty', $deduction_details[0]['PAYROLL_DATE'], '', 'F d, Y', '', '', '');
+            $amount = $deduction_details[0]['AMOUNT'];
+            $deduction_type_details = $api->get_deduction_type_details($deduction_type);
+            $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
 
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
+            if(!empty($payroll_id)){
+                $payroll = '<a href="#">View Payroll</a>';
+            }
+            else{
+                $payroll = '--';
+            }
+
             $response[] = array(
                 'EMPLOYEE_ID' => $employee_file_as,
-                'LOAN_TYPE' => $loan_type_name,
-                'START_DATE' => $start_date,
-                'MATURITY_DATE' => $maturity_date,
-                'LOAN_AMOUNT' => number_format($loan_amount, 2),
-                'INTEREST_RATE' => number_format($interest_rate, 2),
-                'TERM_LENGTH' => number_format($term_length),
-                'TERM' => $term_name,
-                'REPAYMENT_AMOUNT' => number_format($repayment_amount, 2),
-                'TOTAL_LOAN_AMOUNT' => number_format($total_loan_amount, 2),
-                'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2),
-                'AMORTIZATION_SCHEDULE' => '<a href="loan-details.php?id='. $loan_id_encrypted .'">View Amortization Schedule</a>'
+                'DEDUCTION_TYPE' => $deduction_type_name,
+                'PAYROLL' => $payroll,
+                'PAYROLL_DATE' => $payroll_date,
+                'AMOUNT' => number_format($amount, 2)
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution deduction details
+    else if($transaction == 'contribution deduction details'){
+        if(isset($_POST['contribution_deduction_id']) && !empty($_POST['contribution_deduction_id'])){
+            $contribution_deduction_id = $_POST['contribution_deduction_id'];
+            $contribution_deduction_details = $api->get_contribution_deduction_details($contribution_deduction_id);
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $contribution_deduction_details[0]['EMPLOYEE_ID'],
+                'GOVERNMENT_CONTRIBUTION_TYPE' => $contribution_deduction_details[0]['GOVERNMENT_CONTRIBUTION_TYPE'],
+                'PAYROLL_DATE' => $api->check_date('empty', $contribution_deduction_details[0]['PAYROLL_DATE'], '', 'n/d/Y', '', '', '')
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution deduction summary details
+    else if($transaction == 'contribution deduction summary details'){
+        if(isset($_POST['contribution_deduction_id']) && !empty($_POST['contribution_deduction_id'])){
+            $contribution_deduction_id = $_POST['contribution_deduction_id'];
+            $contribution_deduction_details = $api->get_contribution_deduction_details($contribution_deduction_id);
+            $employee_id = $contribution_deduction_details[0]['EMPLOYEE_ID'];
+            $government_contribution_type = $contribution_deduction_details[0]['GOVERNMENT_CONTRIBUTION_TYPE'];
+            $payroll_id = $contribution_deduction_details[0]['PAYROLL_ID'];
+            $payroll_date = $api->check_date('empty', $contribution_deduction_details[0]['PAYROLL_DATE'], '', 'F d, Y', '', '', '');
+            $government_contribution_type_details = $api->get_government_contribution_details($government_contribution_type);
+            $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
+
+            if(!empty($payroll_id)){
+                $payroll = '<a href="#">View Payroll</a>';
+            }
+            else{
+                $payroll = '--';
+            }
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $employee_file_as,
+                'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type_name,
+                'PAYROLL' => $payroll,
+                'PAYROLL_DATE' => $payroll_date
             );
 
             echo json_encode($response);

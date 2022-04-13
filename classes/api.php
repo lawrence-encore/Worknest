@@ -1416,16 +1416,41 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : check_loan_exist
-    # Purpose    : Checks if the loan exists.
+    # Name       : check_deduction_exist
+    # Purpose    : Checks if the deduction exists.
     #
     # Returns    : Number
     #
     # -------------------------------------------------------------
-    public function check_loan_exist($loan_id){
+    public function check_deduction_exist($deduction_id){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL check_loan_exist(:loan_id)');
-            $sql->bindValue(':loan_id', $loan_id);
+            $sql = $this->db_connection->prepare('CALL check_deduction_exist(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_contribution_deduction_exist
+    # Purpose    : Checks if the contribution deduction exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_contribution_deduction_exist($contribution_deduction_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_contribution_deduction_exist(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
 
             if($sql->execute()){
                 $row = $sql->fetch();
@@ -4982,19 +5007,19 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : update_loan
-    # Purpose    : Updates loan.
+    # Name       : update_deduction
+    # Purpose    : Updates deduction.
     #
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_loan($loan_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $username){
+    public function update_deduction($deduction_id, $payroll_date, $amount, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
-            $loan_details = $this->get_loan_details($loan_id);
+            $deduction_details = $this->get_deduction_details($deduction_id);
 
-            if(!empty($loan_details[0]['TRANSACTION_LOG_ID'])){
-                $transaction_log_id = $loan_details[0]['TRANSACTION_LOG_ID'];
+            if(!empty($deduction_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $deduction_details[0]['TRANSACTION_LOG_ID'];
             }
             else{
                 # Get transaction log id
@@ -5003,23 +5028,16 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_loan(:loan_id, :loan_type, :start_date, :maturity_date, :loan_amount, :interest_rate, :number_of_payments, :payment_frequency, :total_repayment_amount, :outstanding_balance, :transaction_log_id, :record_log)');
-            $sql->bindValue(':loan_id', $loan_id);
-            $sql->bindValue(':loan_type', $loan_type);
-            $sql->bindValue(':start_date', $start_date);
-            $sql->bindValue(':maturity_date', $maturity_date);
-            $sql->bindValue(':loan_amount', $loan_amount);
-            $sql->bindValue(':interest_rate', $interest_rate);
-            $sql->bindValue(':number_of_payments', $number_of_payments);
-            $sql->bindValue(':payment_frequency', $payment_frequency);
-            $sql->bindValue(':total_repayment_amount', $total_repayment_amount);
-            $sql->bindValue(':outstanding_balance', $outstanding_balance);
+            $sql = $this->db_connection->prepare('CALL update_deduction(:deduction_id, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log);
         
             if($sql->execute()){
-                if(!empty($loan_details[0]['TRANSACTION_LOG_ID'])){
-                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated loan (' . $loan_id . ').');
+                if(!empty($deduction_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
                                     
                     if($insert_transaction_log == 1){
                         return 1;
@@ -5033,7 +5051,73 @@ class Api{
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
                     if($update_system_parameter_value == 1){
-                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated loan (' . $loan_id . ').');
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_contribution_deduction
+    # Purpose    : Updates contribution deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_contribution_deduction($contribution_deduction_id, $payroll_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $contribution_deduction_details = $this->get_contribution_deduction_details($contribution_deduction_id);
+
+            if(!empty($contribution_deduction_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $contribution_deduction_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_contribution_deduction(:contribution_deduction_id, :payroll_date, :transaction_log_id, :record_log)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($contribution_deduction_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
                                     
                         if($insert_transaction_log == 1){
                             return 1;
@@ -7902,18 +7986,17 @@ class Api{
     }
     # -------------------------------------------------------------
 
-    # ------------------------------------------------------------
+    # -------------------------------------------------------------
     #
-    # Name       : insert_loan
-    # Purpose    : Insert loan.
+    # Name       : insert_deduction
+    # Purpose    : Insert deduction.
     #
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_loan($employee_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $repayment_amount, $interest_amount, $username){
+    public function insert_deduction($employee_id, $deduction_type, $payroll_date, $amount, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
-            $error = '';
 
             # Get system parameter id
             $system_parameter = $this->get_system_parameter(33, 1);
@@ -7925,18 +8008,12 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_loan(:id, :employee_id, :loan_type, :start_date, :maturity_date, :loan_amount, :interest_rate, :number_of_payments, :payment_frequency, :total_repayment_amount, :outstanding_balance, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_deduction(:id, :employee_id, :deduction_type, :payroll_date, :amount, :transaction_log_id, :record_log)');
             $sql->bindValue(':id', $id);
             $sql->bindValue(':employee_id', $employee_id);
-            $sql->bindValue(':loan_type', $loan_type);
-            $sql->bindValue(':start_date', $start_date);
-            $sql->bindValue(':maturity_date', $maturity_date);
-            $sql->bindValue(':loan_amount', $loan_amount);
-            $sql->bindValue(':interest_rate', $interest_rate);
-            $sql->bindValue(':number_of_payments', $number_of_payments);
-            $sql->bindValue(':payment_frequency', $payment_frequency);
-            $sql->bindValue(':total_repayment_amount', $total_repayment_amount);
-            $sql->bindValue(':outstanding_balance', $outstanding_balance);
+            $sql->bindValue(':deduction_type', $deduction_type);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -7949,30 +8026,13 @@ class Api{
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
                     if($update_system_parameter_value == 1){
-                        $due_date = $start_date;
-
-                        for($i = 0; $i < $number_of_payments; $i++){
-                            $due_date = $this->check_date('empty', $this->get_next_date($due_date, $payment_frequency), '', 'Y-m-d', '', '', '');
-        
-                            $insert_loan_details = $this->insert_loan_details($id, $repayment_amount, $interest_amount, $total_repayment_amount, $due_date, $username);
-        
-                            if($insert_loan_details != 1){
-                                $error = $insert_loan_details;
-                            }
-                        }
-
-                        if(empty($error)){
-                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted loan (' . $id . ').');
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction (' . $id . ').');
                                     
-                            if($insert_transaction_log == 1){
-                                return 1;
-                            }
-                            else{
-                                return $insert_transaction_log;
-                            }
+                        if($insert_transaction_log == 1){
+                            return 1;
                         }
                         else{
-                            echo $error;
+                            return $insert_transaction_log;
                         }
                     }
                     else{
@@ -7990,18 +8050,17 @@ class Api{
     }
     # -------------------------------------------------------------
 
-    # ------------------------------------------------------------
+    # -------------------------------------------------------------
     #
-    # Name       : insert_loan_details
-    # Purpose    : Insert loan details.
+    # Name       : insert_contribution_deduction
+    # Purpose    : Insert contribution deduction.
     #
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_loan_details($loan_id, $repayment_amount, $interest_amount, $total_repayment_amount, $due_date, $username){
+    public function insert_contribution_deduction($employee_id, $government_contribution, $payroll_date, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
-            $error = '';
 
             # Get system parameter id
             $system_parameter = $this->get_system_parameter(34, 1);
@@ -8013,13 +8072,11 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_loan_details(:id, :loan_id, :repayment_amount, :interest_amount, :total_repayment_amount, :due_date, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_contribution_deduction(:id, :employee_id, :government_contribution, :payroll_date, :transaction_log_id, :record_log)');
             $sql->bindValue(':id', $id);
-            $sql->bindValue(':loan_id', $loan_id);
-            $sql->bindValue(':repayment_amount', $repayment_amount);
-            $sql->bindValue(':interest_amount', $interest_amount);
-            $sql->bindValue(':total_repayment_amount', $total_repayment_amount);
-            $sql->bindValue(':due_date', $due_date);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':government_contribution', $government_contribution);
+            $sql->bindValue(':payroll_date', $payroll_date);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -8032,14 +8089,14 @@ class Api{
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
                     if($update_system_parameter_value == 1){
-                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted loan details (' . $id . ').');
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution deduction (' . $id . ').');
                                     
-                            if($insert_transaction_log == 1){
-                                return 1;
-                            }
-                            else{
-                                return $insert_transaction_log;
-                            }
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
                     }
                     else{
                         return $update_system_parameter_value;
@@ -9268,16 +9325,16 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : delete_all_loan_details
-    # Purpose    : Delete all loan details.
+    # Name       : delete_deduction
+    # Purpose    : Delete deduction.
     #
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function delete_all_loan_details($loan_id, $username){
+    public function delete_deduction($deduction_id, $username){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL delete_all_loan_details(:loan_id)');
-            $sql->bindValue(':loan_id', $loan_id);
+            $sql = $this->db_connection->prepare('CALL delete_deduction(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
         
             if($sql->execute()){
                 return 1;
@@ -9291,16 +9348,16 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : delete_loan
-    # Purpose    : Delete loan.
+    # Name       : delete_contribution_deduction
+    # Purpose    : Delete contribution deduction.
     #
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function delete_loan($loan_id, $username){
+    public function delete_contribution_deduction($contribution_deduction_id, $username){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL delete_loan(:loan_id)');
-            $sql->bindValue(':loan_id', $loan_id);
+            $sql = $this->db_connection->prepare('CALL delete_contribution_deduction(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
         
             if($sql->execute()){
                 return 1;
@@ -11190,32 +11247,63 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : get_loan_details
-    # Purpose    : Gets the loan details.
+    # Name       : get_deduction_details
+    # Purpose    : Gets the deduction details.
     #
     # Returns    : Array
     #
     # -------------------------------------------------------------
-    public function get_loan_details($loan_id){
+    public function get_deduction_details($deduction_id){
         if ($this->databaseConnection()) {
             $response = array();
 
-            $sql = $this->db_connection->prepare('CALL get_loan_details(:loan_id)');
-            $sql->bindValue(':loan_id', $loan_id);
+            $sql = $this->db_connection->prepare('CALL get_deduction_details(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
                     $response[] = array(
                         'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
-                        'LOAN_TYPE' => $row['LOAN_TYPE'],
-                        'START_DATE' => $row['START_DATE'],
-                        'MATURITY_DATE' => $row['MATURITY_DATE'],
-                        'LOAN_AMOUNT' => $row['LOAN_AMOUNT'],
-                        'INTEREST_RATE' => $row['INTEREST_RATE'],
-                        'TERM_LENGTH' => $row['TERM_LENGTH'],
-                        'TERM' => $row['TERM'],
-                        'REPAYMENT_AMOUNT' => $row['REPAYMENT_AMOUNT'],
-                        'TOTAL_LOAN_AMOUNT' => $row['TOTAL_LOAN_AMOUNT'],
+                        'DEDUCTION_TYPE' => $row['DEDUCTION_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
+                        'AMOUNT' => $row['AMOUNT'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_contribution_deduction_details
+    # Purpose    : Gets the contribution deduction details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_contribution_deduction_details($contribution_deduction_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_contribution_deduction_details(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'GOVERNMENT_CONTRIBUTION_TYPE' => $row['GOVERNMENT_CONTRIBUTION_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -12243,31 +12331,6 @@ class Api{
         );
 
         return $response;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : get_loan_outstading_balance
-    # Purpose    : Gets the outstanding balance of the loan.
-    #
-    # Returns    : Number
-    #
-    # -------------------------------------------------------------
-    public function get_loan_outstading_balance($loan_id){
-        if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL get_loan_outstading_balance(:loan_id)');
-            $sql->bindParam(':loan_id', $loan_id);
-
-            if($sql->execute()){
-                $row = $sql->fetch();
-
-                return $row['TOTAL'];
-            }
-            else{
-                return $sql->errorInfo()[2];
-            }
-        }
     }
     # -------------------------------------------------------------
 
@@ -13314,44 +13377,44 @@ class Api{
 
                     $column .= '<tr>
                                     <td>Monday</td>
-                                    <td>'. $monday_start_time .' - <br/>'. $monday_end_time .'</td>
-                                    <td>'. $monday_lunch_start_time .' - <br/>'. $monday_lunch_end_time .'</td>
+                                    <td>'. $monday_start_time .' - '. $monday_end_time .'</td>
+                                    <td>'. $monday_lunch_start_time .' - '. $monday_lunch_end_time .'</td>
                                     <td>'. $monday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Tuesday</td>
-                                    <td>'. $tuesday_start_time .' - <br/>'. $tuesday_end_time .'</td>
-                                    <td>'. $tuesday_lunch_start_time .' - <br/>'. $tuesday_lunch_end_time .'</td>
+                                    <td>'. $tuesday_start_time .' - '. $tuesday_end_time .'</td>
+                                    <td>'. $tuesday_lunch_start_time .' - '. $tuesday_lunch_end_time .'</td>
                                     <td>'. $tuesday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Wednesday</td>
-                                    <td>'. $wednesday_start_time .' - <br/>'. $wednesday_end_time .'</td>
-                                    <td>'. $wednesday_lunch_start_time .' - <br/>'. $wednesday_lunch_end_time .'</td>
+                                    <td>'. $wednesday_start_time .' - '. $wednesday_end_time .'</td>
+                                    <td>'. $wednesday_lunch_start_time .' - '. $wednesday_lunch_end_time .'</td>
                                     <td>'. $wednesday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Thursday</td>
-                                    <td>'. $thursday_start_time .' - <br/>'. $thursday_end_time .'</td>
-                                    <td>'. $thursday_lunch_start_time .' - <br/>'. $thursday_lunch_end_time .'</td>
+                                    <td>'. $thursday_start_time .' - '. $thursday_end_time .'</td>
+                                    <td>'. $thursday_lunch_start_time .' - '. $thursday_lunch_end_time .'</td>
                                     <td>'. $thursday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Friday</td>
-                                    <td>'. $friday_start_time .' - <br/>'. $friday_end_time .'</td>
-                                    <td>'. $friday_lunch_start_time .' - <br/>'. $friday_lunch_end_time .'</td>
+                                    <td>'. $friday_start_time .' - '. $friday_end_time .'</td>
+                                    <td>'. $friday_lunch_start_time .' - '. $friday_lunch_end_time .'</td>
                                     <td>'. $friday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Saturday</td>
-                                    <td>'. $saturday_start_time .' - <br/>'. $saturday_end_time .'</td>
-                                    <td>'. $saturday_lunch_start_time .' - <br/>'. $saturday_lunch_end_time .'</td>
+                                    <td>'. $saturday_start_time .' - '. $saturday_end_time .'</td>
+                                    <td>'. $saturday_lunch_start_time .' - '. $saturday_lunch_end_time .'</td>
                                     <td>'. $saturday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Sunday</td>
-                                    <td>'. $sunday_start_time .' - <br/>'. $sunday_end_time .'</td>
-                                    <td>'. $sunday_lunch_start_time .' - <br/>'. $sunday_lunch_end_time .'</td>
+                                    <td>'. $sunday_start_time .' - '. $sunday_end_time .'</td>
+                                    <td>'. $sunday_lunch_start_time .' - '. $sunday_lunch_end_time .'</td>
                                     <td>'. $sunday_half_day_mark .'</td>
                                 </tr>';
                 }
@@ -13462,6 +13525,76 @@ class Api{
                         $allowance_type = $row['ALLOWANCE_TYPE'];
     
                         $option .= "<option value='". $allowance_type_id ."'>". $allowance_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_deduction_type_options
+    # Purpose    : Generates deduction type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_deduction_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_deduction_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $deduction_type_id = $row['DEDUCTION_TYPE_ID'];
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+    
+                        $option .= "<option value='". $deduction_type_id ."'>". $deduction_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_contribution_deduction_type_options
+    # Purpose    : Generates contribution deduction type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_contribution_deduction_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_contribution_deduction_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $government_contribution_id = $row['GOVERNMENT_CONTRIBUTION_ID'];
+                        $government_contribution = $row['GOVERNMENT_CONTRIBUTION'];
+    
+                        $option .= "<option value='". $government_contribution_id ."'>". $government_contribution ."</option>";
                     }
     
                     return $option;

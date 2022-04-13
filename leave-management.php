@@ -75,7 +75,7 @@
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_leave > 0 || $delete_leave > 0){
+                                                            if($add_leave > 0 || $delete_leave > 0 || $approve_leave > 0 || $reject_leave > 0 || $cancel_leave > 0){
 
                                                                 if($add_leave > 0){
                                                                     echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-leave"><i class="bx bx-plus label-icon"></i> Add</button>';

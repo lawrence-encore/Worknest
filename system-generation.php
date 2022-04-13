@@ -2182,14 +2182,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'loan form'){
+            else if($form_type == 'deduction form'){
                 $form .= '<div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Employee <span class="required">*</span></label>
-                                        <input type="hidden" id="loan_id" name="loan_id">
-                                        <select class="form-control form-select2" id="employee_id" name="employee_id">
-                                        <option value="">--</option>';
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
                                         $form .= $api->generate_employee_options();
                                         $form .='</select>
                                     </div>
@@ -2198,40 +2196,34 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="loan_type" class="form-label">Loan Type <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="loan_type" name="loan_type">
+                                        <label for="deduction_type" class="form-label">Deduction Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="deduction_type" name="deduction_type">
                                         <option value="">--</option>'; 
-                                        $form .= $api->generate_system_code_options('LOANTYPE');
+                                        $form .= $api->generate_deduction_type_options();
                                         $form .='</select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="loan_amount" class="form-label">Loan Amount <span class="required">*</span></label>
-                                        <input id="loan_amount" name="loan_amount" class="form-control" type="number" min="1" step="0.01">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="number_of_payments" class="form-label">Number of Payments <span class="required">*</span></label>
-                                        <input id="number_of_payments" name="number_of_payments" class="form-control" type="number" min="1">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="payment_frequency" class="form-label">Payment Frequency <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="payment_frequency" name="payment_frequency">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
                                         <option value="">--</option>'; 
-                                        $form .= $api->generate_system_code_options('LOANTERM');
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
                                         $form .='</select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="interest_rate" class="form-label">Interest Rate (%)</label>
-                                        <input id="interest_rate" name="interest_rate" class="form-control" type="number" value="0" min="0" step="0.01">
                                     </div>
                                 </div>
                             </div>
@@ -2247,37 +2239,147 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Maturity Date</label>
-                                        <div class="input-group" id="maturity-date-container">
-                                            <input type="text" class="form-control" id="maturity_date" name="maturity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#maturity-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                        <label class="form-label">End Date</label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
                                             <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                         </div>
                                     </div>
                                 </div>
+                            </div>';
+            }
+            else if($form_type == 'deduction update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="deduction_id" name="deduction_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Repayment Amount</label>
-                                        <input id="repayment_amount" name="repayment_amount" class="form-control" type="number" readonly>
+                                        <label for="deduction_type" class="form-label">Deduction Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="deduction_type" name="deduction_type" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_deduction_type_options();
+                                        $form .='</select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Interest Amount</label>
-                                        <input id="interest_amount" name="interest_amount" class="form-control" type="number" readonly>
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Total Repayment</label>
-                                        <input id="total_repayment_amount" name="total_repayment_amount" class="form-control" type="number" readonly>
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                            </div>';
+            }
+            else if($form_type == 'contribution deduction form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Outstanding Balance</label>
-                                        <input id="outstanding_balance" name="outstanding_balance" class="form-control" type="number" readonly>
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="government_contribution" class="form-label">Government Contribution <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="government_contribution" name="government_contribution">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_contribution_deduction_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">End Date</label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'contribution deduction update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="contribution_deduction_id" name="contribution_deduction_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="government_contribution" class="form-label">Government Contribution <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="government_contribution" name="government_contribution" disabled>
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_contribution_deduction_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>';
@@ -2932,7 +3034,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </tbody>
                             </table>';
             }
-            else if($element_type == 'loan details'){
+            else if($element_type == 'deduction details'){
                 $element = '<table class="table table-nowrap mb-0">
                                 <tbody>
                                     <tr>
@@ -2940,48 +3042,42 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <td id="employee"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Loan Type :</th>
-                                        <td id="loan_type"></td>
+                                        <th scope="row">Deduction Type :</th>
+                                        <td id="deduction_type"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Start Date :</th>
-                                        <td id="start_date"></td>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Maturity Date :</th>
-                                        <td id="maturity_date"></td>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Loan Amount :</th>
-                                        <td id="loan_amount"></td>
+                                        <th scope="row">Amount :</th>
+                                        <td id="amount"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'contribution deduction details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Interest Rate :</th>
-                                        <td id="interest_rate"></td>
+                                        <th scope="row">Government Contribution Type :</th>
+                                        <td id="government_contribution_type"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Number of Payments :</th>
-                                        <td id="number_of_payments"></td>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Payment Frequency :</th>
-                                        <td id="payment_frequency"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Repayment Amount :</th>
-                                        <td id="repayment_amount"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Total Loan Amount :</th>
-                                        <td id="total_loan_amount"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Outstanding Balance :</th>
-                                        <td id="outstanding_balance"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Amortization Schedule :</th>
-                                        <td id="amortization_schedule"></td>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
                                     </tr>
                                 </tbody>
                             </table>';
@@ -7298,25 +7394,24 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
-    # Loan table
-    else if($type == 'loan table'){
-        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_loan_type'])){
+    # Deduction table
+    else if($type == 'deduction table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_deduction_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission
-                $update_loan = $api->check_role_permissions($username, 245);
-                $delete_loan = $api->check_role_permissions($username, 246);
+                $update_deduction = $api->check_role_permissions($username, 245);
+                $delete_deduction = $api->check_role_permissions($username, 246);
                 $view_transaction_log = $api->check_role_permissions($username, 247);
-                $view_loan_details_page = $api->check_role_permissions($username, 248);
     
                 $filter_branch = $_POST['filter_branch'];
                 $filter_department = $_POST['filter_department'];
-                $filter_loan_type = $_POST['filter_loan_type'];
+                $filter_deduction_type = $_POST['filter_deduction_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
     
-                $query = 'SELECT LOAN_ID, EMPLOYEE_ID, LOAN_TYPE, START_DATE, MATURITY_DATE, TOTAL_LOAN_AMOUNT, TRANSACTION_LOG_ID FROM tblloans';
+                $query = 'SELECT DEDUCTION_ID, EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID FROM tbldeduction WHERE ';
     
-                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
-                    $query .= ' WHERE ';
-
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_deduction_type)){
                     if(!empty($filter_branch)){
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
                     }
@@ -7325,8 +7420,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
 
-                    if(!empty($filter_loan_type)){
-                        $filter[] = 'LOAN_TYPE = :filter_loan_type';
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_deduction_type)){
+                        $filter[] = 'DEDUCTION_TYPE = :filter_deduction_type';
                     }
 
                     if(!empty($filter)){
@@ -7336,7 +7435,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_deduction_type)){
                     if(!empty($filter_branch)){
                         $sql->bindValue(':filter_branch', $filter_branch);
                     }
@@ -7345,28 +7444,30 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $sql->bindValue(':filter_department', $filter_department);
                     }
 
-                    if(!empty($filter_loan_type)){
-                        $sql->bindValue(':filter_loan_type', $filter_loan_type);
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_deduction_type)){
+                        $sql->bindValue(':filter_deduction_type', $filter_deduction_type);
                     }
                 }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
-                        $loan_id = $row['LOAN_ID'];
+                        $deduction_id = $row['DEDUCTION_ID'];
                         $employee_id = $row['EMPLOYEE_ID'];
-                        $loan_type = $row['LOAN_TYPE'];
-                        $total_loan_amount = $row['TOTAL_LOAN_AMOUNT'];
-                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
-                        $maturity_date = $api->check_date('empty', $row['MATURITY_DATE'], '', 'm/d/Y', '', '', '');
-                        $loan_id_encrypted = $api->encrypt_data($loan_id);
-
-                        $system_code_details = $api->get_system_code_details('LOANTYPE', $loan_type);
-                        $loan_type_name = $system_code_details[0]['DESCRIPTION'];
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $amount = $row['AMOUNT'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $deduction_type_details = $api->get_deduction_type_details($deduction_type);
+                        $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
     
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
-
-                        $outstanding_balance = $api->get_loan_outstading_balance($loan_id);
     
                         if($view_transaction_log > 0 && !empty($transaction_log_id)){
                             $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
@@ -7377,18 +7478,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $transaction_log = '';
                         }
 
-                        if($view_loan_details_page > 0){
-                            $view_page = '<a href="loan-details.php?id='. $loan_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Loan Details">
-                                                <i class="bx bx-spreadsheet font-size-16 align-middle"></i>
-                                            </a>';
-                        }
-                        else{
-                            $view_page = '';
-                        }
-
-                        if($total_loan_amount == $outstanding_balance){
-                            if($update_loan > 0){
-                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-loan" data-loan-id="'. $loan_id .'" title="Edit Loan">
+                        if(empty($payroll_id)){
+                            if($update_deduction > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-deduction" data-deduction-id="'. $deduction_id .'" title="Edit Deduction">
                                                 <i class="bx bx-pencil font-size-16 align-middle"></i>
                                             </button>';
                             }
@@ -7396,8 +7488,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 $update = '';
                             }
         
-                            if($delete_loan > 0){
-                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-loan" data-loan-id="'. $loan_id .'" title="Delete Loan">
+                            if($delete_deduction > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-deduction" data-deduction-id="'. $deduction_id .'" title="Delete Deduction">
                                             <i class="bx bx-trash font-size-16 align-middle"></i>
                                         </button>';
                             }
@@ -7405,7 +7497,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 $delete = '';
                             }
 
-                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $loan_id .'">';
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $deduction_id .'">';
                         }
                         else{
                             $update = '';
@@ -7416,16 +7508,150 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $response[] = array(
                             'CHECK_BOX' => $check_box,
                             'FILE_AS' => $file_as,
-                            'LOAN_TYPE' => $loan_type_name,
-                            'START_DATE' => $start_date,
-                            'MATURITY_DATE' => $maturity_date,
-                            'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2),
+                            'DEDUCTION_TYPE' => $deduction_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'AMOUNT' => number_format($amount, 2),
                             'ACTION' => '<div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary waves-effect waves-light view-loan" data-loan-id="'. $loan_id .'" title="View Loan">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-deduction" data-deduction-id="'. $deduction_id .'" title="View Allowance">
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $update .'
-                                '. $view_page .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution deduction table
+    else if($type == 'contribution deduction table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_contribution_deduction_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_contribution_deduction = $api->check_role_permissions($username, 250);
+                $delete_contribution_deduction = $api->check_role_permissions($username, 251);
+                $view_transaction_log = $api->check_role_permissions($username, 252);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_contribution_deduction_type = $_POST['filter_contribution_deduction_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE, TRANSACTION_LOG_ID FROM tblcontributiondeduction WHERE ';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_contribution_deduction_type)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_contribution_deduction_type)){
+                        $filter[] = 'GOVERNMENT_CONTRIBUTION_TYPE = :filter_contribution_deduction_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_contribution_deduction_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_contribution_deduction_type)){
+                        $sql->bindValue(':filter_contribution_deduction_type', $filter_contribution_deduction_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $contribution_deduction_id = $row['CONTRIBUTION_DEDUCTION_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $government_contribution_type_details = $api->get_government_contribution_details($government_contribution_type);
+                        $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if(empty($payroll_id)){
+                            if($update_contribution_deduction > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="Edit Contribution Deduction">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
+                            }
+        
+                            if($delete_contribution_deduction > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="Delete Contribution Deduction">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $contribution_deduction_id .'">';
+                        }
+                        else{
+                            $update = '';
+                            $delete = '';
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'FILE_AS' => $file_as,
+                            'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="View Contribution Deduction">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'

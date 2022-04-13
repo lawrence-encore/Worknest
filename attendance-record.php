@@ -71,18 +71,18 @@
                                                         <h4 class="card-title">Attendance Record List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
-                                                    <?php
-                                                        if($add_attendance_record > 0 || $delete_attendance_record > 0){
+                                                        <?php
+                                                            if($add_attendance_record > 0 || $delete_attendance_record > 0){
 
-                                                            if($add_attendance_record > 0){
-                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-attendance-record"><i class="bx bx-plus label-icon"></i> Add</button>';
-                                                            }
+                                                                if($add_attendance_record > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-attendance-record"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                }
 
-                                                            if($delete_attendance_record > 0){
-                                                                echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-attendance-record"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_attendance_record > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-attendance-record"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                }
                                                             }
-                                                        }
-                                                    ?>
+                                                        ?>
 
                                                         <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
                                                     </div>
