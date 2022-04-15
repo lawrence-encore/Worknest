@@ -16,6 +16,7 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
     
     var username = $('#username').text();
     var filter_leave_status = $('#filter_leave_status').val();
+    var filter_branch = $('#filter_branch').val();
     var filter_department = $('#filter_department').val();
     var filter_leave_type = $('#filter_leave_type').val();
     var filter_start_date = $('#filter_start_date').val();
@@ -56,7 +57,7 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
+                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -87,7 +88,7 @@ function initialize_leave_table(datatable_name, buttons = false, show_all = fals
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
+                'data': {'type' : type, 'username' : username, 'filter_leave_status' : filter_leave_status, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],

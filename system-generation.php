@@ -2182,14 +2182,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'loan form'){
+            else if($form_type == 'deduction form'){
                 $form .= '<div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Employee <span class="required">*</span></label>
-                                        <input type="hidden" id="loan_id" name="loan_id">
-                                        <select class="form-control form-select2" id="employee_id" name="employee_id">
-                                        <option value="">--</option>';
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
                                         $form .= $api->generate_employee_options();
                                         $form .='</select>
                                     </div>
@@ -2198,40 +2196,34 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="loan_type" class="form-label">Loan Type <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="loan_type" name="loan_type">
+                                        <label for="deduction_type" class="form-label">Deduction Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="deduction_type" name="deduction_type">
                                         <option value="">--</option>'; 
-                                        $form .= $api->generate_system_code_options('LOANTYPE');
+                                        $form .= $api->generate_deduction_type_options();
                                         $form .='</select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="loan_amount" class="form-label">Loan Amount <span class="required">*</span></label>
-                                        <input id="loan_amount" name="loan_amount" class="form-control" type="number" min="1" step="0.01">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="number_of_payments" class="form-label">Number of Payments <span class="required">*</span></label>
-                                        <input id="number_of_payments" name="number_of_payments" class="form-control" type="number" min="1">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="payment_frequency" class="form-label">Payment Frequency <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="payment_frequency" name="payment_frequency">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
                                         <option value="">--</option>'; 
-                                        $form .= $api->generate_system_code_options('LOANTERM');
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
                                         $form .='</select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="interest_rate" class="form-label">Interest Rate (%)</label>
-                                        <input id="interest_rate" name="interest_rate" class="form-control" type="number" value="0" min="0" step="0.01">
                                     </div>
                                 </div>
                             </div>
@@ -2254,30 +2246,140 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         </div>
                                     </div>
                                 </div>
+                            </div>';
+            }
+            else if($form_type == 'deduction update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="deduction_id" name="deduction_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Repayment Amount</label>
-                                        <input id="repayment_amount" name="repayment_amount" class="form-control" type="number" readonly>
+                                        <label for="deduction_type" class="form-label">Deduction Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="deduction_type" name="deduction_type" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_deduction_type_options();
+                                        $form .='</select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Interest Amount</label>
-                                        <input id="interest_amount" name="interest_amount" class="form-control" type="number" readonly>
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Total Repayment</label>
-                                        <input id="total_repayment_amount" name="total_repayment_amount" class="form-control" type="number" readonly>
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                            </div>';
+            }
+            else if($form_type == 'contribution deduction form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Outstanding Balance</label>
-                                        <input id="outstanding_balance" name="outstanding_balance" class="form-control" type="number" readonly>
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="government_contribution" class="form-label">Government Contribution <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="government_contribution" name="government_contribution">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_contribution_deduction_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">End Date</label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'contribution deduction update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="contribution_deduction_id" name="contribution_deduction_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="government_contribution" class="form-label">Government Contribution <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="government_contribution" name="government_contribution" disabled>
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_contribution_deduction_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>';
@@ -2346,7 +2448,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </table>';
             }
             else if($element_type == 'transaction log'){
-                $element = '<ul class="verti-timeline list-unstyled" id="transaction-log-timeline"></ul>';
+                $element = '<table id="transaction-log-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="all">Log Type</th>
+                                        <th class="all">Log</th>
+                                        <th class="all">Log Date</th>
+                                        <th class="all">Log By</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                            </table>';
             }
             else if($element_type == 'work shift regular details'){
                 $element = '<table class="table table-nowrap mb-0">
@@ -2931,6 +3043,130 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     </tr>
                                 </tbody>
                             </table>';
+            }
+            else if($element_type == 'deduction details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Deduction Type :</th>
+                                        <td id="deduction_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Amount :</th>
+                                        <td id="amount"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'contribution deduction details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Government Contribution Type :</th>
+                                        <td id="government_contribution_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'attendance summary details'){
+                $element = '<div class="row">
+                                <div class="col-md-3">
+                                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <a class="nav-link mb-2 active" id="v-pills-attendance-record-tab" data-bs-toggle="pill" href="#v-pills-attendance-record" role="tab" aria-controls="v-pills-attendance-record" aria-selected="true">Attendance Record</a>
+                                        <a class="nav-link mb-2" id="v-pills-attendance-adjustment-tab" data-bs-toggle="pill" href="#v-pills-attendance-adjustment" role="tab" aria-controls="v-pills-attendance-adjustment" aria-selected="false">Attendance Adjustment</a>
+                                        <a class="nav-link mb-2" id="v-pills-attendance-creation-tab" data-bs-toggle="pill" href="#v-pills-attendance-creation" role="tab" aria-controls="v-pills-attendance-creation" aria-selected="false">Attendance Creation</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="tab-content text-muted mt-4 mt-md-0" id="v-pills-tabContent">
+                                        <div class="tab-pane fade show active" id="v-pills-attendance-record" role="tabpanel" aria-labelledby="v-pills-attendance-record-tab">
+                                            <table id="employee-attendance-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="all">Time In</th>
+                                                        <th class="all">Behavior</th>
+                                                        <th class="all">Time Out</th>
+                                                        <th class="all">Behavior</th>
+                                                        <th class="all">Late</th>
+                                                        <th class="all">Early Leave</th>
+                                                        <th class="all">Overtime</th>
+                                                        <th class="all">Total Hours</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-pills-attendance-adjustment" role="tabpanel" aria-labelledby="v-pills-attendance-adjustment-tab">
+                                            <table id="attendance-adjustment-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="all">Time In Date</th>
+                                                        <th class="all">Time In</th>
+                                                        <th class="all">Time Out Date</th>
+                                                        <th class="all">Time Out</th>
+                                                        <th class="all">Status</th>
+                                                        <th class="all">Attachment</th>
+                                                        <th class="all">Reason</th>
+                                                        <th class="all">Request Date</th>
+                                                        <th class="all">For Recommendation Date</th>
+                                                        <th class="all">Recommendation Date</th>
+                                                        <th class="all">Recommendation By</th>
+                                                        <th class="all">Approval Date</th>
+                                                        <th class="all">Approval By</th>
+                                                        <th class="all">Remarks</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-pills-attendance-creation" role="tabpanel" aria-labelledby="v-pills-attendance-creation-tab">
+                                            <table id="attendance-creation-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="all">Time In</th>
+                                                        <th class="all">Time Out</th>
+                                                        <th class="all">Status</th>
+                                                        <th class="all">Attachment</th>
+                                                        <th class="all">Reason</th>
+                                                        <th class="all">Request Date</th>
+                                                        <th class="all">For Recommendation Date</th>
+                                                        <th class="all">Recommendation Date</th>
+                                                        <th class="all">Recommendation By</th>
+                                                        <th class="all">Approval Date</th>
+                                                        <th class="all">Approval By</th>
+                                                        <th class="all">Remarks</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
             }
 
             $response[] = array(
@@ -4156,7 +4392,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     if($check_work_shift_schedule_exist > 0){
                         if($assign_work_shift > 0){
                             $assign = '<button type="button" class="btn btn-success waves-effect waves-light assign-work-shift" data-work-shift-id="'. $work_shift_id .'" title="Assign Work Shift">
-                                            <i class="bx bx-calendar-plus font-size-16 align-middle"></i>
+                                            <i class="bx bx-user-plus font-size-16 align-middle"></i>
                                         </button>';
                         }
                         else{
@@ -4222,17 +4458,60 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Employee attendance table
     else if($type == 'employee attendance table'){
-        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_attendance_record_start_date']) && isset($_POST['filter_attendance_record_end_date']) && isset($_POST['filter_attendance_record_time_in_behavior']) && isset($_POST['filter_attendance_record_time_out_behavior'])){
             if ($api->databaseConnection()) {
                 $employee_id = $_POST['employee_id'];
+
+                $filter_attendance_record_time_in_behavior = $_POST['filter_attendance_record_time_in_behavior'];
+                $filter_attendance_record_time_out_behavior = $_POST['filter_attendance_record_time_out_behavior'];
+
+                $filter_attendance_record_start_date = $api->check_date('empty', $_POST['filter_attendance_record_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_attendance_record_end_date = $api->check_date('empty', $_POST['filter_attendance_record_end_date'], '', 'Y-m-d', '', '', '');
 
                 # Get permission
                 $update_employee_attendance = $api->check_role_permissions($username, 101);
                 $delete_employee_attendance = $api->check_role_permissions($username, 102);
                 $view_transaction_log = $api->check_role_permissions($username, 103);
+
+                $query = 'SELECT ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = :employee_id';
     
-                $sql = $api->db_connection->prepare('SELECT ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = :employee_id');
+                if((!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)) || !empty($filter_attendance_record_time_in_behavior) || !empty($filter_attendance_record_time_out_behavior)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)){
+                        $filter[] = 'TIME_IN_DATE BETWEEN :filter_attendance_record_start_date AND :filter_attendance_record_end_date';
+                    }
+
+                    if(!empty($filter_attendance_record_time_in_behavior)){
+                        $filter[] = 'TIME_IN_BEHAVIOR = :filter_attendance_record_time_in_behavior';
+                    }
+
+                    if(!empty($filter_attendance_record_time_out_behavior)){
+                        $filter[] = 'TIME_OUT_BEHAVIOR = :filter_attendance_record_time_out_behavior';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)) || !empty($filter_attendance_record_time_in_behavior) || !empty($filter_attendance_record_time_out_behavior)){
+                    if(!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)){
+                        $sql->bindValue(':filter_attendance_record_start_date', $filter_attendance_record_start_date);
+                        $sql->bindValue(':filter_attendance_record_end_date', $filter_attendance_record_end_date);
+                    }
+
+                    if(!empty($filter_attendance_record_time_in_behavior)){
+                        $sql->bindValue(':filter_attendance_record_time_in_behavior', $filter_attendance_record_time_in_behavior);
+                    }
+
+                    if(!empty($filter_attendance_record_time_out_behavior)){
+                        $sql->bindValue(':filter_attendance_record_time_out_behavior', $filter_attendance_record_time_out_behavior);
+                    }
+                }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
@@ -4376,77 +4655,130 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Leave entitlement table
     else if($type == 'leave entitlement table'){
-        if ($api->databaseConnection()) {
-            # Get permission
-            $update_leave_entitlement = $api->check_role_permissions($username, 111);
-            $delete_leave_entitlement = $api->check_role_permissions($username, 112);
-            $view_transaction_log = $api->check_role_permissions($username, 113);
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_leave_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_leave_entitlement = $api->check_role_permissions($username, 111);
+                $delete_leave_entitlement = $api->check_role_permissions($username, 112);
+                $view_transaction_log = $api->check_role_permissions($username, 113);
 
-            $sql = $api->db_connection->prepare('SELECT LEAVE_ENTITLEMENT_ID, EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, ACQUIRED_LEAVES, START_DATE, END_DATE, TRANSACTION_LOG_ID FROM tblleaveentitlement');
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_leave_type = $_POST['filter_leave_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT LEAVE_ENTITLEMENT_ID, EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, ACQUIRED_LEAVES, START_DATE, END_DATE, TRANSACTION_LOG_ID FROM tblleaveentitlement';
 
-            if($sql->execute()){
-                while($row = $sql->fetch()){
-                    $leave_entitlement_id = $row['LEAVE_ENTITLEMENT_ID'];
-                    $employee_id = $row['EMPLOYEE_ID'];
-                    $leave_type = $row['LEAVE_TYPE'];
-                    $no_leaves = $row['NO_LEAVES'];
-                    $acquired_leaves = $row['ACQUIRED_LEAVES'];
-                    $leave_entitlement_status = $api->get_leave_entitlement_status($no_leaves, $acquired_leaves)[0]['BADGE'];
-                    $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
-                    $end_date = $api->check_date('empty', $row['END_DATE'], '', 'm/d/Y', '', '', '');
-                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_type)){
+                    $query .= ' WHERE ';
 
-                    $leave_type_details = $api->get_leave_type_details($leave_type);
-                    $leave_name = $leave_type_details[0]['LEAVE_NAME'];
-
-                    $employee_details = $api->get_employee_details($employee_id, '');
-                    $file_as = $employee_details[0]['FILE_AS'];
-
-                    if($update_leave_entitlement > 0){
-                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-leave-entitlement" data-leave-entitlement-id="'. $leave_entitlement_id .'" title="Edit Leave Entitlement">
-                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
-                                    </button>';
-                    }
-                    else{
-                        $update = '';
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
                     }
 
-                    if($delete_leave_entitlement > 0){
-                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-leave-entitlement" data-leave-entitlement-id="'. $leave_entitlement_id .'" title="Delete Leave Entitlement">
-                                    <i class="bx bx-trash font-size-16 align-middle"></i>
-                                </button>';
-                    }
-                    else{
-                        $delete = '';
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
 
-                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
-                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
-                                                <i class="bx bx-detail font-size-16 align-middle"></i>
-                                            </button>';
-                    }
-                    else{
-                        $transaction_log = '';
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'START_DATE BETWEEN :filter_start_date AND :filter_end_date';
                     }
 
-                    $response[] = array(
-                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leave_entitlement_id .'">',
-                        'FILE_AS' => $file_as,
-                        'LEAVE_NAME' => $leave_name,
-                        'COVERAGE' => $start_date . ' - ' . $end_date,
-                        'ENTITLEMENT' => $leave_entitlement_status,
-                        'ACTION' => '<div class="d-flex gap-2">
-                            '. $update .'
-                            '. $transaction_log .'
-                            '. $delete .'
-                        </div>'
-                    );
+                    if(!empty($filter_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_leave_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
                 }
+    
+                $sql = $api->db_connection->prepare($query);
 
-                echo json_encode($response);
-            }
-            else{
-                echo $sql->errorInfo()[2];
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_leave_type)){
+                        $sql->bindValue(':filter_leave_type', $filter_leave_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $leave_entitlement_id = $row['LEAVE_ENTITLEMENT_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $leave_type = $row['LEAVE_TYPE'];
+                        $no_leaves = $row['NO_LEAVES'];
+                        $acquired_leaves = $row['ACQUIRED_LEAVES'];
+                        $leave_entitlement_status = $api->get_leave_entitlement_status($no_leaves, $acquired_leaves)[0]['BADGE'];
+                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $row['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $leave_type_details = $api->get_leave_type_details($leave_type);
+                        $leave_name = $leave_type_details[0]['LEAVE_NAME'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($update_leave_entitlement > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-leave-entitlement" data-leave-entitlement-id="'. $leave_entitlement_id .'" title="Edit Leave Entitlement">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_leave_entitlement > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-leave-entitlement" data-leave-entitlement-id="'. $leave_entitlement_id .'" title="Delete Leave Entitlement">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $leave_entitlement_id .'">',
+                            'FILE_AS' => $file_as,
+                            'LEAVE_NAME' => $leave_name,
+                            'COVERAGE' => $start_date . ' - ' . $end_date,
+                            'ENTITLEMENT' => $leave_entitlement_status,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
             }
         }
     }
@@ -4454,17 +4786,51 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Employee leave entitlement table
     else if($type == 'employee leave entitlement table'){
-        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_leave_entitlement_start_date']) && isset($_POST['filter_leave_entitlement_end_date']) && isset($_POST['filter_leave_entitlement_leave_type'])){
             if ($api->databaseConnection()) {
                 $employee_id = $_POST['employee_id'];
+
+                $filter_leave_entitlement_leave_type = $_POST['filter_leave_entitlement_leave_type'];
+
+                $filter_leave_entitlement_start_date = $api->check_date('empty', $_POST['filter_leave_entitlement_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_leave_entitlement_end_date = $api->check_date('empty', $_POST['filter_leave_entitlement_end_date'], '', 'Y-m-d', '', '', '');
 
                 # Get permission
                 $update_leave_entitlement = $api->check_role_permissions($username, 111);
                 $delete_leave_entitlement = $api->check_role_permissions($username, 112);
                 $view_transaction_log = $api->check_role_permissions($username, 113);
+
+                $query = 'SELECT LEAVE_ENTITLEMENT_ID, LEAVE_TYPE, NO_LEAVES, ACQUIRED_LEAVES, START_DATE, END_DATE, TRANSACTION_LOG_ID FROM tblleaveentitlement WHERE EMPLOYEE_ID = :employee_id';
     
-                $sql = $api->db_connection->prepare('SELECT LEAVE_ENTITLEMENT_ID, LEAVE_TYPE, NO_LEAVES, ACQUIRED_LEAVES, START_DATE, END_DATE, TRANSACTION_LOG_ID FROM tblleaveentitlement WHERE EMPLOYEE_ID = :employee_id');
+                if((!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)) || !empty($filter_leave_entitlement_leave_type)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)){
+                        $filter[] = 'START_DATE BETWEEN :filter_leave_entitlement_start_date AND :filter_leave_entitlement_end_date';
+                    }
+
+                    if(!empty($filter_leave_entitlement_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_leave_entitlement_leave_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)) || !empty($filter_leave_entitlement_leave_type)){
+                    if(!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)){
+                        $sql->bindValue(':filter_leave_entitlement_start_date', $filter_leave_entitlement_start_date);
+                        $sql->bindValue(':filter_leave_entitlement_end_date', $filter_leave_entitlement_end_date);
+                    }
+
+                    if(!empty($filter_leave_entitlement_leave_type)){
+                        $sql->bindValue(':filter_leave_entitlement_leave_type', $filter_leave_entitlement_leave_type);
+                    }
+                }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
@@ -4531,7 +4897,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Leave management table
     else if($type == 'leave management table'){
-        if(isset($_POST['filter_leave_status']) && isset($_POST['filter_department']) && isset($_POST['filter_leave_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+        if(isset($_POST['filter_leave_status']) && isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_leave_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission
                 $delete_leave = $api->check_role_permissions($username, 121);
@@ -4541,6 +4907,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $view_transaction_log = $api->check_role_permissions($username, 125);
     
                 $filter_leave_status = $_POST['filter_leave_status'];
+                $filter_branch = $_POST['filter_branch'];
                 $filter_department = $_POST['filter_department'];
                 $filter_leave_type = $_POST['filter_leave_type'];
                 $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
@@ -4548,7 +4915,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $query = 'SELECT LEAVE_ID, EMPLOYEE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE ';
     
-                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
                     if(!empty($filter_department)){
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
@@ -4567,7 +4938,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 }
                 else{
                     $filter[] = 'LEAVE_STATUS = :filter_leave_status';
-                }                
+                }
     
                 if(!empty($filter)){
                     $query .= implode(' AND ', $filter);
@@ -4575,7 +4946,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_leave_status) || !empty($filter_leave_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
                     if(!empty($filter_department)){
                         $sql->bindValue(':filter_department', $filter_department);
                     }
@@ -4714,19 +5089,62 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Employee leave table
     else if($type == 'employee leave table'){
-        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_employee_leave_start_date']) && isset($_POST['filter_employee_leave_end_date']) && isset($_POST['filter_employee_leave_type']) && isset($_POST['filter_employee_leave_status'])){
             if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_employee_leave_type = $_POST['filter_employee_leave_type'];
+                $filter_employee_leave_status = $_POST['filter_employee_leave_status'];
+
+                $filter_employee_leave_start_date = $api->check_date('empty', $_POST['filter_employee_leave_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_employee_leave_end_date = $api->check_date('empty', $_POST['filter_employee_leave_end_date'], '', 'Y-m-d', '', '', '');
+
                 # Get permission
                 $delete_leave = $api->check_role_permissions($username, 128);
                 $approve_leave = $api->check_role_permissions($username, 129);
                 $reject_leave = $api->check_role_permissions($username, 130);
                 $cancel_leave = $api->check_role_permissions($username, 131);
                 $view_transaction_log = $api->check_role_permissions($username, 132);
+
+                $query = 'SELECT LEAVE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE EMPLOYEE_ID = :employee_id';
     
-                $employee_id = $_POST['employee_id'];
+                if((!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)) || !empty($filter_employee_leave_type) || !empty($filter_employee_leave_status)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)){
+                        $filter[] = 'LEAVE_DATE BETWEEN :filter_employee_leave_start_date AND :filter_employee_leave_end_date';
+                    }
+
+                    if(!empty($filter_employee_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_employee_leave_type';
+                    }
+
+                    if(!empty($filter_employee_leave_status)){
+                        $filter[] = 'LEAVE_STATUS = :filter_employee_leave_status';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
     
-                $sql = $api->db_connection->prepare('SELECT LEAVE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE EMPLOYEE_ID = :employee_id');
+                $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)) || !empty($filter_employee_leave_type) || !empty($filter_employee_leave_status)){
+                    if(!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)){
+                        $sql->bindValue(':filter_employee_leave_start_date', $filter_employee_leave_start_date);
+                        $sql->bindValue(':filter_employee_leave_end_date', $filter_employee_leave_end_date);
+                    }
+
+                    if(!empty($filter_employee_leave_type)){
+                        $sql->bindValue(':filter_employee_leave_type', $filter_employee_leave_type);
+                    }
+
+                    if(!empty($filter_employee_leave_status)){
+                        $sql->bindValue(':filter_employee_leave_status', $filter_employee_leave_status);
+                    }
+                }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
@@ -4825,24 +5243,28 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Employee file management table
     else if($type == 'employee file management table'){
-        if(isset($_POST['filter_department']) && isset($_POST['filter_file_category']) && isset($_POST['filter_file_start_date']) && isset($_POST['filter_file_end_date']) && isset($_POST['filter_upload_start_date']) && isset($_POST['filter_upload_end_date'])){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_file_category']) && isset($_POST['filter_file_start_date']) && isset($_POST['filter_file_end_date']) && isset($_POST['filter_upload_start_date']) && isset($_POST['filter_upload_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission
                 $update_employee_file = $api->check_role_permissions($username, 135);
                 $delete_employee_file = $api->check_role_permissions($username, 136);
                 $view_transaction_log = $api->check_role_permissions($username, 137);
 
+                $filter_branch = $_POST['filter_branch'];
                 $filter_department = $_POST['filter_department'];
                 $filter_file_category = $_POST['filter_file_category'];
                 $filter_file_start_date = $api->check_date('empty', $_POST['filter_file_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_file_end_date = $api->check_date('empty', $_POST['filter_file_end_date'], '', 'Y-m-d', '', '', '');
                 $filter_upload_start_date = $api->check_date('empty', $_POST['filter_upload_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_upload_end_date = $api->check_date('empty', $_POST['filter_upload_end_date'], '', 'Y-m-d', '', '', '');
-                $filter_date_range = date('Y-m-d', strtotime($system_date. ' - 1 month'));
 
                 $query = 'SELECT FILE_ID, EMPLOYEE_ID, FILE_NAME, FILE_CATEGORY, REMARKS, FILE_DATE, FILE_PATH, TRANSACTION_LOG_ID FROM tblemployeefile WHERE ';
     
-                if(!empty($filter_department) || (!empty($filter_file_start_date) && !empty($filter_file_end_date)) || !empty($filter_upload_start_date) && !empty($filter_upload_end_date) || !empty($filter_file_category)){
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_file_start_date) && !empty($filter_file_end_date)) || !empty($filter_upload_start_date) && !empty($filter_upload_end_date) || !empty($filter_file_category)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
                     if(!empty($filter_department)){
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
@@ -4858,10 +5280,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     if(!empty($filter_file_category)){
                         $filter[] = 'FILE_CATEGORY = :filter_file_category';
                     }
-                }
-                else{
-                    $filter[] = 'FILE_DATE BETWEEN :filter_date_range AND :system_date';
-                }                
+                }            
     
                 if(!empty($filter)){
                     $query .= implode(' AND ', $filter);
@@ -4869,7 +5288,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_department) || (!empty($filter_file_start_date) && !empty($filter_file_end_date)) || !empty($filter_upload_start_date) && !empty($filter_upload_end_date) || !empty($filter_file_category)){
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_file_start_date) && !empty($filter_file_end_date)) || !empty($filter_upload_start_date) && !empty($filter_upload_end_date) || !empty($filter_file_category)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
                     if(!empty($filter_department)){
                         $sql->bindValue(':filter_department', $filter_department);
                     }
@@ -4887,10 +5310,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     if(!empty($filter_file_category)){
                         $sql->bindValue(':filter_file_category', $filter_file_category);
                     }
-                }
-                else{
-                    $sql->bindValue(':filter_date_range', $filter_date_range);
-                    $sql->bindValue(':system_date', $system_date);
                 }
     
                 if($sql->execute()){
@@ -4966,17 +5385,62 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Employee file table
     else if($type == 'employee file table'){
-        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_employee_file_start_date']) && isset($_POST['filter_employee_file_end_date']) && isset($_POST['filter_upload_employee_file_start_date']) && isset($_POST['filter_upload_employee_file_end_date']) && isset($_POST['filter_employee_file_category'])){
             if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_employee_file_category = $_POST['filter_employee_file_category'];
+
+                $filter_employee_file_start_date = $api->check_date('empty', $_POST['filter_employee_file_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_employee_file_end_date = $api->check_date('empty', $_POST['filter_employee_file_end_date'], '', 'Y-m-d', '', '', '');
+                $filter_upload_employee_file_start_date = $api->check_date('empty', $_POST['filter_upload_employee_file_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_upload_employee_file_end_date = $api->check_date('empty', $_POST['filter_upload_employee_file_end_date'], '', 'Y-m-d', '', '', '');
+
                 # Get permission
                 $update_employee_file = $api->check_role_permissions($username, 140);
                 $delete_employee_file = $api->check_role_permissions($username, 141);
                 $view_transaction_log = $api->check_role_permissions($username, 142);
 
-                $employee_id = $_POST['employee_id'];
+                $query = 'SELECT FILE_ID, EMPLOYEE_ID, FILE_NAME, FILE_CATEGORY, REMARKS, FILE_DATE, FILE_PATH, TRANSACTION_LOG_ID FROM tblemployeefile WHERE EMPLOYEE_ID = :employee_id';
     
-                $sql = $api->db_connection->prepare('SELECT FILE_ID, EMPLOYEE_ID, FILE_NAME, FILE_CATEGORY, REMARKS, FILE_DATE, FILE_PATH, TRANSACTION_LOG_ID FROM tblemployeefile WHERE EMPLOYEE_ID = :employee_id');
+                if((!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)) || (!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)) || !empty($filter_employee_file_category)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)){
+                        $filter[] = 'FILE_DATE BETWEEN :filter_employee_file_start_date AND :filter_employee_file_end_date';
+                    }
+
+                    if(!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)){
+                        $filter[] = 'UPLOAD_DATE BETWEEN :filter_upload_employee_file_start_date AND :filter_upload_employee_file_end_date';
+                    }
+
+                    if(!empty($filter_employee_file_category)){
+                        $filter[] = 'FILE_CATEGORY = :filter_employee_file_category';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
+
+                if((!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)) || (!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)) || !empty($filter_employee_file_category)){
+                    if(!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)){
+                        $sql->bindValue(':filter_employee_file_start_date', $filter_employee_file_start_date);
+                        $sql->bindValue(':filter_employee_file_end_date', $filter_employee_file_end_date);
+                    }
+
+                    if(!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)){
+                        $sql->bindValue(':filter_upload_employee_file_start_date', $filter_upload_employee_file_start_date);
+                        $sql->bindValue(':filter_upload_employee_file_end_date', $filter_upload_employee_file_end_date);
+                    }
+
+                    if(!empty($filter_employee_file_category)){
+                        $sql->bindValue(':filter_employee_file_category', $filter_employee_file_category);
+                    }
+                }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
@@ -5368,7 +5832,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
                 $query = 'SELECT ATTENDANCE_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord';
     
-                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date)) || $filter_time_in_behavior != '' || $filter_time_out_behavior != ''){
+                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_time_in_behavior) || !empty($filter_time_out_behavior)){
                     $query .= ' WHERE ';
 
                     if(!empty($filter_department)){
@@ -5383,11 +5847,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $filter[] = 'TIME_IN_DATE BETWEEN :filter_start_date AND :filter_end_date';
                     }
 
-                    if($filter_time_in_behavior != ''){
+                    if(!empty($filter_time_in_behavior)){
                         $filter[] = 'TIME_IN_BEHAVIOR = :filter_time_in_behavior';
                     }
 
-                    if($filter_time_out_behavior != ''){
+                    if(!empty($filter_time_out_behavior)){
                         $filter[] = 'TIME_OUT_BEHAVIOR = :filter_time_out_behavior';
                     }
 
@@ -5398,7 +5862,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
                 
-                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date)) || $filter_time_in_behavior != '' || $filter_time_out_behavior != ''){
+                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_time_in_behavior) || !empty($filter_time_out_behavior)){
                     if(!empty($filter_department)){
                         $sql->bindValue(':filter_department', $filter_department);
                     }
@@ -5412,11 +5876,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $sql->bindValue(':filter_end_date', $filter_end_date);
                     }
 
-                    if($filter_time_in_behavior != ''){
+                    if(!empty($filter_time_in_behavior)){
                         $sql->bindValue(':filter_time_in_behavior', $filter_time_in_behavior);
                     }
 
-                    if($filter_time_out_behavior != ''){
+                    if(!empty($filter_time_out_behavior)){
                         $sql->bindValue(':filter_time_out_behavior', $filter_time_out_behavior);
                     }
                 }
@@ -7244,24 +7708,24 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
-    # Loan table
-    else if($type == 'loan table'){
-        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_loan_type'])){
+    # Deduction table
+    else if($type == 'deduction table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_deduction_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission
-                $update_loan = $api->check_role_permissions($username, 245);
-                $delete_loan = $api->check_role_permissions($username, 246);
+                $update_deduction = $api->check_role_permissions($username, 245);
+                $delete_deduction = $api->check_role_permissions($username, 246);
                 $view_transaction_log = $api->check_role_permissions($username, 247);
     
                 $filter_branch = $_POST['filter_branch'];
                 $filter_department = $_POST['filter_department'];
-                $filter_loan_type = $_POST['filter_loan_type'];
+                $filter_deduction_type = $_POST['filter_deduction_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
     
-                $query = 'SELECT LOAN_ID, EMPLOYEE_ID, LOAN_TYPE, START_DATE, MATURITY_DATE, TRANSACTION_LOG_ID FROM tblloans';
+                $query = 'SELECT DEDUCTION_ID, EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID FROM tbldeduction WHERE ';
     
-                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
-                    $query .= ' WHERE ';
-
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_deduction_type)){
                     if(!empty($filter_branch)){
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
                     }
@@ -7270,8 +7734,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
                     }
 
-                    if(!empty($filter_loan_type)){
-                        $filter[] = 'LOAN_TYPE = :filter_loan_type';
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_deduction_type)){
+                        $filter[] = 'DEDUCTION_TYPE = :filter_deduction_type';
                     }
 
                     if(!empty($filter)){
@@ -7281,7 +7749,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_branch)  || !empty($filter_department) || !empty($filter_loan_type)){
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_deduction_type)){
                     if(!empty($filter_branch)){
                         $sql->bindValue(':filter_branch', $filter_branch);
                     }
@@ -7290,26 +7758,30 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $sql->bindValue(':filter_department', $filter_department);
                     }
 
-                    if(!empty($filter_loan_type)){
-                        $sql->bindValue(':filter_loan_type', $filter_loan_type);
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_deduction_type)){
+                        $sql->bindValue(':filter_deduction_type', $filter_deduction_type);
                     }
                 }
     
                 if($sql->execute()){
                     while($row = $sql->fetch()){
-                        $loan_id = $row['LOAN_ID'];
+                        $deduction_id = $row['DEDUCTION_ID'];
                         $employee_id = $row['EMPLOYEE_ID'];
-                        $loan_type = $row['LOAN_TYPE'];
-                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
-                        $maturity_date = $api->check_date('empty', $row['MATURITY_DATE'], '', 'm/d/Y', '', '', '');
-
-                        $system_code_details = $api->get_system_code_details('LOANTYPE', $loan_type);
-                        $loan_type_name .= $system_code_details[0]['DESCRIPTION'];
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $amount = $row['AMOUNT'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $deduction_type_details = $api->get_deduction_type_details($deduction_type);
+                        $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
     
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
-
-                        $outstanding_balance = $api->get_loan_outstading_balance($loan_id);
     
                         if($view_transaction_log > 0 && !empty($transaction_log_id)){
                             $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
@@ -7321,8 +7793,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         }
 
                         if(empty($payroll_id)){
-                            if($update_loan > 0){
-                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-loan" data-loan-id="'. $loan_id .'" title="Edit Loan">
+                            if($update_deduction > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-deduction" data-deduction-id="'. $deduction_id .'" title="Edit Deduction">
                                                 <i class="bx bx-pencil font-size-16 align-middle"></i>
                                             </button>';
                             }
@@ -7330,8 +7802,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 $update = '';
                             }
         
-                            if($delete_loan > 0){
-                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-loan" data-loan-id="'. $loan_id .'" title="Delete Loan">
+                            if($delete_deduction > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-deduction" data-deduction-id="'. $deduction_id .'" title="Delete Deduction">
                                             <i class="bx bx-trash font-size-16 align-middle"></i>
                                         </button>';
                             }
@@ -7339,7 +7811,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 $delete = '';
                             }
 
-                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $loan_id .'">';
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $deduction_id .'">';
                         }
                         else{
                             $update = '';
@@ -7350,18 +7822,550 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $response[] = array(
                             'CHECK_BOX' => $check_box,
                             'FILE_AS' => $file_as,
-                            'LOAN_TYPE' => $loan_type_name,
-                            'START_DATE' => $start_date,
-                            'MATURITY_DATE' => $maturity_date,
-                            'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2),
+                            'DEDUCTION_TYPE' => $deduction_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'AMOUNT' => number_format($amount, 2),
                             'ACTION' => '<div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary waves-effect waves-light view-loan" data-loan-id="'. $loan_id .'" title="View Loan">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-deduction" data-deduction-id="'. $deduction_id .'" title="View Allowance">
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Contribution deduction table
+    else if($type == 'contribution deduction table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_contribution_deduction_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_contribution_deduction = $api->check_role_permissions($username, 250);
+                $delete_contribution_deduction = $api->check_role_permissions($username, 251);
+                $view_transaction_log = $api->check_role_permissions($username, 252);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_contribution_deduction_type = $_POST['filter_contribution_deduction_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE, TRANSACTION_LOG_ID FROM tblcontributiondeduction WHERE ';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_contribution_deduction_type)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_contribution_deduction_type)){
+                        $filter[] = 'GOVERNMENT_CONTRIBUTION_TYPE = :filter_contribution_deduction_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_contribution_deduction_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_contribution_deduction_type)){
+                        $sql->bindValue(':filter_contribution_deduction_type', $filter_contribution_deduction_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $contribution_deduction_id = $row['CONTRIBUTION_DEDUCTION_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $government_contribution_type_details = $api->get_government_contribution_details($government_contribution_type);
+                        $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if(empty($payroll_id)){
+                            if($update_contribution_deduction > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="Edit Contribution Deduction">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
+                            }
+        
+                            if($delete_contribution_deduction > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="Delete Contribution Deduction">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $contribution_deduction_id .'">';
+                        }
+                        else{
+                            $update = '';
+                            $delete = '';
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'FILE_AS' => $file_as,
+                            'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-contribution-deduction" data-contribution-deduction-id="'. $contribution_deduction_id .'" title="View Contribution Deduction">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Transaction log table
+    else if($type == 'transaction log table'){
+        if(isset($_POST['transaction_log_id']) && !empty($_POST['transaction_log_id'])){
+            if ($api->databaseConnection()) {
+                $transaction_log_id = $_POST['transaction_log_id'];
+    
+                $sql = $api->db_connection->prepare('SELECT USERNAME, LOG_TYPE, LOG_DATE, LOG FROM tbltransactionlog WHERE TRANSACTION_LOG_ID = :transaction_log_id');
+                $sql->bindValue(':transaction_log_id', $transaction_log_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $username = $row['USERNAME'];
+                        $log_type = $row['LOG_TYPE'];
+                        $log = $row['LOG'];
+                        $log_date = $api->check_date('empty', $row['LOG_DATE'], '', 'm/d/Y h:i:s a', '', '', '');
+    
+                        $log_by_details = $api->get_employee_details('', $username);
+                        $log_by = $log_by_details[0]['FILE_AS'] ?? $username;
+    
+                        $response[] = array(
+                            'LOG_TYPE' => $log_type,
+                            'LOG' => $log,
+                            'LOG_DATE' => $log_date,
+                            'LOG_BY' => $log_by
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance summary table
+    else if($type == 'attendance summary table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_branch']) && isset($_POST['filter_department'])){
+            if ($api->databaseConnection()) {
+
+                $filter_department = $_POST['filter_department'];
+                $filter_branch = $_POST['filter_branch'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT DISTINCT(EMPLOYEE_ID) AS EMPLOYEE_ID FROM tblattendancerecord';
+    
+                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= ' WHERE ';
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'TIME_IN_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                
+                if(!empty($filter_department) || !empty($filter_branch) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $employee_id = $row['EMPLOYEE_ID'];
+
+                        $get_working_days = $api->get_working_days($employee_id, $filter_start_date, $filter_end_date);
+                        $get_days_worked = $api->get_days_worked($employee_id, $filter_start_date, $filter_end_date);
+                        $get_employee_late_count = $api->get_attendance_time_in_count('LATE', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_employee_total_late = $api->get_employee_attendance_total('Late', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_employee_early_leaving_count = $api->get_attendance_time_out_count('EL', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_employee_total_early_leaving = $api->get_employee_attendance_total('Early Leaving', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_adjustment_count = $api->get_attendance_adjustment_count('APV', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_creation_count = $api->get_attendance_creation_count('APV', $employee_id, $filter_start_date, $filter_end_date);
+                       
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        $response[] = array(
+                            'FILE_AS' => '<a href="javascript: void(0);" class="view-attendance-summary">'. $file_as . '</a>',
+                            'WORKING_DAYS' => number_format($get_working_days),
+                            'DAYS_WORKED' => number_format($get_days_worked),
+                            'LATE_COUNT' => number_format($get_employee_late_count),
+                            'TOTAL_LATE' => number_format($get_employee_total_late, 2),
+                            'EARLY_LEAVING_COUNT' => number_format($get_employee_early_leaving_count),
+                            'TOTAL_EARLY_LEAVING' => number_format($get_employee_total_early_leaving, 2),
+                            'ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustment_count),
+                            'ATTENDANCE_CREATION' => number_format($get_attendance_creation_count),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-summary" data-employee-id="'. $employee_id .'" title="View Attendance Summary">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance record summary table
+    else if($type == 'attendance record summary table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+
+                $employee_id = $_POST['employee_id'];
+
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = :employee_id';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= ' AND ';
+
+                    $filter[] = 'TIME_IN_DATE BETWEEN :filter_start_date AND :filter_end_date';
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $sql->bindValue(':filter_start_date', $filter_start_date);
+                    $sql->bindValue(':filter_end_date', $filter_end_date);
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $attendance_id = $row['ATTENDANCE_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_in_behavior = $api->get_time_in_behavior_status($row['TIME_IN_BEHAVIOR'])[0]['BADGE'];
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $time_out_behavior = $api->get_time_out_behavior_status($row['TIME_OUT_BEHAVIOR'])[0]['BADGE'];
+                        $late = number_format($row['LATE']);
+                        $early_leaving = number_format($row['EARLY_LEAVING']);
+                        $overtime = number_format($row['OVERTIME']);
+                        $total_working_hours = number_format($row['TOTAL_WORKING_HOURS'], 2);
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $response[] = array(
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_IN_BEHAVIOR' => $time_in_behavior,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'TIME_OUT_BEHAVIOR' => $time_out_behavior,
+                            'LATE' => $late,
+                            'EARLY_LEAVING' => $early_leaving,
+                            'OVERTIME' => $overtime,
+                            'TOTAL_WORKING_HOURS' => $total_working_hours
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance creation summary table
+    else if($type == 'attendance creation summary table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, DECISION_REMARKS, TRANSACTION_LOG_ID FROM tblattendancecreation WHERE EMPLOYEE_ID = :employee_id AND STATUS = :status AND ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                $sql->bindValue(':status', 'APV');
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $sql->bindValue(':filter_start_date', $filter_start_date);
+                    $sql->bindValue(':filter_end_date', $filter_end_date);
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_creation_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $recommended_by = $row['RECOMMENDED_BY'];
+                        $decision_by = $row['DECISION_BY'];
+                        $decision_remarks = $row['DECISION_REMARKS'] ?? null;
+                        $request_date = $api->check_date('empty', $row['REQUEST_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $request_time = $api->check_date('empty', $row['REQUEST_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $for_recommendation_date = $api->check_date('empty', $row['FOR_RECOMMENDATION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $for_recommendation_time = $api->check_date('empty', $row['FOR_RECOMMENDATION_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $recommendation_date = $api->check_date('empty', $row['RECOMMENDATION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $recommendation_time = $api->check_date('empty', $row['RECOMMENDATION_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $decision_date = $api->check_date('empty', $row['DECISION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $decision_time = $api->check_date('empty', $row['DECISION_TIME'] ?? null, '', 'h:i a', '', '', '');
+
+                        $recommended_by_details = $api->get_employee_details('', $recommended_by);
+                        $recommended_by_file_as = $recommended_by_details[0]['FILE_AS'] ?? null;
+
+                        $decision_by_details = $api->get_employee_details('', $decision_by);
+                        $decision_by_file_as = $decision_by_details[0]['FILE_AS'] ?? null;
+
+                        $response[] = array(
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'REQUEST_DATE' => $request_date . '<br/>' . $request_time,
+                            'FOR_RECOMMENDATION_DATE' => $for_recommendation_date . '<br/>' . $for_recommendation_time,
+                            'RECOMMENDATION_DATE' => $recommendation_date . '<br/>' . $recommendation_time,
+                            'RECOMMENDED_BY' => $recommended_by_file_as,
+                            'APPROVAL_DATE' => $decision_date . '<br/>' . $decision_time,
+                            'APPROVAL_BY' => $decision_by_file_as,
+                            'REMARKS' => $decision_remarks,
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Attendance adjustment summary table
+    else if($type == 'attendance adjustment summary table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, DECISION_REMARKS, TRANSACTION_LOG_ID FROM tblattendanceadjustment WHERE EMPLOYEE_ID = :employee_id AND STATUS = :status AND ';
+    
+                if((!empty($filter_start_date) && !empty($filter_end_date))){
+                    $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                $sql->bindValue(':status', 'APV');
+                
+                if((!empty($filter_start_date) && !empty($filter_end_date)) ){
+                    $sql->bindValue(':filter_start_date', $filter_start_date);
+                    $sql->bindValue(':filter_end_date', $filter_end_date);
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $request_id = $row['REQUEST_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'h:i a', '', '', '');
+                        $time_in_date_adjusted = $api->check_date('empty', $row['TIME_IN_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_in_adjusted = $api->check_date('empty', $row['TIME_IN_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'h:i a', '', '', '');
+                        $time_out_date_adjusted = $api->check_date('empty', $row['TIME_OUT_DATE_ADJUSTED'] ?? null, '', 'm/d/Y', '', '', '');
+                        $time_out_adjusted = $api->check_date('empty', $row['TIME_OUT_ADJUSTED'] ?? null, '', 'h:i a', '', '', '');
+                        $status = $row['STATUS'];
+                        $status_description = $api->get_attendance_adjustment_status($status)[0]['BADGE'];
+                        $reason = $row['REASON'];
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $recommended_by = $row['RECOMMENDED_BY'];
+                        $decision_by = $row['DECISION_BY'];
+                        $decision_remarks = $row['DECISION_REMARKS'] ?? null;
+                        $request_date = $api->check_date('empty', $row['REQUEST_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $request_time = $api->check_date('empty', $row['REQUEST_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $for_recommendation_date = $api->check_date('empty', $row['FOR_RECOMMENDATION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $for_recommendation_time = $api->check_date('empty', $row['FOR_RECOMMENDATION_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $recommendation_date = $api->check_date('empty', $row['RECOMMENDATION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $recommendation_time = $api->check_date('empty', $row['RECOMMENDATION_TIME'] ?? null, '', 'h:i a', '', '', '');
+                        $decision_date = $api->check_date('empty', $row['DECISION_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                        $decision_time = $api->check_date('empty', $row['DECISION_TIME'] ?? null, '', 'h:i a', '', '', '');
+
+                        $recommended_by_details = $api->get_employee_details('', $recommended_by);
+                        $recommended_by_file_as = $recommended_by_details[0]['FILE_AS'] ?? null;
+
+                        $decision_by_details = $api->get_employee_details('', $decision_by);
+                        $decision_by_file_as = $decision_by_details[0]['FILE_AS'] ?? null;
+
+                        if(strtotime($time_in_date) != strtotime($time_in_date_adjusted)){
+                            $adjustment_time_in_date = $time_in_date . ' -> ' . $time_in_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in_date = $time_in_date;
+                        }
+
+                        if(strtotime($time_in) != strtotime($time_in_adjusted)){
+                            $adjustment_time_in = $time_in . ' -> ' . $time_in_adjusted;
+                        }
+                        else{
+                            $adjustment_time_in = $time_in_date;
+                        }
+
+                        if(strtotime($time_out_date) != strtotime($time_out_date_adjusted)){
+                            $adjustment_time_out_date = $time_out_date . ' -> ' . $time_out_date_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out_date = $time_out_date;
+                        }
+
+                        if(strtotime($time_out) != strtotime($time_out_adjusted)){
+                            $adjustment_time_out = $time_out . ' -> ' . $time_out_adjusted;
+                        }
+                        else{
+                            $adjustment_time_out = $time_out_date;
+                        }
+
+                        $response[] = array(
+                            'TIME_IN_DATE' => $adjustment_time_in_date,
+                            'TIME_IN' => $adjustment_time_in,
+                            'TIME_OUT_DATE' => $adjustment_time_out_date,
+                            'TIME_OUT' => $adjustment_time_out,
+                            'STATUS' => $status_description,
+                            'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
+                            'REASON' => $reason,
+                            'REQUEST_DATE' => $request_date . '<br/>' . $request_time,
+                            'FOR_RECOMMENDATION_DATE' => $for_recommendation_date . '<br/>' . $for_recommendation_time,
+                            'RECOMMENDATION_DATE' => $recommendation_date . '<br/>' . $recommendation_time,
+                            'RECOMMENDED_BY' => $recommended_by_file_as,
+                            'APPROVAL_DATE' => $decision_date . '<br/>' . $decision_time,
+                            'APPROVAL_BY' => $decision_by_file_as,
+                            'REMARKS' => $decision_remarks,
                         );
                     }
     

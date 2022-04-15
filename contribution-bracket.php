@@ -142,4 +142,4 @@
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
         <script src="assets/js/pages/contribution-bracket.js?v=<?php echo rand(); ?>"></script>
     </body>
-</html> 
+</html>

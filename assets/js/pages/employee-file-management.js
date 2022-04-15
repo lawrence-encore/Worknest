@@ -15,6 +15,7 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
     
     var username = $('#username').text();
     var type = 'employee file management table';
+    var filter_branch = $('#filter_branch').val();
     var filter_department = $('#filter_department').val();
     var filter_file_category = $('#filter_file_category').val();
     var filter_file_start_date = $('#filter_file_start_date').val();
@@ -54,7 +55,7 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_department' : filter_department, 'filter_file_category' : filter_file_category, 'filter_file_start_date' : filter_file_start_date, 'filter_file_end_date' :filter_file_end_date, 'filter_upload_start_date' : filter_upload_start_date, 'filter_upload_end_date' : filter_upload_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_file_category' : filter_file_category, 'filter_file_start_date' : filter_file_start_date, 'filter_file_end_date' :filter_file_end_date, 'filter_upload_start_date' : filter_upload_start_date, 'filter_upload_end_date' : filter_upload_end_date },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -85,7 +86,7 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_department' : filter_department, 'filter_file_category' : filter_file_category, 'filter_file_start_date' : filter_file_start_date, 'filter_file_end_date' :filter_file_end_date, 'filter_upload_start_date' : filter_upload_start_date, 'filter_upload_end_date' : filter_upload_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_file_category' : filter_file_category, 'filter_file_start_date' : filter_file_start_date, 'filter_file_end_date' :filter_file_end_date, 'filter_upload_start_date' : filter_upload_start_date, 'filter_upload_end_date' : filter_upload_end_date },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],

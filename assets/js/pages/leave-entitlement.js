@@ -14,6 +14,11 @@ function initialize_leave_entitlement_table(datatable_name, buttons = false, sho
     hide_multiple_buttons();
     
     var username = $('#username').text();
+    var filter_branch = $('#filter_branch').val();
+    var filter_department = $('#filter_department').val();
+    var filter_leave_type = $('#filter_leave_type').val();
+    var filter_start_date = $('#filter_start_date').val();
+    var filter_end_date = $('#filter_end_date').val();
     var type = 'leave entitlement table';
     var settings;
 
@@ -48,7 +53,7 @@ function initialize_leave_entitlement_table(datatable_name, buttons = false, sho
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -79,7 +84,7 @@ function initialize_leave_entitlement_table(datatable_name, buttons = false, sho
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_leave_type' : filter_leave_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],
@@ -212,4 +217,7 @@ function initialize_click_events(){
         }
     });
 
+    $(document).on('click','#apply-filter',function() {
+        initialize_leave_entitlement_table('#leave-entitlement-datatable');
+    });
 }

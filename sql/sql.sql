@@ -575,7 +575,7 @@ CREATE TABLE tblallowancetype(
 CREATE TABLE tblallowance(
 	ALLOWANCE_ID VARCHAR(100) PRIMARY KEY,
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
-	ALLOWANCE_TYPE VARCHAR(50) NOT NULL,
+	ALLOWANCE_TYPE VARCHAR(100) NOT NULL,
 	PAYROLL_ID DATE,
 	PAYROLL_DATE DATE NOT NULL,
 	AMOUNT DOUBLE,
@@ -609,34 +609,26 @@ CREATE TABLE tblcontributionbracket(
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE TABLE tblloans(
-	LOAN_ID VARCHAR(100) PRIMARY KEY,
+CREATE TABLE tbldeduction(
+	DEDUCTION_ID VARCHAR(100) PRIMARY KEY,
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
-	LOAN_TYPE VARCHAR(20) NOT NULL,
-	START_DATE DATE NOT NULL,
-	MATURITY_DATE DATE NOT NULL,
-	LOAN_AMOUNT DOUBLE NOT NULL,
-	INTEREST_RATE DOUBLE,
-	TERM_LENGTH INT NOT NULL,
-	TERM VARCHAR(20) NOT NULL,
-	REPAYMENT_AMOUNT DOUBLE NOT NULL,
-	TOTAL_LOAN_AMOUNT DOUBLE NOT NULL,
-	TRANSACTION_LOG_ID VARCHAR(500),
-	RECORD_LOG VARCHAR(100)
-);
-
-CREATE TABLE tblloandetails(
-	LOAN_ID VARCHAR(100) NOT NULL,
-	REPAYMENT_AMOUNT DOUBLE NOT NULL,
-	INTEREST_AMOUNT DOUBLE NOT NULL,
-	TOTAL_REPAYMENT_AMOUNT DOUBLE NOT NULL,
-	DUE_DATE DATE NOT NULL,
+	DEDUCTION_TYPE VARCHAR(100) NOT NULL,
 	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX loans_index ON tblloans(LOAN_ID);
+CREATE TABLE tblcontributiondeduction(
+	CONTRIBUTION_DEDUCTION_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	GOVERNMENT_CONTRIBUTION_TYPE VARCHAR(50) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
 
 /* Index */
 
@@ -682,6 +674,8 @@ CREATE INDEX allowance_type_index ON tblallowancetype(ALLOWANCE_TYPE_ID);
 CREATE INDEX deduction_type_index ON tbldeductiontype(DEDUCTION_TYPE_ID);
 CREATE INDEX government_contribution_index ON tblgovernmentcontribution(GOVERNMENT_CONTRIBUTION_ID);
 CREATE INDEX contribution_bracket_index ON tblcontributionbracket(CONTRIBUTION_BRACKET_ID);
+CREATE INDEX deduction_index ON tbldeduction(DEDUCTION_ID);
+CREATE INDEX contribution_deduction_index ON tblcontributiondeduction(CONTRIBUTION_DEDUCTION_ID);
 
 /* Stored Procedure */
 
@@ -2610,6 +2604,17 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE delete_employee_work_shift_assignment(IN employee_id VARCHAR(100))
+BEGIN
+	SET @employee_id = employee_id;
+
+	SET @query = 'DELETE FROM tblemployeeworkshift WHERE EMPLOYEE_ID = @employee_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 CREATE PROCEDURE check_employee_attendance_exist(IN attendance_id VARCHAR(100))
 BEGIN
 	SET @attendance_id = attendance_id;
@@ -4235,11 +4240,435 @@ BEGIN
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
-CREATE PROCEDURE get_loan_outstading_balance(IN loan_id VARCHAR(100))
-BEGIN
-	SET @loan_id = loan_id;
 
-	SET @query = 'SELECT SUM(TOTAL_REPAYMENT_AMOUNT) AS TOTAL FROM tblloandetails WHERE LOAN_ID = @loan_id AND PAYROLL_ID IS NULL';
+CREATE PROCEDURE check_deduction_exist(IN deduction_id VARCHAR(100))
+BEGIN
+	SET @deduction_id = deduction_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tbldeduction WHERE DEDUCTION_ID = @deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_deduction(IN deduction_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @deduction_id = deduction_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbldeduction SET PAYROLL_DATE = @payroll_date, AMOUNT = @amount, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE DEDUCTION_ID = @deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_deduction(IN deduction_id VARCHAR(100), IN employee_id VARCHAR(100), IN deduction_type VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @deduction_id = deduction_id;
+	SET @employee_id = employee_id;
+	SET @deduction_type = deduction_type;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbldeduction (DEDUCTION_ID, EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@deduction_id, @employee_id, @deduction_type, @payroll_date, @amount, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_deduction_details(IN deduction_id VARCHAR(100))
+BEGIN
+	SET @deduction_id = deduction_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG FROM tbldeduction WHERE DEDUCTION_ID = @deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_deduction(IN deduction_id VARCHAR(100))
+BEGIN
+	SET @deduction_id = deduction_id;
+
+	SET @query = 'DELETE FROM tbldeduction WHERE DEDUCTION_ID = @deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblgovernmentcontribution(
+	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100) PRIMARY KEY,
+	GOVERNMENT_CONTRIBUTION VARCHAR(50),
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE generate_contribution_deduction_type_options()
+BEGIN
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_ID, GOVERNMENT_CONTRIBUTION FROM tblgovernmentcontribution ORDER BY GOVERNMENT_CONTRIBUTION';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblcontributiondeduction(
+	CONTRIBUTION_DEDUCTION_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	GOVERNMENT_CONTRIBUTION_TYPE VARCHAR(50) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_contribution_deduction_exist(IN contribution_deduction_id VARCHAR(100))
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblcontributiondeduction WHERE CONTRIBUTION_DEDUCTION_ID = @contribution_deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_contribution_deduction(IN contribution_deduction_id VARCHAR(100), IN payroll_date DATE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+	SET @payroll_date = payroll_date;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblcontributiondeduction SET PAYROLL_DATE = @payroll_date, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE CONTRIBUTION_DEDUCTION_ID = @contribution_deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_contribution_deduction(IN contribution_deduction_id VARCHAR(100), IN employee_id VARCHAR(100), IN government_contribution_type VARCHAR(100), IN payroll_date DATE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+	SET @employee_id = employee_id;
+	SET @government_contribution_type = government_contribution_type;
+	SET @payroll_date = payroll_date;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblcontributiondeduction (CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_DATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@contribution_deduction_id, @employee_id, @government_contribution_type, @payroll_date, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_contribution_deduction_details(IN contribution_deduction_id VARCHAR(100))
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE, TRANSACTION_LOG_ID, RECORD_LOG FROM tblcontributiondeduction WHERE CONTRIBUTION_DEDUCTION_ID = @contribution_deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_contribution_deduction(IN contribution_deduction_id VARCHAR(100))
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+
+	SET @query = 'DELETE FROM tblcontributiondeduction WHERE CONTRIBUTION_DEDUCTION_ID = @contribution_deduction_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_time_in_count(IN time_in_behavior VARCHAR(10), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @time_in_behavior = time_in_behavior;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date AND TIME_IN_BEHAVIOR = @time_in_behavior';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date AND TIME_IN_BEHAVIOR = @time_in_behavior';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_BEHAVIOR = @time_in_behavior';
+	ELSE
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_BEHAVIOR = @time_in_behavior';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_time_out_count(IN time_out_behavior VARCHAR(10), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @time_out_behavior = time_out_behavior;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date AND TIME_OUT_BEHAVIOR = @time_out_behavior';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date AND TIME_OUT_BEHAVIOR = @time_out_behavior';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_OUT_BEHAVIOR = @time_out_behavior';
+	ELSE
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_employee_attendance_total(IN request_type VARCHAR(10), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @request_type = request_type;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF @request_type = 'Late' THEN
+		IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(LATE) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(LATE) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+			SET @query = 'SELECT SUM(LATE) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id';
+		ELSE
+			SET @query = 'SELECT SUM(LATE) AS TOTAL FROM tblattendancerecord';
+		END IF;
+	ELSEIF @request_type = 'Early Leaving' THEN
+		IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(EARLY_LEAVING) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(EARLY_LEAVING) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+			SET @query = 'SELECT SUM(EARLY_LEAVING) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id';
+		ELSE
+			SET @query = 'SELECT SUM(EARLY_LEAVING) AS TOTAL FROM tblattendancerecord';
+		END IF;
+	ELSEIF @request_type = 'Total Hours' THEN
+		IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(TOTAL_WORKING_HOURS) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(TOTAL_WORKING_HOURS) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+			SET @query = 'SELECT SUM(TOTAL_WORKING_HOURS) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id';
+		ELSE
+			SET @query = 'SELECT SUM(TOTAL_WORKING_HOURS) AS TOTAL FROM tblattendancerecord';
+		END IF;
+	ELSE
+		IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(OVERTIME) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT SUM(OVERTIME) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+			SET @query = 'SELECT SUM(OVERTIME) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id';
+		ELSE
+			SET @query = 'SELECT SUM(OVERTIME) AS TOTAL FROM tblattendancerecord';
+		END IF;
+	END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_adjustment_count(IN status VARCHAR(10), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @status = status;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE EMPLOYEE_ID = @employee_id AND REQUEST_DATE BETWEEN @start_date AND @end_date AND STATUS = @status';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE REQUEST_DATE BETWEEN @start_date AND @end_date AND STATUS = @status';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE EMPLOYEE_ID = @employee_id AND STATUS = @status';
+	ELSE
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE STATUS = @status';
+	END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_creation_count(IN status VARCHAR(10), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @status = status;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE EMPLOYEE_ID = @employee_id AND REQUEST_DATE BETWEEN @start_date AND @end_date AND STATUS = @status';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE REQUEST_DATE BETWEEN @start_date AND @end_date AND STATUS = @status';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE EMPLOYEE_ID = @employee_id AND STATUS = @status';
+	ELSE
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE STATUS = @status';
+	END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_days_worked(IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_DATE BETWEEN @start_date AND @end_date';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_i';
+	ELSE
+		SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_employee_without_workshift_options()
+BEGIN
+	SET @query = 'SELECT EMPLOYEE_ID, FILE_AS FROM tblemployee WHERE EMPLOYEE_ID NOT IN (SELECT EMPLOYEE_ID FROM tblemployeeworkshift) ORDER BY FILE_AS';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_summary_time_in_count(IN time_in_behavior VARCHAR(10), IN start_date DATE, IN end_date DATE, IN branch VARCHAR(50), IN department VARCHAR(50))
+BEGIN
+	SET @time_in_behavior = time_in_behavior;
+	SET @branch = branch;
+	SET @department = department;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @sub_query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_IN_BEHAVIOR = @time_in_behavior';
+
+	IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @date_query = ' AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+	ELSE
+		SET @date_query = '';
+	END IF;
+
+	IF (@branch IS NOT NULL OR @branch != '') THEN
+		SET @branch_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+	ELSE
+		SET @branch_query = '';
+	END IF;
+
+	IF (@department IS NOT NULL OR @department != '') THEN
+		SET @department_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+	ELSE
+		SET @department_query = '';
+	END IF;
+
+	SET @query = CONCAT(@sub_query, @date_query, @branch_query, @department_query);
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_summary_time_out_count(IN time_out_behavior VARCHAR(10), IN start_date DATE, IN end_date DATE, IN branch VARCHAR(50), IN department VARCHAR(50))
+BEGIN
+	SET @time_out_behavior = time_out_behavior;
+	SET @branch = branch;
+	SET @department = department;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @sub_query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior';
+
+	IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @date_query = ' AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+	ELSE
+		SET @date_query = '';
+	END IF;
+
+	IF (@branch IS NOT NULL OR @branch != '') THEN
+		SET @branch_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+	ELSE
+		SET @branch_query = '';
+	END IF;
+
+	IF (@department IS NOT NULL OR @department != '') THEN
+		SET @department_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+	ELSE
+		SET @department_query = '';
+	END IF;
+
+	SET @query = CONCAT(@sub_query, @date_query, @branch_query, @department_query);
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_summary_time_out_count(IN time_out_behavior VARCHAR(10), IN start_date DATE, IN end_date DATE, IN branch VARCHAR(50), IN department VARCHAR(50))
+BEGIN
+	SET @time_out_behavior = time_out_behavior;
+	SET @branch = branch;
+	SET @department = department;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@branch IS NOT NULL OR @branch != '') AND (@department IS NOT NULL OR @department != '') THEN
+		IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND TIME_IN_DATE BETWEEN @start_date AND @end_date AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch AND DEPARTMENT = @department)';
+		ELSE
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch AND DEPARTMENT = @department)';
+		END IF;
+	ELSEIF (@branch IS NOT NULL OR @branch != '') AND (@department IS NULL OR @department = '') THEN
+		IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND TIME_IN_DATE BETWEEN @start_date AND @end_date AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+		ELSE
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+		END IF;
+	ELSEIF (@branch IS NULL OR @branch = '') AND (@department IS NOT NULL OR @department != '') THEN
+		IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND TIME_IN_DATE BETWEEN @start_date AND @end_date AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+		ELSE
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+		END IF;
+	ELSE
+		IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior AND TIME_IN_DATE BETWEEN @start_date AND @end_date';
+		ELSE
+			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior';
+		END IF;
+    END IF;
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

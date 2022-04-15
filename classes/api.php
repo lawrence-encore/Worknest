@@ -1415,6 +1415,56 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_deduction_exist
+    # Purpose    : Checks if the deduction exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_deduction_exist($deduction_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_deduction_exist(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_contribution_deduction_exist
+    # Purpose    : Checks if the contribution deduction exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_contribution_deduction_exist($contribution_deduction_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_contribution_deduction_exist(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -4956,6 +5006,139 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_deduction
+    # Purpose    : Updates deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_deduction($deduction_id, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $deduction_details = $this->get_deduction_details($deduction_id);
+
+            if(!empty($deduction_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $deduction_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_deduction(:deduction_id, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($deduction_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_contribution_deduction
+    # Purpose    : Updates contribution deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_contribution_deduction($contribution_deduction_id, $payroll_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $contribution_deduction_details = $this->get_contribution_deduction_details($contribution_deduction_id);
+
+            if(!empty($contribution_deduction_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $contribution_deduction_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_contribution_deduction(:contribution_deduction_id, :payroll_date, :transaction_log_id, :record_log)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($contribution_deduction_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -7804,6 +7987,133 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_deduction
+    # Purpose    : Insert deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_deduction($employee_id, $deduction_type, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(33, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_deduction(:id, :employee_id, :deduction_type, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':deduction_type', $deduction_type);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 33, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_contribution_deduction
+    # Purpose    : Insert contribution deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_contribution_deduction($employee_id, $government_contribution, $payroll_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(34, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_contribution_deduction(:id, :employee_id, :government_contribution, :payroll_date, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':government_contribution', $government_contribution);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 34, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution deduction (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -8544,6 +8854,29 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : delete_employee_work_shift_assignment
+    # Purpose    : Delete employee work shift assignment.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_employee_work_shift_assignment($employee_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_employee_work_shift_assignment(:employee_id)');
+            $sql->bindValue(':employee_id', $employee_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : delete_employee_attendance
     # Purpose    : Delete employee attendance.
     #
@@ -9002,6 +9335,52 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_contribution_bracket(:contribution_bracket_id)');
             $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_deduction
+    # Purpose    : Delete deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_deduction($deduction_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_deduction(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_contribution_deduction
+    # Purpose    : Delete contribution deduction.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_contribution_deduction($contribution_deduction_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_contribution_deduction(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
         
             if($sql->execute()){
                 return 1;
@@ -10890,6 +11269,79 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_deduction_details
+    # Purpose    : Gets the deduction details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_deduction_details($deduction_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_deduction_details(:deduction_id)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'DEDUCTION_TYPE' => $row['DEDUCTION_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
+                        'AMOUNT' => $row['AMOUNT'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_contribution_deduction_details
+    # Purpose    : Gets the contribution deduction details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_contribution_deduction_details($contribution_deduction_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_contribution_deduction_details(:contribution_deduction_id)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'GOVERNMENT_CONTRIBUTION_TYPE' => $row['GOVERNMENT_CONTRIBUTION_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -10981,52 +11433,6 @@ class Api{
             else{
                 return $sql->errorInfo()[2];
             }
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : get_transaction_log_icon
-    # Purpose    : Returns the transaction log icon
-    #
-    # Returns    : String
-    #
-    # -------------------------------------------------------------
-    public function get_transaction_log_icon($log_type){
-        switch ($log_type) {
-            case 'Insert':
-                return 'bx bx-plus';
-                break;
-            case 'Update':
-                return 'bx bx-pencil';
-                break;
-            case 'Delete':
-                return 'bx bx-trash';
-                break;
-            case 'Approve':
-                return 'bx bx-check';
-                break;
-            case 'Reject':
-                return 'bx bx-x';
-                break;
-            case 'Cancel':
-                return 'bx bx-block';
-                break;
-            case 'Lock':
-                return 'bx bx-lock-alt';
-                break;
-            case 'Unlock':
-                return 'bx bx-lock-open-alt';
-                break;
-            case 'Activate':
-                return 'bx bx-check';
-                break;
-             case 'Deactivate':
-                return 'bx bx-x';
-                break;
-            default:
-                return 'bx bx-detail';
         }
     }
     # -------------------------------------------------------------
@@ -11907,16 +12313,246 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : get_loan_outstading_balance
-    # Purpose    : Gets the outstanding balance of the loan.
+    # Name       : get_attendance_time_in_count
+    # Purpose    : Gets the attendance record in based on behavior.
     #
     # Returns    : Number
     #
     # -------------------------------------------------------------
-    public function get_loan_outstading_balance($loan_id){
+    public function get_attendance_time_in_count($time_in_behavior, $employee_id, $start_date, $end_date){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL get_loan_outstading_balance(:loan_id)');
-            $sql->bindParam(':loan_id', $loan_id);
+            $sql = $this->db_connection->prepare('CALL get_attendance_time_in_count(:time_in_behavior, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':time_in_behavior', $time_in_behavior);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_time_out_count
+    # Purpose    : Gets the total attendance record based on behavior.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_time_out_count($time_out_behavior, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_time_out_count(:time_out_behavior, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':time_out_behavior', $time_out_behavior);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_employee_attendance_total
+    # Purpose    : Gets the total attendance record based on request type.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_employee_attendance_total($request_type, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_employee_attendance_total(:request_type, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':request_type', $request_type);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_adjustment_count
+    # Purpose    : Gets the total attendance adjustment based on request type.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_adjustment_count($request_type, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_adjustment_count(:request_type, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':request_type', $request_type);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_creation_count
+    # Purpose    : Gets the total attendance creation based on request type.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_creation_count($request_type, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_creation_count(:request_type, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':request_type', $request_type);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Name       : get_days_worked
+    # Purpose    : Gets the total days worked.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_days_worked($employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_days_worked(:employee_id, :start_date, :end_date)');
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_working_days
+    # Purpose    : Returns working days
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_working_days($employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $working_days = 0;
+            $start_date_converted = strtotime($start_date);
+            $end_date_converted = strtotime($end_date);
+                
+            for ($i = $start_date_converted; $i <= $end_date_converted; $i = $i + (60 * 60 * 24)) {
+                $day = date('N', $i);
+
+                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, date('Y-m-d', $i), $day);
+                $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
+
+                if(!empty($work_shift_id)){
+                    $working_days = $working_days + 1;
+                }
+            }
+            
+            return $working_days;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_summary_time_in_count
+    # Purpose    : Gets the attendance record in based on behavior.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_summary_time_in_count($time_in_behavior, $start_date, $end_date, $branch, $department){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_summary_time_in_count(:time_in_behavior, :start_date, :end_date, :branch, :department)');
+            $sql->bindParam(':time_in_behavior', $time_in_behavior);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+            $sql->bindParam(':branch', $branch);
+            $sql->bindParam(':department', $department);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_summary_time_out_count
+    # Purpose    : Gets the total attendance record based on behavior.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_summary_time_out_count($time_out_behavior, $start_date, $end_date, $branch, $department){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_summary_time_out_count(:time_out_behavior, :start_date, :end_date, :branch, :department)');
+            $sql->bindParam(':time_out_behavior', $time_out_behavior);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+            $sql->bindParam(':branch', $branch);
+            $sql->bindParam(':department', $department);
 
             if($sql->execute()){
                 $row = $sql->fetch();
@@ -12933,84 +13569,84 @@ class Api{
                     $monday_end_time = $this->check_date('empty', $row['MONDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $monday_lunch_start_time = $this->check_date('empty', $row['MONDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $monday_lunch_end_time = $this->check_date('empty', $row['MONDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $monday_half_day_mark = $this->check_date('empty', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $monday_half_day_mark = $this->check_date('summary', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $tuesday_start_time = $this->check_date('empty', $row['TUESDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $tuesday_end_time = $this->check_date('empty', $row['TUESDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $tuesday_lunch_start_time = $this->check_date('empty', $row['TUESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $tuesday_lunch_end_time = $this->check_date('empty', $row['TUESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $tuesday_half_day_mark = $this->check_date('empty', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $tuesday_half_day_mark = $this->check_date('summary', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $wednesday_start_time = $this->check_date('empty', $row['WEDNESDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $wednesday_end_time = $this->check_date('empty', $row['WEDNESDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $wednesday_lunch_start_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $wednesday_lunch_end_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $wednesday_half_day_mark = $this->check_date('empty', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $wednesday_half_day_mark = $this->check_date('summary', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $thursday_start_time = $this->check_date('empty', $row['THURSDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $thursday_end_time = $this->check_date('empty', $row['THURSDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $thursday_lunch_start_time = $this->check_date('empty', $row['THURSDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $thursday_lunch_end_time = $this->check_date('empty', $row['THURSDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $thursday_half_day_mark = $this->check_date('empty', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $thursday_half_day_mark = $this->check_date('summary', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $friday_start_time = $this->check_date('empty', $row['FRIDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $friday_end_time = $this->check_date('empty', $row['FRIDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $friday_lunch_start_time = $this->check_date('empty', $row['FRIDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $friday_lunch_end_time = $this->check_date('empty', $row['FRIDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $friday_half_day_mark = $this->check_date('empty', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $friday_half_day_mark = $this->check_date('summary', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $saturday_start_time = $this->check_date('empty', $row['SATURDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $saturday_end_time = $this->check_date('empty', $row['SATURDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $saturday_lunch_start_time = $this->check_date('empty', $row['SATURDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $saturday_lunch_end_time = $this->check_date('empty', $row['SATURDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $saturday_half_day_mark = $this->check_date('empty', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $saturday_half_day_mark = $this->check_date('summary', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $sunday_start_time = $this->check_date('empty', $row['SUNDAY_START_TIME'], '', 'h:i a', '', '', '');
                     $sunday_end_time = $this->check_date('empty', $row['SUNDAY_END_TIME'], '', 'h:i a', '', '', '');
                     $sunday_lunch_start_time = $this->check_date('empty', $row['SUNDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
                     $sunday_lunch_end_time = $this->check_date('empty', $row['SUNDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $sunday_half_day_mark = $this->check_date('empty', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+                    $sunday_half_day_mark = $this->check_date('summary', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
 
                     $column .= '<tr>
                                     <td>Monday</td>
-                                    <td>'. $monday_start_time .' - <br/>'. $monday_end_time .'</td>
-                                    <td>'. $monday_lunch_start_time .' - <br/>'. $monday_lunch_end_time .'</td>
+                                    <td>'. $monday_start_time .' - '. $monday_end_time .'</td>
+                                    <td>'. $monday_lunch_start_time .' - '. $monday_lunch_end_time .'</td>
                                     <td>'. $monday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Tuesday</td>
-                                    <td>'. $tuesday_start_time .' - <br/>'. $tuesday_end_time .'</td>
-                                    <td>'. $tuesday_lunch_start_time .' - <br/>'. $tuesday_lunch_end_time .'</td>
+                                    <td>'. $tuesday_start_time .' - '. $tuesday_end_time .'</td>
+                                    <td>'. $tuesday_lunch_start_time .' - '. $tuesday_lunch_end_time .'</td>
                                     <td>'. $tuesday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Wednesday</td>
-                                    <td>'. $wednesday_start_time .' - <br/>'. $wednesday_end_time .'</td>
-                                    <td>'. $wednesday_lunch_start_time .' - <br/>'. $wednesday_lunch_end_time .'</td>
+                                    <td>'. $wednesday_start_time .' - '. $wednesday_end_time .'</td>
+                                    <td>'. $wednesday_lunch_start_time .' - '. $wednesday_lunch_end_time .'</td>
                                     <td>'. $wednesday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Thursday</td>
-                                    <td>'. $thursday_start_time .' - <br/>'. $thursday_end_time .'</td>
-                                    <td>'. $thursday_lunch_start_time .' - <br/>'. $thursday_lunch_end_time .'</td>
+                                    <td>'. $thursday_start_time .' - '. $thursday_end_time .'</td>
+                                    <td>'. $thursday_lunch_start_time .' - '. $thursday_lunch_end_time .'</td>
                                     <td>'. $thursday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Friday</td>
-                                    <td>'. $friday_start_time .' - <br/>'. $friday_end_time .'</td>
-                                    <td>'. $friday_lunch_start_time .' - <br/>'. $friday_lunch_end_time .'</td>
+                                    <td>'. $friday_start_time .' - '. $friday_end_time .'</td>
+                                    <td>'. $friday_lunch_start_time .' - '. $friday_lunch_end_time .'</td>
                                     <td>'. $friday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Saturday</td>
-                                    <td>'. $saturday_start_time .' - <br/>'. $saturday_end_time .'</td>
-                                    <td>'. $saturday_lunch_start_time .' - <br/>'. $saturday_lunch_end_time .'</td>
+                                    <td>'. $saturday_start_time .' - '. $saturday_end_time .'</td>
+                                    <td>'. $saturday_lunch_start_time .' - '. $saturday_lunch_end_time .'</td>
                                     <td>'. $saturday_half_day_mark .'</td>
                                 </tr>
                                 <tr>
                                     <td>Sunday</td>
-                                    <td>'. $sunday_start_time .' - <br/>'. $sunday_end_time .'</td>
-                                    <td>'. $sunday_lunch_start_time .' - <br/>'. $sunday_lunch_end_time .'</td>
+                                    <td>'. $sunday_start_time .' - '. $sunday_end_time .'</td>
+                                    <td>'. $sunday_lunch_start_time .' - '. $sunday_lunch_end_time .'</td>
                                     <td>'. $sunday_half_day_mark .'</td>
                                 </tr>';
                 }
@@ -13121,6 +13757,111 @@ class Api{
                         $allowance_type = $row['ALLOWANCE_TYPE'];
     
                         $option .= "<option value='". $allowance_type_id ."'>". $allowance_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_deduction_type_options
+    # Purpose    : Generates deduction type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_deduction_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_deduction_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $deduction_type_id = $row['DEDUCTION_TYPE_ID'];
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+    
+                        $option .= "<option value='". $deduction_type_id ."'>". $deduction_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_contribution_deduction_type_options
+    # Purpose    : Generates contribution deduction type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_contribution_deduction_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_contribution_deduction_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $government_contribution_id = $row['GOVERNMENT_CONTRIBUTION_ID'];
+                        $government_contribution = $row['GOVERNMENT_CONTRIBUTION'];
+    
+                        $option .= "<option value='". $government_contribution_id ."'>". $government_contribution ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_employee_without_workshift_options
+    # Purpose    : Generates employee without workshift options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_employee_without_workshift_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_employee_without_workshift_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $file_as = $row['FILE_AS'];
+    
+                        $option .= "<option value='". $employee_id ."'>". $file_as ."</option>";
                     }
     
                     return $option;

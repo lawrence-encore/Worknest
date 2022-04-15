@@ -27,7 +27,7 @@ function initialize_global_functions(){
 
         sessionStorage.setItem('transaction_log_id', transaction_log_id);
 
-        generate_modal('transaction log', 'Transaction Log', 'R' , '1', '0', 'element', '', '0', username);
+        generate_modal('transaction log', 'Transaction Log', 'XL' , '1', '0', 'element', '', '0', username);
     });
 
     if ($('.select2').length) {
@@ -3324,6 +3324,7 @@ function initialize_form_validation(form_type){
 
                             $('#System-Modal').modal('hide');
                             reload_datatable('#employee-attendance-datatable');
+                            intialize_attendance_record_chart();
                         }
                         else if(response === 'Max Attendance'){
                             show_alert('Employee Attendance Error', 'There was a conflict with the inserted time in date.', 'error');
@@ -7315,6 +7316,7 @@ function initialize_form_validation(form_type){
         $('#loan-form').validate({
             submitHandler: function (form) {
                 transaction = 'submit loan';
+                document.getElementById('maturity_date').disabled = false;
 
                 $.ajax({
                     type: 'POST',
@@ -7334,7 +7336,7 @@ function initialize_form_validation(form_type){
                             }
 
                             $('#System-Modal').modal('hide');
-                            reload_datatable('#loans-datatable');
+                            reload_datatable('#loan-datatable');
                         }
                         else{
                             show_alert('Loan Error', response, 'error');
@@ -7409,6 +7411,713 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'tag loan details as paid form'){
+        $('#tag-loan-details-as-paid-form').validate({
+            submitHandler: function (form) {
+                transaction = 'tag loan details as paid';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Paid'){
+                            ishow_alert('Tag Loan Details As Paid', 'The loan detail has been tagged as paid.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loan-details-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Tag Loan Details As Paid Error', 'The loan detail does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Tag Loan Details As Paid Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                remarks: {
+                    required: 'Please enter the remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'tag multiple loan details as paid form'){
+        $('#tag-multiple-loan-details-as-unpaid-form').validate({
+            submitHandler: function (form) {
+                transaction = 'tag multiple loan details as paid';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Paid'){
+                            ishow_alert('Tag Multiple Loan Details As Paid', 'The multiple loan details has been tagged as paid.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loan-details-datatable');
+                        }
+                        else{
+                            show_alert('Tag Multiple Loan Details As Paid Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                remarks: {
+                    required: 'Please enter the remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'tag loan details as unpaid form'){
+        $('#tag-loan-details-as-paid-form').validate({
+            submitHandler: function (form) {
+                transaction = 'tag loan details as unpaid';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Unpaid'){
+                            ishow_alert('Tag Loan Details As Unpaid', 'The loan detail has been tagged as unpaid.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loan-details-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Tag Loan Details As Unpaid Error', 'The loan detail does not exist.', 'info');
+                        }
+                        else{
+                            show_alert('Tag Loan Details As Unpaid Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                remarks: {
+                    required: 'Please enter the remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'tag multiple loan details as unpaid form'){
+        $('#tag-multiple-loan-details-as-unpaid-form').validate({
+            submitHandler: function (form) {
+                transaction = 'tag multiple loan details as unpaid';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Unpaid'){
+                            ishow_alert('Tag Multiple Loan Details As Unpaid', 'The multiple loan details has been tagged as unpaid.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#loan-details-datatable');
+                        }
+                        else{
+                            show_alert('Tag Multiple Loan Details As Unpaid Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                remarks: {
+                    required: true
+                },
+            },
+            messages: {
+                remarks: {
+                    required: 'Please enter the remarks',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'deduction form'){
+        $('#deduction-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit deduction';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Deduction Success', 'The deduction has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#deduction-datatable');
+                        }
+                        else{
+                            show_alert('Deduction Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                deduction_type: {
+                    required: true
+                },
+                amount: {
+                    required: true
+                },
+                recurrence_pattern: {
+                    required:  function(element){
+                        var recurrence = $('#recurrence').val();
+
+                        if(recurrence > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                recurrence: {
+                    required:  function(element){
+                        var recurrence_pattern = $('#recurrence_pattern').val();
+
+                        if(recurrence_pattern != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                deduction_type: {
+                    required: 'Please choose the deduction type',
+                },
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                recurrence_pattern: {
+                    required: 'Please choose the recurrence pattern',
+                },
+                recurrence: {
+                    required: 'Please enter the recurrence',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'deduction update form'){
+        $('#deduction-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit deduction update';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Deduction Success', 'The deduction has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#deduction-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Update Deduction Error', 'The deduction does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Deduction Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                amount: {
+                    required: true
+                },
+                payroll_date: {
+                    required: true
+                }
+            },
+            messages: {
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                payroll_date: {
+                    required: 'Please choose the payroll date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'contribution deduction form'){
+        $('#contribution-deduction-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit contribution deduction';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Contribution Deduction Success', 'The contribution deduction has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#contribution-deduction-datatable');
+                        }
+                        else{
+                            show_alert('Contribution Deduction Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                deduction_type: {
+                    required: true
+                },
+                recurrence_pattern: {
+                    required:  function(element){
+                        var recurrence = $('#recurrence').val();
+
+                        if(recurrence > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                recurrence: {
+                    required:  function(element){
+                        var recurrence_pattern = $('#recurrence_pattern').val();
+
+                        if(recurrence_pattern != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                deduction_type: {
+                    required: 'Please choose the deduction type',
+                },
+                recurrence_pattern: {
+                    required: 'Please choose the recurrence pattern',
+                },
+                recurrence: {
+                    required: 'Please enter the recurrence',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'contribution deduction update form'){
+        $('#contribution-deduction-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit contribution deduction update';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Contribution Deduction Success', 'The contribution deduction has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#contribution-deduction-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Update Contribution Deduction Error', 'The contribution deduction does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Contribution Deduction Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                payroll_date: {
+                    required: true
+                }
+            },
+            messages: {
+                payroll_date: {
+                    required: 'Please choose the payroll date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+}
+
+function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
+    var username = $('#username').text();
+    var transaction_log_id = sessionStorage.getItem('transaction_log_id');
+    var type = 'transaction log table';
+    var settings;
+
+    var column = [ 
+        { 'data' : 'LOG_TYPE' },
+        { 'data' : 'LOG' },
+        { 'data' : 'LOG_DATE' },
+        { 'data' : 'LOG_BY' }
+    ];
+
+    var column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '45%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+    ];
+
+    if(show_all){
+        length_menu = [ [-1], ['All'] ];
+    }
+    else{
+        length_menu = [ [10, 25, 50, 100, -1], [10, 25, 50, 100, 'All'] ];
+    }
+
+    if(buttons){
+        settings = {
+            'ajax': { 
+                'url' : 'system-generation.php',
+                'method' : 'POST',
+                'dataType': 'JSON',
+                'data': {'type' : type, 'username' : username, 'transaction_log_id' : transaction_log_id},
+                'dataSrc' : ''
+            },
+            dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+            buttons: [
+                'csv', 'excel', 'pdf'
+            ],
+            'order': [[ 2, 'desc' ]],
+            'columns' : column,
+            'scrollY': false,
+            'scrollX': true,
+            'scrollCollapse': true,
+            'fnDrawCallback': function( oSettings ) {
+                readjust_datatable_column();
+            },
+            'aoColumnDefs': column_definition,
+            'lengthMenu': length_menu,
+            'language': {
+                'emptyTable': 'No data found',
+                'searchPlaceholder': 'Search...',
+                'search': '',
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
+            }
+        };
+    }
+    else{
+        settings = {
+            'ajax': { 
+                'url' : 'system-generation.php',
+                'method' : 'POST',
+                'dataType': 'JSON',
+                'data': {'type' : type, 'username' : username, 'transaction_log_id' : transaction_log_id},
+                'dataSrc' : ''
+            },
+            'order': [[ 2, 'desc' ]],
+            'columns' : column,
+            'scrollY': false,
+            'scrollX': true,
+            'scrollCollapse': true,
+            'fnDrawCallback': function( oSettings ) {
+                readjust_datatable_column();
+            },
+            'aoColumnDefs': column_definition,
+            'lengthMenu': length_menu,
+            'language': {
+                'emptyTable': 'No data found',
+                'searchPlaceholder': 'Search...',
+                'search': '',
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
+            }
+        };
+    }
+
+    destroy_datatable(datatable_name);
+    
+    $(datatable_name).dataTable(settings);
 }
 
 // Get location function
@@ -7531,7 +8240,7 @@ function generate_form(form_type, form_id, add, username){
                     var policy_id = $('#policy-id').text();
                     $('#policy_id').val(policy_id);
                 }
-                else if(form_type == 'emergency contact form' || form_type == 'employee address form' || form_type == 'employee social form' || form_type == 'employee attendance form' || form_type == 'employee leave entitlement form' || form_type == 'employee leave form' || form_type == 'employee file form'){
+                else if(form_type == 'emergency contact form' || form_type == 'employee address form' || form_type == 'employee social form' || form_type == 'employee attendance form' || form_type == 'employee leave entitlement form' || form_type == 'employee leave form' || form_type == 'employee file form' || form_type == 'employee allowance form' || form_type == 'employee allowance update form'){
                     var employee_id = $('#employee-id').text();
                     $('#employee_id').val(employee_id);
                 }
@@ -7549,6 +8258,10 @@ function generate_form(form_type, form_id, add, username){
                 else if(form_type == 'contribution bracket form'){
                     var government_contribution_id = $('#government-contribution-id').text();
                     $('#government_contribution_id').val(government_contribution_id);
+                }
+                else if(form_type == 'tag loan details as paid form' || form_type == 'tag loan details as unpaid form' || form_type == 'tag multiple loan details as paid form' || form_type == 'tag multiple loan details as unpaid form'){
+                    var loan_details_id = sessionStorage.getItem('loan_details_id');
+                    $('#loan_details_id').val(loan_details_id);
                 }
             }
 
@@ -7587,7 +8300,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'transaction log' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -7667,6 +8380,24 @@ function generate_element(element_type, value, container, modal, username){
                     }).catch(err => {
                         alert(err);
                     });
+                }
+                else if(element_type == 'transaction log'){
+                    if($('#transaction-log-datatable').length){
+                        initialize_transaction_log_table('#transaction-log-datatable');
+                    }
+                }
+                else if(element_type == 'attendance summary details'){
+                    if($('#employee-attendance-datatable').length){
+                        initialize_employee_attendance_table('#employee-attendance-datatable');
+                    }
+
+                    if($('#attendance-adjustment-datatable').length){
+                        initialize_attendance_adjustment_table('#attendance-adjustment-datatable');
+                    }
+
+                    if($('#attendance-creation-datatable').length){
+                        initialize_attendance_creation_table('#attendance-creation-datatable');
+                    }
                 }
             }
         }
@@ -8232,7 +8963,7 @@ function display_form_details(form_type){
             }
         });
     }
-    else if(form_type == 'work shift regular details' || form_type == 'work shift shceduled details'){
+    else if(form_type == 'work shift regular details' || form_type == 'work shift scheduled details'){
         transaction = 'work shift summary details';
 
         var work_shift_id = sessionStorage.getItem('work_shift_id');
@@ -8411,6 +9142,9 @@ function display_form_details(form_type){
                 $('#work_shift_id').val(work_shift_id);
 
                 check_empty(response[0].EMPLOYEE_ID.split(','), '#employee', 'select');
+            },
+            complete: function(){
+                reset_element_validation('#employee');
             }
         });
     }
@@ -9072,9 +9806,85 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'deduction update form'){
+        transaction = 'deduction details';
+        
+        var deduction_id = sessionStorage.getItem('deduction_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {deduction_id : deduction_id, transaction : transaction},
+            success: function(response) {
+                $('#deduction_id').val(deduction_id);
+                $('#amount').val(response[0].AMOUNT);
+                $('#payroll_date').val(response[0].PAYROLL_DATE);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#deduction_type', response[0].DEDUCTION_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'deduction details'){
+        transaction = 'deduction summary details';
+
+        var deduction_id = sessionStorage.getItem('deduction_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {deduction_id : deduction_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#deduction_type').text(response[0].DEDUCTION_TYPE);
+                $('#payroll_date').text(response[0].PAYROLL_DATE);
+                $('#amount').text(response[0].AMOUNT);
+                document.getElementById('payroll').innerHTML = response[0].PAYROLL;
+            }
+        });
+    }
+    else if(form_type == 'contribution deduction update form'){
+        transaction = 'contribution deduction details';
+        
+        var contribution_deduction_id = sessionStorage.getItem('contribution_deduction_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {contribution_deduction_id : contribution_deduction_id, transaction : transaction},
+            success: function(response) {
+                $('#contribution_deduction_id').val(contribution_deduction_id);
+                $('#payroll_date').val(response[0].PAYROLL_DATE);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#government_contribution', response[0].GOVERNMENT_CONTRIBUTION_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'contribution deduction details'){
+        transaction = 'contribution deduction summary details';
+
+        var contribution_deduction_id = sessionStorage.getItem('contribution_deduction_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {contribution_deduction_id : contribution_deduction_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#government_contribution_type').text(response[0].GOVERNMENT_CONTRIBUTION_TYPE);
+                $('#payroll_date').text(response[0].PAYROLL_DATE);
+                document.getElementById('payroll').innerHTML = response[0].PAYROLL;
+            }
+        });
+    }
 }
 
-// Destroy datatable
+// Destroy functions
 function destroy_datatable(datatable_name){
     $(datatable_name).DataTable().clear().destroy();
 }
@@ -9149,6 +9959,8 @@ function check_table_multiple_button(){
         var for_approval_array = [];
         var recommend_array = [];
         var active_array = [];
+        var paid_array = [];
+        var unpaid_array = [];
         
         $(".datatable-checkbox-children").each(function () {
             var cancel_data = $(this).data('cancel');
@@ -9160,6 +9972,8 @@ function check_table_multiple_button(){
             var approve_data = $(this).data('approve');
             var lock = $(this).data('lock');
             var active = $(this).data('active');
+            var paid = $(this).data('paid');
+            var unpaid = $(this).data('unpaid');
 
             if($(this).prop('checked') === true){
                 lock_array.push(lock);
@@ -9171,6 +9985,8 @@ function check_table_multiple_button(){
                 for_recommendation_array.push(for_recommendation_data);
                 recommend_array.push(recommend_data);
                 active_array.push(active);
+                paid_array.push(paid);
+                unpaid_array.push(unpaid);
             }
         });
 
@@ -9185,6 +10001,8 @@ function check_table_multiple_button(){
         var lock_checker = arr => arr.every(v => v === 0);
         var activate_checker = arr => arr.every(v => v === 0);
         var deactivate_checker = arr => arr.every(v => v === 1);
+        var paid_checker = arr => arr.every(v => v === 1);
+        var unpaid_checker = arr => arr.every(v => v === 1);
 
         if(lock_checker(lock_array) || unlock_checker(lock_array)){
             if(lock_checker(lock_array)){
@@ -9218,14 +10036,14 @@ function check_table_multiple_button(){
             $('.multiple-deactivate').addClass('d-none');
         }
         
-        if(for_approval_checker(for_approval_array) ){
+        if(for_approval_checker(for_approval_array)){
             $('.multiple-for-approval').removeClass('d-none');
         }
         else{
             $('.multiple-for-approval').addClass('d-none');
         }
         
-        if(cancel_checker(cancel_array) ){
+        if(cancel_checker(cancel_array)){
             $('.multiple-cancel').removeClass('d-none');
         }
         else{
@@ -9253,18 +10071,32 @@ function check_table_multiple_button(){
             $('.multiple-delete').addClass('d-none');
         }
         
-        if(for_recommendation_checker(for_recommendation_array) ){
+        if(for_recommendation_checker(for_recommendation_array)){
             $('.multiple-for-recommendation').removeClass('d-none');
         }
         else{
             $('.multiple-for-recommendation').addClass('d-none');
         }
         
-        if(recommend_checker(recommend_array) ){
+        if(recommend_checker(recommend_array)){
             $('.multiple-recommendation').removeClass('d-none');
         }
         else{
             $('.multiple-recommendation').addClass('d-none');
+        }
+
+        if(paid_checker(paid_array)){
+            $('.multiple-tag-loan-details-as-paid').removeClass('d-none');
+        }
+        else{
+            $('.multiple-tag-loan-details-as-paid').addClass('d-none');
+        }
+
+        if(unpaid_checker(unpaid_array)){
+            $('.multiple-tag-loan-details-as-unpaid').removeClass('d-none');
+        }
+        else{
+            $('.multiple-tag-loan-details-as-unpaid').addClass('d-none');
         }
     }
     else{
@@ -9279,6 +10111,8 @@ function check_table_multiple_button(){
         $('.multiple-unlock').addClass('d-none');
         $('.multiple-activate').addClass('d-none');
         $('.multiple-deactivate').addClass('d-none');
+        $('.multiple-tag-loan-details-as-paid').addClass('d-none');
+        $('.multiple-tag-loan-details-as-unpaid').addClass('d-none');
     }
 }
 

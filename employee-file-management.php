@@ -71,9 +71,7 @@
                                                         <h4 class="card-title">Employee File List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
-                                                    <?php
-                                                        if($add_employee_file > 0 || $delete_employee_file > 0){
-
+                                                        <?php
                                                             if($add_employee_file > 0){
                                                                 echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-employee-file-management"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                             }
@@ -81,8 +79,7 @@
                                                             if($delete_employee_file > 0){
                                                                 echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-employee-file-management"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                             }
-                                                        }
-                                                    ?>
+                                                        ?>
 
                                                         <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
                                                     </div>
@@ -118,6 +115,14 @@
                                                                     <input type="text" class="form-control" id="filter_upload_end_date" name="filter_upload_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-upload-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date">
                                                                     <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                                                 </div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Branch</p>
+
+                                                                <select class="form-control filter-select2" id="filter_branch">
+                                                                    <option value="">All Branch</option>
+                                                                    <?php echo $api->generate_branch_options(); ?>
+                                                                </select>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Department</p>

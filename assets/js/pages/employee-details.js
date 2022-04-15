@@ -30,8 +30,13 @@
             initialize_employee_file_management_table('#employee-file-datatable');
         }
 
+        if($('#time-in-behavior-doughnut').length && $('#time-out-behavior-doughnut').length){
+            intialize_attendance_record_chart();
+        }
+
         initialize_on_change_events();
         initialize_click_events();
+        intialize_select2_filter();
     });
 })(jQuery);
 
@@ -311,6 +316,10 @@ function initialize_employee_social_table(datatable_name, buttons = false, show_
 function initialize_employee_attendance_table(datatable_name, buttons = false, show_all = false){
     var username = $('#username').text();
     var employee_id = $('#employee-id').text();
+    var filter_attendance_record_start_date = $('#filter_attendance_record_start_date').val();
+    var filter_attendance_record_end_date = $('#filter_attendance_record_end_date').val();
+    var filter_attendance_record_time_in_behavior = $('#filter_attendance_record_time_in_behavior').val();
+    var filter_attendance_record_time_out_behavior = $('#filter_attendance_record_time_out_behavior').val();
     var type = 'employee attendance table';
     var settings;
 
@@ -350,7 +359,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_attendance_record_start_date' : filter_attendance_record_start_date, 'filter_attendance_record_end_date' : filter_attendance_record_end_date, 'filter_attendance_record_time_in_behavior' : filter_attendance_record_time_in_behavior, 'filter_attendance_record_time_out_behavior' : filter_attendance_record_time_out_behavior},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -381,7 +390,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_attendance_record_start_date' : filter_attendance_record_start_date, 'filter_attendance_record_end_date' : filter_attendance_record_end_date, 'filter_attendance_record_time_in_behavior' : filter_attendance_record_time_in_behavior, 'filter_attendance_record_time_out_behavior' : filter_attendance_record_time_out_behavior},
                 'dataSrc' : ''
             },
             'order': [[ 0, 'desc' ]],
@@ -411,6 +420,9 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
 function initialize_employee_leave_entitlement_table(datatable_name, buttons = false, show_all = false){
     var username = $('#username').text();
     var employee_id = $('#employee-id').text();
+    var filter_leave_entitlement_start_date = $('#filter_leave_entitlement_start_date').val();
+    var filter_leave_entitlement_end_date = $('#filter_leave_entitlement_end_date').val();
+    var filter_leave_entitlement_leave_type = $('#filter_leave_entitlement_leave_type').val();
     var type = 'employee leave entitlement table';
     var settings;
 
@@ -441,7 +453,7 @@ function initialize_employee_leave_entitlement_table(datatable_name, buttons = f
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_leave_entitlement_start_date' : filter_leave_entitlement_start_date, 'filter_leave_entitlement_end_date' : filter_leave_entitlement_end_date, 'filter_leave_entitlement_leave_type' : filter_leave_entitlement_leave_type},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -472,7 +484,7 @@ function initialize_employee_leave_entitlement_table(datatable_name, buttons = f
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_leave_entitlement_start_date' : filter_leave_entitlement_start_date, 'filter_leave_entitlement_end_date' : filter_leave_entitlement_end_date, 'filter_leave_entitlement_leave_type' : filter_leave_entitlement_leave_type},
                 'dataSrc' : ''
             },
             'order': [[ 0, 'asc' ]],
@@ -502,6 +514,10 @@ function initialize_employee_leave_entitlement_table(datatable_name, buttons = f
 function initialize_employee_leave_table(datatable_name, buttons = false, show_all = false){
     var username = $('#username').text();
     var employee_id = $('#employee-id').text();
+    var filter_employee_leave_start_date = $('#filter_employee_leave_start_date').val();
+    var filter_employee_leave_end_date = $('#filter_employee_leave_end_date').val();
+    var filter_employee_leave_type = $('#filter_employee_leave_type').val();
+    var filter_employee_leave_status = $('#filter_employee_leave_status').val();
     var type = 'employee leave table';
     var settings;
 
@@ -533,7 +549,7 @@ function initialize_employee_leave_table(datatable_name, buttons = false, show_a
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_employee_leave_start_date' : filter_employee_leave_start_date, 'filter_employee_leave_end_date' : filter_employee_leave_end_date, 'filter_employee_leave_type' : filter_employee_leave_type, 'filter_employee_leave_status' : filter_employee_leave_status},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -564,7 +580,7 @@ function initialize_employee_leave_table(datatable_name, buttons = false, show_a
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id},
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_employee_leave_start_date' : filter_employee_leave_start_date, 'filter_employee_leave_end_date' : filter_employee_leave_end_date, 'filter_employee_leave_type' : filter_employee_leave_type, 'filter_employee_leave_status' : filter_employee_leave_status},
                 'dataSrc' : ''
             },
             'order': [[ 0, 'asc' ]],
@@ -595,6 +611,11 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
     var username = $('#username').text();
     var type = 'employee file table';
     var employee_id = $('#employee-id').text();
+    var filter_employee_file_start_date = $('#filter_employee_file_start_date').val();
+    var filter_employee_file_end_date = $('#filter_employee_file_end_date').val();
+    var filter_upload_employee_file_start_date = $('#filter_upload_employee_file_start_date').val();
+    var filter_upload_employee_file_end_date = $('#filter_upload_employee_file_end_date').val();
+    var filter_employee_file_category = $('#filter_employee_file_category').val();
     var settings;
 
     var column = [ 
@@ -624,7 +645,7 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id },
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_employee_file_start_date' : filter_employee_file_start_date, 'filter_employee_file_end_date' : filter_employee_file_end_date, 'filter_upload_employee_file_start_date' : filter_upload_employee_file_start_date, 'filter_upload_employee_file_end_date' : filter_upload_employee_file_end_date, 'filter_employee_file_category' : filter_employee_file_category },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -655,7 +676,7 @@ function initialize_employee_file_management_table(datatable_name, buttons = fal
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id },
+                'data': {'type' : type, 'username' : username, 'employee_id' : employee_id, 'filter_employee_file_start_date' : filter_employee_file_start_date, 'filter_employee_file_end_date' : filter_employee_file_end_date, 'filter_upload_employee_file_start_date' : filter_upload_employee_file_start_date, 'filter_upload_employee_file_end_date' : filter_upload_employee_file_end_date, 'filter_employee_file_category' : filter_employee_file_category },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],
@@ -1093,6 +1114,23 @@ function initialize_click_events(){
     $(document).on('click','#view-employee-qr-code',function() {
         generate_modal('employee qr code', 'Employee QR Code', 'R' , '1', '0', 'element', '', '0', username);
     });
+
+    $(document).on('click','#apply-attendance-record-filter',function() {
+        initialize_employee_attendance_table('#employee-attendance-datatable');
+        intialize_attendance_record_chart();
+    });
+
+    $(document).on('click','#apply-employee-leave-filter',function() {
+        initialize_employee_leave_table('#employee-leave-datatable');
+    });
+
+    $(document).on('click','#apply-employee-leave-entitlement-filter',function() {
+        initialize_employee_leave_entitlement_table('#employee-leave-entitlement-datatable');
+    });
+
+    $(document).on('click','#apply-employee-file-filter',function() {
+        initialize_employee_file_management_table('#employee-file-datatable');
+    });
 }
 
 function initialize_on_change_events(){
@@ -1120,6 +1158,88 @@ function initialize_on_change_events(){
         }
         else{
             document.getElementById('leave-date-container').innerHTML = '';
+        }
+    });
+}
+
+function intialize_select2_filter(){
+    if ($('.filter-attendance-record-select2').length) {
+        $('.filter-attendance-record-select2').select2({
+            dropdownParent: $('#filter-attendance-record')
+        });
+    }
+
+    if ($('.filter-employee-leave-select2').length) {
+        $('.filter-employee-leave-select2').select2({
+            dropdownParent: $('#filter-employee-leave')
+        });
+    }
+
+    if ($('.filter-leave-entitlement-select2').length) {
+        $('.filter-leave-entitlement-select2').select2({
+            dropdownParent: $('#filter-employee-leave-entitlement')
+        });
+    }
+
+    if ($('.filter-employee-file-select2').length) {
+        $('.filter-employee-file-select2').select2({
+            dropdownParent: $('#filter-employee-file')
+        });
+    }
+}
+
+function intialize_attendance_record_chart(){
+    var transaction = 'employee attendance record chart';
+
+    var employee_id = $('#employee-id').text();
+    var filter_attendance_record_start_date = $('#filter_attendance_record_start_date').val();
+    var filter_attendance_record_end_date = $('#filter_attendance_record_end_date').val();
+
+    $.ajax({
+        url: 'controller.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {employee_id : employee_id, filter_attendance_record_start_date : filter_attendance_record_start_date, filter_attendance_record_end_date : filter_attendance_record_end_date, transaction : transaction},
+        success: function(response) {
+            var time_in_chart_container = document.getElementById('time-in-behavior-doughnut').getContext('2d');
+            var time_out_chart_container = document.getElementById('time-out-behavior-doughnut').getContext('2d');
+
+            $('#early-statistics').text(response[0].EARLY);
+            $('#time-in-regular-statistics').text(response[0].TIME_IN_REGULAR);
+            $('#late-statistics').text(response[0].LATE);
+            $('#early-leaving-statistics').text(response[0].EARLY_LEAVING);
+            $('#time-out-regular-statistics').text(response[0].TIME_OUT_REGULAR);
+            $('#overtime-statistics').text(response[0].OVERTIME);
+
+            var time_in_chart = new Chart(time_in_chart_container, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Early', 'Regular', 'Late'],
+                    datasets: [
+                        { 
+                            data: [response[0].EARLY, response[0].TIME_IN_REGULAR, response[0].LATE], 
+                            backgroundColor: ['#50a5f1', '#34c38f', '#f46a6a'], 
+                            hoverBackgroundColor: ['#50a5f1', '#34c38f', '#f46a6a'], 
+                            hoverBorderColor: '#fff'
+                        }
+                    ]
+                }
+            });
+
+            var time_out_chart = new Chart(time_out_chart_container, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Early Leaving', 'Regular', 'Overtime'],
+                    datasets: [
+                        { 
+                            data: [response[0].EARLY_LEAVING, response[0].TIME_OUT_REGULAR, response[0].OVERTIME],
+                            backgroundColor: ['#f46a6a', '#34c38f', '#50a5f1'], 
+                            hoverBackgroundColor: ['#f46a6a', '#34c38f', '#50a5f1'], 
+                            hoverBorderColor: '#fff'
+                        }
+                    ]
+                }
+            });
         }
     });
 }

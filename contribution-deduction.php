@@ -4,14 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Leave Management';
+    $page_title = 'Contribution Deduction';
 
-    $page_access = $api->check_role_permissions($username, 119);
-	$add_leave = $api->check_role_permissions($username, 120);
-	$delete_leave = $api->check_role_permissions($username, 121);
-	$approve_leave = $api->check_role_permissions($username, 122);
-	$reject_leave = $api->check_role_permissions($username, 123);
-	$cancel_leave = $api->check_role_permissions($username, 124);
+    $page_access = $api->check_role_permissions($username, 248);
+	$add_contribution_deduction = $api->check_role_permissions($username, 249);
+	$delete_contribution_deduction = $api->check_role_permissions($username, 251);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -55,8 +52,8 @@
                                     <h4 class="mb-sm-0 font-size-18"><?php echo $page_title; ?></h4>
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Human Resource</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Leave</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Deduction</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                         </ol>
                                     </div>
@@ -71,36 +68,23 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Leave Management List</h4>
+                                                        <h4 class="card-title">Deduction List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_leave > 0 || $delete_leave > 0 || $approve_leave > 0 || $reject_leave > 0 || $cancel_leave > 0){
+                                                            if($add_contribution_deduction > 0 || $delete_contribution_deduction > 0){
 
-                                                                if($add_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                if($add_contribution_deduction > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-contribution-deduction"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($approve_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-approve" id="approve-leave"><i class="bx bx-check label-icon"></i> Approve</button>';
-                                                                }
-
-                                                                if($reject_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-reject" id="reject-leave"><i class="bx bx-block label-icon"></i> Reject</button>';
-                                                                }
-
-                                                                if($cancel_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-warning waves-effect btn-label waves-light d-none multiple-cancel" id="cancel-leave"><i class="bx bx-calendar-x label-icon"></i> Cancel</button>';
-                                                                }
-
-                                                                if($delete_leave > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-leave"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_contribution_deduction > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-contribution-deduction"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
                                                         ?>
                                                         <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
                                                     </div>
-
                                                     <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-off-canvas" data-bs-backdrop="true" aria-labelledby="filter-off-canvas-label">
                                                         <div class="offcanvas-header">
                                                             <h5 class="offcanvas-title" id="filter-off-canvas-label">Filter</h5>
@@ -108,7 +92,7 @@
                                                         </div>
                                                         <div class="offcanvas-body">
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Leave Date</p>
+                                                                <p class="text-muted">Payroll Date</p>
 
                                                                 <div class="input-group mb-3" id="filter-start-date-container">
                                                                     <input type="text" class="form-control" id="filter_start_date" name="filter_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="<?php echo date('n/01/Y'); ?>">
@@ -137,22 +121,11 @@
                                                                 </select>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <p class="text-muted">Leave Type</p>
+                                                                <p class="text-muted">Contribution Deduction Type</p>
 
-                                                                <select class="form-control filter-select2" id="filter_leave_type">
-                                                                    <option value="">All Leave Type</option>
-                                                                    <?php echo $api->generate_leave_type_options(); ?>
-                                                                </select>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <p class="text-muted">Leave Status</p>
-
-                                                                <select class="form-control filter-select2" id="filter_leave_status">
-                                                                    <option value="APV">Approved</option>
-                                                                    <option value="APVSYS">Approved (System Generation)</option>
-                                                                    <option value="CAN">Cancelled</option>
-                                                                    <option value="PEN" selected>Pending</option>
-                                                                    <option value="REJ">Rejected</option>
+                                                                <select class="form-control filter-select2" id="filter_contribution_deduction_type">
+                                                                    <option value="">All Contribution Deduction Type</option>
+                                                                    <?php echo $api->generate_contribution_deduction_type_options(); ?>
                                                                 </select>
                                                             </div>
                                                             <div>
@@ -165,7 +138,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="leave-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="contribution-deduction-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -174,10 +147,8 @@
                                                                 </div>
                                                             </th>
                                                             <th class="all">Employee</th>
-                                                            <th class="all">Leave</th>
-                                                            <th class="all">Entitlement Status</th>
-                                                            <th class="all">Date</th>
-                                                            <th class="all">Status</th>
+                                                            <th class="all">Government Contribution Type</th>
+                                                            <th class="all">Payroll Date</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -208,6 +179,6 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/leave-management.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/contribution-deduction.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>
