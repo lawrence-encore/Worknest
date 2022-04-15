@@ -171,6 +171,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- end row -->
                                     </div>
                                 </div>
                             </div>
@@ -457,7 +458,6 @@
                                                                     </div>
                                                                 </div>';
                                                         }
-
                                                         if($view_employee_leave > 0){
                                                             if($add_employee_leave > 0){
                                                                 $add = '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-employee-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
