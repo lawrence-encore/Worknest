@@ -1960,11 +1960,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
-            else if($form_type == 'approve attendance creation form' || $form_type == 'approve multiple attendance creation form' || $form_type == 'reject attendance creation form' || $form_type == 'cancel attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'cancel multiple attendance creation form' || $form_type == 'approve attendance adjustment form'  || $form_type == 'approve multiple attendance adjustment form' || $form_type == 'reject attendance adjustment form' || $form_type == 'cancel attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form' || $form_type == 'cancel multiple attendance adjustment form'){
-                if($form_type == 'approve attendance creation form' || $form_type == 'approve attendance adjustment form' || $form_type == 'approve multiple attendance creation form' || $form_type == 'approve multiple attendance adjustment form'){
-                    $label = 'Approval Remarks';
-                }
-                else if($form_type == 'reject attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'reject attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form'){
+            else if($form_type == 'reject attendance creation form' || $form_type == 'cancel attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'cancel multiple attendance creation form' || $form_type == 'reject attendance adjustment form' || $form_type == 'cancel attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form' || $form_type == 'cancel multiple attendance adjustment form'){
+                if($form_type == 'reject attendance creation form' || $form_type == 'reject multiple attendance creation form' || $form_type == 'reject attendance adjustment form' || $form_type == 'reject multiple attendance adjustment form'){
                     $label = 'Rejection Remarks <span class="required">*</span>';
                 }
                 else{
@@ -1976,6 +1973,29 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <div class="mb-3">
                                         <label for="decision_remarks" class="form-label">'. $label .'</label>
                                         <input type="hidden" id="request_id" name="request_id">
+                                        <textarea class="form-control form-maxlength" id="decision_remarks" name="decision_remarks" maxlength="500" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'approve attendance creation form' || $form_type == 'approve multiple attendance creation form' || $form_type == 'approve attendance adjustment form'  || $form_type == 'approve multiple attendance adjustment form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="decision_remarks" class="form-label">Sanction <span class="required">*</span></label>
+                                        <input type="hidden" id="request_id" name="request_id">
+                                        <select class="form-control form-select2" id="sanction" name="sanction">
+                                            <option value="">--</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="decision_remarks" class="form-label">Approval Remarks</label>
                                         <textarea class="form-control form-maxlength" id="decision_remarks" name="decision_remarks" maxlength="500" rows="3"></textarea>
                                     </div>
                                 </div>

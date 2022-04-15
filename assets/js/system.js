@@ -5990,6 +5990,16 @@ function initialize_form_validation(form_type){
                 });
                 return false;
             },
+            rules: {
+                sanction: {
+                    required: true
+                },
+            },
+            messages: {
+                sanction: {
+                    required: 'Please choose the sanction',
+                },
+            },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
                     label.insertAfter(element.next('.select2-container'));
@@ -6053,6 +6063,16 @@ function initialize_form_validation(form_type){
                     }
                 });
                 return false;
+            },
+            rules: {
+                sanction: {
+                    required: true
+                },
+            },
+            messages: {
+                sanction: {
+                    required: 'Please choose the sanction',
+                },
             },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
@@ -6637,6 +6657,16 @@ function initialize_form_validation(form_type){
                 });
                 return false;
             },
+            rules: {
+                sanction: {
+                    required: true
+                },
+            },
+            messages: {
+                sanction: {
+                    required: 'Please choose the sanction',
+                },
+            },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
                     label.insertAfter(element.next('.select2-container'));
@@ -6700,6 +6730,16 @@ function initialize_form_validation(form_type){
                     }
                 });
                 return false;
+            },
+            rules: {
+                sanction: {
+                    required: true
+                },
+            },
+            messages: {
+                sanction: {
+                    required: 'Please choose the sanction',
+                },
             },
             errorPlacement: function(label, element) {
                 if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {

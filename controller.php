@@ -5511,9 +5511,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Approve attendance creation
     else if($transaction == 'approve attendance creation'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['decision_remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction']) && isset($_POST['decision_remarks'])){
             $username = $_POST['username'];
             $request_id = $_POST['request_id'];
+            $sanction = $_POST['sanction'];
             $decision_remarks = $_POST['decision_remarks'];
 
             $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
@@ -5600,9 +5601,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Approve multiple attendance creation
     else if($transaction == 'approve multiple attendance creation'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['decision_remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction']) && isset($_POST['decision_remarks'])){
             $username = $_POST['username'];
             $request_ids = explode(',', $_POST['request_id']);
+            $sanction = $_POST['sanction'];
             $decision_remarks = $_POST['decision_remarks'];
             $error_count = 0;
             $error = '';
@@ -5706,9 +5708,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Approve attendance adjustment
     else if($transaction == 'approve attendance adjustment'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['decision_remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction']) && isset($_POST['decision_remarks'])){
             $username = $_POST['username'];
             $request_id = $_POST['request_id'];
+            $sanction = $_POST['sanction'];
             $decision_remarks = $_POST['decision_remarks'];
 
             $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
@@ -5837,9 +5840,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Approve multiple attendance adjustment
     else if($transaction == 'approve multiple attendance adjustment'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['decision_remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction'] && isset($_POST['decision_remarks'])){
             $username = $_POST['username'];
             $request_ids = explode(',', $_POST['request_id']);
+            $sanction = $_POST['sanction'];
             $decision_remarks = $_POST['decision_remarks'];
             $error_count = 0;
             $error = '';
