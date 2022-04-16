@@ -4538,6 +4538,50 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE get_attendance_adjustments_sanction_count(IN sanction INT(1), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @sanction = sanction;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE EMPLOYEE_ID = @employee_id AND REQUEST_DATE BETWEEN @start_date AND @end_date AND SANCTION = @sanction';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE REQUEST_DATE BETWEEN @start_date AND @end_date AND SANCTION = @sanction';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE EMPLOYEE_ID = @employee_id AND SANCTION = @sanction';
+	ELSE
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE SANCTION = @sanction';
+	END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_creation_sanction_count(IN sanction INT(1), IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @sanction = sanction;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	IF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE EMPLOYEE_ID = @employee_id AND REQUEST_DATE BETWEEN @start_date AND @end_date AND SANCTION = @sanction';
+	ELSEIF (@employee_id IS NULL OR @employee_id = '') AND (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE REQUEST_DATE BETWEEN @start_date AND @end_date AND SANCTION = @sanction';
+	ELSEIF (@employee_id IS NOT NULL OR @employee_id != '') AND (@start_date IS NULL OR @start_date = '') AND (@end_date IS NULL OR @end_date = '') THEN
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE EMPLOYEE_ID = @employee_id AND SANCTION = @sanction';
+	ELSE
+		SET @query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE SANCTION = @sanction';
+	END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 CREATE PROCEDURE get_days_worked(IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE)
 BEGIN
 	SET @employee_id = employee_id;
@@ -4669,6 +4713,74 @@ BEGIN
 			SET @query = 'SELECT COUNT(ATTENDANCE_ID) AS TOTAL FROM tblattendancerecord WHERE TIME_OUT_BEHAVIOR = @time_out_behavior';
 		END IF;
     END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_summary_attendance_adjustments_sanction_count(IN sanction INT(1), IN start_date DATE, IN end_date DATE, IN branch VARCHAR(50), IN department VARCHAR(50))
+BEGIN
+	SET @sanction = sanction;
+	SET @branch = branch;
+	SET @department = department;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @sub_query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendanceadjustment WHERE SANCTION = @sanction';
+
+	IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @date_query = ' AND REQUEST_DATE BETWEEN @start_date AND @end_date';
+	ELSE
+		SET @date_query = '';
+	END IF;
+
+	IF (@branch IS NOT NULL OR @branch != '') THEN
+		SET @branch_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+	ELSE
+		SET @branch_query = '';
+	END IF;
+
+	IF (@department IS NOT NULL OR @department != '') THEN
+		SET @department_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+	ELSE
+		SET @department_query = '';
+	END IF;
+
+	SET @query = CONCAT(@sub_query, @date_query, @branch_query, @department_query);
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_attendance_summary_attendance_creation_sanction_count(IN sanction INT(1), IN start_date DATE, IN end_date DATE, IN branch VARCHAR(50), IN department VARCHAR(50))
+BEGIN
+	SET @sanction = sanction;
+	SET @branch = branch;
+	SET @department = department;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @sub_query = 'SELECT COUNT(REQUEST_ID) AS TOTAL FROM tblattendancecreation WHERE SANCTION = @sanction';
+
+	IF (@start_date IS NOT NULL OR @start_date != '') AND (@end_date IS NOT NULL OR @end_date != '') THEN
+		SET @date_query = ' AND REQUEST_DATE BETWEEN @start_date AND @end_date';
+	ELSE
+		SET @date_query = '';
+	END IF;
+
+	IF (@branch IS NOT NULL OR @branch != '') THEN
+		SET @branch_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = @branch)';
+	ELSE
+		SET @branch_query = '';
+	END IF;
+
+	IF (@department IS NOT NULL OR @department != '') THEN
+		SET @department_query = ' AND EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = @department)';
+	ELSE
+		SET @department_query = '';
+	END IF;
+
+	SET @query = CONCAT(@sub_query, @date_query, @branch_query, @department_query);
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
