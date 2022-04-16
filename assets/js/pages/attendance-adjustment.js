@@ -16,6 +16,7 @@ function initialize_attendance_adjustment_table(datatable_name, buttons = false,
     var username = $('#username').text();
     var type = 'attendance adjustment table';
     var filter_attendance_adjustment_status = $('#filter_attendance_adjustment_status').val();
+    var filter_attendance_adjustment_sanction = $('#filter_attendance_adjustment_sanction').val();
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
     var settings;
@@ -27,6 +28,7 @@ function initialize_attendance_adjustment_table(datatable_name, buttons = false,
         { 'data' : 'TIME_OUT_DATE' },
         { 'data' : 'TIME_OUT' },
         { 'data' : 'STATUS' },
+        { 'data' : 'SANCTION' },
         { 'data' : 'ATTACHMENT' },
         { 'data' : 'REASON' },
         { 'data' : 'ACTION' }
@@ -40,8 +42,9 @@ function initialize_attendance_adjustment_table(datatable_name, buttons = false,
         { 'width': '10%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%', 'aTargets': 6 },
-        { 'width': '19%', 'aTargets': 7 },
-        { 'width': '20%','bSortable': false, 'aTargets': 8 },
+        { 'width': '10%', 'aTargets': 7 },
+        { 'width': '19%', 'aTargets': 8 },
+        { 'width': '20%','bSortable': false, 'aTargets': 9 },
     ];
 
     if(show_all){
@@ -57,7 +60,7 @@ function initialize_attendance_adjustment_table(datatable_name, buttons = false,
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_attendance_adjustment_status' : filter_attendance_adjustment_status, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_attendance_adjustment_status' : filter_attendance_adjustment_status, 'filter_attendance_adjustment_sanction' : filter_attendance_adjustment_sanction, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -88,7 +91,7 @@ function initialize_attendance_adjustment_table(datatable_name, buttons = false,
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_attendance_adjustment_status' : filter_attendance_adjustment_status, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_attendance_adjustment_status' : filter_attendance_adjustment_status, 'filter_attendance_adjustment_sanction' : filter_attendance_adjustment_sanction, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'desc' ]],

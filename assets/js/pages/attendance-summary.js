@@ -40,6 +40,10 @@ function initialize_attendance_summary_table(datatable_name, buttons = false, sh
         { 'data' : 'TOTAL_EARLY_LEAVING' },
         { 'data' : 'ATTENDANCE_ADJUSTMENT' },
         { 'data' : 'ATTENDANCE_CREATION' },
+        { 'data' : 'SANCTIONED_ATTENDANCE_ADJUSTMENT' },
+        { 'data' : 'SANCTIONED_ATTENDANCE_CREATION' },
+        { 'data' : 'UNSANCTIONED_ATTENDANCE_ADJUSTMENT' },
+        { 'data' : 'UNSANCTIONED_ATTENDANCE_CREATION' },
         { 'data' : 'ACTION' }
     ];
 
@@ -53,7 +57,11 @@ function initialize_attendance_summary_table(datatable_name, buttons = false, sh
         { 'width': '10%', 'aTargets': 6 },
         { 'width': '10%', 'aTargets': 7 },
         { 'width': '10%', 'aTargets': 8 },
-        { 'width': '20%','bSortable': false, 'aTargets': 9},
+        { 'width': '10%', 'aTargets': 9 },
+        { 'width': '10%', 'aTargets': 10 },
+        { 'width': '10%', 'aTargets': 11 },
+        { 'width': '10%', 'aTargets': 12 },
+        { 'width': '20%','bSortable': false, 'aTargets': 13},
     ];
 
     if(show_all){
@@ -483,13 +491,18 @@ function intialize_attendance_summary_chart(){
         success: function(response) {
             var time_in_chart_container = document.getElementById('time-in-behavior-doughnut').getContext('2d');
             var time_out_chart_container = document.getElementById('time-out-behavior-doughnut').getContext('2d');
+            var attendance_adjustment_container = document.getElementById('attendance-adjustment-doughnut').getContext('2d');
+            var attendance_creation_container = document.getElementById('attendance-creation-doughnut').getContext('2d');
 
             $('#early-statistics').text(response[0].EARLY);
             $('#time-in-regular-statistics').text(response[0].TIME_IN_REGULAR);
             $('#late-statistics').text(response[0].LATE);
             $('#early-leaving-statistics').text(response[0].EARLY_LEAVING);
             $('#time-out-regular-statistics').text(response[0].TIME_OUT_REGULAR);
-            $('#overtime-statistics').text(response[0].OVERTIME);
+            $('#attendance-adjustment-sanction-statistics').text(response[0].SANCTIONED_ATTENDANCE_ADJUSTMENT);
+            $('#attendance-adjustment-unsanction-statistics').text(response[0].UNSANCTIONED_ATTENDANCE_ADJUSTMENT);
+            $('#attendance-creation-sanction-statistics').text(response[0].SANCTIONED_ATTENDANCE_CREATION);
+            $('#attendance-creation-unsanction-statistics').text(response[0].UNSANCTIONED_ATTENDANCE_CREATION);
 
             var time_in_chart = new Chart(time_in_chart_container, {
                 type: 'doughnut',
@@ -515,6 +528,36 @@ function intialize_attendance_summary_chart(){
                             data: [response[0].EARLY_LEAVING, response[0].TIME_OUT_REGULAR, response[0].OVERTIME],
                             backgroundColor: ['#f46a6a', '#34c38f', '#50a5f1'], 
                             hoverBackgroundColor: ['#f46a6a', '#34c38f', '#50a5f1'], 
+                            hoverBorderColor: '#fff'
+                        }
+                    ]
+                }
+            });
+
+            var attendance_adjustment_chart = new Chart(attendance_adjustment_container, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sanctioned', 'Unsanctioned'],
+                    datasets: [
+                        { 
+                            data: [response[0].SANCTIONED_ATTENDANCE_ADJUSTMENT, response[0].UNSANCTIONED_ATTENDANCE_ADJUSTMENT],
+                            backgroundColor: ['#f46a6a', '#34c38f'], 
+                            hoverBackgroundColor: ['#f46a6a', '#34c38f'], 
+                            hoverBorderColor: '#fff'
+                        }
+                    ]
+                }
+            });
+
+            var attendance_creation_chart = new Chart(attendance_creation_container, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sanctioned', 'Unsanctioned'],
+                    datasets: [
+                        { 
+                            data: [response[0].SANCTIONED_ATTENDANCE_CREATION, response[0].UNSANCTIONED_ATTENDANCE_CREATION],
+                            backgroundColor: ['#f46a6a', '#34c38f'], 
+                            hoverBackgroundColor: ['#f46a6a', '#34c38f'], 
                             hoverBorderColor: '#fff'
                         }
                     ]

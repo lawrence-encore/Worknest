@@ -119,9 +119,18 @@
                                                                     <option value="APV">Approved</option>
                                                                     <option value="CAN">Cancelled</option>
                                                                     <option value="FRREC">For Recommendation</option>
-                                                                    <option value="PEN" selected>Pending</option>
+                                                                    <option value="PEN">Pending</option>
                                                                     <option value="REC">Recommended</option>
                                                                     <option value="REJ">Rejected</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Sanction</p>
+
+                                                                <select class="form-control filter-select2" id="filter_attendance_adjustment_sanction">
+                                                                    <option value="">All Sanction</option>
+                                                                    <option value="1">Yes</option>
+                                                                    <option value="0">No</option>
                                                                 </select>
                                                             </div>
                                                             <div>
@@ -147,6 +156,7 @@
                                                             <th class="all">Time Out Date</th>
                                                             <th class="all">Time Out</th>
                                                             <th class="all">Status</th>
+                                                            <th class="all">Sanction</th>
                                                             <th class="all">Attachment</th>
                                                             <th class="all">Reason</th>
                                                             <th class="all">Action</th>

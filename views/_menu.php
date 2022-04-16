@@ -224,28 +224,6 @@
         }
     }
 
-    if($attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
-        $menu .= '<li class="menu-title" key="t-menu">Recommendation</li>';
-
-        if($attendance_creation_recommendation_page > 0){
-            $menu .= '<li>
-                        <a href="attendance-adjustment-recommendation.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-event"></i>
-                            <span key="t-dashboard">Attendance Adjustment</span>
-                        </a>
-                    </li>';
-        }
-
-        if($attendance_adjustment_recommendation_page > 0){
-            $menu .= '<li>
-                        <a href="attendance-creation-recommendation.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-plus"></i>
-                            <span key="t-dashboard">Attendance Creation</span>
-                        </a>
-                    </li>';
-        }
-    }
-
     if($attendance_creation_approval_page > 0 || $attendance_adjustment_approval_page > 0 || $leave_approval_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Approval</li>';
 
@@ -272,6 +250,28 @@
                         <a href="leave-approval.php" class="waves-effect">
                             <i class="bx bx bx-calendar-check"></i>
                             <span key="t-dashboard">Leave Approval</span>
+                        </a>
+                    </li>';
+        }
+    }
+
+    if($attendance_creation_recommendation_page > 0 || $attendance_adjustment_recommendation_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Recommendation</li>';
+
+        if($attendance_creation_recommendation_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-adjustment-recommendation.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-event"></i>
+                            <span key="t-dashboard">Attendance Adjustment</span>
+                        </a>
+                    </li>';
+        }
+
+        if($attendance_adjustment_recommendation_page > 0){
+            $menu .= '<li>
+                        <a href="attendance-creation-recommendation.php" class="waves-effect">
+                            <i class="bx bx bx-calendar-plus"></i>
+                            <span key="t-dashboard">Attendance Creation</span>
                         </a>
                     </li>';
         }

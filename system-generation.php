@@ -2890,6 +2890,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         <td id="creation_status"></td>
                                     </tr>
                                     <tr>
+                                        <th scope="row">Sanction :</th>
+                                        <td id="creation_sanction"></td>
+                                    </tr>
+                                    <tr>
                                         <th scope="row">Reason :</th>
                                         <td id="reason"></td>
                                     </tr>
@@ -2985,7 +2989,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     </tr>
                                     <tr>
                                         <th scope="row">Status :</th>
-                                        <td id="creation_status"></td>
+                                        <td id="adjustment_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Sanction :</th>
+                                        <td id="adjustment_sanction"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Reason :</th>
@@ -6109,7 +6117,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Attendance creation table
     else if($type == 'attendance creation table'){
-        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_creation_status'])){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_creation_status']) && isset($_POST['filter_attendance_creation_sanction'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
                 $employee_id = $employee_details[0]['EMPLOYEE_ID'];
@@ -6122,18 +6130,23 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $view_transaction_log = $api->check_role_permissions($username, 181);
 
                 $filter_attendance_creation_status = $_POST['filter_attendance_creation_status'];
+                $filter_attendance_creation_sanction = $_POST['filter_attendance_creation_sanction'];
                 $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
 
-                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendancecreation WHERE EMPLOYEE_ID = :employee_id AND ';
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, SANCTION, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendancecreation WHERE EMPLOYEE_ID = :employee_id AND ';
     
-                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status)){
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status) || $filter_attendance_creation_sanction != ''){
                     if(!empty($filter_start_date) && !empty($filter_end_date)){
                         $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
                     }
 
                     if(!empty($filter_attendance_creation_status)){
                         $filter[] = 'STATUS = :filter_attendance_creation_status';
+                    }
+
+                    if($filter_attendance_creation_sanction != ''){
+                        $filter[] = 'SANCTION = :filter_attendance_creation_sanction';
                     }
 
                     if(!empty($filter)){
@@ -6144,7 +6157,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
                 
-                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status)){
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_creation_status) || $filter_attendance_creation_sanction != ''){
                     if(!empty($filter_start_date) && !empty($filter_end_date)){
                         $sql->bindValue(':filter_start_date', $filter_start_date);
                         $sql->bindValue(':filter_end_date', $filter_end_date);
@@ -6152,6 +6165,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
                     if(!empty($filter_attendance_creation_status)){
                         $sql->bindValue(':filter_attendance_creation_status', $filter_attendance_creation_status);
+                    }
+
+                    if($filter_attendance_creation_sanction != ''){
+                        $sql->bindValue(':filter_attendance_creation_sanction', $filter_attendance_creation_sanction);
                     }
                 }
     
@@ -6230,12 +6247,20 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         else{
                             $check_box = '';
                         }
+
+                        if($status == 'APV'){
+                            $sanction = $api->get_attendance_creation_sanction_status($row['SANCTION'])[0]['BADGE'];
+                        }
+                        else{
+                            $sanction = '';
+                        }
     
                         $response[] = array(
                             'CHECK_BOX' => $check_box,
                             'TIME_IN' => $time_in_date . '<br/>' . $time_in,
                             'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
                             'STATUS' => $status_description,
+                            'SANCTION' => $sanction,
                             'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
                             'REASON' => $reason,
                             'ACTION' => '<div class="d-flex gap-2">
@@ -6263,7 +6288,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Attendance adjustment table
     else if($type == 'attendance adjustment table'){
-        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_adjustment_status'])){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_adjustment_status']) && isset($_POST['filter_attendance_adjustment_sanction'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
                 $employee_id = $employee_details[0]['EMPLOYEE_ID'];
@@ -6276,18 +6301,23 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $view_transaction_log = $api->check_role_permissions($username, 187);
 
                 $filter_attendance_adjustment_status = $_POST['filter_attendance_adjustment_status'];
+                $filter_attendance_adjustment_sanction = $_POST['filter_attendance_adjustment_sanction'];
                 $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
 
-                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendanceadjustment WHERE EMPLOYEE_ID = :employee_id AND ';
+                $query = 'SELECT REQUEST_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, SANCTION, REASON, FILE_PATH, TRANSACTION_LOG_ID FROM tblattendanceadjustment WHERE EMPLOYEE_ID = :employee_id AND ';
     
-                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status)){
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status) || $filter_attendance_adjustment_sanction != ''){
                     if(!empty($filter_start_date) && !empty($filter_end_date)){
                         $filter[] = 'REQUEST_DATE BETWEEN :filter_start_date AND :filter_end_date';
                     }
 
                     if(!empty($filter_attendance_adjustment_status)){
                         $filter[] = 'STATUS = :filter_attendance_adjustment_status';
+                    }
+
+                    if($filter_attendance_adjustment_sanction != ''){
+                        $filter[] = 'SANCTION = :filter_attendance_adjustment_sanction';
                     }
 
                     if(!empty($filter)){
@@ -6298,7 +6328,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $sql = $api->db_connection->prepare($query);
                 $sql->bindValue(':employee_id', $employee_id);
                 
-                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status)){
+                if((!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_attendance_adjustment_status) || $filter_attendance_adjustment_sanction != ''){
                     if(!empty($filter_start_date) && !empty($filter_end_date)){
                         $sql->bindValue(':filter_start_date', $filter_start_date);
                         $sql->bindValue(':filter_end_date', $filter_end_date);
@@ -6306,6 +6336,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
                     if(!empty($filter_attendance_adjustment_status)){
                         $sql->bindValue(':filter_attendance_adjustment_status', $filter_attendance_adjustment_status);
+                    }
+
+                    if($filter_attendance_adjustment_sanction != ''){
+                        $sql->bindValue(':filter_attendance_adjustment_sanction', $filter_attendance_adjustment_sanction);
                     }
                 }
     
@@ -6396,6 +6430,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $check_box = '';
                         }
 
+                        if($status == 'APV'){
+                            $sanction = $api->get_attendance_adjustment_sanction_status($row['SANCTION'])[0]['BADGE'];
+                        }
+                        else{
+                            $sanction = '';
+                        }
+
                         if(strtotime($time_in_date) != strtotime($time_in_date_adjusted)){
                             $adjustment_time_in_date = $time_in_date . ' -> ' . $time_in_date_adjusted;
                         }
@@ -6431,6 +6472,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'TIME_OUT_DATE' => $adjustment_time_out_date,
                             'TIME_OUT' => $adjustment_time_out,
                             'STATUS' => $status_description,
+                            'SANCTION' => $sanction,
                             'ATTACHMENT' => '<a href="'. $file_path .'" target="_blank">Attachment</a>',
                             'REASON' => $reason,
                             'ACTION' => '<div class="d-flex gap-2">
@@ -8100,6 +8142,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $get_employee_total_early_leaving = $api->get_employee_attendance_total('Early Leaving', $employee_id, $filter_start_date, $filter_end_date);
                         $get_attendance_adjustment_count = $api->get_attendance_adjustment_count('APV', $employee_id, $filter_start_date, $filter_end_date);
                         $get_attendance_creation_count = $api->get_attendance_creation_count('APV', $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_adjustments_sanction_count = $api->get_attendance_adjustments_sanction_count(1, $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_creation_sanction_count = $api->get_attendance_creation_sanction_count(1, $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_adjustments_unsanction_count = $api->get_attendance_adjustments_sanction_count(0, $employee_id, $filter_start_date, $filter_end_date);
+                        $get_attendance_creation_unsanction_count = $api->get_attendance_creation_sanction_count(0, $employee_id, $filter_start_date, $filter_end_date);
                        
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
@@ -8114,6 +8160,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'TOTAL_EARLY_LEAVING' => number_format($get_employee_total_early_leaving, 2),
                             'ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustment_count),
                             'ATTENDANCE_CREATION' => number_format($get_attendance_creation_count),
+                            'SANCTIONED_ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustments_sanction_count),
+                            'SANCTIONED_ATTENDANCE_CREATION' => number_format($get_attendance_creation_sanction_count),
+                            'UNSANCTIONED_ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustments_unsanction_count),
+                            'UNSANCTIONED_ATTENDANCE_CREATION' => number_format($get_attendance_creation_unsanction_count),
                             'ACTION' => '<div class="d-flex gap-2">
                                 <button type="button" class="btn btn-primary waves-effect waves-light view-attendance-summary" data-employee-id="'. $employee_id .'" title="View Attendance Summary">
                                     <i class="bx bx-show font-size-16 align-middle"></i>

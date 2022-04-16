@@ -125,13 +125,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $time_out_regular_count = $api->get_attendance_summary_time_out_count('REG', $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
             $overtime_count = $api->get_attendance_summary_time_out_count('OT', $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
 
+            $get_attendance_adjustments_sanction_count = $api->get_attendance_summary_attendance_adjustments_sanction_count(1, $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
+            $get_attendance_creation_sanction_count = $api->get_attendance_summary_attendance_creation_sanction_count(1, $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
+            $get_attendance_adjustments_unsanction_count = $api->get_attendance_summary_attendance_adjustments_sanction_count(0, $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
+            $get_attendance_creation_unsanction_count = $api->get_attendance_summary_attendance_creation_sanction_count(0, $filter_start_date, $filter_end_date, $filter_branch, $filter_department);
+
             $response[] = array(
                 'EARLY' => number_format($early),
                 'TIME_IN_REGULAR' => number_format($time_in_regular_count),
                 'LATE' => number_format($late_count),
                 'EARLY_LEAVING' => number_format($early_leaving),
                 'TIME_OUT_REGULAR' => number_format($time_out_regular_count),
-                'OVERTIME' => number_format($overtime_count)
+                'OVERTIME' => number_format($overtime_count),
+                'SANCTIONED_ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustments_sanction_count),
+                'SANCTIONED_ATTENDANCE_CREATION' => number_format($get_attendance_creation_sanction_count),
+                'UNSANCTIONED_ATTENDANCE_ADJUSTMENT' => number_format($get_attendance_adjustments_unsanction_count),
+                'UNSANCTIONED_ATTENDANCE_CREATION' => number_format($get_attendance_creation_unsanction_count),
             );
 
             echo json_encode($response);
@@ -5554,7 +5563,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($attendance_creation_employee_id, $attendance_creation_time_in_date, $attendance_creation_time_in, $attendance_creation_time_in_behavior, $attendance_creation_time_out_date, $attendance_creation_time_out, $attendance_creation_time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Created through attendance creation.', $username);
 
                         if($insert_manual_employee_attendance == 1){
-                            $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $username);
+                            $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
                             if($update_attendance_creation_status == 1){
                                 $from_details = $api->get_attendance_creation_details($request_id);
@@ -5647,7 +5656,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($attendance_creation_employee_id, $attendance_creation_time_in_date, $attendance_creation_time_in, $attendance_creation_time_in_behavior, $attendance_creation_time_out_date, $attendance_creation_time_out, $attendance_creation_time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Created through attendance creation.', $username);
 
                             if($insert_manual_employee_attendance == 1){
-                                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $username);
+                                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
                                 if($update_attendance_creation_status == 1){
                                     $from_details = $api->get_attendance_creation_details($request_id);
@@ -5754,7 +5763,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.', $username);
 
                                 if($update_manual_employee_attendance == 1){
-                                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $username);
+                                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
                                     if($update_attendance_adjustment_status == 1){
                                         $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -5792,7 +5801,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.' , $username);
 
                             if($update_manual_employee_attendance == 1){
-                                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $username);
+                                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
                                 if($update_attendance_adjustment_status == 1){
                                     $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -5840,7 +5849,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Approve multiple attendance adjustment
     else if($transaction == 'approve multiple attendance adjustment'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction'] && isset($_POST['decision_remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && !empty($_POST['request_id']) && isset($_POST['sanction']) && isset($_POST['decision_remarks'])){
             $username = $_POST['username'];
             $request_ids = explode(',', $_POST['request_id']);
             $sanction = $_POST['sanction'];
@@ -5889,7 +5898,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.', $username);
     
                                     if($update_manual_employee_attendance == 1){
-                                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $username);
+                                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
                                         if($update_attendance_adjustment_status == 1){
                                             $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -5924,7 +5933,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.' , $username);
     
                                 if($update_manual_employee_attendance == 1){
-                                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $username);
+                                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
                                     if($update_attendance_adjustment_status == 1){
                                         $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -6161,7 +6170,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
             if($check_attendance_creation_exist > 0){
-                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, $username);
+                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, null, $username);
     
                 if($update_attendance_creation_status == 1){
                     $from_details = $api->get_attendance_creation_details($request_id);
@@ -6208,7 +6217,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
                 if($check_attendance_creation_exist > 0){
-                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, $username);
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, null, $username);
         
                     if($update_attendance_creation_status == 1){
                         $from_details = $api->get_attendance_creation_details($request_id);
@@ -6266,7 +6275,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
             if($check_attendance_adjustment_exist > 0){
-                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, $username);
+                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, null, $username);
     
                 if($update_attendance_adjustment_status == 1){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -6313,7 +6322,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
                 if($check_attendance_adjustment_exist > 0){
-                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, $username);
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, null, $username);
         
                     if($update_attendance_adjustment_status == 1){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -6539,7 +6548,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
             if($check_attendance_creation_exist > 0){
-                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, $username);
+                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, null, $username);
     
                 if($update_attendance_creation_status == 1){
                     $from_details = $api->get_attendance_creation_details($request_id);
@@ -6586,7 +6595,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
                 if($check_attendance_creation_exist > 0){
-                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, $username);
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, null, $username);
         
                     if($update_attendance_creation_status == 1){
                         $from_details = $api->get_attendance_creation_details($request_id);
@@ -6644,7 +6653,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
             if($check_attendance_adjustment_exist > 0){
-                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, $username);
+                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, null, $username);
     
                 if($update_attendance_adjustment_status == 1){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -6691,7 +6700,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
                 if($check_attendance_adjustment_exist > 0){
-                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, $username);
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, null, $username);
         
                     if($update_attendance_adjustment_status == 1){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -7013,7 +7022,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_creation_recommendation_exception_exist($employee_id);
 
                 if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
-                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
     
                     if($update_attendance_creation_status == 1){
                         $sent_to_notification_details = $api->get_notification_details(9);
@@ -7045,7 +7054,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                 }
                 else{
-                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, $username);
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, null, $username);
     
                     if($update_attendance_creation_status == 1){
                         $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
@@ -7100,7 +7109,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_creation_recommendation_exception_exist($employee_id);
 
                     if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
-                        $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+                        $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
         
                         if($update_attendance_creation_status == 1){
                             $sent_to_notification_details = $api->get_notification_details(9);
@@ -7125,7 +7134,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         }
                     }
                     else{
-                        $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, $username);
+                        $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, null, $username);
         
                         if($update_attendance_creation_status == 1){
                             $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
@@ -7189,7 +7198,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_adjustment_recommendation_exception_exist($employee_id);
 
                 if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
-                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, $username);
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
     
                     if($update_attendance_adjustment_status == 1){
                         $sent_to_notification_details = $api->get_notification_details(10);
@@ -7221,7 +7230,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                 }
                 else{
-                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, $username);
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
     
                     if($update_attendance_adjustment_status == 1){
                         $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
@@ -7276,7 +7285,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_adjustment_recommendation_exception_exist($employee_id);
 
                     if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
-                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, $username);
+                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
             
                         if($update_attendance_adjustment_status == 1){
                             $sent_to_notification_details = $api->get_notification_details(10);
@@ -7301,7 +7310,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         }
                     }
                     else{
-                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, $username);
+                        $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
             
                         if($update_attendance_adjustment_status == 1){
                             $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
@@ -7349,7 +7358,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
             if($check_attendance_creation_exist > 0){
-                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+                $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
     
                 if($update_attendance_creation_status == 1){
                     $from_details = $api->get_attendance_creation_details($request_id);
@@ -7418,7 +7427,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id);
 
                 if($check_attendance_creation_exist > 0){
-                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, $username);
+                    $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
         
                     if($update_attendance_creation_status == 1){
                         $from_details = $api->get_attendance_creation_details($request_id);
@@ -7487,7 +7496,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
             if($check_attendance_adjustment_exist > 0){
-                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, $username);
+                $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
     
                 if($update_attendance_adjustment_status == 1){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -7555,7 +7564,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id);
 
                 if($check_attendance_adjustment_exist > 0){
-                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, $username);
+                    $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
         
                     if($update_attendance_adjustment_status == 1){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
@@ -8687,6 +8696,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $status = $api->get_attendance_creation_status($attendance_creation_details[0]['STATUS'])[0]['BADGE'];
             $reason = $attendance_creation_details[0]['REASON'];
 
+            $sanction = $api->get_attendance_creation_sanction_status($attendance_adjustment_details[0]['SANCTION'])[0]['BADGE'];
+
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
@@ -8705,6 +8716,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'ATTACHMENT' => $attachment,
                 'STATUS' => $status,
                 'REASON' => $reason,
+                'SANCTION' => $sanction,
                 'REQUEST_DATE' => $request_date ?? '--',
                 'REQUEST_TIME' => $request_time ?? '--',
                 'FOR_RECOMMENDATION_DATE' => $for_recommendation_date ?? '--',
@@ -8789,6 +8801,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $recommended_by_details = $api->get_employee_details('', $recommended_by);
             $recommended_by_file_as = $recommended_by_details[0]['FILE_AS'] ?? '--';
 
+            $sanction = $api->get_attendance_adjustment_sanction_status($attendance_adjustment_details[0]['SANCTION'])[0]['BADGE'];
+
             $response[] = array(
                 'EMPLOYEE_ID' => $employee_file_as,
                 'TIME_IN_DATE' => $time_in_date ?? '--',
@@ -8802,6 +8816,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'ATTACHMENT' => $attachment,
                 'STATUS' => $status,
                 'REASON' => $reason,
+                'SANCTION' => $sanction,
                 'REQUEST_DATE' => $request_date ?? '--',
                 'REQUEST_TIME' => $request_time ?? '--',
                 'FOR_RECOMMENDATION_DATE' => $for_recommendation_date ?? '--',

@@ -4526,7 +4526,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_attendance_creation_status($request_id, $status, $decision_remarks, $username){
+    public function update_attendance_creation_status($request_id, $status, $decision_remarks, $sanction, $username){
         if ($this->databaseConnection()) {
             
             $system_date = date('Y-m-d');
@@ -4566,10 +4566,11 @@ class Api{
             $attendance_creation_details = $this->get_attendance_creation_details($request_id);
             $transaction_log_id = $attendance_creation_details[0]['TRANSACTION_LOG_ID'];
 
-            $sql = $this->db_connection->prepare("CALL update_attendance_creation_status(:request_id, :status, :decision_remarks, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
+            $sql = $this->db_connection->prepare("CALL update_attendance_creation_status(:request_id, :status, :decision_remarks, :sanction, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
             $sql->bindValue(':request_id', $request_id);
             $sql->bindValue(':status', $status);
             $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':sanction', $sanction);
             $sql->bindValue(':system_date', $system_date);
             $sql->bindValue(':system_time', $system_time);
             $sql->bindValue(':username', $username);
@@ -4601,7 +4602,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_attendance_adjustment_status($request_id, $status, $decision_remarks, $username){
+    public function update_attendance_adjustment_status($request_id, $status, $decision_remarks, $sanction, $username){
         if ($this->databaseConnection()) {
             
             $system_date = date('Y-m-d');
@@ -4641,10 +4642,11 @@ class Api{
             $attendance_adjustment_details = $this->get_attendance_adjustment_details($request_id);
             $transaction_log_id = $attendance_adjustment_details[0]['TRANSACTION_LOG_ID'];
 
-            $sql = $this->db_connection->prepare("CALL update_attendance_adjustment_status(:request_id, :status, :decision_remarks, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
+            $sql = $this->db_connection->prepare("CALL update_attendance_adjustment_status(:request_id, :status, :decision_remarks, :sanction, :system_date, :system_time, :username, :transaction_log_id, :record_log)");
             $sql->bindValue(':request_id', $request_id);
             $sql->bindValue(':status', $status);
             $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':sanction', $sanction);
             $sql->bindValue(':system_date', $system_date);
             $sql->bindValue(':system_time', $system_time);
             $sql->bindValue(':username', $username);
@@ -11011,6 +11013,7 @@ class Api{
                         'STATUS' => $row['STATUS'],
                         'REASON' => $row['REASON'],
                         'FILE_PATH' => $row['FILE_PATH'],
+                        'SANCTION' => $row['SANCTION'],
                         'REQUEST_DATE' => $row['REQUEST_DATE'],
                         'REQUEST_TIME' => $row['REQUEST_TIME'],
                         'FOR_RECOMMENDATION_DATE' => $row['FOR_RECOMMENDATION_DATE'],
@@ -11067,6 +11070,7 @@ class Api{
                         'STATUS' => $row['STATUS'],
                         'REASON' => $row['REASON'],
                         'FILE_PATH' => $row['FILE_PATH'],
+                        'SANCTION' => $row['SANCTION'],
                         'REQUEST_DATE' => $row['REQUEST_DATE'],
                         'REQUEST_TIME' => $row['REQUEST_TIME'],
                         'FOR_RECOMMENDATION_DATE' => $row['FOR_RECOMMENDATION_DATE'],
@@ -12280,6 +12284,64 @@ class Api{
         return $response;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_creation_sanction_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_creation_sanction_status($stat){
+        $response = array();
+
+        if($stat == '1'){
+            $status = 'Yes';
+            $button_class = 'bg-danger';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-success';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_adjustment_sanction_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_adjustment_sanction_status($stat){
+        $response = array();
+
+        if($stat == '1'){
+            $status = 'Yes';
+            $button_class = 'bg-danger';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-success';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -12450,6 +12512,62 @@ class Api{
         }
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_adjustments_sanction_count
+    # Purpose    : Gets the total attendance adjustment based on sanction.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_adjustments_sanction_count($sanction, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_adjustments_sanction_count(:sanction, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':sanction', $sanction);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_creation_sanction_count
+    # Purpose    : Gets the total attendance creation based on sanction.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_creation_sanction_count($sanction, $employee_id, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_creation_sanction_count(:sanction, :employee_id, :start_date, :end_date)');
+            $sql->bindParam(':sanction', $sanction);
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -12549,6 +12667,64 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL get_attendance_summary_time_out_count(:time_out_behavior, :start_date, :end_date, :branch, :department)');
             $sql->bindParam(':time_out_behavior', $time_out_behavior);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+            $sql->bindParam(':branch', $branch);
+            $sql->bindParam(':department', $department);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_summary_attendance_adjustments_sanction_count
+    # Purpose    : Gets the total attendance record based on behavior.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_summary_attendance_adjustments_sanction_count($sanction, $start_date, $end_date, $branch, $department){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_summary_attendance_adjustments_sanction_count(:sanction, :start_date, :end_date, :branch, :department)');
+            $sql->bindParam(':sanction', $sanction);
+            $sql->bindParam(':start_date', $start_date);
+            $sql->bindParam(':end_date', $end_date);
+            $sql->bindParam(':branch', $branch);
+            $sql->bindParam(':department', $department);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_attendance_summary_attendance_creation_sanction_count
+    # Purpose    : Gets the total attendance record based on behavior.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_attendance_summary_attendance_creation_sanction_count($sanction, $start_date, $end_date, $branch, $department){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_attendance_summary_attendance_creation_sanction_count(:sanction, :start_date, :end_date, :branch, :department)');
+            $sql->bindParam(':sanction', $sanction);
             $sql->bindParam(':start_date', $start_date);
             $sql->bindParam(':end_date', $end_date);
             $sql->bindParam(':branch', $branch);

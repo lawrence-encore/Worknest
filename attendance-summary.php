@@ -64,7 +64,7 @@
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <div class="row">
+                                        <div class="row mb-4">
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
@@ -119,7 +119,7 @@
                                             </div>
                                         </div>
                                         <div class="row mb-4">
-                                            <div class="col-xl-6">
+                                            <div class="col-xl-3">
                                                 <div class="row text-center mb-3">
                                                     <div class="col-4">
                                                         <h5 class="mb-0" id="early-statistics">0</h5>
@@ -138,7 +138,7 @@
                                                     <canvas id="time-in-behavior-doughnut" height="200"></canvas>
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6">
+                                            <div class="col-xl-3">
                                                 <div class="row text-center mb-3">
                                                     <div class="col-4">
                                                         <h5 class="mb-0" id="early-leaving-statistics">0</h5>
@@ -157,6 +157,36 @@
                                                     <canvas id="time-out-behavior-doughnut" height="200"></canvas>
                                                 </div>
                                             </div>
+                                            <div class="col-xl-3">
+                                                <div class="row text-center mb-3">
+                                                    <div class="col-6">
+                                                        <h5 class="mb-0" id="attendance-adjustment-sanction-statistics">0</h5>
+                                                        <p class="text-muted text-truncate">Sanction</p>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <h5 class="mb-0" id="attendance-adjustment-unsanction-statistics">0</h5>
+                                                        <p class="text-muted text-truncate">Unsanctioned</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <canvas id="attendance-adjustment-doughnut" height="200"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-3">
+                                                <div class="row text-center mb-3">
+                                                    <div class="col-6">
+                                                        <h5 class="mb-0" id="attendance-creation-sanction-statistics">0</h5>
+                                                        <p class="text-muted text-truncate">Sanction</p>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <h5 class="mb-0" id="attendance-creation-unsanction-statistics">0</h5>
+                                                        <p class="text-muted text-truncate">Unsanctioned</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <canvas id="attendance-creation-doughnut" height="200"></canvas>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
@@ -172,6 +202,10 @@
                                                             <th class="all">Undertime</th>
                                                             <th class="all">Attendance Adjustment</th>
                                                             <th class="all">Attendance Creation</th>
+                                                            <th class="all">Attendance Adjustment (Sanctioned)</th>
+                                                            <th class="all">Attendance Creation (Sanctioned)</th>
+                                                            <th class="all">Attendance Adjustment (Unsanctioned)</th>
+                                                            <th class="all">Attendance Creation (Unsanctioned)</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>

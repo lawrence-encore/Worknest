@@ -9644,6 +9644,7 @@ function display_form_details(form_type){
                 $('#time_out').text(response[0].TIME_OUT);
                 document.getElementById('attachment').innerHTML = response[0].ATTACHMENT;
                 document.getElementById('creation_status').innerHTML = response[0].STATUS;
+                document.getElementById('creation_sanction').innerHTML = response[0].SANCTION;
                 $('#reason').text(response[0].REASON);
                 $('#request_date').text(response[0].REQUEST_DATE);
                 $('#request_time').text(response[0].REQUEST_TIME);
@@ -9680,7 +9681,8 @@ function display_form_details(form_type){
                 $('#time_out_date_adjustment').text(response[0].TIME_OUT_DATE_ADJUSTMENT);
                 $('#time_out_adjustment').text(response[0].TIME_OUT_ADJUSTMENT);
                 document.getElementById('attachment').innerHTML = response[0].ATTACHMENT;
-                document.getElementById('creation_status').innerHTML = response[0].STATUS;
+                document.getElementById('adjustment_status').innerHTML = response[0].STATUS;
+                document.getElementById('adjustment_sanction').innerHTML = response[0].SANCTION;
                 $('#reason').text(response[0].REASON);
                 $('#request_date').text(response[0].REQUEST_DATE);
                 $('#request_time').text(response[0].REQUEST_TIME);

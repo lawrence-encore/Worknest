@@ -16,6 +16,7 @@ function initialize_attendance_creation_table(datatable_name, buttons = false, s
     var username = $('#username').text();
     var type = 'attendance creation table';
     var filter_attendance_creation_status = $('#filter_attendance_creation_status').val();
+    var filter_attendance_creation_sanction = $('#filter_attendance_creation_sanction').val();
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
     var settings;
@@ -25,6 +26,7 @@ function initialize_attendance_creation_table(datatable_name, buttons = false, s
         { 'data' : 'TIME_IN' },
         { 'data' : 'TIME_OUT' },
         { 'data' : 'STATUS' },
+        { 'data' : 'SANCTION' },
         { 'data' : 'ATTACHMENT' },
         { 'data' : 'REASON' },
         { 'data' : 'ACTION' }
@@ -36,8 +38,9 @@ function initialize_attendance_creation_table(datatable_name, buttons = false, s
         { 'width': '10%', 'aTargets': 2 },
         { 'width': '10%', 'aTargets': 3 },
         { 'width': '10%', 'aTargets': 4 },
-        { 'width': '39%', 'aTargets': 5 },
-        { 'width': '20%','bSortable': false, 'aTargets': 6 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '29%', 'aTargets': 6 },
+        { 'width': '20%','bSortable': false, 'aTargets': 7 },
     ];
 
     if(show_all){
@@ -53,7 +56,7 @@ function initialize_attendance_creation_table(datatable_name, buttons = false, s
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_attendance_creation_status' : filter_attendance_creation_status, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_attendance_creation_status' : filter_attendance_creation_status, 'filter_attendance_creation_sanction' : filter_attendance_creation_sanction, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -84,7 +87,7 @@ function initialize_attendance_creation_table(datatable_name, buttons = false, s
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_attendance_creation_status' : filter_attendance_creation_status, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
+                'data': {'type' : type, 'username' : username, 'filter_attendance_creation_status' : filter_attendance_creation_status, 'filter_attendance_creation_sanction' : filter_attendance_creation_sanction, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date },
                 'dataSrc' : ''
             },
             'order': [[ 1, 'desc' ]],
