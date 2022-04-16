@@ -43,6 +43,7 @@
     $deduction_page = $api->check_role_permissions($username, 243);
     $contribution_deduction_page = $api->check_role_permissions($username, 248);
     $attendance_summary_page = $api->check_role_permissions($username, 258);
+    $import_employee_page = $api->check_role_permissions($username, 260);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -230,7 +231,7 @@
         if($attendance_adjustment_approval_page > 0){
             $menu .= '<li>
                         <a href="attendance-adjustment-approval.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-event"></i>
+                            <i class="bx bx-user"></i>
                             <span key="t-dashboard">Attendance Adjustment</span>
                         </a>
                     </li>';
@@ -239,7 +240,7 @@
         if($attendance_creation_approval_page > 0){
             $menu .= '<li>
                         <a href="attendance-creation-approval.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-plus"></i>
+                            <i class="bx bx-calendar-plus"></i>
                             <span key="t-dashboard">Attendance Creation</span>
                         </a>
                     </li>';
@@ -248,7 +249,7 @@
         if($leave_approval_page > 0){
             $menu .= '<li>
                         <a href="leave-approval.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-check"></i>
+                            <i class="bx bx-calendar-check"></i>
                             <span key="t-dashboard">Leave Approval</span>
                         </a>
                     </li>';
@@ -261,7 +262,7 @@
         if($attendance_creation_recommendation_page > 0){
             $menu .= '<li>
                         <a href="attendance-adjustment-recommendation.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-event"></i>
+                            <i class="bx bx-user"></i>
                             <span key="t-dashboard">Attendance Adjustment</span>
                         </a>
                     </li>';
@@ -270,8 +271,21 @@
         if($attendance_adjustment_recommendation_page > 0){
             $menu .= '<li>
                         <a href="attendance-creation-recommendation.php" class="waves-effect">
-                            <i class="bx bx bx-calendar-plus"></i>
+                            <i class="bx bx-calendar-plus"></i>
                             <span key="t-dashboard">Attendance Creation</span>
+                        </a>
+                    </li>';
+        }
+    }
+
+    if($import_employee_page > 0){
+        $menu .= '<li class="menu-title" key="t-menu">Import</li>';
+
+        if($import_employee_page > 0){
+            $menu .= '<li>
+                        <a href="import-employee.php" class="waves-effect">
+                            <i class="bx bx-user"></i>
+                            <span key="t-dashboard">Import Employee</span>
                         </a>
                     </li>';
         }

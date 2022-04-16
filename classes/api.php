@@ -62,14 +62,7 @@ class Api{
             exec('C:\xampp\mysql\bin\mysqldump.exe -u '. DB_USER .' -p'. DB_PASS .' '. DB_NAME .' -r "'. $backup_file .'"  2>&1', $output, $return);
 
             if(!$return) {
-                $insert_transaction_log = $this->insert_transaction_log($username, 'Database Backup', 'User ' . $username . ' backed-up the database.');
-                           
-                if($insert_transaction_log){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else {
                 return $return;
