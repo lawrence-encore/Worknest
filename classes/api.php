@@ -59,7 +59,7 @@ class Api{
         if ($this->databaseConnection()) {
             $backup_file = 'backup/' . $file_name . '_' . time() . '.sql';
             
-            exec('C:\xampp\mysql\bin\mysqldump.exe -u '. DB_USER .' -p'. DB_PASS .' '. DB_NAME .' -r "'. $backup_file .'"  2>&1', $output, $return);
+            exec('C:\xampp\mysql\bin\mysqldump.exe --routines -u '. DB_USER .' -p'. DB_PASS .' '. DB_NAME .' -r "'. $backup_file .'"  2>&1', $output, $return);
 
             if(!$return) {
                 return 1;
@@ -397,6 +397,29 @@ class Api{
         }
         else{
             return 1;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_table
+    # Purpose    : Checks if the user exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_table($table_name){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL table_name(:table_name)');
+            $sql->bindValue(':table_name', $table_name);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
         }
     }
     # -------------------------------------------------------------
@@ -8100,6 +8123,50 @@ class Api{
                 else{
                     return $update_system_parameter_value;
                 }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+     # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_employee
+    # Purpose    : Inserts temporary employee for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $join_date, $exit_date, $permanency_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender){
+        if ($this->databaseConnection()) {
+            $log_date = date('Y-m-d H:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_temporary_employee(:employee_id, :id_number, :file_as, :first_name, :middle_name, :last_name, :suffix, :birthday, :employment_status, :join_date, :exit_date, :permanency_date, :exit_reason, :email, :phone, :telephone, :department, :designation, :branch, :gender)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':id_number', $id_number);
+            $sql->bindValue(':file_as', $file_as);
+            $sql->bindValue(':first_name', $first_name);
+            $sql->bindValue(':middle_name', $middle_name);
+            $sql->bindValue(':last_name', $last_name);
+            $sql->bindValue(':suffix', $suffix);
+            $sql->bindValue(':birthday', $birthday);
+            $sql->bindValue(':employment_status', $employment_status);
+            $sql->bindValue(':join_date', $join_date);
+            $sql->bindValue(':exit_date', $exit_date);
+            $sql->bindValue(':permanency_date', $permanency_date);
+            $sql->bindValue(':exit_reason', $exit_reason);
+            $sql->bindValue(':email', $email);
+            $sql->bindValue(':phone', $phone);
+            $sql->bindValue(':telephone', $telephone);
+            $sql->bindValue(':department', $department);
+            $sql->bindValue(':designation', $designation);
+            $sql->bindValue(':branch', $branch);
+            $sql->bindValue(':gender', $gender);
+
+            if($sql->execute()){
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];

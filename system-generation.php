@@ -2404,6 +2404,16 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'import employee form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="import_file" class="form-label">Import File <span class="required">*</span></label><br/>
+                                    <input class="form-control" type="file" name="import_file" id="import_file">
+                                </div>
+                            </div>
+                        </div>';
+            }
 
             $form .= '</form>';
 

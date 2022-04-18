@@ -285,6 +285,92 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Import transactions
+    # -------------------------------------------------------------
+
+    # Import employee
+    else if($transaction == 'import employee'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(12);
+            $upload_file_type_details = $api->get_upload_file_type_details(12);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_table = $api->truncate_temporary_table('temp_employee');
+
+                        if($truncate_temporary_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $employee_id = $column[0];
+                                $id_number = $column[1];
+                                $first_name = $column[2];
+                                $middle_name = $column[3];
+                                $last_name = $column[4];
+                                $suffix = $column[5];
+                                $file_as = $api->get_file_as_format($first_name, $middle_name, $last_name, $suffix);
+                                $birthday = $api->check_date('empty', $column[6], '', 'Y-m-d', '', '', '');
+                                $employment_status = $column[7];
+                                $join_date = $api->check_date('empty', $column[8], '', 'Y-m-d', '', '', '');
+                                $exit_date = $api->check_date('empty', $column[9], '', 'Y-m-d', '', '', '');
+                                $permanency_date = $api->check_date('empty', $column[10], '', 'Y-m-d', '', '', '');
+                                $exit_reason = $column[11];
+                                $email = $column[12];
+                                $phone = $column[13];
+                                $telephone = $column[14];
+                                $department = $column[15];
+                                $designation = $column[16];
+                                $branch = $column[17];
+                                $gender = $column[18];
+    
+                                $insert_temporary_employee = $api->insert_temporary_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $join_date, $exit_date, $permanency_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender);
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Submit transactions
     # -------------------------------------------------------------
 

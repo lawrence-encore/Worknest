@@ -83,18 +83,25 @@
                                                 <table id="import-employee-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
-                                                            <th class="all">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" id="datatable-checkbox" type="checkbox">
-                                                                </div>
-                                                            </th>
-                                                            <th class="all">Employee</th>
-                                                            <th class="all">Time In</th>
-                                                            <th class="all">Time Out</th>
-                                                            <th class="all">Status</th>
-                                                            <th class="all">Attachment</th>
-                                                            <th class="all">Reason</th>
-                                                            <th class="all">Action</th>
+                                                            <th class="all">Employee ID</th>
+                                                            <th class="all">ID Number</th>
+                                                            <th class="all">First Name</th>
+                                                            <th class="all">Middle Name</th>
+                                                            <th class="all">Last Name</th>
+                                                            <th class="all">Suffix</th>
+                                                            <th class="all">Birthday</th>
+                                                            <th class="all">Department</th>
+                                                            <th class="all">Designation</th>
+                                                            <th class="all">Branch</th>
+                                                            <th class="all">Employment Status</th>
+                                                            <th class="all">Join Date</th>
+                                                            <th class="all">Exit Date</th>
+                                                            <th class="all">Permanency Date</th>
+                                                            <th class="all">Exit Reason</th>
+                                                            <th class="all">Email</th>
+                                                            <th class="all">Phone</th>
+                                                            <th class="all">Telephone</th>
+                                                            <th class="all">Gender</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
