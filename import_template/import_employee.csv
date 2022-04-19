@@ -1,2 +1,3 @@
-﻿Employee ID,ID Number,First Name,Middle Name,Last Name,Suffix,Birthday,Employment Status,Join Date,Exit Date,Permanency Date,Exit Reason,Email,Phone,Telephone,Department,Designation,Branch,Gender
-7,53,Lawrence,,,,,,,,,,,,,,,,
+﻿EMPLOYEE_ID,ID_NUMBER,FIRST_NAME,MIDDLE_NAME,LAST_NAME,SUFFIX,BIRTHDAY,EMPLOYMENT_STATUS,JOIN_DATE,EXIT_DATE,PERMANENCY_DATE,EXIT_REASON,EMAIL,PHONE,TELEPHONE,DEPARTMENT,DESIGNATION,BRANCH,GENDER
+54,92,Arvy Joyce,Garcia,De Guzman,,02/06/1995,1,01/25/2022,03/08/2022,,,agdeguzman@encorefinancials.com,9303927230,,DEPT-1,DES-3,BRCH-1,MALE
+55,93,Johanna Mae,Muncal,Agustin,,02/14/1994,1,02/14/2022,,,,jmagustin@encorefinancials.com,9957560260,,DEPT-2,DES-4,BRCH-1,MALE

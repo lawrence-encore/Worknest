@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -8454,6 +8454,100 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 else{
                     echo $sql->errorInfo()[2];
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary employee table
+    else if($type == 'temporary employee table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, ID_NUMBER, FILE_AS, FIRST_NAME, MIDDLE_NAME, LAST_NAME, SUFFIX, BIRTHDAY, EMPLOYMENT_STATUS, JOIN_DATE, EXIT_DATE, PERMANENCY_DATE, EXIT_REASON, EMAIL, PHONE, TELEPHONE, DEPARTMENT, DESIGNATION, BRANCH, GENDER FROM temp_employee');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $id_number = $row['ID_NUMBER'];
+                    $file_as = $row['FILE_AS'];
+                    $first_name = $row['FIRST_NAME'];
+                    $middle_name = $row['MIDDLE_NAME'];
+                    $last_name = $row['LAST_NAME'];
+                    $suffix = $row['SUFFIX'];
+                    $employment_status = $row['EMPLOYMENT_STATUS'];
+                    $exit_reason = $row['EXIT_REASON'];
+                    $email = $row['EMAIL'];
+                    $phone = $row['PHONE'];
+                    $telephone = $row['TELEPHONE'];
+                    $department = $row['DEPARTMENT'];
+                    $designation = $row['DESIGNATION'];
+                    $branch = $row['BRANCH'];
+                    $gender = $row['GENDER'];
+                    
+                    $birthday = $api->check_date('empty', $row['BIRTHDAY'] ?? null, '', 'm/d/Y', '', '', '');
+                    $join_date = $api->check_date('empty', $row['JOIN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $exit_date = $api->check_date('empty', $row['EXIT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $permanency_date = $api->check_date('empty', $row['PERMANENCY_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $employee_id,
+                        'ID_NUMBER' => $id_number,
+                        'FILE_AS' => $file_as,
+                        'FIRST_NAME' => $first_name,
+                        'MIDDLE_NAME' => $middle_name,
+                        'LAST_NAME' => $last_name,
+                        'SUFFIX' => $suffix,
+                        'BIRTHDAY' => $birthday,
+                        'EMPLOYMENT_STATUS' => $employment_status,
+                        'JOIN_DATE' => $join_date,
+                        'EXIT_DATE' => $exit_date,
+                        'PERMANENCY_DATE' => $permanency_date,
+                        'EXIT_REASON' => $exit_reason,
+                        'EMAIL' => $email,
+                        'PHONE' => $phone,
+                        'TELEPHONE' => $telephone,
+                        'DEPARTMENT' => $department,
+                        'DESIGNATION' => $designation,
+                        'BRANCH' => $branch,
+                        'GENDER' => $gender
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary attendance record table
+    else if($type == 'temporary attendance record table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT FROM temp_attendance_record');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    
+                    $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'H:i:00', '', '', '');
+                    $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'H:i:00', '', '', '');
+
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $employee_id,
+                        'TIME_IN_DATE' => $time_in_date,
+                        'TIME_IN' => $time_in,
+                        'TIME_OUT_DATE' => $time_out_date,
+                        'TIME_OUT' => $time_out,
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
             }
         }
     }

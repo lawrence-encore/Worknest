@@ -653,6 +653,20 @@ CREATE TABLE temp_employee(
 	GENDER VARCHAR(20)
 );
 
+CREATE TABLE temp_attendance_record(
+	EMPLOYEE_ID VARCHAR(100),
+	TIME_IN_DATE DATE NOT NULL,
+	TIME_IN TIME NOT NULL,
+	TIME_IN_LOCATION VARCHAR(100),
+	TIME_IN_IP_ADDRESS VARCHAR(20),
+	TIME_IN_BY VARCHAR(100),
+	TIME_OUT_DATE DATE,
+	TIME_OUT TIME,
+	TIME_OUT_LOCATION VARCHAR(100),
+	TIME_OUT_IP_ADDRESS VARCHAR(20),
+	TIME_OUT_BY VARCHAR(100)
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -4822,29 +4836,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE temp_employee(
-	EMPLOYEE_ID VARCHAR(100),
-	ID_NUMBER VARCHAR(100),
-	FILE_AS VARCHAR(500),
-	FIRST_NAME VARCHAR(100),
-	MIDDLE_NAME VARCHAR(100),
-	LAST_NAME VARCHAR(100),
-	SUFFIX VARCHAR(20),
-	BIRTHDAY DATE,
-	EMPLOYMENT_STATUS VARCHAR(50),
-	JOIN_DATE DATE,
-	EXIT_DATE DATE,
-	PERMANENCY_DATE DATE,
-	EXIT_REASON VARCHAR(500),
-	EMAIL VARCHAR(100),
-	PHONE VARCHAR(30),
-	TELEPHONE VARCHAR(30),
-	DEPARTMENT VARCHAR(50),
-	DESIGNATION VARCHAR(50),
-	BRANCH VARCHAR(50),
-	GENDER VARCHAR(20)
-);
-
 CREATE PROCEDURE insert_temporary_employee(IN employee_id VARCHAR(100), IN id_number VARCHAR(100), IN file_as VARCHAR(500), IN first_name VARCHAR(100), IN middle_name VARCHAR(100), IN last_name VARCHAR(100), IN suffix VARCHAR(20), IN birthday DATE, IN employment_status VARCHAR(50), IN join_date DATE, IN exit_date DATE, IN permanency_date DATE, IN exit_reason VARCHAR(500), IN email VARCHAR(100), IN phone VARCHAR(30), IN telephone VARCHAR(30), IN department VARCHAR(50), IN designation VARCHAR(50), IN branch VARCHAR(50), IN gender VARCHAR(20))
 BEGIN
 	SET @employee_id = employee_id;
@@ -4869,6 +4860,29 @@ BEGIN
 	SET @gender = gender;
 
 	SET @query = 'INSERT INTO temp_employee (EMPLOYEE_ID, ID_NUMBER, FILE_AS, FIRST_NAME, MIDDLE_NAME, LAST_NAME, SUFFIX, BIRTHDAY, EMPLOYMENT_STATUS, JOIN_DATE, EXIT_DATE, PERMANENCY_DATE, EXIT_REASON, EMAIL, PHONE, TELEPHONE, DEPARTMENT, DESIGNATION, BRANCH, GENDER) VALUES(@employee_id, @id_number, @file_as, @first_name, @middle_name, @last_name, @suffix, @birthday, @employment_status, @join_date, @exit_date, @permanency_date, @exit_reason, @email, @phone, @telephone, @department, @designation, @branch, @gender)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE temp_attendance_record(
+	EMPLOYEE_ID VARCHAR(100),
+	TIME_IN_DATE DATE NOT NULL,
+	TIME_IN TIME NOT NULL,
+	TIME_OUT_DATE DATE,
+	TIME_OUT TIME,
+);
+
+CREATE PROCEDURE insert_temporary_attendance_record(IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+
+	SET @query = 'INSERT INTO temp_attendance_record (EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT) VALUES(@employee_id, @time_in_date, @time_in, @time_out_date, @time_out)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

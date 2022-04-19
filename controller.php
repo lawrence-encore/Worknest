@@ -236,54 +236,6 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
-    # Calculate loan maturity date
-    else if($transaction == 'calculate loan maturity date'){
-        if(isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['start_date'])){
-            $payment_frequency = $_POST['payment_frequency'];
-            $number_of_payments = $_POST['number_of_payments'];
-            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
-
-            if(!empty($start_date) && !empty($payment_frequency) && $number_of_payments > 0){
-                $payroll_date = $start_date;
-
-                for($i = 0; $i < $number_of_payments; $i++){
-                    $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $payment_frequency), '', 'Y-m-d', '', '', '');
-                }
-
-                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
-            }
-            else{
-                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
-            }
-        }
-    }
-    # -------------------------------------------------------------
-
-    # Calculate loan amount
-    else if($transaction == 'calculate loan amount'){
-        if(isset($_POST['loan_amount']) && isset($_POST['payment_frequency']) && isset($_POST['number_of_payments']) && isset($_POST['interest_rate'])){
-            $loan_amount = $_POST['loan_amount'];
-            $payment_frequency = $_POST['payment_frequency'];
-            $number_of_payments = $_POST['number_of_payments'];
-            $interest_rate = $_POST['interest_rate'] / 100;
-
-            $repayment_amount = ceil($loan_amount / $number_of_payments);
-            $interest_amount = ceil(ceil(($loan_amount * $interest_rate)) / $number_of_payments);
-            $total_repayment_amount = $repayment_amount + $interest_amount;
-            $outstanding_balance = $total_repayment_amount * $number_of_payments;
-
-            $response[] = array(
-                'REPAYMENT_AMOUNT' => number_format($repayment_amount, 2, '.', ''),
-                'INTEREST_AMOUNT' => number_format($interest_amount, 2, '.', ''),
-                'TOTAL_REPAYMENT_AMOUNT' => number_format($total_repayment_amount, 2, '.', ''),
-                'OUTSTANDING_BALANCE' => number_format($outstanding_balance, 2, '.', '')
-            );
-
-            echo json_encode($response);
-        }
-    }
-    # -------------------------------------------------------------
-
     # -------------------------------------------------------------
     #   Import transactions
     # -------------------------------------------------------------
@@ -318,9 +270,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if(in_array($import_file_actual_ext, $allowed_ext)){
                 if(!$import_file_error){
                     if($import_file_size < $file_max_size){
-                        $truncate_temporary_table = $api->truncate_temporary_table('temp_employee');
+                        $truncate_temporary_employee_table = $api->truncate_temporary_employee_table();
 
-                        if($truncate_temporary_table == 1){
+                        if($truncate_temporary_employee_table == 1){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -345,14 +297,17 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 $designation = $column[16];
                                 $branch = $column[17];
                                 $gender = $column[18];
-    
-                                $insert_temporary_employee = $api->insert_temporary_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $join_date, $exit_date, $permanency_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender);
+                                $validate_email = $api->validate_email($email);
+
+                                if(!empty($id_number) && !empty($file_as) && !empty($first_name) && !empty($middle_name) && !empty($last_name) && !empty($birthday) && !empty($employment_status) && !empty($phone)){
+                                    $insert_temporary_employee = $api->insert_temporary_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $join_date, $exit_date, $permanency_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender);
+                                }
                             }
 
                             echo 'Imported';
                         }
                         else{
-                            echo $truncate_temporary_table;
+                            echo $truncate_temporary_employee_table;
                         }
                     }
                     else{
@@ -365,6 +320,198 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import employee data
+    else if($transaction == 'import employee data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['id_number']) && isset($_POST['file_as']) && isset($_POST['first_name']) && isset($_POST['middle_name']) && isset($_POST['last_name']) && isset($_POST['suffix']) && isset($_POST['employment_status']) && isset($_POST['exit_reason']) && isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['telephone']) && isset($_POST['department']) && isset($_POST['designation']) && isset($_POST['branch']) && isset($_POST['gender']) && isset($_POST['birthday']) && isset($_POST['join_date']) && isset($_POST['exit_date']) && isset($_POST['permanency_date'])){
+            $username = $_POST['username'];
+            $employee_id = $_POST['employee_id'];
+            $id_number = $_POST['id_number'];
+            $file_as = $_POST['file_as'];
+            $first_name = $_POST['first_name'];
+            $middle_name = $_POST['middle_name'];
+            $last_name = $_POST['last_name'];
+            $suffix = $_POST['suffix'];
+            $employment_status = $_POST['employment_status'];
+            $exit_reason = $_POST['exit_reason'];
+            $email = $_POST['email'];
+            $phone = $_POST['phone'];
+            $telephone = $_POST['telephone'];
+            $department = $_POST['department'];
+            $designation = $_POST['designation'];
+            $branch = $_POST['branch'];
+            $gender = $_POST['gender'];
+            $birthday = $_POST['birthday'];
+            $join_date = $_POST['join_date'];
+            $exit_date = $_POST['exit_date'];
+            $permanency_date = $_POST['permanency_date'];
+
+            for($i = 0; $i < count($id_number); $i++){
+                if(!empty($employee_id[$i])){
+                    $check_employee_exist = $api->check_employee_exist($employee_id[$i]);
+
+                    if($check_employee_exist > 0){
+                        $update_employee = $api->update_employee($employee_id[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                    }
+                    else{
+                        $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
+        
+                        if($check_employee_id_number_exist == 0){
+                            $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                        }
+                    }
+                }
+                else{
+                    $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
+        
+                    if($check_employee_id_number_exist == 0){
+                        $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                    }
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import attendance record
+    else if($transaction == 'import attendance record'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(13);
+            $upload_file_type_details = $api->get_upload_file_type_details(13);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_attendance_record_table = $api->truncate_temporary_attendance_record_table();
+
+                        if($truncate_temporary_attendance_record_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $employee_id = $column[0];
+                                $time_in_date = $api->check_date('empty', $column[1], '', 'Y-m-d', '', '', '');
+                                $time_in = $api->check_date('empty', $column[2], '', 'H:i:00', '', '', '');
+                                $time_out_date = $api->check_date('empty', $column[3], '', 'Y-m-d', '', '', '');
+                                $time_out = $api->check_date('empty', $column[4], '', 'H:i:00', '', '', '');
+
+                                if(!empty($employee_id) && !empty($time_in_date) && !empty($time_in)){
+                                    $insert_temporary_attendance_record = $api->insert_temporary_attendance_record($employee_id, $time_in_date, $time_in, $time_out_date, $time_out);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_attendance_record_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import attendance record data
+    else if($transaction == 'import attendance record data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['time_in_date']) && isset($_POST['time_in']) && isset($_POST['time_out_date']) && isset($_POST['time_out'])){
+            $username = $_POST['username'];
+            $employee_id = $_POST['employee_id'];
+            $time_in_date = $_POST['time_in_date'];
+            $time_in = $_POST['time_in'];
+            $time_out_date = $_POST['time_out_date'];
+            $time_out = $_POST['time_out'];
+
+            for($i = 0; $i < count($id_number); $i++){
+                if(!empty($employee_id[$i])){
+                    $check_employee_exist = $api->check_employee_exist($employee_id[$i]);
+
+                    if($check_employee_exist > 0){
+                        $update_employee = $api->update_employee($employee_id[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                    }
+                    else{
+                        $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
+        
+                        if($check_employee_id_number_exist == 0){
+                            $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                        }
+                    }
+                }
+                else{
+                    $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
+        
+                    if($check_employee_id_number_exist == 0){
+                        $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                    }
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Truncate transactions
+    # -------------------------------------------------------------
+
+    # Truncate temporary table
+    else if($transaction == 'truncate temporary table'){
+        if(isset($_POST['table_name']) && !empty($_POST['table_name'])){
+            $file_type = '';
+            $table_name = $_POST['table_name'];
+
+            if($table_name == 'import employee'){
+                $truncate_table = $api->truncate_temporary_employee_table();
+            }
+            else if($table_name == 'import attendance record'){
+                $truncate_table = $api->truncate_temporary_attendance_record_table();
+            }
+            else{
+                $truncate_table = 1;
+            }
+
+            if($truncate_table == 1){
+                echo 'Truncated';
+            }
+            else{
+                echo $truncate_table;
             }
         }
     }
@@ -1242,7 +1389,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number);
 
                 if($check_employee_id_number_exist == 0){
-                    $insert_employee = $api->insert_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username);
+                    $insert_employee = $api->insert_employee($id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username);
 
                     if($insert_employee == 1){
                         echo 'Inserted';
@@ -3400,74 +3547,6 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
-    # Submit loan
-    else if($transaction == 'submit loan'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['loan_type']) && !empty($_POST['loan_type']) && isset($_POST['loan_amount']) && !empty($_POST['loan_amount']) && isset($_POST['number_of_payments']) && !empty($_POST['number_of_payments']) && isset($_POST['payment_frequency']) && !empty($_POST['payment_frequency']) && isset($_POST['interest_rate']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['maturity_date']) && !empty($_POST['maturity_date']) && isset($_POST['repayment_amount']) && !empty($_POST['repayment_amount']) && isset($_POST['interest_amount']) && isset($_POST['total_repayment_amount']) && !empty($_POST['total_repayment_amount']) && isset($_POST['outstanding_balance']) && !empty($_POST['outstanding_balance'])){
-            $username = $_POST['username'];
-            $loan_id = $_POST['loan_id'];
-            $employee_id = $_POST['employee_id'];
-            $loan_type = $_POST['loan_type'];
-            $loan_amount = $_POST['loan_amount'];
-            $number_of_payments = $_POST['number_of_payments'];
-            $payment_frequency = $_POST['payment_frequency'];
-            $interest_rate = $_POST['interest_rate'];
-            $repayment_amount = $_POST['repayment_amount'];
-            $interest_amount = $_POST['interest_amount'];
-            $total_repayment_amount = $_POST['total_repayment_amount'];
-            $outstanding_balance = $_POST['outstanding_balance'];
-            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
-            $maturity_date = $api->check_date('empty', $_POST['maturity_date'], '', 'Y-m-d', '', '', '');
-
-            $check_loan_exist = $api->check_loan_exist($loan_id);
-
-            if($check_loan_exist > 0){
-                $update_loan = $api->update_loan($loan_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $username);
-
-                if($update_loan == 1){
-                    $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
-
-                    if($delete_all_loan_details == 1){
-                        $due_date = $start_date;
-
-                        for($i = 0; $i < $number_of_payments; $i++){
-                            $due_date = $api->check_date('empty', $api->get_next_date($due_date, $payment_frequency), '', 'Y-m-d', '', '', '');
-        
-                            $insert_loan_details = $api->insert_loan_details($loan_id, $repayment_amount, $interest_amount, $total_repayment_amount, $due_date, $username);
-        
-                            if($insert_loan_details != 1){
-                                $error = $insert_loan_details;
-                            }
-                        }
-                    }
-                    else{
-                        $error = $delete_all_loan_details;
-                    }                   
-                }
-                else{
-                    $error = $update_loan;
-                }
-
-                if(empty($error)){
-                    echo 'Updated';
-                }
-                else{
-                    echo $error;
-                }
-            }
-            else{
-                $insert_loan = $api->insert_loan($employee_id, $loan_type, $start_date, $maturity_date, $loan_amount, $interest_rate, $number_of_payments, $payment_frequency, $total_repayment_amount, $outstanding_balance, $repayment_amount, $interest_amount, $username);
-
-                if($insert_loan == 1){
-                    echo 'Inserted';
-                }
-                else{
-                    echo $insert_loan;
-                }
-            }
-        }
-    }
-    # -------------------------------------------------------------
-
     # Submit deduction
     else if($transaction == 'submit deduction'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['deduction_type']) && !empty($_POST['deduction_type']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['recurrence_pattern']) && isset($_POST['recurrence'])){
@@ -5221,76 +5300,6 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if($delete_contribution_bracket != 1){
                         $error = $delete_contribution_bracket;
-                    }
-                }
-                else{
-                    $error = 'Not Found';
-                }
-            }
-
-            if(empty($error)){
-                echo 'Deleted';
-            }
-            else{
-                echo $error;
-            }
-        }
-    }
-    # -------------------------------------------------------------
-
-    # Delete loan
-    else if($transaction == 'delete loan'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id']) && !empty($_POST['loan_id'])){
-            $username = $_POST['username'];
-            $loan_id = $_POST['loan_id'];
-
-            $check_loan_exist = $api->check_loan_exist($loan_id);
-
-            if($check_loan_exist > 0){
-                $delete_loan = $api->delete_loan($loan_id, $username);
-                                    
-                if($delete_loan == 1){
-                    $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
-                                    
-                    if($delete_all_loan_details == 1){
-                        echo 'Deleted';
-                    }
-                    else{
-                        echo $delete_all_loan_details;
-                    }
-                }
-                else{
-                    echo $delete_loan;
-                }
-            }
-            else{
-                echo 'Not Found';
-            }
-        }
-    }
-    # -------------------------------------------------------------
-
-    # Delete multiple loan
-    else if($transaction == 'delete multiple loan'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['loan_id'])){
-            $username = $_POST['username'];
-            $loan_ids = $_POST['loan_id'];
-
-            foreach($loan_ids as $loan_id){
-                $check_loan_exist = $api->check_loan_exist($loan_id);
-
-                if($check_loan_exist > 0){
-                    $delete_loan = $api->delete_loan($loan_id, $username);
-                                    
-                    if($delete_loan == 1){
-                        $delete_all_loan_details = $api->delete_all_loan_details($loan_id, $username);
-                                        
-                        if($delete_all_loan_details != 1){
-                            $error = $delete_all_loan_details;
-                        }
-                    }
-                    else{
-                        $error = $delete_loan;
                     }
                 }
                 else{

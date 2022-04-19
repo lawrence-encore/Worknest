@@ -82,7 +82,7 @@ function initialize_form_validation(form_type){
                         $('#signin').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span class="sr-only"></span></div>');
                     },
                     success: function (response) {
-                        if(response === 'Updated'){                            
+                        if(response === 'Updated'){
                             show_alert('Change User Account Password Success', 'The user account password has been updated. You can now sign in your account.', 'success');
                             $('#System-Modal').modal('hide');
 
@@ -8090,6 +8090,11 @@ function initialize_form_validation(form_type){
                     success: function (response) {
                         if(response === 'Imported'){
                             show_alert('Import Employee Success', 'The employee has been imported.', 'success');
+                            reload_datatable('#import-employee-datatable');
+
+                            $('#import-employee').addClass('d-none');
+                            $('#submit-import-employee').removeClass('d-none');
+                            $('#clear-import-employee').removeClass('d-none');
 
                             $('#System-Modal').modal('hide');
                         }
@@ -8101,6 +8106,86 @@ function initialize_form_validation(form_type){
                         }
                         else{
                             show_alert('Import Employee Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'import attendance record form'){
+        $('#import-attendance-record-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import attendance record';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Attendance Record Success', 'The attendance record has been imported.', 'success');
+                            reload_datatable('#import-attendance-record-datatable');
+
+                            $('#import-attendance-record').addClass('d-none');
+                            $('#submit-import-attendance-record').removeClass('d-none');
+                            $('#clear-import-attendance-record').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Attendance Record Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Attendance Record Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Attendance Record Error', response, 'error');
                         }
                     },
                     complete: function(){
@@ -10023,6 +10108,19 @@ function readjust_datatable_column(){
 
     $('#System-Modal').on('shown.bs.modal', function (e) {
         $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
+    });
+}
+
+// Truncate functions
+function truncate_temporary_table(table_name){
+    var transaction = 'truncate temporary table';
+
+    $.ajax({
+        url: 'controller.php',
+        method: 'POST',
+        dataType: 'TEXT',
+        data: {table_name : table_name, transaction : transaction},
+        success: function(response) {}
     });
 }
 

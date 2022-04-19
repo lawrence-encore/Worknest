@@ -199,6 +199,26 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : validate_email
+    # Purpose    : Validate if email is valid.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function validate_email($email){
+        $regex = "/^([a-zA-Z0-9\.]+@+[a-zA-Z]+(\.)+[a-zA-Z]{2,3})$/";
+
+        if (preg_match($regex, $email)) {
+            return 1;
+        }
+        else{
+            return 'The email is not valid';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : authenticate
     # Purpose    : Authenticates the user.
     #
@@ -365,6 +385,7 @@ class Api{
             $error = '';
             $employee_details = $this->get_employee_details($sent_to, $sent_to);
             $email = $employee_details[0]['EMAIL'] ?? null;
+            $validate_email = $api->validate_email($email);
 
             $notification_details = $this->get_notification_details($notification_id);
             $system_link = $notification_details[0]['SYSTEM_LINK'] ?? null;
@@ -379,7 +400,7 @@ class Api{
             }
 
             if($email_notification > 0){
-                if(!empty($email)){
+                if(!empty($email) && $validate_email == 1){
                     $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
     
                     if($send_email_notification != 1){
@@ -402,17 +423,42 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Truncate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #
-    # Name       : truncate_temporary_table
-    # Purpose    : Checks if the user exists.
+    # Name       : truncate_temporary_employee_table
+    # Purpose    : Truncates the temporary table for employee.
     #
     # Returns    : Number
     #
     # -------------------------------------------------------------
-    public function truncate_temporary_table($table_name){
+    public function truncate_temporary_employee_table(){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL table_name(:table_name)');
-            $sql->bindValue(':table_name', $table_name);
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_employee');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_attendance_record_table
+    # Purpose    : Truncates the temporary table for attendance record.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_attendance_record_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_record');
 
             if($sql->execute()){
                 return 1;
@@ -6217,7 +6263,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username){
+    public function insert_employee($id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -8131,7 +8177,7 @@ class Api{
     }
     # -------------------------------------------------------------
 
-     # -------------------------------------------------------------
+    # -------------------------------------------------------------
     #
     # Name       : insert_temporary_employee
     # Purpose    : Inserts temporary employee for importing.
@@ -8164,6 +8210,35 @@ class Api{
             $sql->bindValue(':designation', $designation);
             $sql->bindValue(':branch', $branch);
             $sql->bindValue(':gender', $gender);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_attendance_record
+    # Purpose    : Inserts temporary attendance record for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_attendance_record($employee_id, $time_in_date, $time_in, $time_out_date, $time_out){
+        if ($this->databaseConnection()) {
+            $log_date = date('Y-m-d H:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_record(:employee_id, :time_in_date, :time_in, :time_out_date, :time_out)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':time_in_date', $time_in_date);
+            $sql->bindValue(':time_in', $time_in);
+            $sql->bindValue(':time_out_date', $time_out_date);
+            $sql->bindValue(':time_out', $time_out);
 
             if($sql->execute()){
                 return 1;

@@ -44,6 +44,7 @@
     $contribution_deduction_page = $api->check_role_permissions($username, 248);
     $attendance_summary_page = $api->check_role_permissions($username, 258);
     $import_employee_page = $api->check_role_permissions($username, 260);
+    $import_attendance_record_page = $api->check_role_permissions($username, 262);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -278,14 +279,23 @@
         }
     }
 
-    if($import_employee_page > 0){
+    if($import_employee_page > 0 || $import_attendance_record_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Import</li>';
+
+        if($import_attendance_record_page > 0){
+            $menu .= '<li>
+                        <a href="import-attendance-record.php" class="waves-effect">
+                            <i class="bx bx-calendar"></i>
+                            <span key="t-attendance-record">Attendance Record</span>
+                        </a>
+                    </li>';
+        }
 
         if($import_employee_page > 0){
             $menu .= '<li>
                         <a href="import-employee.php" class="waves-effect">
                             <i class="bx bx-user"></i>
-                            <span key="t-dashboard">Import Employee</span>
+                            <span key="t-import-employee">Employee</span>
                         </a>
                     </li>';
         }
