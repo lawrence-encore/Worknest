@@ -4,10 +4,10 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Import Attendance Record';
+    $page_title = 'Import Leave';
 
-    $page_access = $api->check_role_permissions($username, 262);
-	$import_attendance_record = $api->check_role_permissions($username, 263);
+    $page_access = $api->check_role_permissions($username, 266);
+	$import_leave = $api->check_role_permissions($username, 267);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -65,32 +65,34 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Import Attendance Record</h4>
+                                                        <h4 class="card-title">Import Leave</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($import_attendance_record > 0){
-                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-attendance-record"><i class="bx bx-import label-icon"></i> Import</button>';
+                                                            if($import_leave > 0){
+                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-leave"><i class="bx bx-import label-icon"></i> Import</button>';
                                                             }
                                                         ?>
 
-                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-attendance-record"><i class="bx bx-import label-icon"></i> Import</button>
+                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-leave"><i class="bx bx-import label-icon"></i> Import</button>
 
-                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-attendance-record"><i class="bx bx-trash label-icon"></i> Clear</button>
+                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-leave"><i class="bx bx-trash label-icon"></i> Clear</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="import-attendance-record-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="import-leave-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">Employee ID</th>
-                                                            <th class="all">Time In Date</th>
-                                                            <th class="all">Time In</th>
-                                                            <th class="all">Time Out Date</th>
-                                                            <th class="all">Time Out</th>
+                                                            <th class="all">Leave Type</th>
+                                                            <th class="all">Leave Date</th>
+                                                            <th class="all">Start Time</th>
+                                                            <th class="all">End Time</th>
+                                                            <th class="all">Status</th>
+                                                            <th class="all">Reason</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -118,6 +120,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/import-attendance-record.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/import-leave.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

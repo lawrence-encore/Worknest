@@ -2,34 +2,34 @@
     'use strict';
 
     $(function() {
-        if($('#import-attendance-record-datatable').length){
-            truncate_temporary_table('import attendance record');
-            initialize_temporary_attendance_record_table('#import-attendance-record-datatable', false, true);
+        if($('#import-leave-entitlement-datatable').length){
+            truncate_temporary_table('import leave entitlement');
+            initialize_temporary_leave_entitlement_table('#import-leave-entitlement-datatable', false, true);
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_temporary_attendance_record_table(datatable_name, buttons = false, show_all = false){    
+function initialize_temporary_leave_entitlement_table(datatable_name, buttons = false, show_all = false){    
     var username = $('#username').text();
-    var type = 'temporary attendance record table';
+    var type = 'temporary leave entitlement table';
     var settings;
 
     var column = [ 
         { 'data' : 'EMPLOYEE_ID' },
-        { 'data' : 'TIME_IN_DATE' },
-        { 'data' : 'TIME_IN' },
-        { 'data' : 'TIME_OUT_DATE' },
-        { 'data' : 'TIME_OUT' },
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'NO_LEAVES' },
+        { 'data' : 'START_DATE' },
+        { 'data' : 'END_DATE' },
     ];
 
     var column_definition = [
         { 'width': '10%', 'aTargets': 0, 'className' : 'employee_id' },
-        { 'width': '10%', 'aTargets': 1, 'className' : 'time_in_date' },
-        { 'width': '10%', 'aTargets': 2, 'className' : 'time_in' },
-        { 'width': '10%', 'aTargets': 3, 'className' : 'time_out_date' },
-        { 'width': '10%', 'aTargets': 4, 'className' : 'time_out' },
+        { 'width': '10%', 'aTargets': 1, 'className' : 'leave_type' },
+        { 'width': '10%', 'aTargets': 2, 'className' : 'no_leaves' },
+        { 'width': '10%', 'aTargets': 3, 'className' : 'start_date' },
+        { 'width': '10%', 'aTargets': 4, 'className' : 'end_date' },
     ];
 
     if(show_all){
@@ -106,73 +106,73 @@ function initialize_temporary_attendance_record_table(datatable_name, buttons = 
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#import-attendance-record',function() {
-        generate_modal('import attendance record form', 'Import Attendance Record', 'R' , '0', '1', 'form', 'import-attendance-record-form', '1', username);
+    $(document).on('click','#import-leave-entitlement',function() {
+        generate_modal('import leave entitlement form', 'Import Leave Entitlement', 'R' , '0', '1', 'form', 'import-leave-entitlement-form', '1', username);
     });
 
-    $(document).on('click','#submit-import-attendance-record',function() {
+    $(document).on('click','#submit-import-leave-entitlement',function() {
         var employee_id = [];
-        var time_in_date = [];
-        var time_in = [];
-        var time_out_date = [];
-        var time_out = [];
+        var leave_type = [];
+        var no_leaves = [];
+        var start_date = [];
+        var end_date = [];
 
         $('.employee_id').each(function(){
             employee_id.push($(this).text());
         });
 
-        $('.time_in_date').each(function(){
-            time_in_date.push($(this).text());
+        $('.leave_type').each(function(){
+            leave_type.push($(this).text());
         });
 
-        $('.time_in').each(function(){
-            time_in.push($(this).text());
+        $('.no_leaves').each(function(){
+            no_leaves.push($(this).text());
         });
 
-        $('.time_out_date').each(function(){
-            time_out_date.push($(this).text());
+        $('.start_date').each(function(){
+            start_date.push($(this).text());
         });
 
-        $('.time_out').each(function(){
-            time_out.push($(this).text());
+        $('.end_date').each(function(){
+            end_date.push($(this).text());
         });
 
         employee_id.splice(0,2);
-        time_in_date.splice(0,2);
-        time_in.splice(0,2);
-        time_out_date.splice(0,2);
-        time_out.splice(0,2);
+        leave_type.splice(0,2);
+        no_leaves.splice(0,2);
+        start_date.splice(0,2);
+        end_date.splice(0,2);
        
-        var transaction = 'import attendance record data';
+        var transaction = 'import leave entitlement data';
         var username = $('#username').text();
 
         $.ajax({
             url: 'controller.php',
             method: 'POST',
             dataType: 'TEXT',
-            data: {employee_id : employee_id, time_in_date : time_in_date, time_in :time_in, time_out_date : time_out_date, time_out :time_out, transaction : transaction, username : username},
+            data: {employee_id : employee_id, leave_type : leave_type, no_leaves :no_leaves, start_date : start_date, end_date :end_date, transaction : transaction, username : username},
             success: function(response) {
                 if(response === 'Imported'){
-                    show_alert('Import Attendance Record Date', 'The attendance records have been imported.', 'success');
+                    show_alert('Import Leave Entitlement Date', 'The leave entitlements have been imported.', 'success');
                     reset_import_table();
                 }
                 else{
-                    show_alert('Import Attendance Record Data Error', response, 'error');
+                    show_alert('Import Leave Entitlement Data Error', response, 'error');
                 }
             }
         });
     });
 
-    $(document).on('click','#clear-import-attendance-record',function() {
+    $(document).on('click','#clear-import-leave-entitlement',function() {
         reset_import_table();
     });
 }
 
 function reset_import_table(){
-    truncate_temporary_table('import attendance record');
-    initialize_temporary_attendance_record_table('#import-attendance-record-datatable', false, true);
+    truncate_temporary_table('import leave entitlement');
+    initialize_temporary_leave_entitlement_table('#import-leave-entitlement-datatable', false, true);
 
-    $('#import-attendance-record').removeClass('d-none');
-    $('#submit-import-attendance-record').addClass('d-none');
-    $('#clear-import-attendance-record').addClass('d-none');
+    $('#import-leave-entitlement').removeClass('d-none');
+    $('#submit-import-leave-entitlement').addClass('d-none');
+    $('#clear-import-leave-entitlement').addClass('d-none');
 }

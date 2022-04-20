@@ -667,6 +667,24 @@ CREATE TABLE temp_attendance_record(
 	TIME_OUT_BY VARCHAR(100)
 );
 
+CREATE TABLE temp_leave_entitlement(
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	LEAVE_TYPE VARCHAR(50) NOT NULL,
+	NO_LEAVES INT(11) NOT NULL,
+	START_DATE DATE NOT NULL,
+	END_DATE DATE NOT NULL
+);
+
+CREATE TABLE temp_leave(
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	LEAVE_TYPE VARCHAR(50) NOT NULL,
+	LEAVE_DATE DATE NOT NULL,
+	START_TIME TIME NOT NULL,
+	END_TIME TIME NOT NULL,
+	LEAVE_STATUS VARCHAR(10) NOT NULL,
+	LEAVE_REASON VARCHAR(500) NOT NULL
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -4866,14 +4884,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE temp_attendance_record(
-	EMPLOYEE_ID VARCHAR(100),
-	TIME_IN_DATE DATE NOT NULL,
-	TIME_IN TIME NOT NULL,
-	TIME_OUT_DATE DATE,
-	TIME_OUT TIME,
-);
-
 CREATE PROCEDURE insert_temporary_attendance_record(IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME)
 BEGIN
 	SET @employee_id = employee_id;
@@ -4883,6 +4893,38 @@ BEGIN
 	SET @time_out = time_out;
 
 	SET @query = 'INSERT INTO temp_attendance_record (EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT) VALUES(@employee_id, @time_in_date, @time_in, @time_out_date, @time_out)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_leave_entitlement(IN employee_id VARCHAR(100), IN leave_type VARCHAR(50), IN no_leaves INT(11), IN start_date DATE, IN end_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @leave_type = leave_type;
+	SET @no_leaves = no_leaves;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+
+	SET @query = 'INSERT INTO temp_leave_entitlement (EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE) VALUES(@employee_id, @leave_type, @no_leaves, @start_date, @end_date)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_leave(IN employee_id VARCHAR(100), IN leave_type VARCHAR(50), IN leave_date DATE, IN start_time TIME, IN end_time TIME, IN leave_status VARCHAR(10), IN leave_reason VARCHAR(500))
+BEGIN
+	SET @employee_id = employee_id;
+	SET @leave_type = leave_type;
+	SET @leave_date = leave_date;
+	SET @start_time = start_time;
+	SET @end_time = end_time;
+	SET @leave_status = leave_status;
+	SET @leave_reason = leave_reason;
+
+	SET @query = 'INSERT INTO temp_leave (EMPLOYEE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, LEAVE_REASON) VALUES(@employee_id, @leave_type, @leave_date, @start_time, @end_time, @leave_status, @leave_reason)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

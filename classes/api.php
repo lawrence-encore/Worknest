@@ -471,6 +471,50 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_leave_entitlement_table
+    # Purpose    : Truncates the temporary table for leave entitlement.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_leave_entitlement_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_leave_entitlement');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_leave_table
+    # Purpose    : Truncates the temporary table for leave.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_leave_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_leave');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check data exist methods
     # -------------------------------------------------------------
     
@@ -8187,8 +8231,6 @@ class Api{
     # -------------------------------------------------------------
     public function insert_temporary_employee($employee_id, $id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $join_date, $exit_date, $permanency_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender){
         if ($this->databaseConnection()) {
-            $log_date = date('Y-m-d H:i:s');
-
             $sql = $this->db_connection->prepare('CALL insert_temporary_employee(:employee_id, :id_number, :file_as, :first_name, :middle_name, :last_name, :suffix, :birthday, :employment_status, :join_date, :exit_date, :permanency_date, :exit_reason, :email, :phone, :telephone, :department, :designation, :branch, :gender)');
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':id_number', $id_number);
@@ -8231,14 +8273,68 @@ class Api{
     # -------------------------------------------------------------
     public function insert_temporary_attendance_record($employee_id, $time_in_date, $time_in, $time_out_date, $time_out){
         if ($this->databaseConnection()) {
-            $log_date = date('Y-m-d H:i:s');
-
             $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_record(:employee_id, :time_in_date, :time_in, :time_out_date, :time_out)');
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':time_in_date', $time_in_date);
             $sql->bindValue(':time_in', $time_in);
             $sql->bindValue(':time_out_date', $time_out_date);
             $sql->bindValue(':time_out', $time_out);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_leave_entitlement
+    # Purpose    : Inserts temporary leave entitlement for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_leave_entitlement(:employee_id, :leave_type, :no_leaves, :start_date, :end_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':leave_type', $leave_type);
+            $sql->bindValue(':no_leaves', $no_leaves);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_leave
+    # Purpose    : Inserts temporary leave for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, $leave_status, $leave_reason){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_leave(:employee_id, :leave_type, :leave_date, :start_time, :end_time, :leave_status, :leave_reason)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':leave_type', $leave_type);
+            $sql->bindValue(':leave_date', $leave_date);
+            $sql->bindValue(':start_time', $start_time);
+            $sql->bindValue(':end_time', $end_time);
+            $sql->bindValue(':leave_status', $leave_status);
+            $sql->bindValue(':leave_reason', $leave_reason);
 
             if($sql->execute()){
                 return 1;

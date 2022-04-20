@@ -45,6 +45,8 @@
     $attendance_summary_page = $api->check_role_permissions($username, 258);
     $import_employee_page = $api->check_role_permissions($username, 260);
     $import_attendance_record_page = $api->check_role_permissions($username, 262);
+    $import_leave_entitlement_page = $api->check_role_permissions($username, 264);
+    $import_leave_page = $api->check_role_permissions($username, 266);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -279,29 +281,7 @@
         }
     }
 
-    if($import_employee_page > 0 || $import_attendance_record_page > 0){
-        $menu .= '<li class="menu-title" key="t-menu">Import</li>';
-
-        if($import_attendance_record_page > 0){
-            $menu .= '<li>
-                        <a href="import-attendance-record.php" class="waves-effect">
-                            <i class="bx bx-calendar"></i>
-                            <span key="t-attendance-record">Attendance Record</span>
-                        </a>
-                    </li>';
-        }
-
-        if($import_employee_page > 0){
-            $menu .= '<li>
-                        <a href="import-employee.php" class="waves-effect">
-                            <i class="bx bx-user"></i>
-                            <span key="t-import-employee">Employee</span>
-                        </a>
-                    </li>';
-        }
-    }
-
-    if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $branch_page > 0 || $upload_setting_page > 0 || $user_account_page > 0 || $attendance_setting_page > 0){
+    if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $branch_page > 0 || $upload_setting_page > 0 || $user_account_page > 0 || $attendance_setting_page > 0 || $import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Administrator</li>';
 
         if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $department_page > 0 || $designation_page > 0 || $branch_page > 0 || $upload_setting_page > 0){
@@ -369,6 +349,34 @@
 
                         if($system_parameter_page > 0){
                             $menu .= '<li><a href="system-parameter.php" key="t-system-parameter">System Parameter</a></li>';
+                        }
+
+            $menu .= '</ul>
+                    </li>';
+        }
+
+        if($import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-import"></i>
+                            <span key="t-settings">Import</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($import_employee_page > 0){
+                            $menu .= '<li><a href="import-employee.php" key="t-import-employee">Employee</a></li>';
+                        }
+
+                        if($import_attendance_record_page > 0){
+                            $menu .= '<li><a href="import-attendance-record.php" key="t-import-attendance-record">Attendance Record</a></li>';
+                        }
+
+                        if($import_leave_entitlement_page > 0){
+                            $menu .= '<li><a href="import-leave-entitlement.php" key="t-import-leave-entitlement">Leave Entitlement</a></li>';
+                        }
+
+                        if($import_leave_page > 0){
+                            $menu .= '<li><a href="import-leave.php" key="t-import-leave">Leave</a></li>';
                         }
 
             $menu .= '</ul>

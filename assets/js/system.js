@@ -8227,6 +8227,166 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'import leave entitlement form'){
+        $('#import-leave-entitlement-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import leave entitlement';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Leave Entitlement Success', 'The leave entitlement has been imported.', 'success');
+                            reload_datatable('#import-leave-entitlement-datatable');
+
+                            $('#import-leave-entitlement').addClass('d-none');
+                            $('#submit-import-leave-entitlement').removeClass('d-none');
+                            $('#clear-import-leave-entitlement').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Leave Entitlement Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Leave Entitlement Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Leave Entitlement Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'import leave form'){
+        $('#import-leave-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import leave';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Leave Success', 'The leave has been imported.', 'success');
+                            reload_datatable('#import-leave-datatable');
+
+                            $('#import-leave').addClass('d-none');
+                            $('#submit-import-leave').removeClass('d-none');
+                            $('#clear-import-leave').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Leave Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Leave Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Leave Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){

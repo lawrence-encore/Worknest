@@ -458,27 +458,229 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $time_out_date = $_POST['time_out_date'];
             $time_out = $_POST['time_out'];
 
-            for($i = 0; $i < count($id_number); $i++){
-                if(!empty($employee_id[$i])){
-                    $check_employee_exist = $api->check_employee_exist($employee_id[$i]);
+            for($i = 0; $i < count($employee_id); $i++){
+                $late = $api->get_attendance_late_total($employee_id[$i], $time_in_date[$i], $time_in[$i]);
+                $time_in_behavior = $api->get_time_in_behavior($employee_id[$i], $time_in_date[$i], $time_in[$i]);
+                
+                $time_out_behavior = '';
+                $early_leaving = 0;
+                $overtime = 0;
+                $total_hours_worked = 0;
 
-                    if($check_employee_exist > 0){
-                        $update_employee = $api->update_employee($employee_id[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                $attendance_setting_details = $api->get_attendance_setting_details(1);
+                $max_attendance = $attendance_setting_details[0]['MAX_ATTENDANCE'] ?? 1;
+                $get_clock_in_total = $api->get_clock_in_total($employee_id[$i], $time_in_date[$i]);
+
+                $check_attendance_validation = $api->check_attendance_validation($time_in_date[$i], $time_in[$i], $time_out_date[$i], $time_out[$i]);
+
+                if(empty($check_attendance_validation)){
+                    if(!empty($time_out_date[$i]) && !empty($time_out[$i])){
+                        $early_leaving = $api->get_attendance_early_leaving_total($employee_id[$i], $time_in_date[$i], $time_out[$i]);
+                        $overtime = $api->get_attendance_overtime_total($employee_id[$i], $time_in_date[$i], $time_out_date[$i], $time_out[$i]);
+                        $total_hours_worked = $api->get_attendance_total_hours($employee_id[$i], $time_in_date[$i], $time_in[$i], $time_out_date[$i], $time_out[$i]);
+                        $time_out_behavior = $api->get_time_out_behavior($employee_id[$i], $time_in_date[$i], $time_out_date[$i], $time_out[$i]);
+                    }
+
+                    if($get_clock_in_total < $max_attendance){
+                        $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($employee_id[$i], $time_in_date[$i], $time_in[$i], $time_in_behavior, $time_out_date[$i], $time_out[$i], $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Imported', $username);
+                    }
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import leave entitlement
+    else if($transaction == 'import leave entitlement'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(14);
+            $upload_file_type_details = $api->get_upload_file_type_details(14);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_leave_table = $api->truncate_temporary_leave_table();
+
+                        if($truncate_temporary_leave_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $employee_id = $column[0];
+                                $leave_type = $column[1];
+                                $no_leaves = $column[2];
+                                $start_date = $api->check_date('empty', $column[3], '', 'Y-m-d', '', '', '');
+                                $end_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+
+                                if(!empty($employee_id) && !empty($leave_type) && !empty($no_leaves) && !empty($start_date) && !empty($end_date)){
+                                    $insert_temporary_leave = $api->insert_temporary_leave($employee_id, $leave_type, $no_leaves, $start_date, $end_date);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_leave_table;
+                        }
                     }
                     else{
-                        $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
-        
-                        if($check_employee_id_number_exist == 0){
-                            $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
-                        }
+                        echo 'File Size';
                     }
                 }
                 else{
-                    $check_employee_id_number_exist = $api->check_employee_id_number_exist($id_number[$i]);
-        
-                    if($check_employee_id_number_exist == 0){
-                        $insert_employee = $api->insert_employee($id_number[$i], $file_as[$i], $first_name[$i], $middle_name[$i], $last_name[$i], $suffix[$i], $birthday[$i], $employment_status[$i], $join_date[$i], $permanency_date[$i], $exit_date[$i], $exit_reason[$i], $email[$i], $phone[$i], $telephone[$i], $department[$i], $designation[$i], $branch[$i], $gender[$i], $username);
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import leave entitlement data
+    else if($transaction == 'import leave entitlement data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['leave_type']) && isset($_POST['no_leaves']) && isset($_POST['start_date']) && isset($_POST['end_date'])){
+            $username = $_POST['username'];
+            $employee_id = $_POST['employee_id'];
+            $leave_type = $_POST['leave_type'];
+            $no_leaves = $_POST['no_leaves'];
+            $start_date = $_POST['start_date'];
+            $end_date = $_POST['end_date'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $leave_overlap = $api->check_leave_overlap('', $start_date[$i], $end_date[$i], $employee_id[$i], $leave_type[$i]);
+
+                if($leave_overlap == 0){
+                    $insert_leave = $api->insert_leave($employee_id[$i], $leave_type[$i], $no_leaves[$i], $start_date[$i], $end_date[$i], $username);
+
+                    if($insert_leave != 1){
+                        $error = $insert_leave;
                     }
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import leave
+    else if($transaction == 'import leave'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_leave_table = $api->truncate_temporary_leave_table();
+
+                        if($truncate_temporary_leave_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $employee_id = $column[0];
+                                $leave_type = $column[1];
+                                $leave_date = $api->check_date('empty', $column[2], '', 'Y-m-d', '', '', '');
+                                $start_time = $api->check_date('empty', $column[3], '', 'H:i:00', '', '', '');
+                                $end_time = $api->check_date('empty', $column[4], '', 'H:i:00', '', '', '');
+                                $leave_status = $column[5];
+                                $leave_reason = $column[6];
+
+                                if(!empty($employee_id) && !empty($leave_type) && !empty($leave_date) && !empty($start_time) && !empty($end_time) && !empty($leave_status) && !empty($leave_reason)){
+                                    $insert_temporary_leave = $api->insert_temporary_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, $leave_status, $leave_reason);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_leave_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import leave data
+    else if($transaction == 'import leave data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['leave_type']) && isset($_POST['leave_date']) && isset($_POST['leave_status']) && isset($_POST['leave_reason'])){
+            $username = $_POST['username'];
+            $employee_id = $_POST['employee_id'];
+            $leave_type = $_POST['leave_type'];
+            $leave_date = $_POST['leave_date'];
+            $start_time = $_POST['start_time'];
+            $end_time = $_POST['end_time'];
+            $leave_status = $_POST['leave_status'];
+            $leave_reason = $_POST['leave_reason'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                if($leave_status[$i] == 'APV'){
+                    $decision_date = date('Y-m-d');
+                    $decision_time = date('H:i:s');
+                    $decision_by = $username;
+                }
+                else{
+                    $decision_date = null;
+                    $decision_time = null;
+                    $decision_by = null;
                 }
             }
 
@@ -502,6 +704,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else if($table_name == 'import attendance record'){
                 $truncate_table = $api->truncate_temporary_attendance_record_table();
+            }
+            else if($table_name == 'import leave entitlement'){
+                $truncate_table = $api->truncate_temporary_leave_entitlement_table();
+            }
+            else if($table_name == 'import leave'){
+                $truncate_table = $api->truncate_temporary_leave_table();
             }
             else{
                 $truncate_table = 1;
@@ -1872,13 +2080,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $employees = explode(',', $_POST['employee']);
 
             foreach($employees as $employee){
-                $leave_entitlement_overlap = $api->check_leave_entitlement_overlap('', $start_date, $end_date, $employee, $leave_type);
+                $leave_overlap = $api->check_leave_overlap('', $start_date, $end_date, $employee, $leave_type);
 
-                if($leave_entitlement_overlap == 0){
-                    $insert_leave_entitlement = $api->insert_leave_entitlement($employee, $leave_type, $no_leaves, $start_date, $end_date, $username);
+                if($leave_overlap == 0){
+                    $insert_leave = $api->insert_leave($employee, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement != 1){
-                        $error = $insert_leave_entitlement;
+                    if($insert_leave != 1){
+                        $error = $insert_leave;
                     }
                 }
             }
@@ -1895,46 +2103,46 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit leave entitlement update
     else if($transaction == 'submit leave entitlement update'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['no_leaves']) && !empty($_POST['no_leaves']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['no_leaves']) && !empty($_POST['no_leaves']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date'])){
             $error = '';
             $username = $_POST['username'];
-            $leave_entitlement_id = $_POST['leave_entitlement_id'];
+            $leave_id = $_POST['leave_id'];
             $employee_id = $_POST['employee_id'];
             $leave_type = $_POST['leave_type'];
             $no_leaves = $_POST['no_leaves'];
             $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
             $end_date = $api->check_date('empty', $_POST['end_date'], '', 'Y-m-d', '', '', '');
 
-            $check_leave_entitlement_exist = $api->check_leave_entitlement_exist($leave_entitlement_id);
+            $check_leave_exist = $api->check_leave_exist($leave_id);
 
-            if($check_leave_entitlement_exist > 0){
-                $leave_entitlement_details = $api->get_leave_entitlement_details($leave_entitlement_id);
-                $leave_entitlement_start_date = $leave_entitlement_details[0]['START_DATE'];
-                $leave_entitlement_end_date = $leave_entitlement_details[0]['END_DATE'];
+            if($check_leave_exist > 0){
+                $leave_details = $api->get_leave_details($leave_id);
+                $leave_start_date = $leave_details[0]['START_DATE'];
+                $leave_end_date = $leave_details[0]['END_DATE'];
 
-                if(strtotime($leave_entitlement_start_date) != strtotime($start_date) || strtotime($leave_entitlement_end_date) != strtotime($end_date)){
-                    if(strtotime($leave_entitlement_start_date) != strtotime($start_date)){
-                        $start_date_overlap = $api->check_leave_entitlement_overlap($leave_entitlement_id, $start_date, $employee_id, $leave_type);
+                if(strtotime($leave_start_date) != strtotime($start_date) || strtotime($leave_end_date) != strtotime($end_date)){
+                    if(strtotime($leave_start_date) != strtotime($start_date)){
+                        $start_date_overlap = $api->check_leave_overlap($leave_id, $start_date, $employee_id, $leave_type);
                     }
                     else{
                         $start_date_overlap = 0;
                     }
 
-                    if(strtotime($leave_entitlement_end_date) != strtotime($end_date)){
-                        $end_date_overlap = $api->check_leave_entitlement_overlap($leave_entitlement_id, $end_date, $employee_id, $leave_type);
+                    if(strtotime($leave_end_date) != strtotime($end_date)){
+                        $end_date_overlap = $api->check_leave_overlap($leave_id, $end_date, $employee_id, $leave_type);
                     }
                     else{
                         $start_date_overlap = 0;
                     }
 
                     if($start_date_overlap == 0 && $end_date_overlap == 0){
-                        $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
+                        $update_leave = $api->update_leave($leave_id, $no_leaves, $start_date, $end_date, $username);
 
-                        if($update_leave_entitlement == 1){
+                        if($update_leave == 1){
                             echo 'Updated';
                         }
                         else{
-                            echo $update_leave_entitlement;
+                            echo $update_leave;
                         }
                     }
                     else{
@@ -1942,28 +2150,28 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                 }
                 else{
-                    $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
+                    $update_leave = $api->update_leave($leave_id, $no_leaves, $start_date, $end_date, $username);
 
-                    if($update_leave_entitlement == 1){
+                    if($update_leave == 1){
                         echo 'Updated';
                     }
                     else{
-                        echo $update_leave_entitlement;
+                        echo $update_leave;
                     }
                 }
             }
             else{
-                $start_date_overlap = $api->check_leave_entitlement_overlap('', $start_date, $employee_id, $leave_type);
-                $end_date_overlap = $api->check_leave_entitlement_overlap('', $end_date, $employee_id, $leave_type);
+                $start_date_overlap = $api->check_leave_overlap('', $start_date, $employee_id, $leave_type);
+                $end_date_overlap = $api->check_leave_overlap('', $end_date, $employee_id, $leave_type);
 
                 if($start_date_overlap == 0 && $end_date_overlap == 0){
-                    $insert_leave_entitlement = $api->insert_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
+                    $insert_leave = $api->insert_leave($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement == 1){
+                    if($insert_leave == 1){
                         echo 'Updated';
                     }
                     else{
-                        echo $insert_leave_entitlement;
+                        echo $insert_leave;
                     }
                 }
                 else{
@@ -1976,34 +2184,34 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit employee leave entitlement
     else if($transaction == 'submit employee leave entitlement'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['no_leaves']) && !empty($_POST['no_leaves']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['leave_type']) && !empty($_POST['leave_type']) && isset($_POST['no_leaves']) && !empty($_POST['no_leaves']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date'])){
             $error = '';
             $username = $_POST['username'];
-            $leave_entitlement_id = $_POST['leave_entitlement_id'];
+            $leave_id = $_POST['leave_id'];
             $employee_id = $_POST['employee_id'];
             $leave_type = $_POST['leave_type'];
             $no_leaves = $_POST['no_leaves'];
             $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
             $end_date = $api->check_date('empty', $_POST['end_date'], '', 'Y-m-d', '', '', '');
 
-            $check_leave_entitlement_exist = $api->check_leave_entitlement_exist($leave_entitlement_id);
+            $check_leave_exist = $api->check_leave_exist($leave_id);
 
-            if($check_leave_entitlement_exist > 0){
-                $leave_entitlement_details = $api->get_leave_entitlement_details($leave_entitlement_id);
-                $leave_entitlement_start_date = $leave_entitlement_details[0]['START_DATE'];
-                $leave_entitlement_end_date = $leave_entitlement_details[0]['END_DATE'];
+            if($check_leave_exist > 0){
+                $leave_details = $api->get_leave_details($leave_id);
+                $leave_start_date = $leave_details[0]['START_DATE'];
+                $leave_end_date = $leave_details[0]['END_DATE'];
 
-                if(strtotime($leave_entitlement_start_date) != strtotime($start_date) || strtotime($leave_entitlement_end_date) != strtotime($end_date)){
-                    $leave_overlap = $api->check_leave_entitlement_overlap($leave_entitlement_id, $start_date, $end_date, $employee_id, $leave_type);
+                if(strtotime($leave_start_date) != strtotime($start_date) || strtotime($leave_end_date) != strtotime($end_date)){
+                    $leave_overlap = $api->check_leave_overlap($leave_id, $start_date, $end_date, $employee_id, $leave_type);
 
                     if($leave_overlap == 0){
-                        $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
+                        $update_leave = $api->update_leave($leave_id, $no_leaves, $start_date, $end_date, $username);
 
-                        if($update_leave_entitlement == 1){
+                        if($update_leave == 1){
                             echo 'Updated';
                         }
                         else{
-                            echo $update_leave_entitlement;
+                            echo $update_leave;
                         }
                     }
                     else{
@@ -2011,27 +2219,27 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                 }
                 else{
-                    $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
+                    $update_leave = $api->update_leave($leave_id, $no_leaves, $start_date, $end_date, $username);
 
-                    if($update_leave_entitlement == 1){
+                    if($update_leave == 1){
                         echo 'Updated';
                     }
                     else{
-                        echo $update_leave_entitlement;
+                        echo $update_leave;
                     }
                 }
             }
             else{
-                $leave_overlap = $api->check_leave_entitlement_overlap('', $start_date, $end_date, $employee_id, $leave_type);
+                $leave_overlap = $api->check_leave_overlap('', $start_date, $end_date, $employee_id, $leave_type);
 
                 if($leave_overlap == 0){
-                    $insert_leave_entitlement = $api->insert_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
+                    $insert_leave = $api->insert_leave($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement == 1){
+                    if($insert_leave == 1){
                         echo 'Inserted';
                     }
                     else{
-                        echo $insert_leave_entitlement;
+                        echo $insert_leave;
                     }
                 }
                 else{
@@ -2104,16 +2312,16 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $total_hours = 1;
                 }
                 
-                $get_available_leave_entitlement = $api->get_available_leave_entitlement($employee_id, $leave_type, $leave_date);
+                $get_available_leave = $api->get_available_leave($employee_id, $leave_type, $leave_date);
 
-                if($get_available_leave_entitlement > 0){
+                if($get_available_leave > 0){
                     $insert_leave = $api->insert_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, $leave_status, $reason, $decision_date, $decision_time, $decision_by, $username);
 
                     if($insert_leave == 1){
-                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                        $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
-                            $error = $update_leave_entitlement_count;
+                        if($update_leave_count != 1){
+                            $error = $update_leave_count;
                             break;
                         }
                     }
@@ -3277,16 +3485,16 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $total_hours = 1;
                 }
                 
-                $get_available_leave_entitlement = $api->get_available_leave_entitlement($employee_id, $leave_type, $leave_date);
+                $get_available_leave = $api->get_available_leave($employee_id, $leave_type, $leave_date);
 
-                if($get_available_leave_entitlement > 0){
+                if($get_available_leave > 0){
                     $insert_leave = $api->insert_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, 'PEN', $reason, null, null, null, $username);
 
                     if($insert_leave == 1){
-                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                        $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
-                            $error = $update_leave_entitlement_count;
+                        if($update_leave_count != 1){
+                            $error = $update_leave_count;
                             break;
                         }
                     }
@@ -4670,20 +4878,20 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Delete leave entitlement or delete employee leave entitlement
     else if($transaction == 'delete leave entitlement' || $transaction == 'delete employee leave entitlement'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && !empty($_POST['leave_entitlement_id'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id']) && !empty($_POST['leave_id'])){
             $username = $_POST['username'];
-            $leave_entitlement_id = $_POST['leave_entitlement_id'];
+            $leave_id = $_POST['leave_id'];
 
-            $check_leave_entitlement_exist = $api->check_leave_entitlement_exist($leave_entitlement_id);
+            $check_leave_exist = $api->check_leave_exist($leave_id);
 
-            if($check_leave_entitlement_exist > 0){
-                $delete_leave_entitlement = $api->delete_leave_entitlement($leave_entitlement_id, $username);
+            if($check_leave_exist > 0){
+                $delete_leave = $api->delete_leave($leave_id, $username);
                                     
-                if($delete_leave_entitlement == 1){
+                if($delete_leave == 1){
                     echo 'Deleted';
                 }
                 else{
-                    echo $delete_leave_entitlement;
+                    echo $delete_leave;
                 }
             }
             else{
@@ -4695,18 +4903,18 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Delete multiple leave entitlement
     else if($transaction == 'delete multiple leave entitlement'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_id'])){
             $username = $_POST['username'];
-            $leave_entitlement_ids = $_POST['leave_entitlement_id'];
+            $leave_ids = $_POST['leave_id'];
 
-            foreach($leave_entitlement_ids as $leave_entitlement_id){
-                $check_leave_entitlement_exist = $api->check_leave_entitlement_exist($leave_entitlement_id);
+            foreach($leave_ids as $leave_id){
+                $check_leave_exist = $api->check_leave_exist($leave_id);
 
-                if($check_leave_entitlement_exist > 0){
-                    $delete_leave_entitlement = $api->delete_leave_entitlement($leave_entitlement_id, $username);
+                if($check_leave_exist > 0){
+                    $delete_leave = $api->delete_leave($leave_id, $username);
                                     
-                    if($delete_leave_entitlement != 1){
-                        $error = $delete_leave_entitlement;
+                    if($delete_leave != 1){
+                        $error = $delete_leave;
                     }
                 }
                 else{
@@ -4759,13 +4967,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $delete_leave = $api->delete_leave($leave_id, $username);
                                     
                 if($delete_leave == 1){
-                    $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                    $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_count == 1){
                         echo 'Deleted';
                     }
                     else{
-                        echo $update_leave_entitlement_count;
+                        echo $update_leave_count;
                     }
                 }
                 else{
@@ -4815,10 +5023,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $delete_leave = $api->delete_leave($leave_id, $username);
                                     
                     if($delete_leave == 1){
-                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                        $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
-                            $error = $update_leave_entitlement_count;
+                        if($update_leave_count != 1){
+                            $error = $update_leave_count;
                         }
                     }
                     else{
@@ -6128,9 +6336,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $update_leave_status = $api->update_leave_status($leave_id, 'REJ', $decision_remarks, $username);
     
                 if($update_leave_status == 1){
-                    $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                    $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_count == 1){
                         $from_details = $api->get_leave_details($leave_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $from_details = $api->get_employee_details('', $from_id);
@@ -6151,7 +6359,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         }
                     }
                     else{
-                        echo $update_leave_entitlement_count;
+                        echo $update_leave_count;
                     }
                 }
                 else{
@@ -6204,9 +6412,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_leave_status = $api->update_leave_status($leave_id, 'REJ', $decision_remarks, $username);
         
                     if($update_leave_status == 1){
-                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                        $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count == 1){
+                        if($update_leave_count == 1){
                             $from_details = $api->get_leave_details($leave_id);
                             $from_id = $from_details[0]['DECISION_BY'];
                             $from_details = $api->get_employee_details('', $from_id);
@@ -6505,9 +6713,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $update_leave_status = $api->update_leave_status($leave_id, 'CAN', $decision_remarks, $username);
     
                 if($update_leave_status == 1){
-                    $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                    $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_count == 1){
                         $from_details = $api->get_leave_details($leave_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $from_details = $api->get_employee_details('', $from_id);
@@ -6528,7 +6736,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         }
                     }
                     else{
-                        echo $update_leave_entitlement_count;
+                        echo $update_leave_count;
                     }
                 }
                 else{
@@ -6582,9 +6790,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $update_leave_status = $api->update_leave_status($leave_id, 'CAN', $decision_remarks, $username);
         
                     if($update_leave_status == 1){
-                        $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
+                        $update_leave_count = $api->update_leave_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count == 1){
+                        if($update_leave_count == 1){
                             $from_details = $api->get_leave_details($leave_id);
                             $from_id = $from_details[0]['DECISION_BY'];
                             $from_details = $api->get_employee_details('', $from_id);
@@ -8368,16 +8576,16 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Leave entitlement details
     else if($transaction == 'leave entitlement details'){
-        if(isset($_POST['leave_entitlement_id']) && !empty($_POST['leave_entitlement_id'])){
-            $leave_entitlement_id = $_POST['leave_entitlement_id'];
-            $leave_entitlement_details = $api->get_leave_entitlement_details($leave_entitlement_id);
+        if(isset($_POST['leave_id']) && !empty($_POST['leave_id'])){
+            $leave_id = $_POST['leave_id'];
+            $leave_details = $api->get_leave_details($leave_id);
 
             $response[] = array(
-                'EMPLOYEE_ID' => $leave_entitlement_details[0]['EMPLOYEE_ID'],
-                'LEAVE_TYPE' => $leave_entitlement_details[0]['LEAVE_TYPE'],
-                'NO_LEAVES' => $leave_entitlement_details[0]['NO_LEAVES'],
-                'START_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['START_DATE'] ?? null, '', 'n/d/Y', '', '', ''),
-                'END_DATE' => $api->check_date('empty', $leave_entitlement_details[0]['END_DATE'] ?? null, '', 'n/d/Y', '', '', '')
+                'EMPLOYEE_ID' => $leave_details[0]['EMPLOYEE_ID'],
+                'LEAVE_TYPE' => $leave_details[0]['LEAVE_TYPE'],
+                'NO_LEAVES' => $leave_details[0]['NO_LEAVES'],
+                'START_DATE' => $api->check_date('empty', $leave_details[0]['START_DATE'] ?? null, '', 'n/d/Y', '', '', ''),
+                'END_DATE' => $api->check_date('empty', $leave_details[0]['END_DATE'] ?? null, '', 'n/d/Y', '', '', '')
             );
 
             echo json_encode($response);

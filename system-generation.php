@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -8483,10 +8483,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $branch = $row['BRANCH'];
                     $gender = $row['GENDER'];
                     
-                    $birthday = $api->check_date('empty', $row['BIRTHDAY'] ?? null, '', 'm/d/Y', '', '', '');
-                    $join_date = $api->check_date('empty', $row['JOIN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
-                    $exit_date = $api->check_date('empty', $row['EXIT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
-                    $permanency_date = $api->check_date('empty', $row['PERMANENCY_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $birthday = $api->check_date('empty', $row['BIRTHDAY'] ?? null, '', 'Y-m-d', '', '', '');
+                    $join_date = $api->check_date('empty', $row['JOIN_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $exit_date = $api->check_date('empty', $row['EXIT_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $permanency_date = $api->check_date('empty', $row['PERMANENCY_DATE'] ?? null, '', 'Y-m-d', '', '', '');
 
                     $response[] = array(
                         'EMPLOYEE_ID' => $employee_id,
@@ -8530,9 +8530,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 while($row = $sql->fetch()){
                     $employee_id = $row['EMPLOYEE_ID'];
                     
-                    $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'Y-m-d', '', '', '');
                     $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'H:i:00', '', '', '');
-                    $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'm/d/Y', '', '', '');
+                    $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'Y-m-d', '', '', '');
                     $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'H:i:00', '', '', '');
 
                     $response[] = array(
@@ -8541,6 +8541,74 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'TIME_IN' => $time_in,
                         'TIME_OUT_DATE' => $time_out_date,
                         'TIME_OUT' => $time_out,
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary leave entitlement table
+    else if($type == 'temporary leave entitlement table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE FROM temp_leave_entitlement');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $leave_type = $row['LEAVE_TYPE'];
+                    $no_leaves = $row['NO_LEAVES'];
+                    
+                    $start_date = $api->check_date('empty', $row['START_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $end_date = $api->check_date('empty', $row['END_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $employee_id,
+                        'LEAVE_TYPE' => $leave_type,
+                        'NO_LEAVES' => $no_leaves,
+                        'START_DATE' => $start_date,
+                        'END_DATE' => $end_date
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary leave table
+    else if($type == 'temporary leave table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, LEAVE_REASON FROM temp_leave');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $leave_type = $row['LEAVE_TYPE'];
+                    $leave_status = $row['LEAVE_STATUS'];
+                    $leave_reason = $row['LEAVE_REASON'];
+                    
+                    $leave_date = $api->check_date('empty', $row['LEAVE_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $start_time = $api->check_date('empty', $row['START_TIME'] ?? null, '', 'H:i:00', '', '', '');
+                    $end_time = $api->check_date('empty', $row['END_TIME'] ?? null, '', 'H:i:00', '', '', '');
+
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $employee_id,
+                        'LEAVE_TYPE' => $leave_type,
+                        'LEAVE_DATE' => $leave_date,
+                        'START_TIME' => $start_time,
+                        'END_TIME' => $end_time,
+                        'LEAVE_STATUS' => $leave_status,
+                        'LEAVE_REASON' => $leave_reason
                     );
                 }
 
