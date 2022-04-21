@@ -385,7 +385,7 @@ class Api{
             $error = '';
             $employee_details = $this->get_employee_details($sent_to, $sent_to);
             $email = $employee_details[0]['EMAIL'] ?? null;
-            $validate_email = $api->validate_email($email);
+            $validate_email = $this->validate_email($email);
 
             $notification_details = $this->get_notification_details($notification_id);
             $system_link = $notification_details[0]['SYSTEM_LINK'] ?? null;
@@ -503,6 +503,28 @@ class Api{
     public function truncate_temporary_leave_table(){
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_leave');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_attendance_adjustment_table
+    # Purpose    : Truncates the temporary table for attendance adjustment.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_attendance_adjustment_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_adjustment');
 
             if($sql->execute()){
                 return 1;
@@ -8271,9 +8293,10 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_temporary_attendance_record($employee_id, $time_in_date, $time_in, $time_out_date, $time_out){
+    public function insert_temporary_attendance_record($attendance_id, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_record(:employee_id, :time_in_date, :time_in, :time_out_date, :time_out)');
+            $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_record(:attendance_id, :employee_id, :time_in_date, :time_in, :time_out_date, :time_out)');
+            $sql->bindValue(':attendance_id', $attendance_id);
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':time_in_date', $time_in_date);
             $sql->bindValue(':time_in', $time_in);
@@ -8298,9 +8321,10 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_temporary_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date){
+    public function insert_temporary_leave_entitlement($leave_entitlement_id, $employee_id, $leave_type, $no_leaves, $start_date, $end_date){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL insert_temporary_leave_entitlement(:employee_id, :leave_type, :no_leaves, :start_date, :end_date)');
+            $sql = $this->db_connection->prepare('CALL insert_temporary_leave_entitlement(:leave_entitlement_id, :employee_id, :leave_type, :no_leaves, :start_date, :end_date)');
+            $sql->bindValue(':leave_entitlement_id', $leave_entitlement_id);
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':leave_type', $leave_type);
             $sql->bindValue(':no_leaves', $no_leaves);
@@ -8335,6 +8359,50 @@ class Api{
             $sql->bindValue(':end_time', $end_time);
             $sql->bindValue(':leave_status', $leave_status);
             $sql->bindValue(':leave_reason', $leave_reason);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_attendance_adjustment
+    # Purpose    : Inserts temporary attendance adjustment for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_attendance_adjustment($request_id, $employee_id, $attendance_id, $time_in_date_adjusted, $time_in_adjusted, $time_out_date_adjusted, $time_out_adjusted, $status, $reason, $file_path, $sanction, $request_date, $request_time, $for_recommendation_date, $for_recommendation_time, $recommendation_date, $recommendation_time, $recommended_by, $decision_remarks, $decision_date, $decision_time, $decision_by){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_adjustment(:request_id, :employee_id, :attendance_id, :time_in_date_adjusted, :time_in_adjusted, :time_out_date_adjusted, :time_out_adjusted, :status, :reason, :file_path, :sanction, :request_date, :request_time, :for_recommendation_date, :for_recommendation_time, :recommendation_date, :recommendation_time, :recommended_by, :decision_remarks, :decision_date, :decision_time, :decision_by)');
+            $sql->bindValue(':request_id', $request_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':attendance_id', $attendance_id);
+            $sql->bindValue(':time_in_date_adjusted', $time_in_date_adjusted);
+            $sql->bindValue(':time_in_adjusted', $time_in_adjusted);
+            $sql->bindValue(':time_out_date_adjusted', $time_out_date_adjusted);
+            $sql->bindValue(':time_out_adjusted', $time_out_adjusted);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':file_path', $file_path);
+            $sql->bindValue(':sanction', $sanction);
+            $sql->bindValue(':request_date', $request_date);
+            $sql->bindValue(':request_time', $request_time);
+            $sql->bindValue(':for_recommendation_date', $for_recommendation_date);
+            $sql->bindValue(':for_recommendation_time', $for_recommendation_time);
+            $sql->bindValue(':recommendation_date', $recommendation_date);
+            $sql->bindValue(':recommendation_time', $recommendation_time);
+            $sql->bindValue(':recommended_by', $recommended_by);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':decision_date', $decision_date);
+            $sql->bindValue(':decision_time', $decision_time);
+            $sql->bindValue(':decision_by', $decision_by);
 
             if($sql->execute()){
                 return 1;

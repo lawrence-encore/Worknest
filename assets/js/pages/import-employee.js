@@ -2,10 +2,7 @@
     'use strict';
 
     $(function() {
-        if($('#import-employee-datatable').length){
-            truncate_temporary_table('import employee');
-            initialize_temporary_employee_table('#import-employee-datatable', false, true);
-        }
+        reset_import_table();
 
         initialize_click_events();
     });
@@ -290,7 +287,6 @@ function initialize_click_events(){
 
 function reset_import_table(){
     truncate_temporary_table('import employee');
-    initialize_temporary_employee_table('#import-employee-datatable', false, true);
 
     $('#import-employee').removeClass('d-none');
     $('#submit-import-employee').addClass('d-none');

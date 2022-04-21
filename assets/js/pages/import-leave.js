@@ -2,10 +2,7 @@
     'use strict';
 
     $(function() {
-        if($('#import-leave-datatable').length){
-            truncate_temporary_table('import leave');
-            initialize_temporary_leave_table('#import-leave-datatable', false, true);
-        }
+        reset_import_table();
 
         initialize_click_events();
     });
@@ -118,8 +115,8 @@ function initialize_click_events(){
         var employee_id = [];
         var leave_type = [];
         var leave_date = [];
-        var start_date = [];
-        var end_date = [];
+        var start_time = [];
+        var end_time = [];
         var leave_status = [];
         var leave_reason = [];
 
@@ -135,12 +132,12 @@ function initialize_click_events(){
             leave_date.push($(this).text());
         });
 
-        $('.start_date').each(function(){
-            start_date.push($(this).text());
+        $('.start_time').each(function(){
+            start_time.push($(this).text());
         });
 
-        $('.end_date').each(function(){
-            end_date.push($(this).text());
+        $('.end_time').each(function(){
+            end_time.push($(this).text());
         });
 
         $('.leave_status').each(function(){
@@ -154,8 +151,8 @@ function initialize_click_events(){
         employee_id.splice(0,2);
         leave_type.splice(0,2);
         leave_date.splice(0,2);
-        start_date.splice(0,2);
-        end_date.splice(0,2);
+        start_time.splice(0,2);
+        end_time.splice(0,2);
         leave_status.splice(0,2);
         leave_reason.splice(0,2);
        
@@ -166,7 +163,7 @@ function initialize_click_events(){
             url: 'controller.php',
             method: 'POST',
             dataType: 'TEXT',
-            data: {employee_id : employee_id, leave_type : leave_type, leave_date :leave_date, start_date : start_date, end_date : end_date, leave_status : leave_status, leave_reason :leave_reason, transaction : transaction, username : username},
+            data: {employee_id : employee_id, leave_type : leave_type, leave_date :leave_date, start_time : start_time, end_time : end_time, leave_status : leave_status, leave_reason :leave_reason, transaction : transaction, username : username},
             success: function(response) {
                 if(response === 'Imported'){
                     show_alert('Import Leave Date', 'The leaves have been imported.', 'success');
@@ -186,7 +183,6 @@ function initialize_click_events(){
 
 function reset_import_table(){
     truncate_temporary_table('import leave');
-    initialize_temporary_leave_table('#import-leave-datatable', false, true);
 
     $('#import-leave').removeClass('d-none');
     $('#submit-import-leave').addClass('d-none');

@@ -8387,6 +8387,86 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'import attendance adjustment form'){
+        $('#import-attendance-adjustment-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import attendance adjustment';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Attendance Adjustment Success', 'The attendance adjustment has been imported.', 'success');
+                            reload_datatable('#import-attendance-adjustment-datatable');
+
+                            $('#import-attendance-adjustment').addClass('d-none');
+                            $('#submit-import-attendance-adjustment').removeClass('d-none');
+                            $('#clear-import-attendance-adjustment').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Attendance Adjustment Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Attendance Adjustment Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Attendance Adjustment Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -10280,7 +10360,27 @@ function truncate_temporary_table(table_name){
         method: 'POST',
         dataType: 'TEXT',
         data: {table_name : table_name, transaction : transaction},
-        success: function(response) {}
+        success: function(response) {
+            if($('#import-attendance-record-datatable').length){
+                initialize_temporary_attendance_record_table('#import-attendance-record-datatable', false, true);
+            }
+
+            if($('#import-employee-datatable').length){
+                initialize_temporary_employee_table('#import-employee-datatable', false, true);
+            }
+
+            if($('#import-leave-entitlement-datatable').length){
+                initialize_temporary_leave_entitlement_table('#import-leave-entitlement-datatable', false, true);
+            }
+
+            if($('#import-leave-datatable').length){
+                initialize_temporary_leave_table('#import-leave-datatable', false, true);
+            }
+
+            if($('#import-attendance-adjustment-datatable').length){
+                initialize_temporary_attendance_adjustment_table('#import-attendance-adjustment-datatable', false, true);
+            }
+        }
     });
 }
 

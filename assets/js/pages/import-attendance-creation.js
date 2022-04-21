@@ -8,9 +8,9 @@
     });
 })(jQuery);
 
-function initialize_temporary_attendance_record_table(datatable_name, buttons = false, show_all = false){    
+function initialize_temporary_attendance_creation_table(datatable_name, buttons = false, show_all = false){    
     var username = $('#username').text();
-    var type = 'temporary attendance record table';
+    var type = 'temporary attendance creation table';
     var settings;
 
     var column = [ 
@@ -65,7 +65,7 @@ function initialize_temporary_attendance_record_table(datatable_name, buttons = 
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
+                'loadingCreations': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -92,7 +92,7 @@ function initialize_temporary_attendance_record_table(datatable_name, buttons = 
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
+                'loadingCreations': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -105,11 +105,11 @@ function initialize_temporary_attendance_record_table(datatable_name, buttons = 
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#import-attendance-record',function() {
-        generate_modal('import attendance record form', 'Import Attendance Record', 'R' , '0', '1', 'form', 'import-attendance-record-form', '1', username);
+    $(document).on('click','#import-attendance-creation',function() {
+        generate_modal('import attendance creation form', 'Import Attendance Creation', 'R' , '0', '1', 'form', 'import-attendance-creation-form', '1', username);
     });
 
-    $(document).on('click','#submit-import-attendance-record',function() {
+    $(document).on('click','#submit-import-attendance-creation',function() {
         var attendance_id = [];
         var employee_id = [];
         var time_in_date = [];
@@ -148,7 +148,7 @@ function initialize_click_events(){
         time_out_date.splice(0,2);
         time_out.splice(0,2);
        
-        var transaction = 'import attendance record data';
+        var transaction = 'import attendance creation data';
         var username = $('#username').text();
 
         $.ajax({
@@ -158,25 +158,25 @@ function initialize_click_events(){
             data: {attendance_id : attendance_id, employee_id : employee_id, time_in_date : time_in_date, time_in :time_in, time_out_date : time_out_date, time_out :time_out, transaction : transaction, username : username},
             success: function(response) {
                 if(response === 'Imported'){
-                    show_alert('Import Attendance Record Date', 'The attendance records have been imported.', 'success');
+                    show_alert('Import Attendance Creation Date', 'The attendance creations have been imported.', 'success');
                     reset_import_table();
                 }
                 else{
-                    show_alert('Import Attendance Record Data Error', response, 'error');
+                    show_alert('Import Attendance Creation Data Error', response, 'error');
                 }
             }
         });
     });
 
-    $(document).on('click','#clear-import-attendance-record',function() {
+    $(document).on('click','#clear-import-attendance-creation',function() {
         reset_import_table();
     });
 }
 
 function reset_import_table(){
-    truncate_temporary_table('import attendance record');
+    truncate_temporary_table('import attendance creation');
 
-    $('#import-attendance-record').removeClass('d-none');
-    $('#submit-import-attendance-record').addClass('d-none');
-    $('#clear-import-attendance-record').addClass('d-none');
+    $('#import-attendance-creation').removeClass('d-none');
+    $('#submit-import-attendance-creation').addClass('d-none');
+    $('#clear-import-attendance-creation').addClass('d-none');
 }

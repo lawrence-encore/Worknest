@@ -86,6 +86,7 @@
                                                 <table id="import-attendance-record-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
+                                                            <th class="all">Attendance ID</th>
                                                             <th class="all">Employee ID</th>
                                                             <th class="all">Time In Date</th>
                                                             <th class="all">Time In</th>

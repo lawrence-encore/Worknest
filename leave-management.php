@@ -148,6 +148,7 @@
                                                                 <p class="text-muted">Leave Status</p>
 
                                                                 <select class="form-control filter-select2" id="filter_leave_status">
+                                                                    <option value="">All Leave Status</option>
                                                                     <option value="APV">Approved</option>
                                                                     <option value="APVSYS">Approved (System Generation)</option>
                                                                     <option value="CAN">Cancelled</option>

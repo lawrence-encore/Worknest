@@ -4,10 +4,10 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Import Leave Entitlement';
+    $page_title = 'Import Attendance Adjustment';
 
-    $page_access = $api->check_role_permissions($username, 264);
-	$import_leave_entitlement = $api->check_role_permissions($username, 265);
+    $page_access = $api->check_role_permissions($username, 268);
+	$import_attendance_adjustment = $api->check_role_permissions($username, 269);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -65,33 +65,49 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Import Leave Entitlement</h4>
+                                                        <h4 class="card-title">Import Attendance Adjustment</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($import_leave_entitlement > 0){
-                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-leave-entitlement"><i class="bx bx-import label-icon"></i> Import</button>';
+                                                            if($import_attendance_adjustment > 0){
+                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-attendance-adjustment"><i class="bx bx-import label-icon"></i> Import</button>';
                                                             }
                                                         ?>
 
-                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-leave-entitlement"><i class="bx bx-import label-icon"></i> Import</button>
+                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-attendance-adjustment"><i class="bx bx-import label-icon"></i> Import</button>
 
-                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-leave-entitlement"><i class="bx bx-trash label-icon"></i> Clear</button>
+                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-attendance-adjustment"><i class="bx bx-trash label-icon"></i> Clear</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="import-leave-entitlement-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="import-attendance-adjustment-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
-                                                            <th class="all">Leave Entitlement ID</th>
+                                                            <th class="all">Request ID</th>
                                                             <th class="all">Employee ID</th>
-                                                            <th class="all">Leave Type</th>
-                                                            <th class="all">Entitlement</th>
-                                                            <th class="all">Start Date</th>
-                                                            <th class="all">End Date</th>
+                                                            <th class="all">Attendance ID</th>
+                                                            <th class="all">Time In Date Adjustment</th>
+                                                            <th class="all">Time In Adjustment</th>
+                                                            <th class="all">Time Out Date Adjustment</th>
+                                                            <th class="all">Time Out Adjustment</th>
+                                                            <th class="all">Status</th>
+                                                            <th class="all">Reason</th>
+                                                            <th class="all">File Path</th>
+                                                            <th class="all">Sanction</th>
+                                                            <th class="all">Request Date</th>
+                                                            <th class="all">Request Time</th>
+                                                            <th class="all">For Recommendation Date</th>
+                                                            <th class="all">For Recommendation Time</th>
+                                                            <th class="all">Recommendation Date</th>
+                                                            <th class="all">Recommendation Time</th>
+                                                            <th class="all">Recommended By</th>
+                                                            <th class="all">Decision Remarks</th>
+                                                            <th class="all">Decision Date</th>
+                                                            <th class="all">Decision Time</th>
+                                                            <th class="all">Decision By</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -119,6 +135,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/import-leave-entitlement.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/import-attendance-adjustment.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

@@ -654,6 +654,8 @@ CREATE TABLE temp_employee(
 );
 
 CREATE TABLE temp_attendance_record(
+	ATTENDANCE_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100),
 	EMPLOYEE_ID VARCHAR(100),
 	TIME_IN_DATE DATE NOT NULL,
 	TIME_IN TIME NOT NULL,
@@ -668,11 +670,37 @@ CREATE TABLE temp_attendance_record(
 );
 
 CREATE TABLE temp_leave_entitlement(
+	LEAVE_ENTITLEMENT_ID VARCHAR(50),
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
 	LEAVE_TYPE VARCHAR(50) NOT NULL,
 	NO_LEAVES INT(11) NOT NULL,
 	START_DATE DATE NOT NULL,
 	END_DATE DATE NOT NULL
+);
+
+CREATE TABLE temp_attendance_adjustment(
+	REQUEST_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	ATTENDANCE_ID VARCHAR(100) NOT NULL,
+	TIME_IN_DATE_ADJUSTED DATE,
+	TIME_IN_ADJUSTED TIME,
+	TIME_OUT_DATE_ADJUSTED DATE,
+	TIME_OUT_ADJUSTED TIME,
+	STATUS VARCHAR(10) NOT NULL,
+	REASON VARCHAR(500) NOT NULL,
+	FILE_PATH VARCHAR(500) NOT NULL,
+	SANCTION INT(1) NOT NULL,
+	REQUEST_DATE DATE NOT NULL,
+	REQUEST_TIME TIME NOT NULL,
+	FOR_RECOMMENDATION_DATE DATE,
+	FOR_RECOMMENDATION_TIME TIME,
+	RECOMMENDATION_DATE DATE,
+	RECOMMENDATION_TIME TIME,
+	RECOMMENDED_BY VARCHAR(50),
+	DECISION_REMARKS VARCHAR(500),
+	DECISION_DATE DATE,
+	DECISION_TIME TIME,
+	DECISION_BY VARCHAR(50)
 );
 
 CREATE TABLE temp_leave(
@@ -4884,30 +4912,32 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE insert_temporary_attendance_record(IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME)
+CREATE PROCEDURE insert_temporary_attendance_record(IN attendance_id VARCHAR(100), IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME)
 BEGIN
+	SET @attendance_id = attendance_id;
 	SET @employee_id = employee_id;
 	SET @time_in_date = time_in_date;
 	SET @time_in = time_in;
 	SET @time_out_date = time_out_date;
 	SET @time_out = time_out;
 
-	SET @query = 'INSERT INTO temp_attendance_record (EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT) VALUES(@employee_id, @time_in_date, @time_in, @time_out_date, @time_out)';
+	SET @query = 'INSERT INTO temp_attendance_record (ATTENDANCE_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT) VALUES(@attendance_id, @employee_id, @time_in_date, @time_in, @time_out_date, @time_out)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE insert_temporary_leave_entitlement(IN employee_id VARCHAR(100), IN leave_type VARCHAR(50), IN no_leaves INT(11), IN start_date DATE, IN end_date DATE)
+CREATE PROCEDURE insert_temporary_leave_entitlement(IN leave_entitlement_id VARCHAR(50), IN employee_id VARCHAR(100), IN leave_type VARCHAR(50), IN no_leaves INT(11), IN start_date DATE, IN end_date DATE)
 BEGIN
+	SET @leave_entitlement_id = leave_entitlement_id;
 	SET @employee_id = employee_id;
 	SET @leave_type = leave_type;
 	SET @no_leaves = no_leaves;
 	SET @start_date = start_date;
 	SET @end_date = end_date;
 
-	SET @query = 'INSERT INTO temp_leave_entitlement (EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE) VALUES(@employee_id, @leave_type, @no_leaves, @start_date, @end_date)';
+	SET @query = 'INSERT INTO temp_leave_entitlement (LEAVE_ENTITLEMENT_ID, EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE) VALUES(@leave_entitlement_id, @employee_id, @leave_type, @no_leaves, @start_date, @end_date)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -4925,6 +4955,38 @@ BEGIN
 	SET @leave_reason = leave_reason;
 
 	SET @query = 'INSERT INTO temp_leave (EMPLOYEE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, LEAVE_REASON) VALUES(@employee_id, @leave_type, @leave_date, @start_time, @end_time, @leave_status, @leave_reason)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_attendance_adjustment(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN attendance_id VARCHAR(100), IN time_in_date_adjusted DATE, IN time_in_adjusted TIME, IN time_out_date_adjusted DATE, IN time_out_adjusted TIME, IN status VARCHAR(10), IN reason VARCHAR(500), IN file_path VARCHAR(500), IN sanction INT(1), IN request_date DATE, IN request_time TIME, IN for_recommendation_date DATE, IN for_recommendation_time TIME, IN recommendation_date DATE, IN recommendation_time TIME, IN recommended_by VARCHAR(50), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @attendance_id = attendance_id;
+	SET @time_in_date_adjusted = time_in_date_adjusted;
+	SET @time_in_adjusted = time_in_adjusted;
+	SET @time_out_date_adjusted = time_out_date_adjusted;
+	SET @time_out_adjusted = time_out_adjusted;
+	SET @status = status;
+	SET @reason = reason;
+	SET @file_path = file_path;
+	SET @sanction = sanction;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @for_recommendation_date = for_recommendation_date;
+	SET @for_recommendation_time = for_recommendation_time;
+	SET @recommendation_date = recommendation_date;
+	SET @recommendation_time = recommendation_time;
+	SET @recommended_by = recommended_by;
+	SET @decision_remarks = decision_remarks;
+	SET @decision_date = decision_date;
+	SET @decision_time = decision_time;
+	SET @decision_by = decision_by;
+
+	SET @query = 'INSERT INTO temp_attendance_adjustment (REQUEST_ID, EMPLOYEE_ID, ATTENDANCE_ID, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY) VALUES(@request_id, @employee_id, @attendance_id, @time_in_date_adjusted, @time_in_adjusted, @time_out_date_adjusted, @time_out_adjusted, @status, @reason, @file_path, @sanction, @request_date, @request_time, @for_recommendation_date, @for_recommendation_time, @recommendation_date, @recommendation_time, @recommended_by, @decision_remarks, @decision_date, @decision_time, @decision_by)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

@@ -2,10 +2,7 @@
     'use strict';
 
     $(function() {
-        if($('#import-leave-entitlement-datatable').length){
-            truncate_temporary_table('import leave entitlement');
-            initialize_temporary_leave_entitlement_table('#import-leave-entitlement-datatable', false, true);
-        }
+        reset_import_table();
 
         initialize_click_events();
     });
@@ -17,6 +14,7 @@ function initialize_temporary_leave_entitlement_table(datatable_name, buttons = 
     var settings;
 
     var column = [ 
+        { 'data' : 'LEAVE_ENTITLEMENT_ID' },
         { 'data' : 'EMPLOYEE_ID' },
         { 'data' : 'LEAVE_TYPE' },
         { 'data' : 'NO_LEAVES' },
@@ -25,11 +23,12 @@ function initialize_temporary_leave_entitlement_table(datatable_name, buttons = 
     ];
 
     var column_definition = [
-        { 'width': '10%', 'aTargets': 0, 'className' : 'employee_id' },
-        { 'width': '10%', 'aTargets': 1, 'className' : 'leave_type' },
-        { 'width': '10%', 'aTargets': 2, 'className' : 'no_leaves' },
-        { 'width': '10%', 'aTargets': 3, 'className' : 'start_date' },
-        { 'width': '10%', 'aTargets': 4, 'className' : 'end_date' },
+        { 'width': '10%', 'aTargets': 0, 'className' : 'leave_entitlement_id' },
+        { 'width': '10%', 'aTargets': 1, 'className' : 'employee_id' },
+        { 'width': '10%', 'aTargets': 2, 'className' : 'leave_type' },
+        { 'width': '10%', 'aTargets': 3, 'className' : 'no_leaves' },
+        { 'width': '10%', 'aTargets': 4, 'className' : 'start_date' },
+        { 'width': '10%', 'aTargets': 5, 'className' : 'end_date' }
     ];
 
     if(show_all){
@@ -111,11 +110,16 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#submit-import-leave-entitlement',function() {
+        var leave_entitlement_id = [];
         var employee_id = [];
         var leave_type = [];
         var no_leaves = [];
         var start_date = [];
         var end_date = [];
+
+        $('.leave_entitlement_id').each(function(){
+            leave_entitlement_id.push($(this).text());
+        });
 
         $('.employee_id').each(function(){
             employee_id.push($(this).text());
@@ -137,6 +141,7 @@ function initialize_click_events(){
             end_date.push($(this).text());
         });
 
+        leave_entitlement_id.splice(0,2);
         employee_id.splice(0,2);
         leave_type.splice(0,2);
         no_leaves.splice(0,2);
@@ -150,7 +155,7 @@ function initialize_click_events(){
             url: 'controller.php',
             method: 'POST',
             dataType: 'TEXT',
-            data: {employee_id : employee_id, leave_type : leave_type, no_leaves :no_leaves, start_date : start_date, end_date :end_date, transaction : transaction, username : username},
+            data: {leave_entitlement_id : leave_entitlement_id, employee_id : employee_id, leave_type : leave_type, no_leaves :no_leaves, start_date : start_date, end_date :end_date, transaction : transaction, username : username},
             success: function(response) {
                 if(response === 'Imported'){
                     show_alert('Import Leave Entitlement Date', 'The leave entitlements have been imported.', 'success');
@@ -170,7 +175,6 @@ function initialize_click_events(){
 
 function reset_import_table(){
     truncate_temporary_table('import leave entitlement');
-    initialize_temporary_leave_entitlement_table('#import-leave-entitlement-datatable', false, true);
 
     $('#import-leave-entitlement').removeClass('d-none');
     $('#submit-import-leave-entitlement').addClass('d-none');

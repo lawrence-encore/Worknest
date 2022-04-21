@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -5061,7 +5061,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $reject = '';
                         }
     
-                        if($cancel_leave > 0 || $leave_status == 'APVSYS' && ($leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
+                        if($cancel_leave > 0 && ($leave_status == 'APVSYS' || $leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
                             $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-leave" data-leave-id="'. $leave_id .'" title="Cancel Leave">
                                         <i class="bx bx-calendar-x font-size-16 align-middle"></i>
                                     </button>';
@@ -5233,7 +5233,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $reject = '';
                         }
     
-                        if($cancel_leave > 0 && ($leave_status == 2 || ($leave_status == 1 && strtotime($system_date) < strtotime($leave_date)))){
+                        if($cancel_leave > 0 && ($leave_status == 'APVSYS' || $leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
                             $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-employee-leave" data-leave-id="'. $leave_id .'" title="Cancel Leave">
                                         <i class="bx bx-calendar-x font-size-16 align-middle"></i>
                                     </button>';
@@ -7173,7 +7173,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $delete = '';
                         }
     
-                        if($cancel_leave > 0  || $leave_status == 'APVSYS' && ($leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
+                        if($cancel_leave > 0 && ($leave_status == 'APVSYS' || $leave_status == 'PEN' || ($leave_status == 'APV' && strtotime($system_date) < strtotime($leave_date)))){
                             $cancel = '<button type="button" class="btn btn-warning waves-effect waves-light cancel-leave" data-leave-id="'. $leave_id .'" title="Cancel Leave">
                                         <i class="bx bx-calendar-x font-size-16 align-middle"></i>
                                     </button>';
@@ -8524,10 +8524,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # Temporary attendance record table
     else if($type == 'temporary attendance record table'){
         if ($api->databaseConnection()) {
-            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT FROM temp_attendance_record');
+            $sql = $api->db_connection->prepare('SELECT ATTENDANCE_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT FROM temp_attendance_record');
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
+                    $attendance_id = $row['ATTENDANCE_ID'];
                     $employee_id = $row['EMPLOYEE_ID'];
                     
                     $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'Y-m-d', '', '', '');
@@ -8536,11 +8537,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'H:i:00', '', '', '');
 
                     $response[] = array(
+                        'ATTENDANCE_ID' => $attendance_id,
                         'EMPLOYEE_ID' => $employee_id,
                         'TIME_IN_DATE' => $time_in_date,
                         'TIME_IN' => $time_in,
                         'TIME_OUT_DATE' => $time_out_date,
-                        'TIME_OUT' => $time_out,
+                        'TIME_OUT' => $time_out
                     );
                 }
 
@@ -8556,10 +8558,11 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # Temporary leave entitlement table
     else if($type == 'temporary leave entitlement table'){
         if ($api->databaseConnection()) {
-            $sql = $api->db_connection->prepare('SELECT EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE FROM temp_leave_entitlement');
+            $sql = $api->db_connection->prepare('SELECT LEAVE_ENTITLEMENT_ID, EMPLOYEE_ID, LEAVE_TYPE, NO_LEAVES, START_DATE, END_DATE FROM temp_leave_entitlement');
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
+                    $leave_entitlement_id = $row['LEAVE_ENTITLEMENT_ID'];
                     $employee_id = $row['EMPLOYEE_ID'];
                     $leave_type = $row['LEAVE_TYPE'];
                     $no_leaves = $row['NO_LEAVES'];
@@ -8568,6 +8571,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $end_date = $api->check_date('empty', $row['END_DATE'] ?? null, '', 'Y-m-d', '', '', '');
 
                     $response[] = array(
+                        'LEAVE_ENTITLEMENT_ID' => $leave_entitlement_id,
                         'EMPLOYEE_ID' => $employee_id,
                         'LEAVE_TYPE' => $leave_type,
                         'NO_LEAVES' => $no_leaves,
@@ -8609,6 +8613,72 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'END_TIME' => $end_time,
                         'LEAVE_STATUS' => $leave_status,
                         'LEAVE_REASON' => $leave_reason
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary attendance adjustment table
+    else if($type == 'temporary attendance adjustment table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT REQUEST_ID, EMPLOYEE_ID, ATTENDANCE_ID, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY FROM temp_attendance_adjustment');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $request_id = $row['REQUEST_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $attendance_id = $row['ATTENDANCE_ID'];
+                    $status = $row['STATUS'];
+                    $reason = $row['REASON'];
+                    $file_path = $row['FILE_PATH'];
+                    $sanction = $row['SANCTION'];
+                    $recommended_by = $row['RECOMMENDED_BY'];
+                    $decision_remarks = $row['DECISION_REMARKS'];
+                    $decision_by = $row['DECISION_BY'];
+                    
+                    $time_in_date_adjusted = $api->check_date('empty', $row['TIME_IN_DATE_ADJUSTED'] ?? null, '', 'Y-m-d', '', '', '');
+                    $time_in_adjusted = $api->check_date('empty', $row['TIME_IN_ADJUSTED'] ?? null, '', 'H:i:s', '', '', '');
+                    $time_out_date_adjusted = $api->check_date('empty', $row['TIME_OUT_DATE_ADJUSTED'] ?? null, '', 'Y-m-d', '', '', '');
+                    $time_out_adjusted = $api->check_date('empty', $row['TIME_OUT_ADJUSTED'] ?? null, '', 'H:i:s', '', '', '');
+                    $request_date = $api->check_date('empty', $row['REQUEST_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $request_time = $api->check_date('empty', $row['REQUEST_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $for_recommendation_date = $api->check_date('empty', $row['FOR_RECOMMENDATION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $for_recommendation_time = $api->check_date('empty', $row['FOR_RECOMMENDATION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $recommendation_date = $api->check_date('empty', $row['RECOMMENDATION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $recommendation_time = $api->check_date('empty', $row['RECOMMENDATION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $decision_date = $api->check_date('empty', $row['DECISION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $decision_time = $api->check_date('empty', $row['DECISION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+
+                    $response[] = array(
+                        'REQUEST_ID' => $request_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'ATTENDANCE_ID' => $attendance_id,
+                        'TIME_IN_DATE_ADJUSTED' => $time_in_date_adjusted,
+                        'TIME_IN_ADJUSTED' => $time_in_adjusted,
+                        'TIME_OUT_DATE_ADJUSTED' => $time_out_date_adjusted,
+                        'TIME_OUT_ADJUSTED' => $time_out_adjusted,
+                        'STATUS' => $status,
+                        'REASON' => $reason,
+                        'FILE_PATH' => $file_path,
+                        'SANCTION' => $sanction,
+                        'REQUEST_DATE' => $request_date,
+                        'REQUEST_TIME' => $request_time,
+                        'FOR_RECOMMENDATION_DATE' => $for_recommendation_date,
+                        'FOR_RECOMMENDATION_TIME' => $for_recommendation_time,
+                        'RECOMMENDATION_DATE' => $recommendation_date,
+                        'RECOMMENDATION_TIME' => $recommendation_time,
+                        'RECOMMENDED_BY' => $recommended_by,
+                        'DECISION_REMARKS' => $decision_remarks,
+                        'DECISION_DATE' => $decision_date,
+                        'DECISION_TIME' => $decision_time,
+                        'DECISION_BY' => $decision_by
                     );
                 }
 
