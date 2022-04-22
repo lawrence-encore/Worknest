@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form' || $form_type == 'import contribution deduction form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -8869,6 +8869,38 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'START_RANGE' => $start_range,
                         'END_RANGE' => $end_range,
                         'DEDUCTION_AMOUNT' => $deduction_amount
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary contribution deduction table
+    else if($type == 'temporary contribution deduction table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE FROM temp_contribution_deduction');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $contribution_deduction_id = $row['CONTRIBUTION_DEDUCTION_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+                    $payroll_id = $row['PAYROLL_ID'];
+                    
+                    $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+
+                    $response[] = array(
+                        'CONTRIBUTION_DEDUCTION_ID' => $contribution_deduction_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type,
+                        'PAYROLL_ID' => $payroll_id,
+                        'PAYROLL_DATE' => $payroll_date
                     );
                 }
 

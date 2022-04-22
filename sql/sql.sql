@@ -769,6 +769,14 @@ CREATE TABLE temp_contribution_bracket(
 	DEDUCTION_AMOUNT DOUBLE NOT NULL
 );
 
+CREATE TABLE temp_contribution_deduction(
+	CONTRIBUTION_DEDUCTION_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	GOVERNMENT_CONTRIBUTION_TYPE VARCHAR(100) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -5192,6 +5200,21 @@ BEGIN
 	SET @deduction_amount = deduction_amount;
 
 	SET @query = 'INSERT INTO temp_contribution_bracket (CONTRIBUTION_BRACKET_ID, GOVERNMENT_CONTRIBUTION_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT) VALUES(@contribution_bracket_id, @government_contribution_id, @start_range, @end_range, @deduction_amount)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_contribution_deduction(IN contribution_deduction_id VARCHAR(100), IN employee_id VARCHAR(100), IN government_contribution_type VARCHAR(100), IN payroll_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @contribution_deduction_id = contribution_deduction_id;
+	SET @employee_id = employee_id;
+	SET @government_contribution_type = government_contribution_type;
+	SET @payroll_id = payroll_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'INSERT INTO temp_contribution_deduction (CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE) VALUES(@contribution_deduction_id, @employee_id, @government_contribution_type, @payroll_id, @payroll_date)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

@@ -1454,6 +1454,101 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Import contribution deduction
+    else if($transaction == 'import contribution deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_contribution_deduction_table = $api->truncate_temporary_contribution_deduction_table();
+
+                        if($truncate_temporary_contribution_deduction_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $contribution_deduction_id = $column[0];
+                                $employee_id = $column[1];
+                                $government_contribution_type = $column[2];
+                                $payroll_id = $column[3];
+                                $payroll_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+
+                                if(!empty($employee_id) && !empty($government_contribution_type) && !empty($payroll_date)){
+                                    $insert_temporary_contribution_deduction = $api->insert_temporary_contribution_deduction($contribution_deduction_id, $employee_id, $government_contribution_type, $payroll_id, $payroll_date);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_contribution_deduction_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import contribution deduction data
+    else if($transaction == 'import contribution deduction data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_deduction_id']) && isset($_POST['employee_id']) && isset($_POST['government_contribution_type']) && isset($_POST['payroll_id']) && isset($_POST['payroll_date'])){
+            $username = $_POST['username'];
+            $contribution_deduction_id = $_POST['contribution_deduction_id'];
+            $employee_id = $_POST['employee_id'];
+            $government_contribution_type = $_POST['government_contribution_type'];
+            $payroll_id = $_POST['payroll_id'];
+            $payroll_date = $_POST['payroll_date'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $check_contribution_deduction_exist = $api->check_contribution_deduction_exist($contribution_deduction_id[$i]);
+
+                if($check_contribution_deduction_exist > 0){
+                    $update_contribution_deduction = $api->update_contribution_deduction($contribution_deduction_id[$i], $payroll_date[$i], $username);
+                }
+                else{
+                    $insert_contribution_deduction = $api->insert_contribution_deduction($employee_id[$i], $government_contribution_type[$i], $payroll_date[$i], $username);
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Truncate transactions
     # -------------------------------------------------------------
@@ -1493,6 +1588,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else if($table_name == 'import contribution bracket'){
                 $truncate_table = $api->truncate_temporary_contribution_bracket_table();
+            }
+            else if($table_name == 'import contribution deduction'){
+                $truncate_table = $api->truncate_temporary_contribution_deduction_table();
             }
             else{
                 $truncate_table = 1;

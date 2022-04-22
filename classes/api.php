@@ -647,6 +647,28 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_contribution_deduction_table
+    # Purpose    : Truncates the temporary table for contribution deduction.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_contribution_deduction_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_contribution_deduction');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check data exist methods
     # -------------------------------------------------------------
     
@@ -8829,6 +8851,33 @@ class Api{
             $sql->bindValue(':start_range', $start_range);
             $sql->bindValue(':end_range', $end_range);
             $sql->bindValue(':deduction_amount', $deduction_amount);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_contribution_deduction
+    # Purpose    : Inserts temporary contribution deduction for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_contribution_deduction($contribution_deduction_id, $employee_id, $government_contribution_type, $payroll_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_contribution_deduction(:contribution_deduction_id, :employee_id, :government_contribution_type, :payroll_id, :payroll_date)');
+            $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':government_contribution_type', $government_contribution_type);
+            $sql->bindValue(':payroll_id', $payroll_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
 
             if($sql->execute()){
                 return 1;
