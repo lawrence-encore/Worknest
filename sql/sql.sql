@@ -703,6 +703,30 @@ CREATE TABLE temp_attendance_adjustment(
 	DECISION_BY VARCHAR(50)
 );
 
+CREATE TABLE temp_attendance_creation(
+	REQUEST_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	TIME_IN_DATE DATE,
+	TIME_IN TIME,
+	TIME_OUT_DATE DATE,
+	TIME_OUT TIME,
+	STATUS VARCHAR(10) NOT NULL,
+	REASON VARCHAR(500) NOT NULL,
+	FILE_PATH VARCHAR(500) NOT NULL,
+	SANCTION INT(1) NOT NULL,
+	REQUEST_DATE DATE NOT NULL,
+	REQUEST_TIME TIME NOT NULL,
+	FOR_RECOMMENDATION_DATE DATE,
+	FOR_RECOMMENDATION_TIME TIME,
+	RECOMMENDATION_DATE DATE,
+	RECOMMENDATION_TIME TIME,
+	RECOMMENDED_BY VARCHAR(50),
+	DECISION_REMARKS VARCHAR(500),
+	DECISION_DATE DATE,
+	DECISION_TIME TIME,
+	DECISION_BY VARCHAR(50)
+);
+
 CREATE TABLE temp_leave(
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
 	LEAVE_TYPE VARCHAR(50) NOT NULL,
@@ -711,6 +735,38 @@ CREATE TABLE temp_leave(
 	END_TIME TIME NOT NULL,
 	LEAVE_STATUS VARCHAR(10) NOT NULL,
 	LEAVE_REASON VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE temp_allowance(
+	ALLOWANCE_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	ALLOWANCE_TYPE VARCHAR(100) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE NOT NULL
+);
+
+CREATE TABLE temp_deduction(
+	DEDUCTION_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	DEDUCTION_TYPE VARCHAR(100) NOT NULL,
+	PAYROLL_ID VARCHAR(100),
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE NOT NULL
+);
+
+CREATE TABLE temp_government_contribution(
+	GOVERNMENT_CONTRIBUTION_ID  VARCHAR(100),
+	GOVERNMENT_CONTRIBUTION VARCHAR(50) NOT NULL,
+	DESCRIPTION VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE temp_contribution_bracket(
+	CONTRIBUTION_BRACKET_ID  VARCHAR(100),
+	GOVERNMENT_CONTRIBUTION_ID VARCHAR(100) NOT NULL,
+	START_RANGE DOUBLE NOT NULL,
+	END_RANGE DOUBLE NOT NULL,
+	DEDUCTION_AMOUNT DOUBLE NOT NULL
 );
 
 /* Index */
@@ -4961,6 +5017,37 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE insert_temporary_attendance_creation(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME, IN status VARCHAR(10), IN reason VARCHAR(500), IN file_path VARCHAR(500), IN sanction INT(1), IN request_date DATE, IN request_time TIME, IN for_recommendation_date DATE, IN for_recommendation_time TIME, IN recommendation_date DATE, IN recommendation_time TIME, IN recommended_by VARCHAR(50), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @status = status;
+	SET @reason = reason;
+	SET @file_path = file_path;
+	SET @sanction = sanction;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @for_recommendation_date = for_recommendation_date;
+	SET @for_recommendation_time = for_recommendation_time;
+	SET @recommendation_date = recommendation_date;
+	SET @recommendation_time = recommendation_time;
+	SET @recommended_by = recommended_by;
+	SET @decision_remarks = decision_remarks;
+	SET @decision_date = decision_date;
+	SET @decision_time = decision_time;
+	SET @decision_by = decision_by;
+
+	SET @query = 'INSERT INTO temp_attendance_creation (REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY) VALUES(@request_id, @employee_id, @time_in_date, @time_in, @time_out_date, @time_out, @status, @reason, @file_path, @sanction, @request_date, @request_time, @for_recommendation_date, @for_recommendation_time, @recommendation_date, @recommendation_time, @recommended_by, @decision_remarks, @decision_date, @decision_time, @decision_by)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 CREATE PROCEDURE insert_temporary_attendance_adjustment(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN attendance_id VARCHAR(100), IN time_in_date_adjusted DATE, IN time_in_adjusted TIME, IN time_out_date_adjusted DATE, IN time_out_adjusted TIME, IN status VARCHAR(10), IN reason VARCHAR(500), IN file_path VARCHAR(500), IN sanction INT(1), IN request_date DATE, IN request_time TIME, IN for_recommendation_date DATE, IN for_recommendation_time TIME, IN recommendation_date DATE, IN recommendation_time TIME, IN recommended_by VARCHAR(50), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50))
 BEGIN
 	SET @request_id = request_id;
@@ -4987,6 +5074,124 @@ BEGIN
 	SET @decision_by = decision_by;
 
 	SET @query = 'INSERT INTO temp_attendance_adjustment (REQUEST_ID, EMPLOYEE_ID, ATTENDANCE_ID, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY) VALUES(@request_id, @employee_id, @attendance_id, @time_in_date_adjusted, @time_in_adjusted, @time_out_date_adjusted, @time_out_adjusted, @status, @reason, @file_path, @sanction, @request_date, @request_time, @for_recommendation_date, @for_recommendation_time, @recommendation_date, @recommendation_time, @recommended_by, @decision_remarks, @decision_date, @decision_time, @decision_by)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_imported_attendance_adjustment(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN attendance_id VARCHAR(100), IN time_in_date_default DATE, IN time_in_default TIME, IN time_in_date_adjusted DATE, IN time_in_adjusted TIME, IN time_out_date_default DATE, IN time_out_default TIME, IN time_out_date_adjusted DATE, IN time_out_adjusted TIME, IN status VARCHAR(10), IN reason VARCHAR(500), IN file_path VARCHAR(500), IN sanction INT(1), IN request_date DATE, IN request_time TIME, IN for_recommendation_date DATE, IN for_recommendation_time TIME, IN recommendation_date DATE, IN recommendation_time TIME, IN recommended_by VARCHAR(50), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @attendance_id = attendance_id;
+	SET @time_in_date_default = time_in_date_default;
+	SET @time_in_default = time_in_default;
+	SET @time_in_date_adjusted = time_in_date_adjusted;
+	SET @time_in_adjusted = time_in_adjusted;
+	SET @time_out_date_default = time_out_date_default;
+	SET @time_out_default = time_out_default;
+	SET @time_out_date_adjusted = time_out_date_adjusted;
+	SET @time_out_adjusted = time_out_adjusted;
+	SET @status = status;
+	SET @reason = reason;
+	SET @file_path = file_path;
+	SET @sanction = sanction;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @for_recommendation_date = for_recommendation_date;
+	SET @for_recommendation_time = for_recommendation_time;
+	SET @recommendation_date = recommendation_date;
+	SET @recommendation_time = recommendation_time;
+	SET @recommended_by = recommended_by;
+	SET @decision_remarks = decision_remarks;
+	SET @decision_date = decision_date;
+	SET @decision_time = decision_time;
+	SET @decision_by = decision_by;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblattendanceadjustment (REQUEST_ID, EMPLOYEE_ID, ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_DATE_ADJUSTED, TIME_IN_ADJUSTED, TIME_OUT_DATE, TIME_OUT, TIME_OUT_DATE_ADJUSTED, TIME_OUT_ADJUSTED, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@request_id, @employee_id, @attendance_id, @time_in_date_default, @time_in_default, @time_in_date_adjusted, @time_in_adjusted, @time_out_date_default, @time_out_default, @time_out_date_adjusted, @time_out_adjusted, @status, @reason, @file_path, @sanction, @request_date, @request_time, @for_recommendation_date, @for_recommendation_time, @recommendation_date, @recommendation_time, @recommended_by, @decision_remarks, @decision_date, @decision_time, @decision_by, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_imported_attendance_creation(IN request_id VARCHAR(100), IN employee_id VARCHAR(100), IN time_in_date DATE, IN time_in TIME, IN time_out_date DATE, IN time_out TIME, IN status VARCHAR(10), IN reason VARCHAR(500), IN file_path VARCHAR(500), IN sanction INT(1), IN request_date DATE, IN request_time TIME, IN for_recommendation_date DATE, IN for_recommendation_time TIME, IN recommendation_date DATE, IN recommendation_time TIME, IN recommended_by VARCHAR(50), IN decision_remarks VARCHAR(500), IN decision_date DATE, IN decision_time TIME, IN decision_by VARCHAR(50), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @request_id = request_id;
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+	SET @time_in = time_in;
+	SET @time_out_date = time_out_date;
+	SET @time_out = time_out;
+	SET @status = status;
+	SET @reason = reason;
+	SET @file_path = file_path;
+	SET @sanction = sanction;
+	SET @request_date = request_date;
+	SET @request_time = request_time;
+	SET @for_recommendation_date = for_recommendation_date;
+	SET @for_recommendation_time = for_recommendation_time;
+	SET @recommendation_date = recommendation_date;
+	SET @recommendation_time = recommendation_time;
+	SET @recommended_by = recommended_by;
+	SET @decision_remarks = decision_remarks;
+	SET @decision_date = decision_date;
+	SET @decision_time = decision_time;
+	SET @decision_by = decision_by;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblattendancecreation (REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@request_id, @employee_id, @time_in_date, @time_in, @time_out_date, @time_out, @status, @reason, @file_path, @sanction, @request_date, @request_time, @for_recommendation_date, @for_recommendation_time, @recommendation_date, @recommendation_time, @recommended_by, @decision_remarks, @decision_date, @decision_time, @decision_by, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_allowance(IN allowance_id VARCHAR(100), IN employee_id VARCHAR(100), IN allowance_type VARCHAR(100), IN payroll_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE)
+BEGIN
+	SET @allowance_id = allowance_id;
+	SET @employee_id = employee_id;
+	SET @allowance_type = allowance_type;
+	SET @payroll_id = payroll_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+
+	SET @query = 'INSERT INTO temp_allowance (ALLOWANCE_ID, EMPLOYEE_ID, ALLOWANCE_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT) VALUES(@allowance_id, @employee_id, @allowance_type, @payroll_id, @payroll_date, @amount)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_deduction(IN deduction_id VARCHAR(100), IN employee_id VARCHAR(100), IN deduction_type VARCHAR(100), IN payroll_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE)
+BEGIN
+	SET @deduction_id = deduction_id;
+	SET @employee_id = employee_id;
+	SET @deduction_type = deduction_type;
+	SET @payroll_id = payroll_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+
+	SET @query = 'INSERT INTO temp_deduction (DEDUCTION_ID, EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT) VALUES(@deduction_id, @employee_id, @deduction_type, @payroll_id, @payroll_date, @amount)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_contribution_bracket(IN contribution_bracket_id VARCHAR(100), IN government_contribution_id VARCHAR(100), IN start_range DOUBLE, IN end_range DOUBLE, IN deduction_amount DOUBLE)
+BEGIN
+	SET @contribution_bracket_id = contribution_bracket_id;
+	SET @government_contribution_id = government_contribution_id;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @deduction_amount = deduction_amount;
+
+	SET @query = 'INSERT INTO temp_contribution_bracket (CONTRIBUTION_BRACKET_ID, GOVERNMENT_CONTRIBUTION_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT) VALUES(@contribution_bracket_id, @government_contribution_id, @start_range, @end_range, @deduction_amount)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

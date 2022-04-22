@@ -60,7 +60,7 @@ function initialize_temporary_attendance_adjustment_table(datatable_name, button
         { 'width': '10%', 'aTargets': 18, 'className' : 'decision_remarks' },
         { 'width': '10%', 'aTargets': 19, 'className' : 'decision_date' },
         { 'width': '10%', 'aTargets': 20, 'className' : 'decision_time' },
-        { 'width': '10%', 'aTargets': 21, 'className' : 'decision_by' },
+        { 'width': '10%', 'aTargets': 21, 'className' : 'decision_by' }
     ];
 
     if(show_all){

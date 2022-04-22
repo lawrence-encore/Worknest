@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -8679,6 +8679,196 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'DECISION_DATE' => $decision_date,
                         'DECISION_TIME' => $decision_time,
                         'DECISION_BY' => $decision_by
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary attendance creation table
+    else if($type == 'temporary attendance creation table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT REQUEST_ID, EMPLOYEE_ID, TIME_IN_DATE, TIME_IN, TIME_OUT_DATE, TIME_OUT, STATUS, REASON, FILE_PATH, SANCTION, REQUEST_DATE, REQUEST_TIME, FOR_RECOMMENDATION_DATE, FOR_RECOMMENDATION_TIME, RECOMMENDATION_DATE, RECOMMENDATION_TIME, RECOMMENDED_BY, DECISION_REMARKS, DECISION_DATE, DECISION_TIME, DECISION_BY FROM temp_attendance_creation');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $request_id = $row['REQUEST_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $status = $row['STATUS'];
+                    $reason = $row['REASON'];
+                    $file_path = $row['FILE_PATH'];
+                    $sanction = $row['SANCTION'];
+                    $recommended_by = $row['RECOMMENDED_BY'];
+                    $decision_remarks = $row['DECISION_REMARKS'];
+                    $decision_by = $row['DECISION_BY'];
+                    
+                    $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $time_in = $api->check_date('empty', $row['TIME_IN'] ?? null, '', 'H:i:s', '', '', '');
+                    $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $time_out = $api->check_date('empty', $row['TIME_OUT'] ?? null, '', 'H:i:s', '', '', '');
+                    $request_date = $api->check_date('empty', $row['REQUEST_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $request_time = $api->check_date('empty', $row['REQUEST_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $for_recommendation_date = $api->check_date('empty', $row['FOR_RECOMMENDATION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $for_recommendation_time = $api->check_date('empty', $row['FOR_RECOMMENDATION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $recommendation_date = $api->check_date('empty', $row['RECOMMENDATION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $recommendation_time = $api->check_date('empty', $row['RECOMMENDATION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+                    $decision_date = $api->check_date('empty', $row['DECISION_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+                    $decision_time = $api->check_date('empty', $row['DECISION_TIME'] ?? null, '', 'H:i:s', '', '', '');
+
+                    $response[] = array(
+                        'REQUEST_ID' => $request_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'TIME_IN_DATE' => $time_in_date,
+                        'TIME_IN' => $time_in,
+                        'TIME_OUT_DATE' => $time_out_date,
+                        'TIME_OUT' => $time_out,
+                        'STATUS' => $status,
+                        'REASON' => $reason,
+                        'FILE_PATH' => $file_path,
+                        'SANCTION' => $sanction,
+                        'REQUEST_DATE' => $request_date,
+                        'REQUEST_TIME' => $request_time,
+                        'FOR_RECOMMENDATION_DATE' => $for_recommendation_date,
+                        'FOR_RECOMMENDATION_TIME' => $for_recommendation_time,
+                        'RECOMMENDATION_DATE' => $recommendation_date,
+                        'RECOMMENDATION_TIME' => $recommendation_time,
+                        'RECOMMENDED_BY' => $recommended_by,
+                        'DECISION_REMARKS' => $decision_remarks,
+                        'DECISION_DATE' => $decision_date,
+                        'DECISION_TIME' => $decision_time,
+                        'DECISION_BY' => $decision_by
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary allowance table
+    else if($type == 'temporary allowance table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT ALLOWANCE_ID, EMPLOYEE_ID, ALLOWANCE_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT FROM temp_allowance');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $allowance_id = $row['ALLOWANCE_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $allowance_type = $row['ALLOWANCE_TYPE'];
+                    $payroll_id = $row['PAYROLL_ID'];
+                    $amount = $row['AMOUNT'];
+                    
+                    $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+
+                    $response[] = array(
+                        'ALLOWANCE_ID' => $allowance_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'ALLOWANCE_TYPE' => $allowance_type,
+                        'PAYROLL_ID' => $payroll_id,
+                        'PAYROLL_DATE' => $payroll_date,
+                        'AMOUNT' => $amount
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary deduction table
+    else if($type == 'temporary deduction table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT DEDUCTION_ID, EMPLOYEE_ID, DEDUCTION_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT FROM temp_deduction');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $deduction_id = $row['DEDUCTION_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $deduction_type = $row['DEDUCTION_TYPE'];
+                    $payroll_id = $row['PAYROLL_ID'];
+                    $amount = $row['AMOUNT'];
+                    
+                    $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+
+                    $response[] = array(
+                        'DEDUCTION_ID' => $deduction_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'DEDUCTION_TYPE' => $deduction_type,
+                        'PAYROLL_ID' => $payroll_id,
+                        'PAYROLL_DATE' => $payroll_date,
+                        'AMOUNT' => $amount
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary government contribution table
+    else if($type == 'temporary government contribution table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT GOVERNMENT_CONTRIBUTION_ID, GOVERNMENT_CONTRIBUTION, DESCRIPTION FROM temp_government_contribution');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $government_contribution_id = $row['GOVERNMENT_CONTRIBUTION_ID'];
+                    $government_contribution = $row['GOVERNMENT_CONTRIBUTION'];
+                    $description = $row['DESCRIPTION'];
+
+                    $response[] = array(
+                        'GOVERNMENT_CONTRIBUTION_ID' => $government_contribution_id,
+                        'GOVERNMENT_CONTRIBUTION' => $government_contribution,
+                        'DESCRIPTION' => $description
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary contribution bracket table
+    else if($type == 'temporary contribution bracket table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT CONTRIBUTION_BRACKET_ID, GOVERNMENT_CONTRIBUTION_ID, START_RANGE, END_RANGE, DEDUCTION_AMOUNT FROM temp_contribution_bracket');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $contribution_bracket_id = $row['CONTRIBUTION_BRACKET_ID'];
+                    $government_contribution_id = $row['GOVERNMENT_CONTRIBUTION_ID'];
+                    $start_range = $row['START_RANGE'];
+                    $end_range = $row['END_RANGE'];
+                    $deduction_amount = $row['DEDUCTION_AMOUNT'];
+
+                    $response[] = array(
+                        'CONTRIBUTION_BRACKET_ID' => $contribution_bracket_id,
+                        'GOVERNMENT_CONTRIBUTION_ID' => $government_contribution_id,
+                        'START_RANGE' => $start_range,
+                        'END_RANGE' => $end_range,
+                        'DEDUCTION_AMOUNT' => $deduction_amount
                     );
                 }
 

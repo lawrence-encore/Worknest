@@ -4,10 +4,10 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Import Attendance Creation';
+    $page_title = 'Import Government Contribution';
 
-    $page_access = $api->check_role_permissions($username, 270);
-	$import_attendance_creation = $api->check_role_permissions($username, 271);
+    $page_access = $api->check_role_permissions($username, 276);
+	$import_government_contribution = $api->check_role_permissions($username, 277);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -65,48 +65,30 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Import Attendance Creation</h4>
+                                                        <h4 class="card-title">Import Government Contribution</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($import_attendance_creation > 0){
-                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-attendance-creation"><i class="bx bx-import label-icon"></i> Import</button>';
+                                                            if($import_government_contribution > 0){
+                                                                echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="import-government-contribution"><i class="bx bx-import label-icon"></i> Import</button>';
                                                             }
                                                         ?>
 
-                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-attendance-creation"><i class="bx bx-import label-icon"></i> Import</button>
+                                                        <button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple" id="submit-import-government-contribution"><i class="bx bx-import label-icon"></i> Import</button>
 
-                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-attendance-creation"><i class="bx bx-trash label-icon"></i> Clear</button>
+                                                        <button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="clear-import-government-contribution"><i class="bx bx-trash label-icon"></i> Clear</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="import-attendance-creation-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="import-government-contribution-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
-                                                            <th class="all">Request ID</th>
-                                                            <th class="all">Employee ID</th>
-                                                            <th class="all">Time In Date</th>
-                                                            <th class="all">Time In</th>
-                                                            <th class="all">Time Out Date</th>
-                                                            <th class="all">Time Out</th>
-                                                            <th class="all">Status</th>
-                                                            <th class="all">Reason</th>
-                                                            <th class="all">File Path</th>
-                                                            <th class="all">Sanction</th>
-                                                            <th class="all">Request Date</th>
-                                                            <th class="all">Request Time</th>
-                                                            <th class="all">For Recommendation Date</th>
-                                                            <th class="all">For Recommendation Time</th>
-                                                            <th class="all">Recommendation Date</th>
-                                                            <th class="all">Recommendation Time</th>
-                                                            <th class="all">Recommended By</th>
-                                                            <th class="all">Decision Remarks</th>
-                                                            <th class="all">Decision Date</th>
-                                                            <th class="all">Decision Time</th>
-                                                            <th class="all">Decision By</th>
+                                                            <th class="all">Government Contribution ID</th>
+                                                            <th class="all">Government Contribution</th>
+                                                            <th class="all">Description</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -134,6 +116,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/import-attendance-creation.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/import-government-contribution.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

@@ -49,6 +49,10 @@
     $import_leave_page = $api->check_role_permissions($username, 266);
     $import_attendance_adjustment_page = $api->check_role_permissions($username, 268);
     $import_attendance_creation_page = $api->check_role_permissions($username, 270);
+    $import_allowance_page = $api->check_role_permissions($username, 272);
+    $import_deduction_page = $api->check_role_permissions($username, 274);
+    $import_government_contribution_page = $api->check_role_permissions($username, 276);
+    $import_contribution_bracket_page = $api->check_role_permissions($username, 278);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -283,7 +287,7 @@
         }
     }
 
-    if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $branch_page > 0 || $upload_setting_page > 0 || $user_account_page > 0 || $attendance_setting_page > 0 || $import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0 || $import_attendance_adjustment_page > 0 || $import_attendance_creation_page > 0){
+    if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $branch_page > 0 || $upload_setting_page > 0 || $user_account_page > 0 || $attendance_setting_page > 0 || $import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0 || $import_attendance_adjustment_page > 0 || $import_attendance_creation_page > 0 || $import_allowance_page > 0 || $import_deduction_page > 0 || $import_government_contribution_page > 0 || $import_contribution_bracket_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Administrator</li>';
 
         if($policy_page > 0 || $role_page > 0 || $system_parameter_page > 0 || $system_code_page > 0 || $notification_type_page > 0 || $user_interface_setting_page > 0 || $application_notification_page > 0 || $company_setting_page > 0 || $email_configuration_page > 0 || $department_page > 0 || $designation_page > 0 || $branch_page > 0 || $upload_setting_page > 0){
@@ -357,7 +361,7 @@
                     </li>';
         }
 
-        if($import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0 || $import_attendance_adjustment_page > 0 || $import_attendance_creation_page > 0){
+        if($import_employee_page > 0 || $import_attendance_record_page > 0 || $import_leave_entitlement_page > 0 || $import_leave_page > 0 || $import_attendance_adjustment_page > 0 || $import_attendance_creation_page > 0 || $import_allowance_page > 0 || $import_deduction_page > 0 || $import_government_contribution_page > 0 || $import_contribution_bracket_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-import"></i>
@@ -381,12 +385,28 @@
                             $menu .= '<li><a href="import-attendance-creation.php" key="t-import-attendance-creation">Attendance Creation</a></li>';
                         }
 
+                        if($import_leave_page > 0){
+                            $menu .= '<li><a href="import-leave.php" key="t-import-leave">Leave</a></li>';
+                        }
+
                         if($import_leave_entitlement_page > 0){
                             $menu .= '<li><a href="import-leave-entitlement.php" key="t-import-leave-entitlement">Leave Entitlement</a></li>';
                         }
 
-                        if($import_leave_page > 0){
-                            $menu .= '<li><a href="import-leave.php" key="t-import-leave">Leave</a></li>';
+                        if($import_allowance_page > 0){
+                            $menu .= '<li><a href="import-allowance.php" key="t-import-allowance">Allowance</a></li>';
+                        }
+
+                        if($import_deduction_page > 0){
+                            $menu .= '<li><a href="import-deduction.php" key="t-import-deduction">Deduction</a></li>';
+                        }
+
+                        if($import_government_contribution_page > 0){
+                            $menu .= '<li><a href="import-government-contribution.php" key="t-import-government-contribution">Government Contribution</a></li>';
+                        }
+
+                        if($import_contribution_bracket_page > 0){
+                            $menu .= '<li><a href="import-contribution-bracket.php" key="t-import-contribution-bracket">Contribution Bracket</a></li>';
                         }
 
             $menu .= '</ul>

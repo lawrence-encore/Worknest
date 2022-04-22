@@ -537,6 +537,116 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_attendance_creation_table
+    # Purpose    : Truncates the temporary table for attendance creation.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_attendance_creation_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_creation');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_allowance_table
+    # Purpose    : Truncates the temporary table for allowance.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_allowance_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_allowance');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_deduction_table
+    # Purpose    : Truncates the temporary table for deduction.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_deduction_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_deduction');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_government_contribution_table
+    # Purpose    : Truncates the temporary table for government contribution.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_government_contribution_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_government_contribution');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_contribution_bracket_table
+    # Purpose    : Truncates the temporary table for contribution bracket.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_contribution_bracket_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_contribution_bracket');
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check data exist methods
     # -------------------------------------------------------------
     
@@ -8415,6 +8525,322 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_imported_attendance_adjustment
+    # Purpose    : Insert imported attendance adjustment.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_imported_attendance_adjustment($employee_id, $attendance_id, $time_in_date_default, $time_in_default, $time_in_date_adjustment, $time_in_adjustment, $time_out_date_default, $time_out_default, $time_out_date_adjustment, $time_out_adjustment, $status, $reason, $file_path, $sanction, $request_date, $request_time, $for_recommendation_date, $for_recommendation_time, $recommendation_date, $recommendation_time, $recommended_by, $decision_remarks, $decision_date, $decision_time, $decision_by, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(27, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_imported_attendance_adjustment(:id, :employee_id, :attendance_id, :time_in_date_default, :time_in_default, :time_in_date_adjustment, :time_in_adjustment, :time_out_date_default, :time_out_default, :time_out_date_adjustment, :time_out_adjustment, :status, :reason, :file_path, :sanction, :request_date, :request_time, :for_recommendation_date, :for_recommendation_time, :recommendation_date, :recommendation_time, :recommended_by, :decision_remarks, :decision_date, :decision_time, :decision_by, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':attendance_id', $attendance_id);
+            $sql->bindValue(':time_in_date_default', $time_in_date_default);
+            $sql->bindValue(':time_in_default', $time_in_default);
+            $sql->bindValue(':time_in_date_adjustment', $time_in_date_adjustment);
+            $sql->bindValue(':time_in_adjustment', $time_in_adjustment);
+            $sql->bindValue(':time_out_date_default', $time_out_date_default);
+            $sql->bindValue(':time_out_default', $time_out_default);
+            $sql->bindValue(':time_out_date_adjustment', $time_out_date_adjustment);
+            $sql->bindValue(':time_out_adjustment', $time_out_adjustment);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':file_path', $file_path);
+            $sql->bindValue(':sanction', $sanction);
+            $sql->bindValue(':request_date', $request_date);
+            $sql->bindValue(':request_time', $request_time);
+            $sql->bindValue(':for_recommendation_date', $for_recommendation_date);
+            $sql->bindValue(':for_recommendation_time', $for_recommendation_time);
+            $sql->bindValue(':recommendation_date', $recommendation_date);
+            $sql->bindValue(':recommendation_time', $recommendation_time);
+            $sql->bindValue(':recommended_by', $recommended_by);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':decision_date', $decision_date);
+            $sql->bindValue(':decision_time', $decision_time);
+            $sql->bindValue(':decision_by', $decision_by);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 27, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance adjustment (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_attendance_creation
+    # Purpose    : Inserts temporary attendance creation for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_attendance_creation($request_id, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $status, $reason, $file_path, $sanction, $request_date, $request_time, $for_recommendation_date, $for_recommendation_time, $recommendation_date, $recommendation_time, $recommended_by, $decision_remarks, $decision_date, $decision_time, $decision_by){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_attendance_creation(:request_id, :employee_id, :time_in_date, :time_in, :time_out_date, :time_out, :status, :reason, :file_path, :sanction, :request_date, :request_time, :for_recommendation_date, :for_recommendation_time, :recommendation_date, :recommendation_time, :recommended_by, :decision_remarks, :decision_date, :decision_time, :decision_by)');
+            $sql->bindValue(':request_id', $request_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':time_in_date', $time_in_date);
+            $sql->bindValue(':time_in', $time_in);
+            $sql->bindValue(':time_out_date', $time_out_date);
+            $sql->bindValue(':time_out', $time_out);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':file_path', $file_path);
+            $sql->bindValue(':sanction', $sanction);
+            $sql->bindValue(':request_date', $request_date);
+            $sql->bindValue(':request_time', $request_time);
+            $sql->bindValue(':for_recommendation_date', $for_recommendation_date);
+            $sql->bindValue(':for_recommendation_time', $for_recommendation_time);
+            $sql->bindValue(':recommendation_date', $recommendation_date);
+            $sql->bindValue(':recommendation_time', $recommendation_time);
+            $sql->bindValue(':recommended_by', $recommended_by);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':decision_date', $decision_date);
+            $sql->bindValue(':decision_time', $decision_time);
+            $sql->bindValue(':decision_by', $decision_by);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_imported_attendance_creation
+    # Purpose    : Insert imported attendance creation.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_imported_attendance_creation($employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $status, $reason, $file_path, $sanction, $request_date, $request_time, $for_recommendation_date, $for_recommendation_time, $recommendation_date, $recommendation_time, $recommended_by, $decision_remarks, $decision_date, $decision_time, $decision_by, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(26, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_imported_attendance_creation(:id, :employee_id, :time_in_date, :time_in, :time_out_date, :time_out, :status, :reason, :file_path, :sanction, :request_date, :request_time, :for_recommendation_date, :for_recommendation_time, :recommendation_date, :recommendation_time, :recommended_by, :decision_remarks, :decision_date, :decision_time, :decision_by, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':time_in_date', $time_in_date);
+            $sql->bindValue(':time_in', $time_in);
+            $sql->bindValue(':time_out_date', $time_out_date);
+            $sql->bindValue(':time_out', $time_out);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':reason', $reason);
+            $sql->bindValue(':file_path', $file_path);
+            $sql->bindValue(':sanction', $sanction);
+            $sql->bindValue(':request_date', $request_date);
+            $sql->bindValue(':request_time', $request_time);
+            $sql->bindValue(':for_recommendation_date', $for_recommendation_date);
+            $sql->bindValue(':for_recommendation_time', $for_recommendation_time);
+            $sql->bindValue(':recommendation_date', $recommendation_date);
+            $sql->bindValue(':recommendation_time', $recommendation_time);
+            $sql->bindValue(':recommended_by', $recommended_by);
+            $sql->bindValue(':decision_remarks', $decision_remarks);
+            $sql->bindValue(':decision_date', $decision_date);
+            $sql->bindValue(':decision_time', $decision_time);
+            $sql->bindValue(':decision_by', $decision_by);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 26, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance creation (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_allowance
+    # Purpose    : Inserts temporary allowance for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_allowance($allowance_id, $employee_id, $allowance_type, $payroll_id, $payroll_date, $amount){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_allowance(:allowance_id, :employee_id, :allowance_type, :payroll_id, :payroll_date, :amount)');
+            $sql->bindValue(':allowance_id', $allowance_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':allowance_type', $allowance_type);
+            $sql->bindValue(':payroll_id', $payroll_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_deduction
+    # Purpose    : Inserts temporary deduction for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_deduction($deduction_id, $employee_id, $deduction_type, $payroll_id, $payroll_date, $amount){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_deduction(:deduction_id, :employee_id, :deduction_type, :payroll_id, :payroll_date, :amount)');
+            $sql->bindValue(':deduction_id', $deduction_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':deduction_type', $deduction_type);
+            $sql->bindValue(':payroll_id', $payroll_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_government_contribution
+    # Purpose    : Inserts temporary government contribution for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_government_contribution($government_contribution_id, $government_contribution, $description){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_government_contribution(:government_contribution_id, :government_contribution, :description)');
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+            $sql->bindValue(':government_contribution', $government_contribution);
+            $sql->bindValue(':description', $description);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_contribution_bracket
+    # Purpose    : Inserts temporary contribution bracket for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_contribution_bracket($contribution_bracket_id, $government_contribution_id, $start_range, $end_range, $deduction_amount){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_contribution_bracket(:contribution_bracket_id, :government_contribution_id, :start_range, :end_range, :deduction_amount)');
+            $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
+            $sql->bindValue(':government_contribution_id', $government_contribution_id);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':deduction_amount', $deduction_amount);
+
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -13294,7 +13720,7 @@ class Api{
             $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
 
             for($i = 0; $i < count($upload_file_type_details); $i++) {
-                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+                $file_type .= $upload_file_type_details['FILE_TYPE'];
 
                 if($i != (count($upload_file_type_details) - 1)){
                     $file_type .= ',';

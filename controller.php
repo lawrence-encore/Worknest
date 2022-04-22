@@ -849,41 +849,602 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
-    # Import leave entitlement data
-    else if($transaction == 'import leave entitlement data'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && isset($_POST['employee_id']) && isset($_POST['leave_type']) && isset($_POST['no_leaves']) && isset($_POST['start_date']) && isset($_POST['end_date'])){
+    # Import attendance adjustment data
+    else if($transaction == 'import attendance adjustment data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && isset($_POST['employee_id']) && isset($_POST['attendance_id']) && isset($_POST['time_in_date_adjusted']) && isset($_POST['time_in_adjusted']) && isset($_POST['time_out_date_adjusted']) && isset($_POST['time_out_adjusted']) && isset($_POST['status']) && isset($_POST['reason']) && isset($_POST['file_path']) && isset($_POST['sanction']) && isset($_POST['request_date']) && isset($_POST['request_time']) && isset($_POST['for_recommendation_date']) && isset($_POST['for_recommendation_time']) && isset($_POST['recommendation_date']) && isset($_POST['recommendation_time']) && isset($_POST['recommended_by']) && isset($_POST['decision_remarks']) && isset($_POST['decision_date']) && isset($_POST['decision_time']) && isset($_POST['decision_by'])){
             $username = $_POST['username'];
-            $leave_entitlement_id = $_POST['leave_entitlement_id'];
+            $request_id = $_POST['request_id'];
             $employee_id = $_POST['employee_id'];
-            $leave_type = $_POST['leave_type'];
-            $no_leaves = $_POST['no_leaves'];
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
+            $attendance_id = $_POST['attendance_id'];
+            $time_in_date_adjusted = $_POST['time_in_date_adjusted'];
+            $time_in_adjusted = $_POST['time_in_adjusted'];
+            $time_out_date_adjusted = $_POST['time_out_date_adjusted'];
+            $time_out_adjusted = $_POST['time_out_adjusted'];
+            $status = $_POST['status'];
+            $reason = $_POST['reason'];
+            $file_path = $_POST['file_path'];
+            $sanction = $_POST['sanction'];
+            $request_date = $_POST['request_date'];
+            $request_time = $_POST['request_time'];
+            $for_recommendation_date = $_POST['for_recommendation_date'];
+            $for_recommendation_time = $_POST['for_recommendation_time'];
+            $recommendation_date = $_POST['recommendation_date'];
+            $recommendation_time = $_POST['recommendation_time'];
+            $recommended_by = $_POST['recommended_by'];
+            $decision_remarks = $_POST['decision_remarks'];
+            $decision_date = $_POST['decision_date'];
+            $decision_time = $_POST['decision_time'];
+            $decision_by = $_POST['decision_by'];
 
             for($i = 0; $i < count($employee_id); $i++){
-                $check_leave_entitlement_exist = $api->check_leave_entitlement_exist($leave_entitlement_id[$i]);
+                $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id[$i]);
+                $time_in_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'], '', 'Y-m-d', '', '', '');
+                $time_in_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN'], '', 'H:i:00', '', '', '');
+                $time_out_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT_DATE'], '', 'Y-m-d', '', '', '');
+                $time_out_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT'], '', 'H:i:00', '', '', '');
+                
+                if(!empty($time_in_date_adjusted[$i])){
+                    $time_in_date_adjustment = $time_in_date_adjusted[$i];
+                }
+                else{
+                    $time_in_date_adjustment = $time_in_date_default;
+                }
+                
+                if(!empty($time_in_adjusted[$i])){
+                    $time_in_adjustment = $time_in_adjusted[$i];
+                }
+                else{
+                    $time_in_adjustment = $time_in_default;
+                }
+                
+                if(!empty($time_out_date_adjusted[$i])){
+                    $time_out_date_adjustment = $time_out_date_adjusted[$i];
+                }
+                else{
+                    $time_out_date_adjustment = $time_out_date_default;
+                }
+                
+                if(!empty($time_out_adjusted[$i])){
+                    $time_out_adjustment = $time_out_adjusted[$i];
+                }
+                else{
+                    $time_out_adjustment = $time_out_default;
+                }
 
-                if($check_leave_entitlement_exist > 0){
-                    $leave_entitlement_details = $api->get_leave_entitlement_details($leave_entitlement_id[$i]);
-                    $leave_entitlement_start_date = $leave_entitlement_details[0]['START_DATE'];
-                    $leave_entitlement_end_date = $leave_entitlement_details[0]['END_DATE'];
+                $check_attendance_validation = $api->check_attendance_validation($time_in_date_adjustment, $time_in_adjustment, $time_out_date_adjustment, $time_out_adjustment);
 
-                    if(strtotime($leave_entitlement_start_date) != strtotime($start_date[$i]) || strtotime($leave_entitlement_end_date) != strtotime($end_date[$i])){
-                        $leave_entitlement_overlap = $api->check_leave_entitlement_overlap($leave_entitlement_id[$i], $start_date[$i], $end_date[$i], $employee_id[$i], $leave_type[$i]);
+                if(empty($check_attendance_validation)){
+                    $check_attendance_adjustment_exist = $api->check_attendance_adjustment_exist($request_id[$i]);
+    
+                    if($check_attendance_adjustment_exist > 0){
+                        $update_attendance_adjustment = $api->update_attendance_adjustment($request_id[$i], $time_in_date_adjustment, $time_in_adjustment, $time_out_date_adjustment, $time_out_adjustment, $reason[$i], $username);
+                    }
+                    else{
+                        $insert_imported_attendance_adjustment = $api->insert_imported_attendance_adjustment($employee_id[$i], $attendance_id[$i], $time_in_date_default, $time_in_default, $time_in_date_adjustment, $time_in_adjustment, $time_out_date_default, $time_out_default, $time_out_date_adjustment, $time_out_adjustment, $status[$i], $reason[$i], $file_path[$i], $sanction[$i], $request_date[$i], $request_time[$i], $for_recommendation_date[$i], $for_recommendation_time[$i], $recommendation_date[$i], $recommendation_time[$i], $recommended_by[$i], $decision_remarks[$i], $decision_date[$i], $decision_time[$i], $decision_by[$i], $username);
+                    }
+                }
+            }
 
-                        if($leave_entitlement_overlap == 0){
-                            $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id[$i], $no_leaves[$i], $start_date[$i], $end_date[$i], $username);
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import attendance creation
+    else if($transaction == 'import attendance creation'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(16);
+            $upload_file_type_details = $api->get_upload_file_type_details(16);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_attendance_creation_table = $api->truncate_temporary_attendance_creation_table();
+
+                        if($truncate_temporary_attendance_creation_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $request_id = $column[0];
+                                $employee_id = $column[1];
+                                $time_in_date = $api->check_date('empty', $column[2], '', 'Y-m-d', '', '', '');
+                                $time_in = $api->check_date('empty', $column[3], '', 'H:i:s', '', '', '');
+                                $time_out_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+                                $time_out = $api->check_date('empty', $column[5], '', 'H:i:s', '', '', '');
+                                $status = $column[6];
+                                $reason = $column[7];
+                                $file_path = $column[8];
+                                $sanction = $column[9];
+                                $request_date = $api->check_date('empty', $column[10], '', 'Y-m-d', '', '', '');
+                                $request_time = $api->check_date('empty', $column[11], '', 'H:i:s', '', '', '');
+                                $for_recommendation_date = $api->check_date('empty', $column[12], '', 'Y-m-d', '', '', '');
+                                $for_recommendation_time = $api->check_date('empty', $column[13], '', 'H:i:s', '', '', '');
+                                $recommendation_date = $api->check_date('empty', $column[14], '', 'Y-m-d', '', '', '');
+                                $recommendation_time = $api->check_date('empty', $column[15], '', 'H:i:s', '', '', '');
+                                $recommended_by = $column[16];
+                                $decision_remarks = $column[17];
+                                $decision_date = $api->check_date('empty', $column[18], '', 'Y-m-d', '', '', '');
+                                $decision_time = $api->check_date('empty', $column[19], '', 'H:i:s', '', '', '');
+                                $decision_by = $column[20];
+
+                                if(!empty($employee_id) && !empty($time_in_date) && !empty($time_in) && !empty($status) && !empty($reason) && !empty($file_path) && !empty($request_date) && !empty($request_time)){
+                                    $insert_temporary_attendance_creation = $api->insert_temporary_attendance_creation($request_id, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $status, $reason, $file_path, $sanction, $request_date, $request_time, $for_recommendation_date, $for_recommendation_time, $recommendation_date, $recommendation_time, $recommended_by, $decision_remarks, $decision_date, $decision_time, $decision_by);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_attendance_creation_table;
                         }
                     }
                     else{
-                        $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id[$i], $no_leaves[$i], $start_date[$i], $end_date[$i], $username);
+                        echo 'File Size';
                     }
                 }
                 else{
-                    $leave_entitlement_overlap = $api->check_leave_entitlement_overlap('', $start_date[$i], $end_date[$i], $employee_id[$i], $leave_type[$i]);
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
 
-                    if($leave_entitlement_overlap == 0){
-                        $insert_leave_entitlement = $api->insert_leave_entitlement($employee_id[$i], $leave_type[$i], $no_leaves[$i], $start_date[$i], $end_date[$i], $username);
+    # Import attendance creation data
+    else if($transaction == 'import attendance creation data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['request_id']) && isset($_POST['employee_id']) && isset($_POST['time_in_date']) && isset($_POST['time_in']) && isset($_POST['time_out_date']) && isset($_POST['time_out']) && isset($_POST['status']) && isset($_POST['reason']) && isset($_POST['file_path']) && isset($_POST['sanction']) && isset($_POST['request_date']) && isset($_POST['request_time']) && isset($_POST['for_recommendation_date']) && isset($_POST['for_recommendation_time']) && isset($_POST['recommendation_date']) && isset($_POST['recommendation_time']) && isset($_POST['recommended_by']) && isset($_POST['decision_remarks']) && isset($_POST['decision_date']) && isset($_POST['decision_time']) && isset($_POST['decision_by'])){
+            $username = $_POST['username'];
+            $request_id = $_POST['request_id'];
+            $employee_id = $_POST['employee_id'];
+            $time_in_date = $_POST['time_in_date'];
+            $time_in = $_POST['time_in'];
+            $time_out_date = $_POST['time_out_date'];
+            $time_out = $_POST['time_out'];
+            $status = $_POST['status'];
+            $reason = $_POST['reason'];
+            $file_path = $_POST['file_path'];
+            $sanction = $_POST['sanction'];
+            $request_date = $_POST['request_date'];
+            $request_time = $_POST['request_time'];
+            $for_recommendation_date = $_POST['for_recommendation_date'];
+            $for_recommendation_time = $_POST['for_recommendation_time'];
+            $recommendation_date = $_POST['recommendation_date'];
+            $recommendation_time = $_POST['recommendation_time'];
+            $recommended_by = $_POST['recommended_by'];
+            $decision_remarks = $_POST['decision_remarks'];
+            $decision_date = $_POST['decision_date'];
+            $decision_time = $_POST['decision_time'];
+            $decision_by = $_POST['decision_by'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $check_attendance_validation = $api->check_attendance_validation($time_in_date[$i], $time_in[$i], $time_out_date[$i], $time_out[$i]);
+
+                if(empty($check_attendance_validation)){
+                    $check_attendance_creation_exist = $api->check_attendance_creation_exist($request_id[$i]);
+    
+                    if($check_attendance_creation_exist > 0){
+                        $update_attendance_creation = $api->update_attendance_creation($request_id[$i], $time_in_date[$i], $time_in[$i], $time_out_date[$i], $time_out[$i], $reason[$i], $username);
+                    }
+                    else{
+                        $insert_imported_attendance_creation = $api->insert_imported_attendance_creation($employee_id[$i], $time_in_date[$i], $time_in[$i], $time_out_date[$i], $time_out[$i], $status[$i], $reason[$i], $file_path[$i], $sanction[$i], $request_date[$i], $request_time[$i], $for_recommendation_date[$i], $for_recommendation_time[$i], $recommendation_date[$i], $recommendation_time[$i], $recommended_by[$i], $decision_remarks[$i], $decision_date[$i], $decision_time[$i], $decision_by[$i], $username);
+                    }
+                }
+                else{
+                    echo $check_attendance_validation;
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import allowance
+    else if($transaction == 'import allowance'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_allowance_table = $api->truncate_temporary_allowance_table();
+
+                        if($truncate_temporary_allowance_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $allowance_id = $column[0];
+                                $employee_id = $column[1];
+                                $allowance_type = $column[2];
+                                $payroll_id = $column[3];
+                                $payroll_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+                                $amount = $column[5];
+
+                                if(!empty($employee_id) && !empty($allowance_type) && !empty($payroll_date) && !empty($amount)){
+                                    $insert_temporary_allowance = $api->insert_temporary_allowance($allowance_id, $employee_id, $allowance_type, $payroll_id, $payroll_date, $amount);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_allowance_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import allowance data
+    else if($transaction == 'import allowance data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['allowance_id']) && isset($_POST['employee_id']) && isset($_POST['allowance_type']) && isset($_POST['payroll_id']) && isset($_POST['payroll_date']) && isset($_POST['amount'])){
+            $username = $_POST['username'];
+            $allowance_id = $_POST['allowance_id'];
+            $employee_id = $_POST['employee_id'];
+            $allowance_type = $_POST['allowance_type'];
+            $payroll_id = $_POST['payroll_id'];
+            $payroll_date = $_POST['payroll_date'];
+            $amount = $_POST['amount'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $check_allowance_exist = $api->check_allowance_exist($allowance_id[$i]);
+
+                if($check_allowance_exist > 0){
+                    $update_allowance = $api->update_allowance($allowance_id[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+                else{
+                    $insert_allowance = $api->insert_allowance($employee_id[$i], $allowance_type[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import deduction
+    else if($transaction == 'import deduction'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_deduction_table = $api->truncate_temporary_deduction_table();
+
+                        if($truncate_temporary_deduction_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $deduction_id = $column[0];
+                                $employee_id = $column[1];
+                                $deduction_type = $column[2];
+                                $payroll_id = $column[3];
+                                $payroll_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+                                $amount = $column[5];
+
+                                if(!empty($employee_id) && !empty($deduction_type) && !empty($payroll_date) && !empty($amount)){
+                                    $insert_temporary_deduction = $api->insert_temporary_deduction($deduction_id, $employee_id, $deduction_type, $payroll_id, $payroll_date, $amount);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_deduction_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import deduction data
+    else if($transaction == 'import deduction data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_id']) && isset($_POST['employee_id']) && isset($_POST['deduction_type']) && isset($_POST['payroll_id']) && isset($_POST['payroll_date']) && isset($_POST['amount'])){
+            $username = $_POST['username'];
+            $deduction_id = $_POST['deduction_id'];
+            $employee_id = $_POST['employee_id'];
+            $deduction_type = $_POST['deduction_type'];
+            $payroll_id = $_POST['payroll_id'];
+            $payroll_date = $_POST['payroll_date'];
+            $amount = $_POST['amount'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $check_deduction_exist = $api->check_deduction_exist($deduction_id[$i]);
+
+                if($check_deduction_exist > 0){
+                    $update_deduction = $api->update_deduction($deduction_id[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+                else{
+                    $insert_deduction = $api->insert_deduction($employee_id[$i], $deduction_type[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import government contribution
+    else if($transaction == 'import government contribution'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_government_contribution_table = $api->truncate_temporary_government_contribution_table();
+
+                        if($truncate_temporary_government_contribution_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $government_contribution_id = $column[0];
+                                $government_contribution = $column[1];
+                                $description = $column[2];
+
+                                if(!empty($government_contribution) && !empty($description)){
+                                    $insert_temporary_government_contribution = $api->insert_temporary_government_contribution($government_contribution_id, $government_contribution, $description);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_government_contribution_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import government contribution data
+    else if($transaction == 'import government contribution data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['government_contribution_id']) && isset($_POST['government_contribution']) && isset($_POST['description'])){
+            $username = $_POST['username'];
+            $government_contribution_id = $_POST['government_contribution_id'];
+            $government_contribution = $_POST['government_contribution'];
+            $description = $_POST['description'];
+
+            for($i = 0; $i < count($government_contribution); $i++){
+                $check_government_contribution_exist = $api->check_government_contribution_exist($government_contribution_id[$i]);
+
+                if($check_government_contribution_exist > 0){
+                    $update_government_contribution = $api->update_government_contribution($government_contribution_id[$i], $government_contribution[$i], $description[$i], $username);
+                }
+                else{
+                    $insert_government_contribution = $api->insert_government_contribution($government_contribution[$i], $description[$i], $username);
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import contribution bracket
+    else if($transaction == 'import contribution bracket'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(15);
+            $upload_file_type_details = $api->get_upload_file_type_details(15);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_contribution_bracket_table = $api->truncate_temporary_contribution_bracket_table();
+
+                        if($truncate_temporary_contribution_bracket_table == 1){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $contribution_bracket_id = $column[0];
+                                $government_contribution_id = $column[1];
+                                $start_range = $column[2];
+                                $end_range = $column[3];
+                                $deduction_amount = $column[4];
+
+                                if(!empty($government_contribution_id) && !empty($start_range) && !empty($end_range) && !empty($deduction_amount)){
+                                    $insert_temporary_contribution_bracket = $api->insert_temporary_contribution_bracket($contribution_bracket_id, $government_contribution_id, $start_range, $end_range, $deduction_amount);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_contribution_bracket_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import contribution bracket data
+    else if($transaction == 'import contribution bracket data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['contribution_bracket_id']) && isset($_POST['government_contribution_id']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['deduction_amount'])){
+            $username = $_POST['username'];
+            $contribution_bracket_id = $_POST['contribution_bracket_id'];
+            $government_contribution_id = $_POST['government_contribution_id'];
+            $start_range = $_POST['start_range'];
+            $end_range = $_POST['end_range'];
+            $deduction_amount = $_POST['deduction_amount'];
+
+            for($i = 0; $i < count($government_contribution_id); $i++){
+                $check_contribution_bracket_exist = $api->check_contribution_bracket_exist($contribution_bracket_id[$i]);
+
+                if($check_contribution_bracket_exist > 0){
+                    $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id[$i], $government_contribution_id[$i], $start_range[$i]);
+                    $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap($contribution_bracket_id[$i], $government_contribution_id[$i], $end_range[$i]);
+
+                    if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                        $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id[$i], $start_range[$i], $end_range[$i], $deduction_amount[$i], $username);
+                    }
+                }
+                else{
+                    $check_start_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id[$i], $start_range[$i]);
+                    $check_end_contribution_bracket_range_overlap = $api->check_contribution_bracket_overlap(null, $government_contribution_id[$i], $end_range[$i]);
+
+                    if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
+                        $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id[$i], $start_range[$i], $end_range[$i], $deduction_amount[$i], $username);
                     }
                 }
             }
@@ -917,6 +1478,21 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else if($table_name == 'import attendance adjustment'){
                 $truncate_table = $api->truncate_temporary_attendance_adjustment_table();
+            }
+            else if($table_name == 'import attendance creation'){
+                $truncate_table = $api->truncate_temporary_attendance_creation_table();
+            }
+            else if($table_name == 'import allowance'){
+                $truncate_table = $api->truncate_temporary_allowance_table();
+            }
+            else if($table_name == 'import deduction'){
+                $truncate_table = $api->truncate_temporary_deduction_table();
+            }
+            else if($table_name == 'import government contribution'){
+                $truncate_table = $api->truncate_temporary_government_contribution_table();
+            }
+            else if($table_name == 'import contribution bracket'){
+                $truncate_table = $api->truncate_temporary_contribution_bracket_table();
             }
             else{
                 $truncate_table = 1;
@@ -3456,9 +4032,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
             $time_in_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN_DATE'], '', 'Y-m-d', '', '', '');
-            $time_in_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN'], '', 'H:i:s', '', '', '');
+            $time_in_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_IN'], '', 'H:i:00', '', '', '');
             $time_out_date_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT_DATE'], '', 'Y-m-d', '', '', '');
-            $time_out_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT'], '', 'H:i:s', '', '', '');
+            $time_out_default = $api->check_date('empty', $get_employee_attendance_details[0]['TIME_OUT'], '', 'H:i:00', '', '', '');
 
             $employee_details = $api->get_employee_details('', $username);
             $employee_id = $employee_details[0]['EMPLOYEE_ID'];
