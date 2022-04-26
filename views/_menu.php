@@ -54,6 +54,7 @@
     $import_government_contribution_page = $api->check_role_permissions($username, 276);
     $import_contribution_bracket_page = $api->check_role_permissions($username, 278);
     $import_contribution_deduction_page = $api->check_role_permissions($username, 280);
+    $salary_page = $api->check_role_permissions($username, 284);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -102,10 +103,10 @@
         }
     }
 
-    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0){
+    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Human Resource</li>';
 
-        if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0){
+        if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-user"></i>
@@ -139,6 +140,10 @@
 
                         if($employee_file_management_page > 0){
                             $menu .= '<li><a href="employee-file-management.php" key="t-employment-status">Employee Files</a></li>';
+                        }
+
+                        if($salary_page > 0){
+                            $menu .= '<li><a href="salary.php" key="t-employment-status">Salary</a></li>';
                         }
 
                         if($work_shift_page > 0){

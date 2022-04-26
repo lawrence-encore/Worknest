@@ -237,6 +237,28 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Backup transactions
+    # -------------------------------------------------------------
+
+    # Backup database
+    else if($transaction == 'backup database'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['file_name']) && !empty($_POST['file_name'])){
+            $username = $_POST['username'];
+            $file_name = $_POST['file_name'];
+
+            $backup_database = $api->backup_database($file_name, $username);
+
+            if($backup_database == 1){
+                echo 'Backed-up';
+            }
+            else{
+                echo $backup_database;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Import transactions
     # -------------------------------------------------------------
 
@@ -4769,6 +4791,88 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit salary
+    else if($transaction == 'submit salary'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['basic_pay']) && !empty($_POST['basic_pay']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['remarks'])){
+            $username = $_POST['username'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+            $basic_pay = $_POST['basic_pay'];
+            $remarks = $_POST['remarks'];
+            $effectivity_date = $api->check_date('empty', $_POST['effectivity_date'], '', 'Y-m-d', '', '', '');
+
+            foreach($employee_ids as $employee_id){
+                $check_salary_effectivity_date_conflict = $api->check_salary_effectivity_date_conflict(null, $employee_id, $effectivity_date);
+
+                if($check_salary_effectivity_date_conflict == 0){
+                    $insert_salary = $api->insert_salary($employee_id, $basic_pay, $effectivity_date, $remarks, $username);
+    
+                    if($insert_salary != 1){
+                        $error = $insert_salary;
+                    }
+                }
+            }
+            
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
+            }              
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit salary update
+    else if($transaction == 'submit salary update'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['salary_id']) && !empty($_POST['salary_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['basic_pay']) && !empty($_POST['basic_pay']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['remarks'])){
+            $username = $_POST['username'];
+            $salary_id = $_POST['salary_id'];
+            $employee_id = $_POST['employee_id'];
+            $basic_pay = $_POST['basic_pay'];
+            $remarks = $_POST['remarks'];
+            $effectivity_date = $api->check_date('empty', $_POST['effectivity_date'], '', 'Y-m-d', '', '', '');
+            
+            $check_salary_exist = $api->check_salary_exist($salary_id);
+
+            if($check_salary_exist > 0){
+                $salary_details = $api->get_salary_details($salary_id);
+                $salary_effetivity_date = $salary_details[0]['EFFECTIVITY_DATE'];
+
+                if(strtotime($salary_effetivity_date) != strtotime($effectivity_date)){
+                    $check_salary_effectivity_date_conflict = $api->check_salary_effectivity_date_conflict($salary_id, $employee_id, $effectivity_date);
+
+                    if($check_salary_effectivity_date_conflict == 0){
+                        $update_salary = $api->update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username);
+
+                        if($update_salary == 1){
+                            echo 'Updated';
+                        }
+                        else{
+                            echo $update_salary;
+                        }
+                    }
+                    else{
+                        echo 'Overlap';
+                    }
+                }
+                else{
+                    $update_salary = $api->update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username);
+
+                    if($update_salary == 1){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_salary;
+                    }
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -6488,6 +6592,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if($delete_contribution_deduction_exist != 1){
                         $error = $delete_contribution_deduction_exist;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete salary
+    else if($transaction == 'delete salary'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['salary_id']) && !empty($_POST['salary_id'])){
+            $username = $_POST['username'];
+            $salary_id = $_POST['salary_id'];
+
+            $check_salary_exist = $api->check_salary_exist($salary_id);
+
+            if($check_salary_exist > 0){
+                $delete_salary = $api->delete_salary($salary_id, $username);
+                                    
+                if($delete_salary == 1){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_salary;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple salary
+    else if($transaction == 'delete multiple salary'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['salary_id'])){
+            $username = $_POST['username'];
+            $salary_ids = $_POST['salary_id'];
+
+            foreach($salary_ids as $salary_id){
+                $check_salary_exist = $api->check_salary_exist($salary_id);
+
+                if($check_salary_exist > 0){
+                    $delete_salary = $api->delete_salary($salary_id, $username);
+                                    
+                    if($delete_salary != 1){
+                        $error = $delete_salary;
                     }
                 }
                 else{
@@ -8795,6 +8955,49 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Notification transactions
+    # -------------------------------------------------------------
+
+    # Partial notification status
+    else if($transaction == 'partial notification status'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $username = $_POST['username'];
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+           
+            $update_notification_status = $api->update_notification_status($employee_id, '', 2);
+
+            if($update_notification_status == 1){
+                echo 'Updated';
+            }
+            else{
+                echo $update_notification_status;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Read notification status
+    else if($transaction == 'read notification status'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $username = $_POST['username'];
+            $notification_id = $_POST['notification_id'];
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+           
+            $update_notification_status = $api->update_notification_status($employee_id, $notification_id, 1);
+
+            if($update_notification_status == 1){
+                echo 'Updated';
+            }
+            else{
+                echo $update_notification_status;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Send transactions
     # -------------------------------------------------------------
 
@@ -10224,6 +10427,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type_name,
                 'PAYROLL' => $payroll,
                 'PAYROLL_DATE' => $payroll_date
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Salary details
+    else if($transaction == 'salary details'){
+        if(isset($_POST['salary_id']) && !empty($_POST['salary_id'])){
+            $salary_id = $_POST['salary_id'];
+            $salary_details = $api->get_salary_details($salary_id);
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $salary_details[0]['EMPLOYEE_ID'],
+                'BASIC_PAY' => $salary_details[0]['BASIC_PAY'],
+                'EFFECTIVITY_DATE' => $api->check_date('empty', $salary_details[0]['EFFECTIVITY_DATE'], '', 'n/d/Y', '', '', ''),
+                'REMARKS' => $salary_details[0]['REMARKS']
             );
 
             echo json_encode($response);

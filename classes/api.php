@@ -423,6 +423,44 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : time_elapsed_string
+    # Purpose    : returns the time elapsed
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function time_elapsed_string($datetime, $full = false) {
+        $now = new DateTime;
+        $ago = new DateTime($datetime);
+        $diff = $now->diff($ago);
+    
+        $diff->w = floor($diff->d / 7);
+        $diff->d -= $diff->w * 7;
+    
+        $string = array(
+            'y' => 'year',
+            'm' => 'month',
+            'w' => 'week',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        );
+        foreach ($string as $k => &$v) {
+            if ($diff->$k) {
+                $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+            } else {
+                unset($string[$k]);
+            }
+        }
+    
+        if (!$full) $string = array_slice($string, 0, 1);
+        return $string ? implode(', ', $string) . ' ago' : 'just now';
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Truncate methods
     # -------------------------------------------------------------
 
@@ -1711,6 +1749,31 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL check_contribution_deduction_exist(:contribution_deduction_id)');
             $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_salary_exist
+    # Purpose    : Checks if the salary exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_salary_exist($salary_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_salary_exist(:salary_id)');
+            $sql->bindValue(':salary_id', $salary_id);
 
             if($sql->execute()){
                 $row = $sql->fetch();
@@ -5401,6 +5464,99 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_notification_status
+    # Purpose    : Updates notification status.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_notification_status($employee_id, $notification_id, $status){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL update_notification_status(:employee_id, :notification_id, :status)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':notification_id', $notification_id);
+            $sql->bindValue(':status', $status);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_salary
+    # Purpose    : Updates salary.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $salary_details = $this->get_salary_details($salary_id);
+
+            if(!empty($salary_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $salary_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_salary(:salary_id, :basic_pay, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
+            $sql->bindValue(':salary_id', $salary_id);
+            $sql->bindValue(':basic_pay', $basic_pay);
+            $sql->bindValue(':effectivity_date', $effectivity_date);
+            $sql->bindValue(':remarks', $remarks);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($salary_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -8890,6 +9046,70 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_salary
+    # Purpose    : Insert salary.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_salary($employee_id, $basic_pay, $effectivity_date, $remarks, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(35, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_salary(:id, :employee_id, :basic_pay, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':basic_pay', $basic_pay);
+            $sql->bindValue(':effectivity_date', $effectivity_date);
+            $sql->bindValue(':remarks', $remarks);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 35, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted salary (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -10010,7 +10230,7 @@ class Api{
     # -------------------------------------------------------------
     #
     # Name       : delete_allowance
-    # Purpose    : Delete allowance type.
+    # Purpose    : Delete allowance.
     #
     # Returns    : Number/String
     #
@@ -10157,6 +10377,29 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_contribution_deduction(:contribution_deduction_id)');
             $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_salary
+    # Purpose    : Delete salary.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_salary($salary_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_salary(:salary_id)');
+            $sql->bindValue(':salary_id', $salary_id);
         
             if($sql->execute()){
                 return 1;
@@ -12120,6 +12363,42 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_salary_details
+    # Purpose    : Gets the salary details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_salary_details($salary_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_salary_details(:salary_id)');
+            $sql->bindValue(':salary_id', $salary_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'BASIC_PAY' => $row['BASIC_PAY'],
+                        'EFFECTIVITY_DATE' => $row['EFFECTIVITY_DATE'],
+                        'REMARKS' => $row['REMARKS'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -13517,6 +13796,32 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_notification_count
+    # Purpose    : Gets the number of notifications based on employee and status.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_notification_count($employee_id, $status){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('SELECT COUNT(NOTIFICATION_ID) AS TOTAL FROM tblnotification WHERE NOTIFICATION_TO = :employee_id AND STATUS = :status');
+            $sql->bindParam(':employee_id', $employee_id);
+            $sql->bindParam(':status', $status);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
 
@@ -14020,6 +14325,35 @@ class Api{
     
                     return $overlap_count;
                 }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_salary_effectivity_date_conflict
+    # Purpose    : Checks the salary effectivity date overlap.
+    #
+    # Returns    : Date
+    #
+    # -------------------------------------------------------------
+    public function check_salary_effectivity_date_conflict($salary_id, $employee_id, $effectivity_date){
+        if ($this->databaseConnection()) {
+            $overlap_count = 0;
+
+            $sql = $this->db_connection->prepare('CALL check_salary_effectivity_date_conflict(:salary_id, :employee_id, :effectivity_date)');
+            $sql->bindValue(':salary_id', $salary_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':effectivity_date', $effectivity_date);
+                                                        
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
             }
             else{
                 return $sql->errorInfo()[2];
@@ -14819,6 +15153,95 @@ class Api{
             }
             else{
                 return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_notification_list
+    # Purpose    : Generates employee notification list table.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_notification_list($employee_id){
+        if ($this->databaseConnection()) {
+            $notification_list = '';
+            $system_date = date('Y-m-d');
+
+            $sql = $this->db_connection->prepare('SELECT NOTIFICATION_ID, NOTIFICATION_FROM, NOTIFICATION_TO, STATUS, NOTIFICATION_TITLE, NOTIFICATION, LINK, NOTIFICATION_DATE, NOTIFICATION_TIME FROM tblnotification WHERE NOTIFICATION_TO = :employee_id ORDER BY NOTIFICATION_DATE DESC, NOTIFICATION_TIME DESC LIMIT 20');
+            $sql->bindValue(':employee_id', $employee_id);
+        
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $notification_id = trim($row['NOTIFICATION_ID']);
+                        $notification_from = trim($row['NOTIFICATION_FROM']);
+                        $notification_to = trim($row['NOTIFICATION_TO']);
+                        $status = $row['STATUS'];
+                        $notification_title = trim($row['NOTIFICATION_TITLE']);
+                        $notification = trim($row['NOTIFICATION']);
+                        $notification_date = $this->check_date('empty', $row['NOTIFICATION_DATE'], '', 'd M Y', '', '', '');
+                        $notification_time = $this->check_date('empty', trim($row['NOTIFICATION_TIME']), '', 'h:i:s a', '', '', '');
+                        $notification_id_encrypted = $this->encrypt_data($notification_id);
+
+                        $date_diff = round((strtotime($notification_date) - strtotime($system_date)) / (60 * 60 * 24));
+
+                        if($date_diff <= 7){
+                            $date_elapsed = $this->time_elapsed_string($notification_date .' '. $notification_time);
+                        }
+                        else{
+                            $date_elapsed = $notification_date .' '. $notification_time;
+                        }
+
+                        if($status == 0 || $status == 2){
+                            $text_color = 'text-primary';
+                        }
+                        else{
+                            $text_color = '';
+                        }
+
+                        if(!empty($row['LINK'])){
+                            $link = $row['LINK'];
+                        }
+                        else{
+                            $link = 'javascript: void(0);';
+                        }
+
+                        $notification_list .= '<a href="'. $link .'" class="text-reset notification-item" data-notification-id="'. $notification_id .'">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0 me-3">
+                                                            <div class="avatar-xs me-3">
+                                                                <span class="avatar-title bg-info rounded-circle font-size-16">
+                                                                    <i class="bx bx-info-circle"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="mb-1 '. $text_color .'" key="t-your-order">'. $notification_title .'</h6>
+                                                            <div class="font-size-12 text-muted">
+                                                                <p class="mb-1" key="t-grammer">'. $notification .'</p>
+                                                                <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-min-ago">'. $date_elapsed .'</span></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>';
+                    }
+                }
+                else{
+                    $notification_list .= '<a href="javascript: void(0);" class="text-reset notification-item">
+                        <p class="mb-1 text-center" key="t-grammer">No New Notifications</p>
+                    </a>';
+                }
+
+                return $notification_list;
+            }
+            else{
+                return $sql->errorInfo();
             }
         }
     }

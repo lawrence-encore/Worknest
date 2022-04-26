@@ -30,6 +30,42 @@ function initialize_global_functions(){
         generate_modal('transaction log', 'Transaction Log', 'XL' , '1', '0', 'element', '', '0', username);
     });
 
+    $(document).on('click','#page-header-notifications-dropdown',function() {
+        var username = $('#username').text();
+        var transaction = 'partial notification status';
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'text',
+            data: {transaction : transaction, username : username},
+            success: function () {
+                $('#page-header-notifications-dropdown').html('<i class="bx bx-bell">');
+            }
+        });
+    });
+
+    $(document).on('click','.notification-item',function() {
+        var username = $('#username').text();
+        var transaction = 'read notification status';
+        var notification_id = $(this).data('notification-id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'text',
+            data: {transaction : transaction, notification_id : notification_id, username : username},
+            success: function () {
+                $(this).removeClass('text-primary');
+            }
+        });
+    });
+
+    $(document).on('click','#backup-database',function() {
+        var username = $('#username').text();
+        generate_modal('backup database form', 'Backup Database', 'R' , '1', '1', 'form', 'backup-database-form', '1', username);
+    });
+
     if ($('.select2').length) {
         $('.select2').select2();
     }
@@ -8947,6 +8983,220 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'backup database form'){
+        $('#backup-database-form').validate({
+            submitHandler: function (form) {
+                transaction = 'backup database';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Backed-up'){
+                            show_alert('Backup Database Success', 'The database has been backed-up.', 'success');
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            show_alert('Backup Database Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                file_name: {
+                    required: true
+                }
+            },
+            messages: {
+                file_name: {
+                    required: 'Please enter the file name',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'salary form'){
+        $('#salary-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit salary';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Allowance Success', 'The salary has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#salary-datatable');
+                        }
+                        else{
+                            show_alert('Allowance Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                basic_pay: {
+                    required: true
+                },
+                effectivity_date: {
+                    required: true
+                }
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                basic_pay: {
+                    required: 'Please enter the basic pay',
+                },
+                effectivity_date: {
+                    required: 'Please choose the effectivity date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'salary update form'){
+        $('#salary-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit salary update';
+                document.getElementById('employee_id').disabled = false;
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Salary Success', 'The salary has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#salary-datatable');
+                        }
+                        else if(response === 'Overlap'){
+                            show_alert('Update Salary Error', 'The salary effectivity date overlaps with the existing salary of the employee.', 'error');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Update Salary Error', 'The salary does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Salary Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                basic_pay: {
+                    required: true
+                },
+                effectivity_date: {
+                    required: true
+                }
+            },
+            messages: {
+                basic_pay: {
+                    required: 'Please enter the basic pay',
+                },
+                effectivity_date: {
+                    required: 'Please choose the effectivity date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -10801,6 +11051,26 @@ function display_form_details(form_type){
                 $('#government_contribution_type').text(response[0].GOVERNMENT_CONTRIBUTION_TYPE);
                 $('#payroll_date').text(response[0].PAYROLL_DATE);
                 document.getElementById('payroll').innerHTML = response[0].PAYROLL;
+            }
+        });
+    }
+    else if(form_type == 'salary update form'){
+        transaction = 'salary details';
+        
+        var salary_id = sessionStorage.getItem('salary_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {salary_id : salary_id, transaction : transaction},
+            success: function(response) {
+                $('#salary_id').val(salary_id);
+                $('#basic_pay').val(response[0].BASIC_PAY);
+                $('#effectivity_date').val(response[0].EFFECTIVITY_DATE);
+                $('#remarks').val(response[0].REMARKS);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
             }
         });
     }

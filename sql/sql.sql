@@ -549,14 +549,7 @@ CREATE TABLE tblattendanceadjustment(
 CREATE TABLE tblsalary(
 	SALARY_ID VARCHAR(100) PRIMARY KEY,
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
-	ANNUAL_SALARY DOUBLE NOT NULL,
-	MONTHLY_WAGE DOUBLE NOT NULL,
-	BIWEEKLY_WAGE DOUBLE NOT NULL,
-	WEEKLY_WAGE DOUBLE NOT NULL,
-	DAILY_WAGE DOUBLE NOT NULL,
-	HOURLY_WAGE DOUBLE NOT NULL,
-	PER_MINUTE_WAGE DOUBLE NOT NULL,
-	PER_SECOND DOUBLE NOT NULL,
+	BASIC_PAY DOUBLE NOT NULL,
 	EFFECTIVITY_DATE DATE NOT NULL,
 	REMARKS VARCHAR(500),
 	TRANSACTION_LOG_ID VARCHAR(500),
@@ -5215,6 +5208,116 @@ BEGIN
 	SET @payroll_date = payroll_date;
 
 	SET @query = 'INSERT INTO temp_contribution_deduction (CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE) VALUES(@contribution_deduction_id, @employee_id, @government_contribution_type, @payroll_id, @payroll_date)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_notification_status(IN employee_id VARCHAR(100), IN notification_id INT, IN status INT)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @status = status;
+	SET @notification_id = notification_id;
+
+	IF @status = 2 THEN
+		SET @query = 'UPDATE tblnotification SET STATUS = @status WHERE NOTIFICATION_TO = @employee_id AND STATUS = 0';
+	ELSE
+		SET @query = 'UPDATE tblnotification SET STATUS = @status WHERE NOTIFICATION_TO = @employee_id AND NOTIFICATION_ID = @notification_id';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblsalary(
+	SALARY_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	BASIC_PAY DOUBLE NOT NULL,
+	EFFECTIVITY_DATE DATE NOT NULL,
+	REMARKS VARCHAR(500),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_salary_effectivity_date_conflict(IN salary_id VARCHAR(100), IN employee_id VARCHAR(100), IN effectivity_date DATE)
+BEGIN
+	SET @salary_id = salary_id;
+	SET @employee_id = employee_id;
+	SET @effectivity_date = effectivity_date;
+
+	IF @salary_id IS NULL OR @salary_id = '' THEN
+		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @allowance_id AND EFFECTIVITY_DATE = @effectivity_date';
+	ELSE
+		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @allowance_id AND EFFECTIVITY_DATE = @effectivity_date AND SALARY_ID != @salary_id';
+    END IF;
+	
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_salary_exist(IN salary_id VARCHAR(100))
+BEGIN
+	SET @salary_id = salary_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE SALARY_ID = @salary_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_salary(IN salary_id VARCHAR(100), IN basic_pay DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @salary_id = salary_id;
+	SET @basic_pay = basic_pay;
+	SET @effectivity_date = effectivity_date;
+	SET @remarks = remarks;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblsalary SET BASIC_PAY = @basic_pay, EFFECTIVITY_DATE = @effectivity_date, REMARKS = @remarks, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SALARY_ID = @salary_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_salary(IN salary_id VARCHAR(100), IN employee_id VARCHAR(100), IN basic_pay DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @salary_id = salary_id;
+	SET @employee_id = employee_id;
+	SET @basic_pay = basic_pay;
+	SET @effectivity_date = effectivity_date;
+	SET @remarks = remarks;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblsalary (SALARY_ID, EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@salary_id, @employee_id, @basic_pay, @effectivity_date, @remarks, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_salary_details(IN salary_id VARCHAR(100))
+BEGIN
+	SET @salary_id = salary_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG FROM tblsalary WHERE SALARY_ID = @salary_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_salary(IN salary_id VARCHAR(100))
+BEGIN
+	SET @salary_id = salary_id;
+
+	SET @query = 'DELETE FROM tblsalary WHERE SALARY_ID = @salary_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

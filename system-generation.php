@@ -2414,6 +2414,91 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
+            else if($form_type == 'backup database form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="file_name" class="form-label">File Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" id="file_name" name="file_name">
+                                    </div>
+                                </div>';
+            }
+            else if($form_type == 'salary form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="basic_pay" class="form-label">Basic Pay <span class="required">*</span></label>
+                                        <input id="basic_pay" name="basic_pay" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Effectivity Date <span class="required">*</span></label>
+                                        <div class="input-group" id="effectivity-date-container">
+                                            <input type="text" class="form-control" id="effectivity_date" name="effectivity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#effectivity-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="remarks" class="form-label">Remarks</label>
+                                        <textarea class="form-control form-maxlength" id="remarks" name="remarks" maxlength="500" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'salary update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="salary_id" name="salary_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="basic_pay" class="form-label">Basic Pay <span class="required">*</span></label>
+                                        <input id="basic_pay" name="basic_pay" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Effectivity Date <span class="required">*</span></label>
+                                        <div class="input-group" id="effectivity-date-container">
+                                            <input type="text" class="form-control" id="effectivity_date" name="effectivity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#effectivity-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="remarks" class="form-label">Remarks</label>
+                                        <textarea class="form-control form-maxlength" id="remarks" name="remarks" maxlength="500" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -8908,6 +8993,216 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else{
                 echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Notification table
+    else if($type == 'notification table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                $employee_details = $api->get_employee_details('', $username);
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT NOTIFICATION_FROM, STATUS, NOTIFICATION_TITLE, NOTIFICATION, LINK, NOTIFICATION_DATE, NOTIFICATION_TIME FROM tblnotification WHERE NOTIFICATION_TO = :employee_id';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'NOTIFICATION_FROM IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'NOTIFICATION_FROM IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'NOTIFICATION_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $notification_from = $row['NOTIFICATION_FROM'];
+                        $status = $row['STATUS'];
+                        $notification_title = $row['NOTIFICATION_TITLE'];
+                        $notification = $row['NOTIFICATION'];
+                        $link = $row['LINK'];
+                        $notification_date = $api->check_date('empty', $row['NOTIFICATION_DATE'], '', 'm/d/Y', '', '', '');
+                        $notification_time = $api->check_date('empty', $row['NOTIFICATION_TIME'], '', 'h:i:s a', '', '', '');
+    
+                        if(!empty($notification_from)){
+                            $notification_from_details = $api->get_employee_details($notification_from, '');
+                            $notification_from_file_as = $notification_from_details[0]['FILE_AS'] ?? $notification_from;   
+                        }
+                        else{
+                            $notification_from_file_as = 'System';
+                        }
+
+                        if(!empty($link)){
+                            $title = '<a href="'. $link .'" title="View Notification">
+                                       '. $notification_title .'
+                                    </a>';
+                        }
+                        else{
+                            $title = $notification_title;
+                        }
+    
+                        $response[] = array(
+                            'NOTIFICATION_TITLE' => $title . '<p class="text-muted mb-0">'. $notification .'</p>',
+                            'NOTIFICATION_FROM' => $notification_from_file_as,
+                            'NOTIFICATION_DATE' => $notification_date . ' ' . $notification_time
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Salary table
+    else if($type == 'salary table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_salary = $api->check_role_permissions($username, 286);
+                $delete_salary = $api->check_role_permissions($username, 287);
+                $view_transaction_log = $api->check_role_permissions($username, 288);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT SALARY_ID, EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID FROM tblsalary WHERE ';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'EFFECTIVITY_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $salary_id = $row['SALARY_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $basic_pay = $row['BASIC_PAY'];
+                        $remarks = $row['REMARKS'];
+                        $effectivity_date = $api->check_date('empty', $row['EFFECTIVITY_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($update_salary > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-salary" data-salary-id="'. $salary_id .'" title="Edit Salary">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_salary > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-salary" data-salary-id="'. $salary_id .'" title="Delete Salary">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salary_id .'">',
+                            'FILE_AS' => $file_as,
+                            'BASIC_PAY' => number_format($basic_pay, 2),
+                            'EFFECTIVITY_DATE' => $effectivity_date,
+                            'REMARKS' => $remarks,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
             }
         }
     }
