@@ -1788,6 +1788,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_payroll_setting_exist
+    # Purpose    : Checks if the payroll setting exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_payroll_setting_exist($setting_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_payroll_setting_exist(:setting_id)');
+            $sql->bindValue(':setting_id', $setting_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -5557,6 +5582,73 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_payroll_setting
+    # Purpose    : Updates payroll setting.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $payroll_setting_details = $this->get_payroll_setting_details($setting_id);
+
+            if(!empty($payroll_setting_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $payroll_setting_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :transaction_log_id, :record_log)');
+            $sql->bindValue(':setting_id', $setting_id);
+            $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
+            $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($payroll_setting_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -9110,6 +9202,55 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_payroll_setting
+    # Purpose    : Insert payroll setting.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :transaction_log_id, :record_log)');
+            $sql->bindValue(':setting_id', $setting_id);
+            $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
+            $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+               # Update transaction log value
+               $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+               if($update_system_parameter_value == 1){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll setting (' . $setting_id . ').');
+                                
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+               }
+               else{
+                   return $update_system_parameter_value;
+               }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -12384,6 +12525,40 @@ class Api{
                         'BASIC_PAY' => $row['BASIC_PAY'],
                         'EFFECTIVITY_DATE' => $row['EFFECTIVITY_DATE'],
                         'REMARKS' => $row['REMARKS'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_setting_details
+    # Purpose    : Gets the payroll setting details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_setting_details($setting_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_payroll_setting_details(:setting_id)');
+            $sql->bindValue(':setting_id', $setting_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'LATE_DEDUCTION_RATE' => $row['LATE_DEDUCTION_RATE'],
+                        'EARLY_LEAVING_DEDUCTION_RATE' => $row['EARLY_LEAVING_DEDUCTION_RATE'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );

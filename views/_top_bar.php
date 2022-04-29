@@ -68,7 +68,7 @@
                                             <h6 class="m-0" key="t-notifications"> Notifications </h6>
                                         </div>
                                         <div class="col-auto">
-                                            <a href="notifications.php" class="small" key="t-view-all"> View All</a>
+                                            <a href="notification.php" class="small" key="t-view-all"> View All</a>
                                         </div>
                                     </div>
                                 </div>

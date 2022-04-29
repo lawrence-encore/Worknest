@@ -4873,6 +4873,41 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit payroll setting
+    else if($transaction == 'submit payroll setting'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['late_deduction_rate']) && isset($_POST['early_leaving_deduction_rate'])){
+            $error = '';
+            $username = $_POST['username'];
+            $setting_id = 1;
+            $late_deduction_rate = $_POST['late_deduction_rate'];
+            $early_leaving_deduction_rate = $_POST['early_leaving_deduction_rate'];
+
+            $check_payroll_setting_exist = $api->check_payroll_setting_exist($setting_id);
+
+            if($check_payroll_setting_exist > 0){
+                $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username);
+
+                if($update_payroll_setting == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_payroll_setting;
+                }
+            }
+            else{
+                $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username);
+
+                if($insert_payroll_setting == 1){
+                    echo 'Updated';
+                }
+                else{
+                    echo $insert_payroll_setting;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -10449,6 +10484,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             echo json_encode($response);
         }
+    }
+    # -------------------------------------------------------------
+
+    # Payroll setting details
+    else if($transaction == 'payroll setting details'){
+        $creation = '';
+        $adjustment = '';
+        $payroll_setting_details = $api->get_payroll_setting_details(1);
+       
+
+        $response[] = array(
+            'LATE_DEDUCTION_RATE' => $payroll_setting_details[0]['LATE_DEDUCTION_RATE'] ?? 0,
+            'EARLY_LEAVING_DEDUCTION_RATE' => $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'] ?? 0
+        );
+
+        echo json_encode($response);
     }
     # -------------------------------------------------------------
 

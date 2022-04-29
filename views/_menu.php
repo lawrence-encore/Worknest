@@ -55,6 +55,7 @@
     $import_contribution_bracket_page = $api->check_role_permissions($username, 278);
     $import_contribution_deduction_page = $api->check_role_permissions($username, 280);
     $salary_page = $api->check_role_permissions($username, 284);
+    $payroll_setting_page = $api->check_role_permissions($username, 289);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -188,8 +189,24 @@
         }
     }
 
-    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
+
+        if($payroll_setting_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-money"></i>
+                            <span key="t-payroll">Payroll</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($payroll_setting_page > 0){
+                            $menu .= '<li><a href="payroll-setting.php" key="t-all-employees">Payroll Setting</a></li>';
+                        }
+
+            $menu .= '</ul>
+                    </li>';
+        }
 
         if($allowance_type_page > 0 || $allowance_page > 0){
             $menu .= '<li>

@@ -770,6 +770,14 @@ CREATE TABLE temp_contribution_deduction(
 	PAYROLL_DATE DATE NOT NULL
 );
 
+CREATE TABLE tblpayrollsetting(
+	SETTING_ID INT PRIMARY KEY,
+	LATE_DEDUCTION_RATE DOUBLE NOT NULL,
+	EARLY_LEAVING_DEDUCTION_RATE DOUBLE NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -816,6 +824,7 @@ CREATE INDEX government_contribution_index ON tblgovernmentcontribution(GOVERNME
 CREATE INDEX contribution_bracket_index ON tblcontributionbracket(CONTRIBUTION_BRACKET_ID);
 CREATE INDEX deduction_index ON tbldeduction(DEDUCTION_ID);
 CREATE INDEX contribution_deduction_index ON tblcontributiondeduction(CONTRIBUTION_DEDUCTION_ID);
+CREATE INDEX payroll_setting_index ON tblpayrollsetting(SETTING_ID);
 
 /* Stored Procedure */
 
@@ -5231,16 +5240,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE tblsalary(
-	SALARY_ID VARCHAR(100) PRIMARY KEY,
-	EMPLOYEE_ID VARCHAR(100) NOT NULL,
-	BASIC_PAY DOUBLE NOT NULL,
-	EFFECTIVITY_DATE DATE NOT NULL,
-	REMARKS VARCHAR(500),
-	TRANSACTION_LOG_ID VARCHAR(500),
-	RECORD_LOG VARCHAR(100)
-);
-
 CREATE PROCEDURE check_salary_effectivity_date_conflict(IN salary_id VARCHAR(100), IN employee_id VARCHAR(100), IN effectivity_date DATE)
 BEGIN
 	SET @salary_id = salary_id;
@@ -5318,6 +5317,58 @@ BEGIN
 	SET @salary_id = salary_id;
 
 	SET @query = 'DELETE FROM tblsalary WHERE SALARY_ID = @salary_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_payroll_setting_details(IN setting_id INT)
+BEGIN
+	SET @setting_id = setting_id;
+
+	SET @query = 'SELECT LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, TRANSACTION_LOG_ID, RECORD_LOG FROM tblpayrollsetting WHERE SETTING_ID = @setting_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_payroll_setting_exist(IN setting_id INT)
+BEGIN
+	SET @setting_id = setting_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblpayrollsetting WHERE SETTING_ID = @setting_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @setting_id = setting_id;
+	SET @late_deduction_rate = late_deduction_rate;
+	SET @early_leaving_deduction_rate = early_leaving_deduction_rate;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblpayrollsetting SET LATE_DEDUCTION_RATE = @late_deduction_rate, EARLY_LEAVING_DEDUCTION_RATE = @early_leaving_deduction_rate, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SETTING_ID = @setting_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @setting_id = setting_id;
+	SET @late_deduction_rate = late_deduction_rate;
+	SET @early_leaving_deduction_rate = early_leaving_deduction_rate;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrollsetting (SETTING_ID, LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@setting_id, @late_deduction_rate, @early_leaving_deduction_rate, @transaction_log_id, @record_log)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

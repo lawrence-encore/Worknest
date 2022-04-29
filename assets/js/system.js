@@ -11074,6 +11074,20 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'payroll setting form'){
+        transaction = 'payroll setting details';
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {transaction : transaction},
+            success: function(response) {
+                $('#late_deduction_rate').val(response[0].LATE_DEDUCTION_RATE);
+                $('#early_leaving_deduction_rate').val(response[0].EARLY_LEAVING_DEDUCTION_RATE);
+            }
+        });
+    }
 }
 
 // Destroy functions
