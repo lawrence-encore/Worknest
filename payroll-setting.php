@@ -106,6 +106,12 @@
                                                             <input id="early_leaving_deduction_rate" name="early_leaving_deduction_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
+                                                    <div class="row mb-3">
+                                                        <label for="overtime_rate" class="col-md-4 col-form-label">Overtime Rate (%)  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the overtime rate per hour. Set the value to 0 if the rate is prorated."></i></label>
+                                                        <div class="col-md-8">
+                                                            <input id="overtime_rate" name="overtime_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>

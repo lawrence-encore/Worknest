@@ -3540,7 +3540,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit attendance setting
     else if($transaction == 'submit attendance setting'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['maximum_attendance']) && !empty($_POST['maximum_attendance']) && isset($_POST['time_out_allowance']) && !empty($_POST['time_out_allowance'])  && isset($_POST['late_allowance']) && isset($_POST['late_policy']) && isset($_POST['early_leaving_policy']) && isset($_POST['attendance_creation_approval']) && isset($_POST['attendance_adjustment_approval'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['maximum_attendance']) && !empty($_POST['maximum_attendance']) && isset($_POST['time_out_allowance']) && !empty($_POST['time_out_allowance'])  && isset($_POST['late_allowance']) && isset($_POST['late_policy']) && isset($_POST['early_leaving_policy']) && isset($_POST['overtime_policy']) && isset($_POST['attendance_creation_approval']) && isset($_POST['attendance_adjustment_approval'])){
             $error = '';
             $username = $_POST['username'];
             $setting_id = 1;
@@ -3549,6 +3549,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $late_allowance = $_POST['late_allowance'];
             $late_policy = $_POST['late_policy'];
             $early_leaving_policy = $_POST['early_leaving_policy'];
+            $overtime_policy = $_POST['overtime_policy'];
             $attendance_creation_recommendation = $_POST['attendance_creation_recommendation'] ?? 0;
             $attendance_adjustment_recommendation = $_POST['attendance_adjustment_recommendation'] ?? 0;
             $attendance_creation_approvals = explode(',', $_POST['attendance_creation_approval']);
@@ -3557,7 +3558,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $check_attendance_setting_exist = $api->check_attendance_setting_exist($setting_id);
 
             if($check_attendance_setting_exist > 0){
-                $update_attendance_setting = $api->update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
+                $update_attendance_setting = $api->update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
 
                 if($update_attendance_setting == 1){
                     $delete_attendance_creation_approval = $api->delete_attendance_creation_approval();
@@ -3602,7 +3603,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_attendance_setting = $api->insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
+                $insert_attendance_setting = $api->insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
 
                 if($insert_attendance_setting == 1){
                     foreach($attendance_adjustment_approvals as $attendance_adjustment_approval){
@@ -4875,17 +4876,18 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit payroll setting
     else if($transaction == 'submit payroll setting'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['late_deduction_rate']) && isset($_POST['early_leaving_deduction_rate'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['late_deduction_rate']) && isset($_POST['early_leaving_deduction_rate']) && isset($_POST['overtime_rate'])){
             $error = '';
             $username = $_POST['username'];
             $setting_id = 1;
             $late_deduction_rate = $_POST['late_deduction_rate'];
             $early_leaving_deduction_rate = $_POST['early_leaving_deduction_rate'];
+            $overtime_rate = $_POST['overtime_rate'];
 
             $check_payroll_setting_exist = $api->check_payroll_setting_exist($setting_id);
 
             if($check_payroll_setting_exist > 0){
-                $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username);
+                $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
 
                 if($update_payroll_setting == 1){
                     echo 'Updated';
@@ -4895,7 +4897,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username);
+                $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
 
                 if($insert_payroll_setting == 1){
                     echo 'Updated';
@@ -9931,6 +9933,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             'LATE_ALLOWANCE' => $attendance_setting_details[0]['LATE_ALLOWANCE'] ?? 1,
             'LATE_POLICY' => $attendance_setting_details[0]['LATE_POLICY'] ?? 0,
             'EARLY_LEAVING_POLICY' => $attendance_setting_details[0]['EARLY_LEAVING_POLICY'] ?? 0,
+            'OVERTIME_POLICY' => $attendance_setting_details[0]['OVERTIME_POLICY'] ?? 0,
             'ATTENDANCE_CREATION_RECOMMENDATION' => $attendance_setting_details[0]['ATTENDANCE_CREATION_RECOMMENDATION'] ?? 0,
             'ATTENDANCE_ADJUSTMENT_RECOMMENDATION' => $attendance_setting_details[0]['ATTENDANCE_ADJUSTMENT_RECOMMENDATION'] ?? 0,
             'CREATION' => $creation,
@@ -10496,7 +10499,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
         $response[] = array(
             'LATE_DEDUCTION_RATE' => $payroll_setting_details[0]['LATE_DEDUCTION_RATE'] ?? 0,
-            'EARLY_LEAVING_DEDUCTION_RATE' => $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'] ?? 0
+            'EARLY_LEAVING_DEDUCTION_RATE' => $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'] ?? 0,
+            'OVERTIME_RATE' => $payroll_setting_details[0]['OVERTIME_RATE'] ?? 125
         );
 
         echo json_encode($response);

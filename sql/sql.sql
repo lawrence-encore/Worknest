@@ -774,6 +774,7 @@ CREATE TABLE tblpayrollsetting(
 	SETTING_ID INT PRIMARY KEY,
 	LATE_DEDUCTION_RATE DOUBLE NOT NULL,
 	EARLY_LEAVING_DEDUCTION_RATE DOUBLE NOT NULL,
+	OVERTIME_RATE DOUBLE NOT NULL,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
@@ -5323,17 +5324,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE get_payroll_setting_details(IN setting_id INT)
-BEGIN
-	SET @setting_id = setting_id;
-
-	SET @query = 'SELECT LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, TRANSACTION_LOG_ID, RECORD_LOG FROM tblpayrollsetting WHERE SETTING_ID = @setting_id';
-
-	PREPARE stmt FROM @query;
-	EXECUTE stmt;
-	DROP PREPARE stmt;
-END //
-
 CREATE PROCEDURE check_payroll_setting_exist(IN setting_id INT)
 BEGIN
 	SET @setting_id = setting_id;
@@ -5345,30 +5335,43 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE update_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE get_payroll_setting_details(IN setting_id INT)
 BEGIN
 	SET @setting_id = setting_id;
-	SET @late_deduction_rate = late_deduction_rate;
-	SET @early_leaving_deduction_rate = early_leaving_deduction_rate;
-	SET @transaction_log_id = transaction_log_id;
-	SET @record_log = record_log;
 
-	SET @query = 'UPDATE tblpayrollsetting SET LATE_DEDUCTION_RATE = @late_deduction_rate, EARLY_LEAVING_DEDUCTION_RATE = @early_leaving_deduction_rate, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SETTING_ID = @setting_id';
+	SET @query = 'SELECT LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, OVERTIME_RATE, TRANSACTION_LOG_ID, RECORD_LOG FROM tblpayrollsetting WHERE SETTING_ID = @setting_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE insert_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE update_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN overtime_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
 BEGIN
 	SET @setting_id = setting_id;
 	SET @late_deduction_rate = late_deduction_rate;
 	SET @early_leaving_deduction_rate = early_leaving_deduction_rate;
+	SET @overtime_rate = overtime_rate;
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'INSERT INTO tblpayrollsetting (SETTING_ID, LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@setting_id, @late_deduction_rate, @early_leaving_deduction_rate, @transaction_log_id, @record_log)';
+	SET @query = 'UPDATE tblpayrollsetting SET LATE_DEDUCTION_RATE = @late_deduction_rate, EARLY_LEAVING_DEDUCTION_RATE = @early_leaving_deduction_rate, OVERTIME_RATE = @overtime_rate, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SETTING_ID = @setting_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_payroll_setting(IN setting_id INT, IN late_deduction_rate DOUBLE, IN early_leaving_deduction_rate DOUBLE, IN overtime_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @setting_id = setting_id;
+	SET @late_deduction_rate = late_deduction_rate;
+	SET @early_leaving_deduction_rate = early_leaving_deduction_rate;
+	SET @overtime_rate = overtime_rate;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrollsetting (SETTING_ID, LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, OVERTIME_RATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@setting_id, @late_deduction_rate, @early_leaving_deduction_rate, @overtime_rate, @transaction_log_id, @record_log)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

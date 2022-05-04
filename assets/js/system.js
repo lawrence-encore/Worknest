@@ -10588,6 +10588,7 @@ function display_form_details(form_type){
                 $('#late_allowance').val(response[0].LATE_ALLOWANCE);
                 $('#late_policy').val(response[0].LATE_POLICY);
                 $('#early_leaving_policy').val(response[0].EARLY_LEAVING_POLICY);
+                $('#overtime_policy').val(response[0].OVERTIME_POLICY);
 
                 if(response[0].ATTENDANCE_CREATION_RECOMMENDATION == 1){
                     $('#attendance_creation_recommendation').prop('checked', true);
@@ -11085,6 +11086,7 @@ function display_form_details(form_type){
             success: function(response) {
                 $('#late_deduction_rate').val(response[0].LATE_DEDUCTION_RATE);
                 $('#early_leaving_deduction_rate').val(response[0].EARLY_LEAVING_DEDUCTION_RATE);
+                $('#overtime_rate').val(response[0].OVERTIME_RATE);
             }
         });
     }

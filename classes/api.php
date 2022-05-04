@@ -4410,7 +4410,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username){
+    public function update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
             $attendance_setting_details = $this->get_attendance_setting_details($setting_id);
@@ -4425,13 +4425,14 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_attendance_setting(:setting_id, :maximum_attendance, :time_out_allowance, :late_allowance, :late_policy, :early_leaving_policy, :attendance_creation_recommendation, :attendance_adjustment_recommendation, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_attendance_setting(:setting_id, :maximum_attendance, :time_out_allowance, :late_allowance, :late_policy, :early_leaving_policy, :overtime_policy, :attendance_creation_recommendation, :attendance_adjustment_recommendation, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':maximum_attendance', $maximum_attendance);
             $sql->bindValue(':time_out_allowance', $time_out_allowance);
             $sql->bindValue(':late_allowance', $late_allowance);
             $sql->bindValue(':late_policy', $late_policy);
             $sql->bindValue(':early_leaving_policy', $early_leaving_policy);
+            $sql->bindValue(':overtime_policy', $overtime_policy);
             $sql->bindValue(':attendance_creation_recommendation', $attendance_creation_recommendation);
             $sql->bindValue(':attendance_adjustment_recommendation', $attendance_adjustment_recommendation);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
@@ -5589,7 +5590,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username){
+    public function update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
             $payroll_setting_details = $this->get_payroll_setting_details($setting_id);
@@ -5604,10 +5605,11 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
             $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
+            $sql->bindValue(':overtime_rate', $overtime_rate);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log);
         
@@ -7674,7 +7676,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username){
+    public function insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -7683,13 +7685,14 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_attendance_setting(:setting_id, :maximum_attendance, :time_out_allowance, :late_allowance, :late_policy, :early_leaving_policy, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_attendance_setting(:setting_id, :maximum_attendance, :time_out_allowance, :late_allowance, :late_policy, :early_leaving_policy, :overtime_policy, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':maximum_attendance', $maximum_attendance);
             $sql->bindValue(':time_out_allowance', $time_out_allowance);
             $sql->bindValue(':late_allowance', $late_allowance);
             $sql->bindValue(':late_policy', $late_policy);
             $sql->bindValue(':early_leaving_policy', $early_leaving_policy);
+            $sql->bindValue(':overtime_policy', $overtime_policy);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -9209,7 +9212,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $username){
+    public function insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -9218,10 +9221,11 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
             $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
+            $sql->bindValue(':overtime_rate', $overtime_rate);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -12067,6 +12071,7 @@ class Api{
                         'LATE_ALLOWANCE' => $row['LATE_ALLOWANCE'],
                         'LATE_POLICY' => $row['LATE_POLICY'],
                         'EARLY_LEAVING_POLICY' => $row['EARLY_LEAVING_POLICY'],
+                        'OVERTIME_POLICY' => $row['OVERTIME_POLICY'],
                         'ATTENDANCE_CREATION_RECOMMENDATION' => $row['ATTENDANCE_CREATION_RECOMMENDATION'],
                         'ATTENDANCE_ADJUSTMENT_RECOMMENDATION' => $row['ATTENDANCE_ADJUSTMENT_RECOMMENDATION'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
@@ -12559,6 +12564,7 @@ class Api{
                     $response[] = array(
                         'LATE_DEDUCTION_RATE' => $row['LATE_DEDUCTION_RATE'],
                         'EARLY_LEAVING_DEDUCTION_RATE' => $row['EARLY_LEAVING_DEDUCTION_RATE'],
+                        'OVERTIME_RATE' => $row['OVERTIME_RATE'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -12751,7 +12757,7 @@ class Api{
                 break;
             case 'OT':
                 $status = 'Overtime';
-                $button_class = 'bg-info';
+                $button_class = 'bg-warning';
                 break;
             case 'EL':
                 $status = 'Early Leaving';
@@ -12941,18 +12947,28 @@ class Api{
     public function get_attendance_overtime_total($employee_id, $time_in_date, $time_out_date, $time_out){
         if ($this->databaseConnection()) {
             $time_in_day = date('N', strtotime($time_in_date));
-            $time_out = strtotime($time_out_date . ' ' . $time_out);
+            $time_out = $time_out_date . ' ' . $time_out;
+
+            $attendance_setting_details = $this->get_attendance_setting_details(1);
+            $overtime_policy = $attendance_setting_details[0]['OVERTIME_POLICY'];
 
             $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $time_in_date, $time_in_day);
-            $work_shift_time_out = strtotime($time_in_date . ' ' . $work_shift_schedule[0]['END_TIME']);
+            $work_shift_time_out = $time_in_date . ' ' . $work_shift_schedule[0]['END_TIME'];
 
-           $over_time = floor((($time_out - $work_shift_time_out) / 3600));
+            if($overtime_policy > 0){
+                $overtime_allowance = $this->check_date('empty', $work_shift_time_out, '', 'H:i:00', '+'. $overtime_policy .' minutes', '', '');
 
-            if($over_time <= 0){
-                $over_time = 0;
+                $overtime = floor(((strtotime($time_out) - strtotime($overtime_allowance)) / 3600));
+            }
+            else{
+                $overtime = floor(((strtotime($time_out) - strtotime($work_shift_time_out)) / 3600));
             }
 
-            return floor($over_time);
+            if($overtime <= 0){
+                $overtime = 0;
+            }
+
+            return floor($overtime);
         }
     }
     # -------------------------------------------------------------
@@ -13123,20 +13139,23 @@ class Api{
     # -------------------------------------------------------------
     public function get_time_out_behavior($employee_id, $time_in_date, $time_out_date, $time_out){
         $time_in_day = date('N', strtotime($time_in_date));
-        $time_out = strtotime($time_out);
+
+        $attendance_setting_details = $this->get_attendance_setting_details(1);
+        $overtime_policy = $attendance_setting_details[0]['OVERTIME_POLICY'];
 
         $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $time_in_date, $time_in_day);
-        $work_shift_id = strtotime($work_shift_schedule[0]['WORK_SHIFT_ID']);
-        $work_shift_time_out = strtotime($work_shift_schedule[0]['END_TIME']);
+        $work_shift_time_out = $work_shift_schedule[0]['END_TIME'];
 
-        if($time_out == $work_shift_time_out){
-            return 'REG';
+        $overtime_allowance = $this->check_date('empty', $work_shift_time_out, '', 'H:i:00', '+'. $overtime_policy .' minutes', '', '');
+
+        if(strtotime($time_out) < strtotime($work_shift_time_out)){
+            return 'EL';
         }
-        else if($time_out > $work_shift_time_out){
+        else if(strtotime($time_out) >= strtotime($overtime_allowance)){
             return 'OT';
         }
         else{
-            return 'EL';
+            return 'REG';
         }
     }
     # -------------------------------------------------------------

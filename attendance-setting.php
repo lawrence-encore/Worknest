@@ -113,15 +113,21 @@
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="late_policy" class="col-md-4 col-form-label">Late Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i> <span class="required">*</span></label>
+                                                        <label for="late_policy" class="col-md-4 col-form-label">Late Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i></label>
                                                         <div class="col-md-8">
                                                             <input id="late_policy" name="late_policy" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="early_leaving_policy" class="col-md-4 col-form-label">Early Leaving Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i> <span class="required">*</span></label>
+                                                        <label for="early_leaving_policy" class="col-md-4 col-form-label">Early Leaving Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as half day. Set the value to 0 to disable this feature."></i></label>
                                                         <div class="col-md-8">
                                                             <input id="early_leaving_policy" name="early_leaving_policy" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="overtime_policy" class="col-md-4 col-form-label">Overtime Policy (Minutes) <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the policy before the employee can be considered as overtime. Set the value to 0 to disable this feature."></i></label>
+                                                        <div class="col-md-8">
+                                                            <input id="overtime_policy" name="overtime_policy" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
