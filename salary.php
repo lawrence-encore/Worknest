@@ -139,7 +139,7 @@
                                                                 </div>
                                                             </th>
                                                             <th class="all">Employee</th>
-                                                            <th class="all">Basic Pay</th>
+                                                            <th class="all">Salary Amount</th>
                                                             <th class="all">Effectivity Date</th>
                                                             <th class="all">Remarks</th>
                                                             <th class="all">Action</th>

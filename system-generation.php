@@ -7517,7 +7517,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # -------------------------------------------------------------
 
     # Allowance table
-    else if($type == 'allowance table'){
+    else if($type == 'allowance table'){ 
         if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_allowance_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission
@@ -9108,7 +9108,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
     
-                $query = 'SELECT SALARY_ID, EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID FROM tblsalary WHERE ';
+                $query = 'SELECT SALARY_ID, EMPLOYEE_ID, SALARY_AMOUNT, SALARY_FREQUENCY, HOURS_PER_WEEK, DAYS_PER_WEEK, MINUTE_RATE, HOURLY_RATE, WEEKLY_RATE, BI_WEEKLY_RATE, MONTHLY_RATE, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID FROM tblsalary WHERE ';
     
                 if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
                     if(!empty($filter_branch)){
@@ -9149,7 +9149,15 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     while($row = $sql->fetch()){
                         $salary_id = $row['SALARY_ID'];
                         $employee_id = $row['EMPLOYEE_ID'];
-                        $basic_pay = $row['BASIC_PAY'];
+                        $salary_amount = $row['SALARY_AMOUNT'];
+                        $salary_frequency = $api->get_system_code_details('SALARYFREQUENCY', $row['SALARY_FREQUENCY'])[0]['DESCRIPTION'];
+                        $hours_per_week = $row['HOURS_PER_WEEK'];
+                        $days_per_week = $row['DAYS_PER_WEEK'];
+                        $minute_rate = $row['MINUTE_RATE'];
+                        $hourly_rate = $row['HOURLY_RATE'];
+                        $weekly_rate = $row['WEEKLY_RATE'];
+                        $bi_weekly_rate = $row['BI_WEEKLY_RATE'];
+                        $monthly_rate = $row['MONTHLY_RATE'];
                         $remarks = $row['REMARKS'];
                         $effectivity_date = $api->check_date('empty', $row['EFFECTIVITY_DATE'], '', 'm/d/Y', '', '', '');
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
@@ -9183,14 +9191,23 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         else{
                             $delete = '';
                         }
+
+                        $rate = 'Minute Rate: ' . number_format($minute_rate, 2) . '<br/>';
+                        $rate .= 'Hourly Rate: ' . number_format($hourly_rate, 2) . '<br/>';
+                        $rate .= 'Weekly Rate: ' . number_format($weekly_rate, 2) . '<br/>';
+                        $rate .= 'Bi-Weekly Rate: ' . number_format($bi_weekly_rate, 2) . '<br/>';
+                        $rate .= 'Monthly Rate: ' . number_format($monthly_rate, 2);
     
                         $response[] = array(
                             'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salary_id .'">',
                             'FILE_AS' => $file_as,
-                            'BASIC_PAY' => number_format($basic_pay, 2),
+                            'SALARY_AMOUNT' => number_format($salary_amount, 2),
                             'EFFECTIVITY_DATE' => $effectivity_date,
                             'REMARKS' => $remarks,
                             'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-salary" data-salary-id="'. $salary_id .'" title="View Salary">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
                                 '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'

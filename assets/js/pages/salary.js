@@ -23,7 +23,7 @@ function initialize_salary_table(datatable_name, buttons = false, show_all = fal
     var column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'FILE_AS' },
-        { 'data' : 'BASIC_PAY' },
+        { 'data' : 'SALARY_AMOUNT' },
         { 'data' : 'EFFECTIVITY_DATE' },
         { 'data' : 'REMARKS' },
         { 'data' : 'ACTION' }
