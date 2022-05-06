@@ -2435,19 +2435,76 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="basic_pay" class="form-label">Basic Pay <span class="required">*</span></label>
-                                        <input id="basic_pay" name="basic_pay" class="form-control" type="number" min="0.01" value="0" step="0.01">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Effectivity Date <span class="required">*</span></label>
                                         <div class="input-group" id="effectivity-date-container">
                                             <input type="text" class="form-control" id="effectivity_date" name="effectivity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#effectivity-date-container" data-provide="datepicker" data-date-autoclose="true">
                                             <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="salary_amount" class="form-label">Salary Amount <span class="required">*</span></label>
+                                        <input id="salary_amount" name="salary_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="salary_frequency" class="form-label">Salary Frequency <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="salary_frequency" name="salary_frequency">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('SALARYFREQUENCY');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="hours_per_week" class="form-label">Hours Per Week <span class="required">*</span></label>
+                                        <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="hours_per_day" class="form-label">Hours Per Day <span class="required">*</span></label>
+                                        <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="minute_rate" class="form-label">Minute Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="minute_rate" name="minute_rate" value="0.00" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="hourly_rate" class="form-label">Hourly Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="hourly_rate" name="hourly_rate" value="0.00" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="weekly_rate" class="form-label">Weekly Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="bi_weekly_rate" class="form-label">Bi-Weekly Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="bi_weekly_rate" name="bi_weekly_rate" value="0.00" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="monthly_rate" class="form-label">Monthly Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="monthly_rate" name="monthly_rate" value="0.00" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -2462,42 +2519,98 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else if($form_type == 'salary update form'){
                 $form .= '<div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Employee <span class="required">*</span></label>
-                                        <input type="hidden" id="salary_id" name="salary_id">
-                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
-                                        <option value="">--</option>';
-                                        $form .= $api->generate_employee_options();
-                                        $form .='</select>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Employee <span class="required">*</span></label>
+                                    <input type="hidden" id="salary_id" name="salary_id">
+                                    <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>';
+                                    $form .= $api->generate_employee_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Effectivity Date <span class="required">*</span></label>
+                                    <div class="input-group" id="effectivity-date-container">
+                                        <input type="text" class="form-control" id="effectivity_date" name="effectivity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#effectivity-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="basic_pay" class="form-label">Basic Pay <span class="required">*</span></label>
-                                        <input id="basic_pay" name="basic_pay" class="form-control" type="number" min="0.01" value="0" step="0.01">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Effectivity Date <span class="required">*</span></label>
-                                        <div class="input-group" id="effectivity-date-container">
-                                            <input type="text" class="form-control" id="effectivity_date" name="effectivity_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#effectivity-date-container" data-provide="datepicker" data-date-autoclose="true">
-                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                        </div>
-                                    </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="salary_amount" class="form-label">Salary Amount <span class="required">*</span></label>
+                                    <input id="salary_amount" name="salary_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="remarks" class="form-label">Remarks</label>
-                                        <textarea class="form-control form-maxlength" id="remarks" name="remarks" maxlength="500" rows="5"></textarea>
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="salary_frequency" class="form-label">Salary Frequency <span class="required">*</span></label>
+                                    <select class="form-control form-select2" id="salary_frequency" name="salary_frequency">
+                                    <option value="">--</option>'; 
+                                    $form .= $api->generate_system_code_options('SALARYFREQUENCY');
+                                    $form .='</select>
                                 </div>
-                            </div>';
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="hours_per_week" class="form-label">Hours Per Week <span class="required">*</span></label>
+                                    <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" value="1">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="hours_per_day" class="form-label">Hours Per Day <span class="required">*</span></label>
+                                    <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="minute_rate" class="form-label">Minute Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="minute_rate" name="minute_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="hourly_rate" class="form-label">Hourly Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="hourly_rate" name="hourly_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="weekly_rate" class="form-label">Weekly Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bi_weekly_rate" class="form-label">Bi-Weekly Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="bi_weekly_rate" name="bi_weekly_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="monthly_rate" class="form-label">Monthly Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="monthly_rate" name="monthly_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="remarks" class="form-label">Remarks</label>
+                                    <textarea class="form-control form-maxlength" id="remarks" name="remarks" maxlength="500" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
             }
 
             $form .= '</form>';
@@ -9108,7 +9221,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
                 $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
     
-                $query = 'SELECT SALARY_ID, EMPLOYEE_ID, SALARY_AMOUNT, SALARY_FREQUENCY, HOURS_PER_WEEK, DAYS_PER_WEEK, MINUTE_RATE, HOURLY_RATE, WEEKLY_RATE, BI_WEEKLY_RATE, MONTHLY_RATE, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID FROM tblsalary WHERE ';
+                $query = 'SELECT SALARY_ID, EMPLOYEE_ID, SALARY_AMOUNT, SALARY_FREQUENCY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID FROM tblsalary WHERE ';
     
                 if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
                     if(!empty($filter_branch)){
@@ -9151,13 +9264,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $employee_id = $row['EMPLOYEE_ID'];
                         $salary_amount = $row['SALARY_AMOUNT'];
                         $salary_frequency = $api->get_system_code_details('SALARYFREQUENCY', $row['SALARY_FREQUENCY'])[0]['DESCRIPTION'];
-                        $hours_per_week = $row['HOURS_PER_WEEK'];
-                        $days_per_week = $row['DAYS_PER_WEEK'];
-                        $minute_rate = $row['MINUTE_RATE'];
-                        $hourly_rate = $row['HOURLY_RATE'];
-                        $weekly_rate = $row['WEEKLY_RATE'];
-                        $bi_weekly_rate = $row['BI_WEEKLY_RATE'];
-                        $monthly_rate = $row['MONTHLY_RATE'];
                         $remarks = $row['REMARKS'];
                         $effectivity_date = $api->check_date('empty', $row['EFFECTIVITY_DATE'], '', 'm/d/Y', '', '', '');
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
@@ -9191,12 +9297,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         else{
                             $delete = '';
                         }
-
-                        $rate = 'Minute Rate: ' . number_format($minute_rate, 2) . '<br/>';
-                        $rate .= 'Hourly Rate: ' . number_format($hourly_rate, 2) . '<br/>';
-                        $rate .= 'Weekly Rate: ' . number_format($weekly_rate, 2) . '<br/>';
-                        $rate .= 'Bi-Weekly Rate: ' . number_format($bi_weekly_rate, 2) . '<br/>';
-                        $rate .= 'Monthly Rate: ' . number_format($monthly_rate, 2);
     
                         $response[] = array(
                             'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salary_id .'">',

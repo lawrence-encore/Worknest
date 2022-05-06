@@ -236,6 +236,54 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Calculate salary rate
+    else if($transaction == 'calculate salary rate'){
+        if(isset($_POST['salary_amount']) && isset($_POST['salary_frequency']) && isset($_POST['hours_per_week']) && isset($_POST['hours_per_day'])){
+            $salary_amount = $_POST['salary_amount'];
+            $salary_frequency = $_POST['salary_frequency'];
+            $hours_per_week = $_POST['hours_per_week'];
+            $hours_per_day = $_POST['hours_per_day'];
+
+            if(!empty($salary_amount) && !empty($salary_frequency) && !empty($hours_per_week) && !empty($hours_per_day)){
+                if($salary_frequency == 'MONTHLY'){
+                    $hourly_rate = (($salary_amount * 12) / 52) / $hours_per_week;
+                }
+                else if($salary_frequency == 'BIWEEKLY'){
+                    $hourly_rate = $salary_amount / ($hours_per_week * 2);
+                }
+                else if($salary_frequency == 'WEEKLY'){
+                    $hourly_rate = $salary_amount / $hours_per_week;
+                }
+                else{
+                    $hourly_rate = $salary_amount / $hours_per_day;
+                }
+
+                $minute_rate = $hourly_rate / 60;
+                $weekly_rate = $hourly_rate * $hours_per_week;
+                $bi_weekly_rate = $weekly_rate * 2;
+                $monthly_rate = ($hourly_rate * $hours_per_week * 52) / 12;
+            }
+            else{
+                $minute_rate = '0.00';
+                $hourly_rate = '0.00';
+                $weekly_rate = '0.00';
+                $bi_weekly_rate = '0.00';
+                $monthly_rate = '0.00';
+            }
+
+            $response[] = array(
+                'MINUTE_RATE' => number_format($minute_rate, 2, '.', ''),
+                'HOURLY_RATE' => number_format($hourly_rate, 2, '.', ''),
+                'WEEKLY_RATE' => number_format($weekly_rate, 2, '.', ''),
+                'BI_WEEKLY_RATE' => number_format($bi_weekly_rate, 2, '.', ''),
+                'MONTHLY_RATE' => number_format($monthly_rate, 2, '.', '')
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Backup transactions
     # -------------------------------------------------------------

@@ -7,10 +7,11 @@
         }
 
         initialize_click_events();
+        initialize_on_change_events();
     });
 })(jQuery);
 
-function initialize_salary_table(datatable_name, buttons = false, show_all = false){    
+function initialize_salary_table(datatable_name, buttons = false, show_all = false){
     var username = $('#username').text();
     var filter_branch = $('#filter_branch').val();
     var filter_department = $('#filter_department').val();
@@ -113,7 +114,7 @@ function initialize_click_events(){
     var username = $('#username').text();
 
     $(document).on('click','#add-salary',function() {
-        generate_modal('salary form', 'Salary', 'R' , '0', '1', 'form', 'salary-form', '1', username);
+        generate_modal('salary form', 'Salary', 'LG' , '0', '1', 'form', 'salary-form', '1', username);
     });
 
     $(document).on('click','.update-salary',function() {
@@ -121,7 +122,7 @@ function initialize_click_events(){
 
         sessionStorage.setItem('salary_id', salary_id);
         
-        generate_modal('salary update form', 'Salary', 'R' , '0', '1', 'form', 'salary-update-form', '0', username);
+        generate_modal('salary update form', 'Salary', 'LG' , '0', '1', 'form', 'salary-update-form', '0', username);
     });
     
     $(document).on('click','.delete-salary',function() {
@@ -217,5 +218,45 @@ function initialize_click_events(){
 
     $(document).on('click','#apply-filter',function() {
         initialize_salary_table('#salary-datatable');
+    });
+}
+
+function calculate_salary_rate(){
+    var transaction = 'calculate salary rate';
+    var salary_amount = $('#salary_amount').val();
+    var salary_frequency = $('#salary_frequency').val();
+    var hours_per_week = $('#hours_per_week').val();
+    var hours_per_day = $('#hours_per_day').val();
+
+    $.ajax({
+        url: 'controller.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {salary_amount : salary_amount, salary_frequency : salary_frequency, hours_per_week : hours_per_week, hours_per_day : hours_per_day, transaction : transaction},
+        success: function(response) {
+            $('#minute_rate').val(response[0].MINUTE_RATE);
+            $('#hourly_rate').val(response[0].HOURLY_RATE);
+            $('#weekly_rate').val(response[0].WEEKLY_RATE);
+            $('#bi_weekly_rate').val(response[0].BI_WEEKLY_RATE);
+            $('#monthly_rate').val(response[0].MONTHLY_RATE);
+        }
+    });
+}
+
+function initialize_on_change_events(){
+    $(document).on('change','#salary_amount',function() {
+        calculate_salary_rate();
+    });
+
+    $(document).on('change','#salary_frequency',function() {
+        calculate_salary_rate();
+    });
+
+    $(document).on('change','#hours_per_week',function() {
+        calculate_salary_rate();
+    });
+
+    $(document).on('change','#hours_per_day',function() {
+        calculate_salary_rate();
     });
 }
