@@ -113,6 +113,14 @@ function initialize_salary_table(datatable_name, buttons = false, show_all = fal
 function initialize_click_events(){
     var username = $('#username').text();
 
+    $(document).on('click','.view-salary',function() {
+        var salary_id = $(this).data('salary-id');
+
+        sessionStorage.setItem('salary_id', salary_id);
+
+        generate_modal('salary details', 'Salary Details', 'R' , '1', '0', 'element', '', '0', username);
+    });
+
     $(document).on('click','#add-salary',function() {
         generate_modal('salary form', 'Salary', 'LG' , '0', '1', 'form', 'salary-form', '1', username);
     });
@@ -236,6 +244,7 @@ function calculate_salary_rate(){
         success: function(response) {
             $('#minute_rate').val(response[0].MINUTE_RATE);
             $('#hourly_rate').val(response[0].HOURLY_RATE);
+            $('#daily_rate').val(response[0].DAILY_RATE);
             $('#weekly_rate').val(response[0].WEEKLY_RATE);
             $('#bi_weekly_rate').val(response[0].BI_WEEKLY_RATE);
             $('#monthly_rate').val(response[0].MONTHLY_RATE);

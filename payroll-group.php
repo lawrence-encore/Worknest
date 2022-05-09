@@ -4,14 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Payroll Setting';
+    $page_title = 'Payroll Group';
 
-    $page_access = $api->check_role_permissions($username, 289);
-    $update_payroll_setting = $api->check_role_permissions($username, 290);
-    $view_transaction_log = $api->check_role_permissions($username, 291);
-
-    $payroll_setting_details = $api->get_payroll_setting_details(1);
-    $transaction_log_id = $payroll_setting_details[0]['TRANSACTION_LOG_ID'] ?? null;
+    $page_access = $api->check_role_permissions($username, 292);
+	$add_payroll_group = $api->check_role_permissions($username, 293);
+	$delete_payroll_group = $api->check_role_permissions($username, 295);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -69,49 +66,50 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Payroll Setting</h4>
+                                                        <h4 class="card-title">Payroll Group List</h4>
                                                     </div>
-                                                    <div class="d-flex gap-2">
                                                     <?php
-                                                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
-                                                            echo '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'">Transaction Log</button>';
-                                                        }
+                                                        if($add_payroll_group > 0 || $delete_payroll_group > 0){
 
-                                                        if($update_payroll_setting > 0){
-                                                            echo '<button type="submit" class="btn btn-primary waves-effect waves-light" form="payroll-setting-form" id="submit-form">Save</button>';
+                                                            if($add_payroll_group > 0){
+                                                                $add = '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-payroll-group"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                            }
+                                                            else{
+                                                                $add = '';
+                                                            }
 
-                                                            $disabled = '';
+                                                            if($delete_payroll_group > 0){
+                                                                $delete = '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-payroll-group"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                            }
+                                                            else{
+                                                                $delete = '';
+                                                            }
+
+                                                            echo '<div class="d-flex gap-2">
+                                                                    '. $add .'
+                                                                    '. $delete .'
+                                                                </div>';
                                                         }
-                                                        else{
-                                                            $disabled = 'disabled';
-                                                        }                                                        
                                                     ?>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <form class="cmxform" id="payroll-setting-form" method="post" action="#">
-                                                    <div class="row mb-3">
-                                                        <label for="late_deduction_rate" class="col-md-4 col-form-label">Late Deduction Rate  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the late deduction rate per minute. Set the value to 0 if the rate is prorated."></i></label>
-                                                        <div class="col-md-8">
-                                                            <input id="late_deduction_rate" name="late_deduction_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-3">
-                                                        <label for="early_leaving_deduction_rate" class="col-md-4 col-form-label">Early Leaving Deduction Rate  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the early leaving deduction rate per minute. Set the value to 0 if the rate is prorated."></i></label>
-                                                        <div class="col-md-8">
-                                                            <input id="early_leaving_deduction_rate" name="early_leaving_deduction_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-3">
-                                                        <label for="overtime_rate" class="col-md-4 col-form-label">Overtime Rate (%)  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the overtime rate per hour. Set the value to 0 if the rate is prorated."></i></label>
-                                                        <div class="col-md-8">
-                                                            <input id="overtime_rate" name="overtime_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
-                                                        </div>
-                                                    </div>
-                                                </form>
+                                                <table id="payroll-group-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="all">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" id="datatable-checkbox" type="checkbox">
+                                                                </div>
+                                                            </th>
+                                                            <th class="all">Payroll Group</th>
+                                                            <th class="all">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -136,6 +134,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/payroll-setting.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/payroll-group.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

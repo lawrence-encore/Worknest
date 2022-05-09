@@ -1813,6 +1813,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_payroll_group_exist
+    # Purpose    : Checks if the payroll group exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_payroll_group_exist($payroll_group_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_payroll_group_exist(:payroll_group_id)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -5522,7 +5547,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username){
+    public function update_salary($salary_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
             $salary_details = $this->get_salary_details($salary_id);
@@ -5537,9 +5562,18 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_salary(:salary_id, :basic_pay, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_salary(:salary_id, :salary_amount, :salary_frequency, :hours_per_week, :hours_per_day, :minute_rate, :hourly_rate, :daily_rate, :weekly_rate, :bi_weekly_rate, :monthly_rate, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
             $sql->bindValue(':salary_id', $salary_id);
-            $sql->bindValue(':basic_pay', $basic_pay);
+            $sql->bindValue(':salary_amount', $salary_amount);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+            $sql->bindValue(':hours_per_week', $hours_per_week);
+            $sql->bindValue(':hours_per_day', $hours_per_day);
+            $sql->bindValue(':minute_rate', $minute_rate);
+            $sql->bindValue(':hourly_rate', $hourly_rate);
+            $sql->bindValue(':daily_rate', $daily_rate);
+            $sql->bindValue(':weekly_rate', $weekly_rate);
+            $sql->bindValue(':bi_weekly_rate', $bi_weekly_rate);
+            $sql->bindValue(':monthly_rate', $monthly_rate);
             $sql->bindValue(':effectivity_date', $effectivity_date);
             $sql->bindValue(':remarks', $remarks);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
@@ -5630,6 +5664,73 @@ class Api{
 
                     if($update_system_parameter_value == 1){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return 1;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_payroll_group
+    # Purpose    : Updates payroll group.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_payroll_group($payroll_group_id, $payroll_group, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $payroll_group_details = $this->get_payroll_group_details($payroll_group_id);
+
+            if(!empty($payroll_group_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $payroll_group_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_payroll_group(:payroll_group_id, :payroll_group, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+            $sql->bindValue(':payroll_group', $payroll_group);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($payroll_group_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return 1;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
                                     
                         if($insert_transaction_log == 1){
                             return 1;
@@ -9148,7 +9249,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_salary($employee_id, $basic_pay, $effectivity_date, $remarks, $username){
+    public function insert_salary($employee_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -9162,10 +9263,19 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_salary(:id, :employee_id, :basic_pay, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_salary(:id, :employee_id, :salary_amount, :salary_frequency, :hours_per_week, :hours_per_day, :minute_rate, :hourly_rate, :daily_rate, :weekly_rate, :bi_weekly_rate, :monthly_rate, :effectivity_date, :remarks, :transaction_log_id, :record_log)');
             $sql->bindValue(':id', $id);
             $sql->bindValue(':employee_id', $employee_id);
-            $sql->bindValue(':basic_pay', $basic_pay);
+            $sql->bindValue(':salary_amount', $salary_amount);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+            $sql->bindValue(':hours_per_week', $hours_per_week);
+            $sql->bindValue(':hours_per_day', $hours_per_day);
+            $sql->bindValue(':minute_rate', $minute_rate);
+            $sql->bindValue(':hourly_rate', $hourly_rate);
+            $sql->bindValue(':daily_rate', $daily_rate);
+            $sql->bindValue(':weekly_rate', $weekly_rate);
+            $sql->bindValue(':bi_weekly_rate', $bi_weekly_rate);
+            $sql->bindValue(':monthly_rate', $monthly_rate);
             $sql->bindValue(':effectivity_date', $effectivity_date);
             $sql->bindValue(':remarks', $remarks);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
@@ -9255,6 +9365,109 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_payroll_group
+    # Purpose    : Insert payroll group.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_payroll_group($payroll_group, $description, $employee_ids, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+            $error = '';
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(36, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_payroll_group(:id, :payroll_group, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':payroll_group', $payroll_group);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                foreach($employee_ids as $employee_id){
+                    $insert_payroll_group_employee = $this->insert_payroll_group_employee($id, $employee_id, $username);
+
+                    if($insert_payroll_group_employee != '1'){
+                        $error = $insert_payroll_group_employee;
+                    }
+                }
+
+                if(empty($error)){
+                    # Update system parameter value
+                    $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 36, $username);
+
+                    if($update_system_parameter_value == 1){
+                        # Update transaction log value
+                        $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                        if($update_system_parameter_value == 1){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll group (' . $id . ').');
+                                        
+                            if($insert_transaction_log == 1){
+                                return 1;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $update_system_parameter_value;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $error;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_payroll_group_employee
+    # Purpose    : Insert payroll group employee.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_payroll_group_employee($payroll_group_id, $employee_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_payroll_group_employee(:payroll_group_id, :employee_id, :record_log)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -9268,21 +9481,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_system_parameter($parameter_id, $username){
         if ($this->databaseConnection()) {
-            $system_parameter_details = $this->get_system_parameter_details($parameter_id);
-            $transaction_log_id = $system_parameter_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_system_parameter(:parameter_id)');
             $sql->bindValue(':parameter_id', $parameter_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted system parameter (' . $parameter_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9301,21 +9504,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_policy($policy_id, $username){
         if ($this->databaseConnection()) {
-            $policy_details = $this->get_policy_details($policy_id);
-            $transaction_log_id = $policy_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_policy(:policy_id)');
             $sql->bindValue(':policy_id', $policy_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted policy (' . $policy_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9359,21 +9552,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_permission($permission_id, $username){
         if ($this->databaseConnection()) {
-            $permission_details = $this->get_permission_details($permission_id);
-            $transaction_log_id = $permission_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_permission(:permission_id)');
             $sql->bindValue(':permission_id', $permission_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted permission (' . $permission_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9392,21 +9575,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_role($role_id, $username){
         if ($this->databaseConnection()) {
-            $role_details = $this->get_role_details($role_id);
-            $transaction_log_id = $role_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_role(:role_id)');
             $sql->bindValue(':role_id', $role_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted role (' . $role_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9448,22 +9621,12 @@ class Api{
     # -------------------------------------------------------------
     public function delete_system_code($system_type, $system_code, $username){
         if ($this->databaseConnection()) {
-            $system_code_details = $this->get_system_code_details($system_type, $system_code);
-            $transaction_log_id = $system_code_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_system_code(:system_type, :system_code)');
             $sql->bindValue(':system_type', $system_type);
             $sql->bindValue(':system_code', $system_code);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted system code (' . $system_code . ').');
-                                     
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9482,21 +9645,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_notification_type($notification_id, $username){
         if ($this->databaseConnection()) {
-            $notification_type_details = $this->get_notification_type_details($notification_id);
-            $transaction_log_id = $notification_type_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_notification_type(:notification_id)');
             $sql->bindValue(':notification_id', $notification_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted notification type (' . $notification_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9515,21 +9668,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_notification_details($notification_id, $username){
         if ($this->databaseConnection()) {
-            $notification_details = $this->get_notification_details($notification_id);
-            $transaction_log_id = $notification_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_notification_details(:notification_id)');
             $sql->bindValue(':notification_id', $notification_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted notification details (' . $notification_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9593,21 +9736,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_department($department_id, $username){
         if ($this->databaseConnection()) {
-            $department_details = $this->get_department_details($department_id);
-            $transaction_log_id = $department_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_department(:department_id)');
             $sql->bindValue(':department_id', $department_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted department (' . $department_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9628,29 +9761,21 @@ class Api{
         if ($this->databaseConnection()) {
             $designation_details = $this->get_designation_details($designation_id);
             $job_description = $designation_details[0]['JOB_DESCRIPTION'];
-            $transaction_log_id = $designation_details[0]['TRANSACTION_LOG_ID'];
 
             $sql = $this->db_connection->prepare('CALL delete_designation(:designation_id)');
             $sql->bindValue(':designation_id', $designation_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted designation (' . $designation_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    if(!empty($job_description)){
-                        if (unlink($job_description)) {
-                            return 1;
-                        }
-                        else {
-                            return $job_description . ' cannot be deleted due to an error.';
-                        }
-                    }
-                    else{
+                if(!empty($job_description)){
+                    if (unlink($job_description)) {
                         return 1;
+                    }
+                    else {
+                        return $job_description . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return $insert_transaction_log;
+                    return 1;
                 }
             }
             else{
@@ -9670,21 +9795,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_branch($branch_id, $username){
         if ($this->databaseConnection()) {
-            $branch_details = $this->get_branch_details($role_id);
-            $transaction_log_id = $branch_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_branch(:branch_id)');
             $sql->bindValue(':branch_id', $branch_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted branch (' . $branch_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9703,21 +9818,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_upload_setting($upload_setting_id, $username){
         if ($this->databaseConnection()) {
-            $upload_setting_details = $this->get_upload_setting_details($upload_setting_id);
-            $transaction_log_id = $upload_setting_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_upload_setting(:upload_setting_id)');
             $sql->bindValue(':upload_setting_id', $upload_setting_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted upload setting (' . $upload_setting_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9759,21 +9864,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_employment_status($employment_status_id, $username){
         if ($this->databaseConnection()) {
-            $employment_status_details = $this->get_employment_status_details($employment_status_id);
-            $transaction_log_id = $employment_status_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_employment_status(:employment_status_id)');
             $sql->bindValue(':employment_status_id', $employment_status_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted employment status (' . $employment_status_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9792,21 +9887,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_employee($employee_id, $username){
         if ($this->databaseConnection()) {
-            $employee_details = $this->get_employee_details($employee_id, '');
-            $transaction_log_id = $employee_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_employee(:employee_id)');
             $sql->bindValue(':employee_id', $employee_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted employee (' . $employee_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9825,21 +9910,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_emergency_contact($contact_id, $username){
         if ($this->databaseConnection()) {
-            $emergency_contact_details = $this->get_emergency_contact_details($contact_id);
-            $transaction_log_id = $emergency_contact_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_emergency_contact(:contact_id)');
             $sql->bindValue(':contact_id', $contact_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted emergency contact (' . $contact_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9858,21 +9933,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_employee_address($address_id, $username){
         if ($this->databaseConnection()) {
-            $employee_address_details = $this->get_employee_address_details($address_id);
-            $transaction_log_id = $employee_address_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_employee_address(:address_id)');
             $sql->bindValue(':address_id', $address_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted employee address (' . $address_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9891,21 +9956,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_employee_social($social_id, $username){
         if ($this->databaseConnection()) {
-            $employee_social_details = $this->get_employee_social_details($social_id);
-            $transaction_log_id = $employee_social_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_employee_social(:social_id)');
             $sql->bindValue(':social_id', $social_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted employee social (' . $social_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9924,21 +9979,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_work_shift($work_shift_id, $username){
         if ($this->databaseConnection()) {
-            $work_shift_details = $this->get_work_shift_details($work_shift_id);
-            $transaction_log_id = $work_shift_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_work_shift(:work_shift_id)');
             $sql->bindValue(':work_shift_id', $work_shift_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted work shift (' . $work_shift_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10049,21 +10094,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_leave_type($leave_type_id, $username){
         if ($this->databaseConnection()) {
-            $leave_type_details = $this->get_leave_type_details($leave_type_id);
-            $transaction_log_id = $leave_type_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_leave_type(:leave_type_id)');
             $sql->bindValue(':leave_type_id', $leave_type_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted leave type (' . $leave_type_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10082,21 +10117,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_leave_entitlement($leave_entitlement_id, $username){
         if ($this->databaseConnection()) {
-            $leave_entitlement_details = $this->get_leave_entitlement_details($leave_entitlement_id);
-            $transaction_log_id = $leave_entitlement_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_leave_entitlement(:leave_entitlement_id)');
             $sql->bindValue(':leave_entitlement_id', $leave_entitlement_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted leave entitlement (' . $leave_entitlement_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10115,21 +10140,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_leave($leave_id, $username){
         if ($this->databaseConnection()) {
-            $leave_details = $this->get_leave_details($leave_id);
-            $transaction_log_id = $leave_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_leave(:leave_id)');
             $sql->bindValue(':leave_id', $leave_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted leave (' . $leave_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10150,29 +10165,21 @@ class Api{
         if ($this->databaseConnection()) {
             $employee_file_details = $this->get_employee_file_details($file_id);
             $file_path = $employee_file_details[0]['FILE_PATH'];
-            $transaction_log_id = $employee_file_details[0]['TRANSACTION_LOG_ID'];
 
             $sql = $this->db_connection->prepare('CALL delete_employee_file(:file_id)');
             $sql->bindValue(':file_id', $file_id);
         
-            if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted employee file (' . $file_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    if(!empty($file_path)){
-                        if (unlink($file_path)) {
-                            return 1;
-                        }
-                        else {
-                            return $file_path . ' cannot be deleted due to an error.';
-                        }
-                    }
-                    else{
+            if($sql->execute()){ 
+                if(!empty($file_path)){
+                    if (unlink($file_path)) {
                         return 1;
+                    }
+                    else {
+                        return $file_path . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return $insert_transaction_log;
+                    return 1;
                 }
             }
             else{
@@ -10215,21 +10222,11 @@ class Api{
     # -------------------------------------------------------------
     public function delete_holiday($holiday_id, $username){
         if ($this->databaseConnection()) {
-            $holiday_details = $this->get_holiday_details($holiday_id);
-            $transaction_log_id = $holiday_details[0]['TRANSACTION_LOG_ID'];
-
             $sql = $this->db_connection->prepare('CALL delete_holiday(:holiday_id)');
             $sql->bindValue(':holiday_id', $holiday_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted holiday (' . $holiday_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    return 1;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return 1;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10317,29 +10314,21 @@ class Api{
         if ($this->databaseConnection()) {
             $attendance_creation_details = $this->get_attendance_creation_details($request_id);
             $file_path = $attendance_creation_details[0]['FILE_PATH'];
-            $transaction_log_id = $attendance_creation_details[0]['TRANSACTION_LOG_ID'];
 
             $sql = $this->db_connection->prepare('CALL delete_attendance_creation(:request_id)');
             $sql->bindValue(':request_id', $request_id);
         
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Delete', 'User ' . $username . ' deleted attendance creation (' . $request_id . ').');
-                                    
-                if($insert_transaction_log == 1){
-                    if(!empty($file_path)){
-                        if (unlink($file_path)) {
-                            return 1;
-                        }
-                        else {
-                            return $file_path . ' cannot be deleted due to an error.';
-                        }
-                    }
-                    else{
+                if(!empty($file_path)){
+                    if (unlink($file_path)) {
                         return 1;
+                    }
+                    else {
+                        return $file_path . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return $insert_transaction_log;
+                    return 1;
                 }
             }
             else{
@@ -10545,6 +10534,52 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_salary(:salary_id)');
             $sql->bindValue(':salary_id', $salary_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_payroll_group
+    # Purpose    : Delete payroll group.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_payroll_group($payroll_group_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_payroll_group(:payroll_group_id)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+        
+            if($sql->execute()){
+                return 1;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_all_payroll_group_employee
+    # Purpose    : Delete all payroll group employee.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_all_payroll_group_employee($payroll_group_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_all_payroll_group_employee(:payroll_group_id)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
         
             if($sql->execute()){
                 return 1;
@@ -12527,7 +12562,16 @@ class Api{
                 while($row = $sql->fetch()){
                     $response[] = array(
                         'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
-                        'BASIC_PAY' => $row['BASIC_PAY'],
+                        'SALARY_AMOUNT' => $row['SALARY_AMOUNT'],
+                        'SALARY_FREQUENCY' => $row['SALARY_FREQUENCY'],
+                        'HOURS_PER_WEEK' => $row['HOURS_PER_WEEK'],
+                        'HOURS_PER_DAY' => $row['HOURS_PER_DAY'],
+                        'MINUTE_RATE' => $row['MINUTE_RATE'],
+                        'HOURLY_RATE' => $row['HOURLY_RATE'],
+                        'DAILY_RATE' => $row['DAILY_RATE'],
+                        'WEEKLY_RATE' => $row['WEEKLY_RATE'],
+                        'BI_WEEKLY_RATE' => $row['BI_WEEKLY_RATE'],
+                        'MONTHLY_RATE' => $row['MONTHLY_RATE'],
                         'EFFECTIVITY_DATE' => $row['EFFECTIVITY_DATE'],
                         'REMARKS' => $row['REMARKS'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
@@ -12566,6 +12610,72 @@ class Api{
                         'EARLY_LEAVING_DEDUCTION_RATE' => $row['EARLY_LEAVING_DEDUCTION_RATE'],
                         'OVERTIME_RATE' => $row['OVERTIME_RATE'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_group_details
+    # Purpose    : Gets the payroll group details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_group_details($payroll_group_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_payroll_group_details(:payroll_group_id)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'PAYROLL_GROUP' => $row['PAYROLL_GROUP'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_group_employee_details
+    # Purpose    : Gets the payroll group employee details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_group_employee_details($payroll_group_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_payroll_group_employee_details(:payroll_group_id)');
+            $sql->bindValue(':payroll_group_id', $payroll_group_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
                 }

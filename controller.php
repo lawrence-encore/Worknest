@@ -258,6 +258,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $hourly_rate = $salary_amount / $hours_per_day;
                 }
 
+                $daily_rate = $hourly_rate * $hours_per_day;
                 $minute_rate = $hourly_rate / 60;
                 $weekly_rate = $hourly_rate * $hours_per_week;
                 $bi_weekly_rate = $weekly_rate * 2;
@@ -266,6 +267,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $minute_rate = '0.00';
                 $hourly_rate = '0.00';
+                $daily_rate = '0.00';
                 $weekly_rate = '0.00';
                 $bi_weekly_rate = '0.00';
                 $monthly_rate = '0.00';
@@ -274,6 +276,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'MINUTE_RATE' => number_format($minute_rate, 2, '.', ''),
                 'HOURLY_RATE' => number_format($hourly_rate, 2, '.', ''),
+                'DAILY_RATE' => number_format($daily_rate, 2, '.', ''),
                 'WEEKLY_RATE' => number_format($weekly_rate, 2, '.', ''),
                 'BI_WEEKLY_RATE' => number_format($bi_weekly_rate, 2, '.', ''),
                 'MONTHLY_RATE' => number_format($monthly_rate, 2, '.', '')
@@ -4842,10 +4845,19 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit salary
     else if($transaction == 'submit salary'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['basic_pay']) && !empty($_POST['basic_pay']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['salary_amount']) && !empty($_POST['salary_amount']) && isset($_POST['salary_frequency']) && !empty($_POST['salary_frequency']) && isset($_POST['hours_per_week']) && !empty($_POST['hours_per_week']) && isset($_POST['hours_per_day']) && !empty($_POST['hours_per_day']) && isset($_POST['minute_rate']) && !empty($_POST['minute_rate']) && isset($_POST['hourly_rate']) && !empty($_POST['hourly_rate']) && isset($_POST['daily_rate']) && !empty($_POST['daily_rate']) && isset($_POST['weekly_rate']) && !empty($_POST['weekly_rate']) && isset($_POST['bi_weekly_rate']) && !empty($_POST['bi_weekly_rate']) && isset($_POST['monthly_rate']) && !empty($_POST['monthly_rate']) && isset($_POST['remarks'])){
             $username = $_POST['username'];
             $employee_ids = explode(',', $_POST['employee_id']);
-            $basic_pay = $_POST['basic_pay'];
+            $salary_amount = $_POST['salary_amount'];
+            $salary_frequency = $_POST['salary_frequency'];
+            $hours_per_week = $_POST['hours_per_week'];
+            $hours_per_day = $_POST['hours_per_day'];
+            $minute_rate = $_POST['minute_rate'];
+            $hourly_rate = $_POST['hourly_rate'];
+            $daily_rate = $_POST['daily_rate'];
+            $weekly_rate = $_POST['weekly_rate'];
+            $bi_weekly_rate = $_POST['bi_weekly_rate'];
+            $monthly_rate = $_POST['monthly_rate'];
             $remarks = $_POST['remarks'];
             $effectivity_date = $api->check_date('empty', $_POST['effectivity_date'], '', 'Y-m-d', '', '', '');
 
@@ -4853,11 +4865,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_salary_effectivity_date_conflict = $api->check_salary_effectivity_date_conflict(null, $employee_id, $effectivity_date);
 
                 if($check_salary_effectivity_date_conflict == 0){
-                    $insert_salary = $api->insert_salary($employee_id, $basic_pay, $effectivity_date, $remarks, $username);
+                    $insert_salary = $api->insert_salary($employee_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
     
                     if($insert_salary != 1){
                         $error = $insert_salary;
                     }
+                }
+                else{
+                    $error = 'Overlap';
                 }
             }
             
@@ -4866,18 +4881,27 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else{
                 echo $error;
-            }              
+            }    
         }
     }
     # -------------------------------------------------------------
 
     # Submit salary update
     else if($transaction == 'submit salary update'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['salary_id']) && !empty($_POST['salary_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['basic_pay']) && !empty($_POST['basic_pay']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['remarks'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['salary_id']) && !empty($_POST['salary_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['effectivity_date']) && !empty($_POST['effectivity_date']) && isset($_POST['salary_amount']) && !empty($_POST['salary_amount']) && isset($_POST['salary_frequency']) && !empty($_POST['salary_frequency']) && isset($_POST['hours_per_week']) && !empty($_POST['hours_per_week']) && isset($_POST['hours_per_day']) && !empty($_POST['hours_per_day']) && isset($_POST['minute_rate']) && !empty($_POST['minute_rate']) && isset($_POST['hourly_rate']) && !empty($_POST['hourly_rate']) && isset($_POST['daily_rate']) && !empty($_POST['daily_rate']) && isset($_POST['weekly_rate']) && !empty($_POST['weekly_rate']) && isset($_POST['bi_weekly_rate']) && !empty($_POST['bi_weekly_rate']) && isset($_POST['monthly_rate']) && !empty($_POST['monthly_rate']) && isset($_POST['remarks'])){
             $username = $_POST['username'];
             $salary_id = $_POST['salary_id'];
             $employee_id = $_POST['employee_id'];
-            $basic_pay = $_POST['basic_pay'];
+            $salary_amount = $_POST['salary_amount'];
+            $salary_frequency = $_POST['salary_frequency'];
+            $hours_per_week = $_POST['hours_per_week'];
+            $hours_per_day = $_POST['hours_per_day'];
+            $minute_rate = $_POST['minute_rate'];
+            $hourly_rate = $_POST['hourly_rate'];
+            $daily_rate = $_POST['daily_rate'];
+            $weekly_rate = $_POST['weekly_rate'];
+            $bi_weekly_rate = $_POST['bi_weekly_rate'];
+            $monthly_rate = $_POST['monthly_rate'];
             $remarks = $_POST['remarks'];
             $effectivity_date = $api->check_date('empty', $_POST['effectivity_date'], '', 'Y-m-d', '', '', '');
             
@@ -4891,7 +4915,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $check_salary_effectivity_date_conflict = $api->check_salary_effectivity_date_conflict($salary_id, $employee_id, $effectivity_date);
 
                     if($check_salary_effectivity_date_conflict == 0){
-                        $update_salary = $api->update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username);
+                        $update_salary = $api->update_salary($salary_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
 
                         if($update_salary == 1){
                             echo 'Updated';
@@ -4905,7 +4929,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                 }
                 else{
-                    $update_salary = $api->update_salary($salary_id, $basic_pay, $effectivity_date, $remarks, $username);
+                    $update_salary = $api->update_salary($salary_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
 
                     if($update_salary == 1){
                         echo 'Updated';
@@ -4952,6 +4976,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
                 else{
                     echo $insert_payroll_setting;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit payroll group
+    else if($transaction == 'submit payroll group'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payroll_group_id']) && isset($_POST['payroll_group']) && !empty($_POST['payroll_group']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $error = '';
+            $username = $_POST['username'];
+            $payroll_group_id = $_POST['payroll_group_id'];
+            $payroll_group = $_POST['payroll_group'];
+            $description = $_POST['description'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+
+            $check_payroll_group_exist = $api->check_payroll_group_exist($payroll_group_id);
+
+            if($check_payroll_group_exist > 0){
+                $update_payroll_group = $api->update_payroll_group($payroll_group_id, $payroll_group, $description, $username);
+
+                if($update_payroll_group == 1){
+                    $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
+
+                    if($delete_all_payroll_group_employee == 1){
+                        foreach($employee_ids as $employee_id){
+                            $insert_payroll_group_employee = $api->insert_payroll_group_employee($payroll_group_id, $employee_id, $username);
+
+                            if($insert_payroll_group_employee != 1){
+                                $error = $insert_payroll_group_employee;
+                            }
+                        }
+                    }
+                    else{
+                        $error = $delete_all_payroll_group_employee;
+                    }
+
+                    if(empty($error)){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $error;
+                    }
+                }
+                else{
+                    echo $update_payroll_group;
+                }
+            }
+            else{
+                $insert_payroll_group = $api->insert_payroll_group($payroll_group, $description, $employee_ids, $username);
+
+                if($insert_payroll_group == 1){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_payroll_group;
                 }
             }
         }
@@ -6733,6 +6813,76 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if($delete_salary != 1){
                         $error = $delete_salary;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete payroll group
+    else if($transaction == 'delete payroll group'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payroll_group_id']) && !empty($_POST['payroll_group_id'])){
+            $username = $_POST['username'];
+            $payroll_group_id = $_POST['payroll_group_id'];
+
+            $check_payroll_group_exist = $api->check_payroll_group_exist($payroll_group_id);
+
+            if($check_payroll_group_exist > 0){
+                $delete_payroll_group = $api->delete_payroll_group($payroll_group_id, $username);
+                                    
+                if($delete_payroll_group == 1){
+                    $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
+                                    
+                    if($delete_all_payroll_group_employee == 1){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_all_payroll_group_employee;
+                    }
+                }
+                else{
+                    echo $delete_payroll_group;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple payroll group
+    else if($transaction == 'delete multiple payroll group'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payroll_group_id'])){
+            $username = $_POST['username'];
+            $payroll_group_ids = $_POST['payroll_group_id'];
+
+            foreach($payroll_group_ids as $payroll_group_id){
+                $check_payroll_group_exist = $api->check_payroll_group_exist($payroll_group_id);
+
+                if($check_payroll_group_exist > 0){
+                    $delete_payroll_group = $api->delete_payroll_group($payroll_group_id, $username);
+                                    
+                    if($delete_payroll_group == 1){
+                        $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
+                                    
+                        if($delete_all_payroll_group_employee != 1){
+                            $error = $delete_all_payroll_group_employee;
+                        }                       
+                    }
+                    else{
+                        $error = $delete_payroll_group;
                     }
                 }
                 else{
@@ -10528,8 +10678,48 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $response[] = array(
                 'EMPLOYEE_ID' => $salary_details[0]['EMPLOYEE_ID'],
-                'BASIC_PAY' => $salary_details[0]['BASIC_PAY'],
+                'SALARY_AMOUNT' => $salary_details[0]['SALARY_AMOUNT'],
+                'SALARY_FREQUENCY' => $salary_details[0]['SALARY_FREQUENCY'],
+                'HOURS_PER_WEEK' => $salary_details[0]['HOURS_PER_WEEK'],
+                'HOURS_PER_DAY' => $salary_details[0]['HOURS_PER_DAY'],
+                'MINUTE_RATE' => $salary_details[0]['MINUTE_RATE'],
+                'HOURLY_RATE' => $salary_details[0]['HOURLY_RATE'],
+                'DAILY_RATE' => $salary_details[0]['DAILY_RATE'],
+                'WEEKLY_RATE' => $salary_details[0]['WEEKLY_RATE'],
+                'BI_WEEKLY_RATE' => $salary_details[0]['BI_WEEKLY_RATE'],
+                'MONTHLY_RATE' => $salary_details[0]['MONTHLY_RATE'],
                 'EFFECTIVITY_DATE' => $api->check_date('empty', $salary_details[0]['EFFECTIVITY_DATE'], '', 'n/d/Y', '', '', ''),
+                'REMARKS' => $salary_details[0]['REMARKS']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Salary details
+    else if($transaction == 'salary summary details'){
+        if(isset($_POST['salary_id']) && !empty($_POST['salary_id'])){
+            $salary_id = $_POST['salary_id'];
+            $salary_details = $api->get_salary_details($salary_id);
+            $employee_id = $salary_details[0]['EMPLOYEE_ID'];
+
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $employee_file_as,
+                'SALARY_AMOUNT' => number_format($salary_details[0]['SALARY_AMOUNT'], 2),
+                'SALARY_FREQUENCY' => $api->get_system_code_details('SALARYFREQUENCY', $salary_details[0]['SALARY_FREQUENCY'])[0]['DESCRIPTION'],
+                'HOURS_PER_WEEK' => number_format($salary_details[0]['HOURS_PER_WEEK']),
+                'HOURS_PER_DAY' => number_format($salary_details[0]['HOURS_PER_DAY']),
+                'MINUTE_RATE' => number_format($salary_details[0]['MINUTE_RATE'], 2),
+                'HOURLY_RATE' => number_format($salary_details[0]['HOURLY_RATE'], 2),
+                'DAILY_RATE' => number_format($salary_details[0]['DAILY_RATE'], 2),
+                'WEEKLY_RATE' => number_format($salary_details[0]['WEEKLY_RATE'], 2),
+                'BI_WEEKLY_RATE' => number_format($salary_details[0]['BI_WEEKLY_RATE'], 2),
+                'MONTHLY_RATE' => number_format($salary_details[0]['MONTHLY_RATE'], 2),
+                'EFFECTIVITY_DATE' => $api->check_date('empty', $salary_details[0]['EFFECTIVITY_DATE'], '', 'F d, Y', '', '', ''),
                 'REMARKS' => $salary_details[0]['REMARKS']
             );
 
@@ -10552,6 +10742,63 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
         );
 
         echo json_encode($response);
+    }
+    # -------------------------------------------------------------
+
+    # Payroll group details
+    else if($transaction == 'payroll group details'){
+        if(isset($_POST['payroll_group_id']) && !empty($_POST['payroll_group_id'])){
+            $employee_id = '';
+            $payroll_group_id = $_POST['payroll_group_id'];
+            $payroll_group_details = $api->get_payroll_group_details($payroll_group_id);
+            $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+
+            for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                $employee_id .= $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+
+                if($i != (count($payroll_group_employee_details) - 1)){
+                    $employee_id .= ',';
+                }
+            }
+
+            $response[] = array(
+                'PAYROLL_GROUP' => $payroll_group_details[0]['PAYROLL_GROUP'],
+                'DESCRIPTION' => $payroll_group_details[0]['DESCRIPTION'],
+                'EMPLOYEE_ID' => $employee_id
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Payroll group summary details
+    else if($transaction == 'payroll group summary details'){
+        if(isset($_POST['payroll_group_id']) && !empty($_POST['payroll_group_id'])){
+            $employee = '';
+            $payroll_group_id = $_POST['payroll_group_id'];
+            $payroll_group_details = $api->get_payroll_group_details($payroll_group_id);
+            $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+
+            for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                $employee_id = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $employee .= $employee_details[0]['FILE_AS'] ?? '--';
+
+                if($i != (count($payroll_group_employee_details) - 1)){
+                    $employee .= '<br/>';
+                }
+            }
+
+            $response[] = array(
+                'PAYROLL_GROUP' => $payroll_group_details[0]['PAYROLL_GROUP'],
+                'DESCRIPTION' => $payroll_group_details[0]['DESCRIPTION'],
+                'EMPLOYEE' => $employee
+            );
+
+            echo json_encode($response);
+        }
     }
     # -------------------------------------------------------------
 

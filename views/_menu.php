@@ -56,6 +56,8 @@
     $import_contribution_deduction_page = $api->check_role_permissions($username, 280);
     $salary_page = $api->check_role_permissions($username, 284);
     $payroll_setting_page = $api->check_role_permissions($username, 289);
+    $payroll_group_page = $api->check_role_permissions($username, 292);
+    $pay_run_page = $api->check_role_permissions($username, 297);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -189,10 +191,10 @@
         }
     }
 
-    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
 
-        if($payroll_setting_page > 0){
+        if($payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-money"></i>
@@ -200,8 +202,16 @@
                         </a>
                         <ul class="sub-menu" aria-expanded="false">';
 
+                        if($pay_run_page > 0){
+                            $menu .= '<li><a href="pay-run.php" key="t-pay-run">Pay Run</a></li>';
+                        }
+
+                        if($payroll_group_page > 0){
+                            $menu .= '<li><a href="payroll-group.php" key="t-payroll-group">Payroll Group</a></li>';
+                        }
+
                         if($payroll_setting_page > 0){
-                            $menu .= '<li><a href="payroll-setting.php" key="t-all-employees">Payroll Setting</a></li>';
+                            $menu .= '<li><a href="payroll-setting.php" key="t-payroll-setting">Payroll Setting</a></li>';
                         }
 
             $menu .= '</ul>
@@ -217,7 +227,7 @@
                         <ul class="sub-menu" aria-expanded="false">';
 
                         if($allowance_page > 0){
-                            $menu .= '<li><a href="allowance.php" key="t-allowance-type">Allowance</a></li>';
+                            $menu .= '<li><a href="allowance.php" key="t-allowance">Allowance</a></li>';
                         }
 
                         if($allowance_type_page > 0){

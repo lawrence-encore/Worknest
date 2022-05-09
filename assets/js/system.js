@@ -866,10 +866,10 @@ function initialize_form_validation(form_type){
                     success: function (response) {
                         if(response === 'Updated' || response === 'Inserted'){
                             if(response === 'Inserted'){
-                                show_alert('Insert Upload Setting Success', 'The branch has been inserted.', 'success');
+                                show_alert('Insert Upload Setting Success', 'The upload setting has been inserted.', 'success');
                             }
                             else{
-                                show_alert('Update Upload Setting Success', 'The branch has been updated.', 'success');
+                                show_alert('Update Upload Setting Success', 'The upload setting has been updated.', 'success');
                             }
 
                             $('#System-Modal').modal('hide');
@@ -9049,25 +9049,28 @@ function initialize_form_validation(form_type){
             submitHandler: function (form) {
                 transaction = 'submit salary';
 
-                var employee = $('#employee').val();
+                var employee_id = $('#employee_id').val();
 
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee_id=' + employee_id,
                     beforeSend: function(){
                         document.getElementById('submit-form').disabled = true;
                         $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
                     },
                     success: function (response) {
                         if(response === 'Inserted'){
-                            show_alert('Insert Allowance Success', 'The salary has been inserted.', 'success');
+                            show_alert('Insert Salary Success', 'The salary has been inserted.', 'success');
 
                             $('#System-Modal').modal('hide');
                             reload_datatable('#salary-datatable');
                         }
+                        else if(response === 'Overlap'){
+                            show_alert('Insert Salary Error', 'The salary effectivity date overlaps with the existing salary of the employee.', 'error');
+                        }
                         else{
-                            show_alert('Allowance Error', response, 'error');
+                            show_alert('Salary Error', response, 'error');
                         }
                     },
                     complete: function(){
@@ -9081,7 +9084,16 @@ function initialize_form_validation(form_type){
                 employee_id: {
                     required: true
                 },
-                basic_pay: {
+                salary_amount: {
+                    required: true
+                },
+                salary_frequency: {
+                    required: true
+                },
+                hours_per_week: {
+                    required: true
+                },
+                hours_per_day: {
                     required: true
                 },
                 effectivity_date: {
@@ -9092,8 +9104,17 @@ function initialize_form_validation(form_type){
                 employee_id: {
                     required: 'Please choose at least one (1) employee',
                 },
-                basic_pay: {
+                salary_amount: {
                     required: 'Please enter the basic pay',
+                },
+                salary_frequency: {
+                    required: 'Please choose the salary frequency',
+                },
+                hours_per_week: {
+                    required: 'Please enter the hours per week',
+                },
+                hours_per_day: {
+                    required: 'Please enter the hours per day',
                 },
                 effectivity_date: {
                     required: 'Please choose the effectivity date',
@@ -9173,6 +9194,88 @@ function initialize_form_validation(form_type){
                 },
                 effectivity_date: {
                     required: 'Please choose the effectivity date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'payroll group form'){
+        $('#payroll-group-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit payroll group';
+
+                var employee_id = $('#employee_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Payroll Group Success', 'The payroll group has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Payroll Group Success', 'The payroll group has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#payroll-group-datatable');
+                        }
+                        else{
+                            show_alert('Payroll Group Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                payroll_group: {
+                    required: true
+                },
+                employee_id: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                payroll_group: {
+                    required: 'Please enter the payroll group',
+                },
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                description: {
+                    required: 'Please enter the description',
                 }
             },
             errorPlacement: function(label, element) {
@@ -9470,7 +9573,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -11067,11 +11170,47 @@ function display_form_details(form_type){
             data: {salary_id : salary_id, transaction : transaction},
             success: function(response) {
                 $('#salary_id').val(salary_id);
-                $('#basic_pay').val(response[0].BASIC_PAY);
+                $('#salary_amount').val(response[0].SALARY_AMOUNT);
+                $('#hours_per_week').val(response[0].HOURS_PER_WEEK);
+                $('#hours_per_day').val(response[0].HOURS_PER_DAY);
+                $('#minute_rate').val(response[0].MINUTE_RATE);
+                $('#hourly_rate').val(response[0].HOURLY_RATE);
+                $('#daily_rate').val(response[0].DAILY_RATE);
+                $('#weekly_rate').val(response[0].WEEKLY_RATE);
+                $('#bi_weekly_rate').val(response[0].BI_WEEKLY_RATE);
+                $('#monthly_rate').val(response[0].MONTHLY_RATE);
                 $('#effectivity_date').val(response[0].EFFECTIVITY_DATE);
                 $('#remarks').val(response[0].REMARKS);
 
                 check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#salary_frequency', response[0].SALARY_FREQUENCY, '');
+            }
+        });
+    }
+    else if(form_type == 'salary details'){
+        transaction = 'salary summary details';
+        
+        var salary_id = sessionStorage.getItem('salary_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {salary_id : salary_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#salary_amount').text(response[0].SALARY_AMOUNT);
+                $('#salary_frequency').text(response[0].SALARY_FREQUENCY);
+                $('#hours_per_week').text(response[0].HOURS_PER_WEEK);
+                $('#hours_per_day').text(response[0].HOURS_PER_DAY);
+                $('#minute_rate').text(response[0].MINUTE_RATE);
+                $('#hourly_rate').text(response[0].HOURLY_RATE);
+                $('#daily_rate').text(response[0].DAILY_RATE);
+                $('#weekly_rate').text(response[0].WEEKLY_RATE);
+                $('#bi_weekly_rate').text(response[0].BI_WEEKLY_RATE);
+                $('#monthly_rate').text(response[0].MONTHLY_RATE);
+                $('#effectivity_date').text(response[0].EFFECTIVITY_DATE);
+                $('#remarks').text(response[0].REMARKS);
             }
         });
     }
@@ -11087,6 +11226,42 @@ function display_form_details(form_type){
                 $('#late_deduction_rate').val(response[0].LATE_DEDUCTION_RATE);
                 $('#early_leaving_deduction_rate').val(response[0].EARLY_LEAVING_DEDUCTION_RATE);
                 $('#overtime_rate').val(response[0].OVERTIME_RATE);
+            }
+        });
+    }
+    else if(form_type == 'payroll group form'){
+        transaction = 'payroll group details';
+        
+        var payroll_group_id = sessionStorage.getItem('payroll_group_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {payroll_group_id : payroll_group_id, transaction : transaction},
+            success: function(response) {
+                $('#payroll_group_id').val(payroll_group_id);
+                $('#payroll_group').val(response[0].PAYROLL_GROUP);
+                $('#description').val(response[0].DESCRIPTION);
+               
+                check_empty(response[0].EMPLOYEE_ID.split(','), '#employee_id', 'select');
+            }
+        });
+    }
+    else if(form_type == 'payroll group details'){
+        transaction = 'payroll group summary details';
+        
+        var payroll_group_id = sessionStorage.getItem('payroll_group_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {payroll_group_id : payroll_group_id, transaction : transaction},
+            success: function(response) {
+                document.getElementById('employee').innerHTML = response[0].EMPLOYEE;
+                $('#payroll_group').text(response[0].PAYROLL_GROUP);
+                $('#description').text(response[0].DESCRIPTION);
             }
         });
     }

@@ -779,6 +779,20 @@ CREATE TABLE tblpayrollsetting(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblpayrollgroup(
+	PAYROLL_GROUP_ID INT PRIMARY KEY,
+	PAYROLL_GROUP VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(500) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblpayrollgroupemployee(
+	PAYROLL_GROUP_ID INT NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -826,6 +840,7 @@ CREATE INDEX contribution_bracket_index ON tblcontributionbracket(CONTRIBUTION_B
 CREATE INDEX deduction_index ON tbldeduction(DEDUCTION_ID);
 CREATE INDEX contribution_deduction_index ON tblcontributiondeduction(CONTRIBUTION_DEDUCTION_ID);
 CREATE INDEX payroll_setting_index ON tblpayrollsetting(SETTING_ID);
+CREATE INDEX payroll_group_index ON tblpayrollgroup(PAYROLL_GROUP_ID);
 
 /* Stored Procedure */
 
@@ -5248,9 +5263,9 @@ BEGIN
 	SET @effectivity_date = effectivity_date;
 
 	IF @salary_id IS NULL OR @salary_id = '' THEN
-		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @allowance_id AND EFFECTIVITY_DATE = @effectivity_date';
+		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @employee_id AND EFFECTIVITY_DATE = @effectivity_date';
 	ELSE
-		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @allowance_id AND EFFECTIVITY_DATE = @effectivity_date AND SALARY_ID != @salary_id';
+		SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblsalary WHERE EMPLOYEE_ID = @employee_id AND EFFECTIVITY_DATE = @effectivity_date AND SALARY_ID != @salary_id';
     END IF;
 	
 	PREPARE stmt FROM @query;
@@ -5269,33 +5284,51 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE update_salary(IN salary_id VARCHAR(100), IN basic_pay DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE update_salary(IN salary_id VARCHAR(100), IN salary_amount DOUBLE, IN salary_frequency VARCHAR(20), IN hours_per_week INT, IN hours_per_day INT, IN minute_rate DOUBLE, IN hourly_rate DOUBLE, IN daily_rate DOUBLE, IN weekly_rate DOUBLE, IN bi_weekly_rate DOUBLE, IN monthly_rate DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
 BEGIN
 	SET @salary_id = salary_id;
-	SET @basic_pay = basic_pay;
+	SET @salary_amount = salary_amount;
+	SET @salary_frequency = salary_frequency;
+	SET @hours_per_week = hours_per_week;
+	SET @hours_per_day = hours_per_day;
+	SET @minute_rate = minute_rate;
+	SET @hourly_rate = hourly_rate;
+	SET @daily_rate = daily_rate;
+	SET @weekly_rate = weekly_rate;
+	SET @bi_weekly_rate = bi_weekly_rate;
+	SET @monthly_rate = monthly_rate;
 	SET @effectivity_date = effectivity_date;
 	SET @remarks = remarks;
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'UPDATE tblsalary SET BASIC_PAY = @basic_pay, EFFECTIVITY_DATE = @effectivity_date, REMARKS = @remarks, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SALARY_ID = @salary_id';
+	SET @query = 'UPDATE tblsalary SET SALARY_AMOUNT = @salary_amount, SALARY_FREQUENCY = @salary_frequency, HOURS_PER_WEEK = @hours_per_week, HOURS_PER_DAY = @hours_per_day, MINUTE_RATE = @minute_rate, HOURLY_RATE = @hourly_rate, DAILY_RATE = @daily_rate, WEEKLY_RATE = @weekly_rate, BI_WEEKLY_RATE = @bi_weekly_rate, MONTHLY_RATE = @monthly_rate, EFFECTIVITY_DATE = @effectivity_date, REMARKS = @remarks, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SALARY_ID = @salary_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE insert_salary(IN salary_id VARCHAR(100), IN employee_id VARCHAR(100), IN basic_pay DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+CREATE PROCEDURE insert_salary(IN salary_id VARCHAR(100), IN employee_id VARCHAR(100), IN salary_amount DOUBLE, IN salary_frequency VARCHAR(20), IN hours_per_week INT, IN hours_per_day INT, IN minute_rate DOUBLE, IN hourly_rate DOUBLE, IN daily_rate DOUBLE, IN weekly_rate DOUBLE, IN bi_weekly_rate DOUBLE, IN monthly_rate DOUBLE, IN effectivity_date DATE, IN remarks VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
 BEGIN
 	SET @salary_id = salary_id;
 	SET @employee_id = employee_id;
-	SET @basic_pay = basic_pay;
+	SET @salary_amount = salary_amount;
+	SET @salary_frequency = salary_frequency;
+	SET @hours_per_week = hours_per_week;
+	SET @hours_per_day = hours_per_day;
+	SET @minute_rate = minute_rate;
+	SET @hourly_rate = hourly_rate;
+	SET @daily_rate = daily_rate;
+	SET @weekly_rate = weekly_rate;
+	SET @bi_weekly_rate = bi_weekly_rate;
+	SET @monthly_rate = monthly_rate;
 	SET @effectivity_date = effectivity_date;
 	SET @remarks = remarks;
 	SET @transaction_log_id = transaction_log_id;
 	SET @record_log = record_log;
 
-	SET @query = 'INSERT INTO tblsalary (SALARY_ID, EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@salary_id, @employee_id, @basic_pay, @effectivity_date, @remarks, @transaction_log_id, @record_log)';
+	SET @query = 'INSERT INTO tblsalary (SALARY_ID, EMPLOYEE_ID, SALARY_AMOUNT, SALARY_FREQUENCY, HOURS_PER_WEEK, HOURS_PER_DAY, MINUTE_RATE, HOURLY_RATE, DAILY_RATE, WEEKLY_RATE, BI_WEEKLY_RATE, MONTHLY_RATE, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@salary_id, @employee_id, @salary_amount, @salary_frequency, @hours_per_week, @hours_per_day, @minute_rate, @hourly_rate, @daily_rate, @weekly_rate, @bi_weekly_rate, @monthly_rate, @effectivity_date, @remarks, @transaction_log_id, @record_log)';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -5306,7 +5339,7 @@ CREATE PROCEDURE get_salary_details(IN salary_id VARCHAR(100))
 BEGIN
 	SET @salary_id = salary_id;
 
-	SET @query = 'SELECT EMPLOYEE_ID, BASIC_PAY, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG FROM tblsalary WHERE SALARY_ID = @salary_id';
+	SET @query = 'SELECT EMPLOYEE_ID, SALARY_AMOUNT, SALARY_FREQUENCY, HOURS_PER_WEEK, HOURS_PER_DAY, MINUTE_RATE, HOURLY_RATE, DAILY_RATE, WEEKLY_RATE, BI_WEEKLY_RATE, MONTHLY_RATE, EFFECTIVITY_DATE, REMARKS, TRANSACTION_LOG_ID, RECORD_LOG FROM tblsalary WHERE SALARY_ID = @salary_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -5372,6 +5405,118 @@ BEGIN
 	SET @record_log = record_log;
 
 	SET @query = 'INSERT INTO tblpayrollsetting (SETTING_ID, LATE_DEDUCTION_RATE, EARLY_LEAVING_DEDUCTION_RATE, OVERTIME_RATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@setting_id, @late_deduction_rate, @early_leaving_deduction_rate, @overtime_rate, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblpayrollgroup(
+	PAYROLL_GROUP_ID INT PRIMARY KEY,
+	PAYROLL_GROUP VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(500) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblpayrollgroupemployee(
+	PAYROLL_GROUP_ID INT NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_payroll_group_exist(IN payroll_group_id INT(50))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblpayrollgroup WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_payroll_group(IN payroll_group_id INT(50), IN payroll_group VARCHAR(100), IN description VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+	SET @payroll_group = payroll_group;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblpayrollgroup SET PAYROLL_GROUP = @payroll_group, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_payroll_group(IN payroll_group_id INT(50), IN payroll_group VARCHAR(100), IN description VARCHAR(200), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+	SET @payroll_group = payroll_group;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrollgroup (PAYROLL_GROUP_ID, PAYROLL_GROUP, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@payroll_group_id, @payroll_group, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_payroll_group_employee(IN payroll_group_id INT(50), IN employee_id VARCHAR(100), IN record_log VARCHAR(100))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+	SET @employee_id = employee_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrollgroupemployee (PAYROLL_GROUP_ID, EMPLOYEE_ID, RECORD_LOG) VALUES(@payroll_group_id, @employee_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_payroll_group_details(IN payroll_group_id INT(50))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+
+	SET @query = 'SELECT PAYROLL_GROUP, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblpayrollgroup WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_payroll_group_employee_details(IN payroll_group_id INT(50))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, RECORD_LOG FROM tblpayrollgroupemployee WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_payroll_group(IN payroll_group_id INT(50))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+
+	SET @query = 'DELETE FROM tblpayrollgroup WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_payroll_group_employee(IN payroll_group_id INT(50))
+BEGIN
+	SET @payroll_group_id = payroll_group_id;
+
+	SET @query = 'DELETE FROM tblpayrollgroupemployee WHERE PAYROLL_GROUP_ID = @payroll_group_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

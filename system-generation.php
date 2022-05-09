@@ -2464,13 +2464,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="hours_per_week" class="form-label">Hours Per Week <span class="required">*</span></label>
-                                        <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" value="1">
+                                        <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" min="1">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="hours_per_day" class="form-label">Hours Per Day <span class="required">*</span></label>
-                                        <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" value="1">
+                                        <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" min="1">
                                     </div>
                                 </div>
                             </div>
@@ -2489,19 +2489,25 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="weekly_rate" class="form-label">Weekly Rate</label>
-                                        <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                        <label for="daily_rate" class="form-label">Daily Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="daily_rate" name="daily_rate" value="0.00" readonly>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="weekly_rate" class="form-label">Weekly Rate</label>
+                                        <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="bi_weekly_rate" class="form-label">Bi-Weekly Rate</label>
                                         <input type="text" class="form-control" autocomplete="off" id="bi_weekly_rate" name="bi_weekly_rate" value="0.00" readonly>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="monthly_rate" class="form-label">Monthly Rate</label>
                                         <input type="text" class="form-control" autocomplete="off" id="monthly_rate" name="monthly_rate" value="0.00" readonly>
@@ -2519,7 +2525,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else if($form_type == 'salary update form'){
                 $form .= '<div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Employee <span class="required">*</span></label>
                                     <input type="hidden" id="salary_id" name="salary_id">
@@ -2528,9 +2534,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     $form .='</select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Effectivity Date <span class="required">*</span></label>
                                     <div class="input-group" id="effectivity-date-container">
@@ -2559,13 +2563,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="hours_per_week" class="form-label">Hours Per Week <span class="required">*</span></label>
-                                    <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" value="1">
+                                    <input id="hours_per_week" name="hours_per_week" class="form-control" type="number" min="1">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="hours_per_day" class="form-label">Hours Per Day <span class="required">*</span></label>
-                                    <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" value="1">
+                                    <input id="hours_per_day" name="hours_per_day" class="form-control" type="number" min="1">
                                 </div>
                             </div>
                         </div>
@@ -2584,19 +2588,25 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="weekly_rate" class="form-label">Weekly Rate</label>
-                                    <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                    <label for="daily_rate" class="form-label">Daily Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="daily_rate" name="daily_rate" value="0.00" readonly>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="weekly_rate" class="form-label">Weekly Rate</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="weekly_rate" name="weekly_rate" value="0.00" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="bi_weekly_rate" class="form-label">Bi-Weekly Rate</label>
                                     <input type="text" class="form-control" autocomplete="off" id="bi_weekly_rate" name="bi_weekly_rate" value="0.00" readonly>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="monthly_rate" class="form-label">Monthly Rate</label>
                                     <input type="text" class="form-control" autocomplete="off" id="monthly_rate" name="monthly_rate" value="0.00" readonly>
@@ -2611,6 +2621,35 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>
                         </div>';
+            }
+            else if($form_type == 'payroll group form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="payroll_group" class="form-label">Payroll Group <span class="required">*</span></label>
+                                        <input type="hidden" id="payroll_group_id" name="payroll_group_id">
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="payroll_group" name="payroll_group" maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="description" name="description" maxlength="200" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
             }
 
             $form .= '</form>';
@@ -3403,6 +3442,82 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     </div>
                                 </div>
                             </div>';
+            }
+            else if($element_type == 'salary details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Salary Amount :</th>
+                                        <td id="salary_amount"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Salary Frequency :</th>
+                                        <td id="salary_frequency"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Hours Per Week :</th>
+                                        <td id="hours_per_week"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Hours Per Day :</th>
+                                        <td id="hours_per_day"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Minute Rate :</th>
+                                        <td id="minute_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Hourly Rate :</th>
+                                        <td id="hourly_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Daily Rate :</th>
+                                        <td id="daily_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Weekly Rate :</th>
+                                        <td id="weekly_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Bi-Weekly Rate :</th>
+                                        <td id="bi_weekly_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Monthly Rate :</th>
+                                        <td id="monthly_rate"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Effectivity Date :</th>
+                                        <td id="effectivity_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Remarks :</th>
+                                        <td id="remarks"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'payroll group details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Payroll Group :</th>
+                                        <td id="payroll_group"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description :</th>
+                                        <td id="description"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
             }
 
             $response[] = array(
@@ -9302,6 +9417,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salary_id .'">',
                             'FILE_AS' => $file_as,
                             'SALARY_AMOUNT' => number_format($salary_amount, 2),
+                            'SALARY_AMOUNT' => number_format($salary_amount, 2) . '<p class="text-muted mb-0">'. $salary_frequency .'</p>',
                             'EFFECTIVITY_DATE' => $effectivity_date,
                             'REMARKS' => $remarks,
                             'ACTION' => '<div class="d-flex gap-2">
@@ -9320,6 +9436,73 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 else{
                     echo $sql->errorInfo()[2];
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Payroll group table
+    else if($type == 'payroll group table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_payroll_group = $api->check_role_permissions($username, 294);
+            $delete_payroll_group = $api->check_role_permissions($username, 295);
+            $view_transaction_log = $api->check_role_permissions($username, 296);
+
+            $sql = $api->db_connection->prepare('SELECT PAYROLL_GROUP_ID, PAYROLL_GROUP, DESCRIPTION, TRANSACTION_LOG_ID FROM tblpayrollgroup ORDER BY PAYROLL_GROUP');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $payroll_group_id = $row['PAYROLL_GROUP_ID'];
+                    $payroll_group = $row['PAYROLL_GROUP'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_payroll_group > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-payroll-group" data-payroll-group-id="'. $payroll_group_id .'" title="Edit Payroll Group">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_payroll_group > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-payroll-group" data-payroll-group-id="'. $payroll_group_id .'" title="Delete Payroll Group">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $payroll_group_id .'">',
+                        'PAYROLL_GROUP' => $payroll_group . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light view-payroll-group" data-payroll-group-id="'. $payroll_group_id .'" title="View Payroll Group">
+                                <i class="bx bx-show font-size-16 align-middle"></i>
+                            </button>
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
             }
         }
     }
