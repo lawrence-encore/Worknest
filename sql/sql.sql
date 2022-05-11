@@ -793,6 +793,26 @@ CREATE TABLE tblpayrollgroupemployee(
 	RECORD_LOG VARCHAR(100)
 );
 
+CREATE TABLE tblpayrun(
+	PAY_RUN_ID INT PRIMARY KEY,
+	START_DATE DATE NOT NULL,
+	END_DATE DATE NOT NULL,
+	PAYSLIP_NOTE VARCHAR(500),
+	CONSIDER_OVERTIME INT(1) NOT NULL,
+	STATUS VARCHAR(10) NOT NULL,
+	GENERATION_DATE DATE,
+	GENERATION_TIME TIME,
+	GENERATED_BY VARCHAR(50),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblpayrunpayee(
+	PAY_RUN_ID INT,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
 /* Index */
 
 CREATE INDEX user_account_index ON tbluseraccount(USERNAME);
@@ -841,6 +861,7 @@ CREATE INDEX deduction_index ON tbldeduction(DEDUCTION_ID);
 CREATE INDEX contribution_deduction_index ON tblcontributiondeduction(CONTRIBUTION_DEDUCTION_ID);
 CREATE INDEX payroll_setting_index ON tblpayrollsetting(SETTING_ID);
 CREATE INDEX payroll_group_index ON tblpayrollgroup(PAYROLL_GROUP_ID);
+CREATE INDEX pay_run_index ON tblpayrun(PAY_RUN_ID);
 
 /* Stored Procedure */
 
@@ -5517,6 +5538,114 @@ BEGIN
 	SET @payroll_group_id = payroll_group_id;
 
 	SET @query = 'DELETE FROM tblpayrollgroupemployee WHERE PAYROLL_GROUP_ID = @payroll_group_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_payroll_group_options()
+BEGIN
+	SET @query = 'SELECT PAYROLL_GROUP_ID, PAYROLL_GROUP FROM tblpayrollgroup ORDER BY PAYROLL_GROUP';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblpayrun(
+	PAY_RUN_ID INT PRIMARY KEY,
+	START_DATE DATE NOT NULL,
+	END_DATE DATE NOT NULL,
+	PAYSLIP_NOTE VARCHAR(500),
+	CONSIDER_OVERTIME INT(1) NOT NULL,
+	STATUS VARCHAR(10) NOT NULL,
+	GENERATION_DATE DATE,
+	GENERATION_TIME TIME,
+	GENERATED_BY VARCHAR(50),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblpayrunpayee(
+	PAY_RUN_ID INT,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE insert_pay_run(IN pay_run_id INT(50), IN start_date DATE, IN end_date DATE, IN payslip_note VARCHAR(500), IN consider_overtime INT(1), IN generation_date DATE, IN generation_time TIME, IN generated_by VARCHAR(50), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @payslip_note = payslip_note;
+	SET @consider_overtime = consider_overtime;
+	SET @generation_date = generation_date;
+	SET @generation_time = generation_time;
+	SET @generated_by = generated_by;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrun (PAY_RUN_ID, START_DATE, END_DATE, PAYSLIP_NOTE, CONSIDER_OVERTIME, STATUS, GENERATION_DATE, GENERATION_TIME, GENERATED_BY, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@pay_run_id, @start_date, @end_date, @payslip_note, @consider_overtime, "GEN", @generation_date, @generation_time, @generated_by, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_pay_run_payee(IN pay_run_id INT(50), IN employee_id VARCHAR(100), IN record_log VARCHAR(100))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+	SET @employee_id = employee_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayrunpayee (PAY_RUN_ID, EMPLOYEE_ID, RECORD_LOG) VALUES(@pay_run_id, @employee_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_pay_run_exist(IN pay_run_id INT(50))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblpayrun WHERE PAY_RUN_ID = @pay_run_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_pay_run_status(IN pay_run_id VARCHAR(50), IN status VARCHAR(10), IN record_log VARCHAR(100))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+	SET @status = status;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblpayrun SET STATUS = @status, RECORD_LOG = @record_log WHERE PAY_RUN_ID = @pay_run_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_pay_run_details(IN pay_run_id INT(50))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+
+	SET @query = 'SELECT START_DATE, END_DATE, PAYSLIP_NOTE, CONSIDER_OVERTIME, STATUS, GENERATION_DATE, GENERATION_TIME, GENERATED_BY, TRANSACTION_LOG_ID, RECORD_LOG FROM tblpayrun WHERE PAY_RUN_ID = @pay_run_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_pay_run_payee_details(IN pay_run_id INT(50))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, RECORD_LOG FROM tblpayrunpayee WHERE PAY_RUN_ID = @pay_run_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

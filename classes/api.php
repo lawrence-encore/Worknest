@@ -31,12 +31,12 @@ class Api{
     public function databaseConnection(){
         // if connection already exists
         if ($this->db_connection != null) {
-            return 1;
+            return true;
         } 
         else {
             try {
                 $this->db_connection = new PDO('mysql:host='. DB_HOST .';dbname='. DB_NAME . ';character_set=utf8', DB_USER, DB_PASS);
-                return 1;
+                return true;
             } 
             catch (PDOException $e) {
                 $this->errors[] = $e->getMessage();
@@ -62,7 +62,7 @@ class Api{
             exec('C:\xampp\mysql\bin\mysqldump.exe --routines -u '. DB_USER .' -p'. DB_PASS .' '. DB_NAME .' -r "'. $backup_file .'"  2>&1', $output, $return);
 
             if(!$return) {
-                return 1;
+                return true;
             }
             else {
                 return $return;
@@ -209,7 +209,7 @@ class Api{
         $regex = "/^([a-zA-Z0-9\.]+@+[a-zA-Z]+(\.)+[a-zA-Z]{2,3})$/";
 
         if (preg_match($regex, $email)) {
-            return 1;
+            return true;
         }
         else{
             return 'The email is not valid';
@@ -251,14 +251,14 @@ class Api{
                                     $update_login_attempt = $this->update_login_attempt($username, '', 0, NULL);
 
                                     if($update_login_attempt == 1){
-                                        return 1;
+                                        return true;
                                     }
                                     else{
                                         return $update_login_attempt;
                                     }
                                 }
                                 else{
-                                    return 1;
+                                    return true;
                                 }
                             }
                         }
@@ -361,7 +361,7 @@ class Api{
         }
 
         if ($mail->send()) {
-            return 1;
+            return true;
         } 
         else {
             return 'Mailer Error: ' . $mail->ErrorInfo;
@@ -394,7 +394,7 @@ class Api{
             if($system_notification > 0){
                 $insert_system_notification = $this->insert_system_notification($notification_id, $from, $sent_to, $title, $message, $system_link, $username);
 
-                if($insert_system_notification != 1){
+                if(!$insert_system_notification){
                     $error = $insert_system_notification;
                 }
             }
@@ -403,21 +403,21 @@ class Api{
                 if(!empty($email) && $validate_email == 1){
                     $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
     
-                    if($send_email_notification != 1){
+                    if(!$send_email_notification){
                         $error = $send_email_notification;
                     }
                 }
             }
 
             if(empty($error)){
-                return 1;
+                return true;
             }
             else{
                 return $error;
             }
         }
         else{
-            return 1;
+            return true;
         }
     }
     # -------------------------------------------------------------
@@ -477,7 +477,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_employee');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -499,7 +499,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_record');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -521,7 +521,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_leave_entitlement');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -543,7 +543,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_leave');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -565,7 +565,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_adjustment');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -587,7 +587,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_attendance_creation');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -609,7 +609,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_allowance');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -631,7 +631,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_deduction');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -653,7 +653,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_government_contribution');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -675,7 +675,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_contribution_bracket');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -697,7 +697,7 @@ class Api{
             $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_contribution_deduction');
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -1838,6 +1838,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_pay_run_exist
+    # Purpose    : Checks if the pay run exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_pay_run_exist($pay_run_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_pay_run_exist(:pay_run_id)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -1857,7 +1882,7 @@ class Api{
             $sql->bindValue(':last_failed_attempt_date', $last_failed_attempt_date);
 
             if($sql->execute()){
-               return 1;
+               return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -1885,7 +1910,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($username, 'Update Password', '');
                                     
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -1934,7 +1959,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system parameter (' . $parameter_id . ').');
                                         
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -1948,7 +1973,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system parameter (' . $parameter_id . ').');
                                         
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -1984,7 +2009,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -2028,7 +2053,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated policy (' . $policy_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2042,7 +2067,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated policy (' . $policy_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2095,7 +2120,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated permission (' . $permission_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2109,7 +2134,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated permission (' . $permission_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2162,7 +2187,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated role (' . $role_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2176,7 +2201,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated role (' . $role_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2229,7 +2254,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system code (' . $system_code . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2243,7 +2268,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system code (' . $system_code . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2335,7 +2360,7 @@ class Api{
                                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                                 
                                     if($insert_transaction_log == 1){
-                                        return 1;
+                                        return true;
                                     }
                                     else{
                                         return $insert_transaction_log;
@@ -2349,7 +2374,7 @@ class Api{
                                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                                 
                                         if($insert_transaction_log == 1){
-                                            return 1;
+                                            return true;
                                         }
                                         else{
                                             return $insert_transaction_log;
@@ -2386,7 +2411,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                             
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -2400,7 +2425,7 @@ class Api{
                                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                             
                                     if($insert_transaction_log == 1){
-                                        return 1;
+                                        return true;
                                     }
                                     else{
                                         return $insert_transaction_log;
@@ -2421,7 +2446,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -2470,7 +2495,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated email configuration (' . $mail_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2484,7 +2509,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated email configuration (' . $mail_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2537,7 +2562,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification type (' . $notification_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2551,7 +2576,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification type (' . $notification_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2606,7 +2631,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2620,7 +2645,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2680,7 +2705,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting (' . $company_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2694,7 +2719,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting (' . $company_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2749,7 +2774,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated department (' . $department_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2763,7 +2788,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated department (' . $department_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2816,7 +2841,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation (' . $designation_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2830,7 +2855,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation (' . $designation_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -2883,7 +2908,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation job description (' . $designation_id . ').');
                                     
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -2913,7 +2938,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation job description (' . $designation_id . ').');
                                     
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -2929,7 +2954,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -2973,7 +2998,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated branch (' . $branch_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -2987,7 +3012,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated branch (' . $branch_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3041,7 +3066,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated upload setting (' . $setting_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3055,7 +3080,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated upload setting (' . $setting_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3109,7 +3134,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employment status (' . $employment_status_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3123,7 +3148,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employment status (' . $employment_status_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3192,7 +3217,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee (' . $employee_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3206,7 +3231,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee (' . $employee_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3265,7 +3290,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated emergency contact (' . $contact_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3279,7 +3304,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated emergency contact (' . $contact_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3334,7 +3359,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee address (' . $address_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3348,7 +3373,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee address (' . $address_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3401,7 +3426,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee social (' . $social_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3415,7 +3440,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee social (' . $social_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3469,7 +3494,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift (' . $work_shift_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3483,7 +3508,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift (' . $work_shift_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3561,7 +3586,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift schedule (' . $work_shift_id . ').');
                                     
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -3618,7 +3643,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee attendance (' . $attendance_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3632,7 +3657,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee attendance (' . $attendance_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3687,7 +3712,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave type (' . $leave_type_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3701,7 +3726,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave type (' . $leave_type_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3755,7 +3780,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement (' . $leave_entitlement_id . ').');
 
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -3769,7 +3794,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement (' . $leave_entitlement_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -3812,7 +3837,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement count (' . $leave_entitlement_id . ').');
 
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -3860,7 +3885,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
                                     
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -3890,7 +3915,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
                                     
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -3906,7 +3931,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -3964,7 +3989,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -4014,7 +4039,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4028,7 +4053,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4081,7 +4106,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -4111,7 +4136,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -4127,7 +4152,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -4168,7 +4193,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated user account (' . $user_code . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4182,7 +4207,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated user account (' . $user_code . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4234,7 +4259,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee user account (' . $employee_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4248,7 +4273,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee user account (' . $employee_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4300,7 +4325,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
                                     
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -4346,7 +4371,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
                                     
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -4395,7 +4420,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated holiday (' . $holiday_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4409,7 +4434,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated holiday (' . $holiday_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4468,7 +4493,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance setting (' . $setting_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4482,7 +4507,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance setting (' . $setting_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4546,7 +4571,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance time out (' . $attendance_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4560,7 +4585,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance time out (' . $attendance_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4616,7 +4641,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation (' . $request_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4630,7 +4655,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation (' . $file_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4683,7 +4708,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation file (' . $request_id . ').');
                                     
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -4713,7 +4738,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation file (' . $request_id . ').');
                                     
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -4729,7 +4754,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -4773,7 +4798,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $request_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -4787,7 +4812,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $file_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -4840,7 +4865,7 @@ class Api{
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
                                     
                                 if($insert_transaction_log == 1){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $insert_transaction_log;
@@ -4870,7 +4895,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
                                 
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -4886,7 +4911,7 @@ class Api{
                 }
             }
             else{
-                return 1;
+                return true;
             }
         }
     }
@@ -4955,7 +4980,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -5031,7 +5056,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -5080,7 +5105,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5094,7 +5119,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5147,7 +5172,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5161,7 +5186,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5214,7 +5239,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5228,7 +5253,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5281,7 +5306,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5295,7 +5320,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5349,7 +5374,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5363,7 +5388,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5416,7 +5441,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5430,7 +5455,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5482,7 +5507,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5496,7 +5521,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5530,7 +5555,7 @@ class Api{
             $sql->bindValue(':status', $status);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -5584,7 +5609,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5598,7 +5623,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5652,7 +5677,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5666,7 +5691,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5719,7 +5744,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -5733,7 +5758,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5742,6 +5767,52 @@ class Api{
                     else{
                         return $update_system_parameter_value;
                     }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_pay_run_status
+    # Purpose    : Updates pay run status.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_pay_run_status($pay_run_id, $status, $username){
+        if ($this->databaseConnection()) {
+            $get_pay_run_details = $this->get_pay_run_details($pay_run_id);
+            $transaction_log_id = $get_pay_run_details[0]['TRANSACTION_LOG_ID'];
+
+            if($status == 'UNLOCK'){
+                $record_log = 'ULCK->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Unlock';
+                $log = 'User ' . $username . ' unlocked pay run (' . $pay_run_id . ').';
+            }
+            else{
+                $record_log = 'LCK->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Lock';
+                $log = 'User ' . $username . ' locked pay run (' . $pay_run_id . ').';
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_pay_run_status(:pay_run_id, :status, :record_log)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
+                                    
+                if($insert_transaction_log == 1){
+                    return true;
+                }
+                else{
+                    return $insert_transaction_log;
                 }
             }
             else{
@@ -5775,7 +5846,7 @@ class Api{
             $sql->bindValue(':log', $log);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -5826,7 +5897,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted system parameter (' . $id . ').');
                                         
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5888,7 +5959,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted policy (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -5950,7 +6021,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted permission (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6012,7 +6083,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted role (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6051,7 +6122,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -6092,7 +6163,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted system code (' . $system_code . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -6139,7 +6210,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($username, 'Insert', 'User ' . $username . ' inserted application setting (' . $setting_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -6195,7 +6266,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted email configuration (' . $mail_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -6253,7 +6324,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted notification type (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6308,7 +6379,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted notification details (' . $notification_id . ').');
                                 
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -6343,7 +6414,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -6370,7 +6441,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -6417,7 +6488,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted company setting (' . $company_id . ').');
                                     
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -6477,7 +6548,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted department (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6543,14 +6614,14 @@ class Api{
                                 $update_designation_file = $this->update_designation_file($job_description_tmp_name, $job_description_actual_ext, $id, $username);
         
                                 if($update_designation_file == '1'){
-                                    return 1;
+                                    return true;
                                 }
                                 else{
                                     return $update_designation_file;
                                 }
                             }
                             else{
-                                return 1;
+                                return true;
                             }
                         }
                         else{
@@ -6616,7 +6687,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted branch (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6672,7 +6743,7 @@ class Api{
                 foreach($file_types as $file_type){
                     $insert_upload_file_type = $this->insert_upload_file_type($id, $file_type, $username);
 
-                    if($insert_upload_file_type != '1'){
+                    if(!$insert_upload_file_type){
                         $error = $insert_upload_file_type;
                     }
                 }
@@ -6689,7 +6760,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted upload setting (' . $id . ').');
                                         
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -6732,7 +6803,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -6783,7 +6854,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employment status (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6862,7 +6933,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6931,7 +7002,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted emergency contact (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -6996,7 +7067,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee address (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7059,7 +7130,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee social (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7122,7 +7193,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted work shift (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7203,7 +7274,7 @@ class Api{
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted work shift schedule (' . $work_shift_id . ').');
                                     
                 if($insert_transaction_log == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $insert_transaction_log;
@@ -7234,7 +7305,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -7294,7 +7365,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee attendance (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7358,7 +7429,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave type (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7423,7 +7494,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave entitlement (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7493,7 +7564,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7564,7 +7635,7 @@ class Api{
                             $update_employee_file = $this->update_employee_file($file_tmp_name, $file_actual_ext, $id, $username);
         
                             if($update_employee_file == '1'){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $update_employee_file;
@@ -7621,7 +7692,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted user account (' . $user_code . ').');
                                  
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -7656,7 +7727,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -7711,13 +7782,13 @@ class Api{
                             foreach($branches as $branch){
                                 $insert_holiday_branch = $this->insert_holiday_branch($id, $branch, $username);
     
-                                if($insert_holiday_branch != 1){
+                                if(!$insert_holiday_branch){
                                     $error = $insert_holiday_branch;
                                 }
                             }
 
                             if(empty($error)){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $error;
@@ -7760,7 +7831,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -7805,7 +7876,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance setting (' . $setting_id . ').');
                                 
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -7839,7 +7910,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -7865,7 +7936,7 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -7925,7 +7996,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance time in (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -7995,7 +8066,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted health declaration (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8060,7 +8131,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted location (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8116,7 +8187,7 @@ class Api{
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 25, $username);
 
                 if($update_system_parameter_value == 1){
-                    return 1;
+                    return true;
                 }
                 else{
                     return $update_system_parameter_value;
@@ -8179,7 +8250,7 @@ class Api{
                             $update_attendance_creation_file = $this->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $id, $username);
         
                             if($update_attendance_creation_file == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $update_attendance_creation_file;
@@ -8259,7 +8330,7 @@ class Api{
                             $update_attendance_adjustment_file = $this->update_attendance_adjustment_file($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $id, $username);
         
                             if($update_attendance_adjustment_file == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $update_attendance_adjustment_file;
@@ -8326,7 +8397,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance type (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8390,7 +8461,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8452,7 +8523,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction type (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8514,7 +8585,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted government contribution (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8579,7 +8650,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution bracket (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8643,7 +8714,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8706,7 +8777,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution deduction (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -8760,7 +8831,7 @@ class Api{
             $sql->bindValue(':gender', $gender);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -8788,7 +8859,7 @@ class Api{
             $sql->bindValue(':time_out', $time_out);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -8816,7 +8887,7 @@ class Api{
             $sql->bindValue(':end_date', $end_date);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -8845,7 +8916,7 @@ class Api{
             $sql->bindValue(':leave_reason', $leave_reason);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -8889,7 +8960,7 @@ class Api{
             $sql->bindValue(':decision_by', $decision_by);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -8962,7 +9033,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance adjustment (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -9017,7 +9088,7 @@ class Api{
             $sql->bindValue(':decision_by', $decision_by);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9085,7 +9156,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance creation (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -9125,7 +9196,7 @@ class Api{
             $sql->bindValue(':amount', $amount);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9153,7 +9224,7 @@ class Api{
             $sql->bindValue(':amount', $amount);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9178,7 +9249,7 @@ class Api{
             $sql->bindValue(':description', $description);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9205,7 +9276,7 @@ class Api{
             $sql->bindValue(':deduction_amount', $deduction_amount);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9232,7 +9303,7 @@ class Api{
             $sql->bindValue(':payroll_date', $payroll_date);
 
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9293,7 +9364,7 @@ class Api{
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted salary (' . $id . ').');
                                     
                         if($insert_transaction_log == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $insert_transaction_log;
@@ -9347,7 +9418,7 @@ class Api{
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll setting (' . $setting_id . ').');
                                 
                     if($insert_transaction_log == 1){
-                        return 1;
+                        return true;
                     }
                     else{
                         return $insert_transaction_log;
@@ -9398,7 +9469,7 @@ class Api{
                 foreach($employee_ids as $employee_id){
                     $insert_payroll_group_employee = $this->insert_payroll_group_employee($id, $employee_id, $username);
 
-                    if($insert_payroll_group_employee != '1'){
+                    if(!$insert_payroll_group_employee){
                         $error = $insert_payroll_group_employee;
                     }
                 }
@@ -9415,7 +9486,7 @@ class Api{
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll group (' . $id . ').');
                                         
                             if($insert_transaction_log == 1){
-                                return 1;
+                                return true;
                             }
                             else{
                                 return $insert_transaction_log;
@@ -9458,7 +9529,117 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                return 1;
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_pay_run
+    # Purpose    : Insert pay run.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username){
+        if ($this->databaseConnection()) {
+            $system_date = date('Y-m-d');
+            $current_time = date('H:i:s');
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+            $error = '';
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(37, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_pay_run(:id, :start_date, :end_date, :payslip_note, :consider_overtime, :system_date, :current_time, :username, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+            $sql->bindValue(':payslip_note', $payslip_note);
+            $sql->bindValue(':consider_overtime', $consider_overtime);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':current_time', $current_time);
+            $sql->bindValue(':username', $username);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                foreach($payees as $payee){
+                    $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+
+                    if(!$insert_pay_run_payee){
+                        $error = $insert_pay_run_payee;
+                    }
+                }
+
+                if(empty($error)){
+                    # Update system parameter value
+                    $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 37, $username);
+
+                    if($update_system_parameter_value == 1){
+                        # Update transaction log value
+                        $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                        if($update_system_parameter_value == 1){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted pay run (' . $id . ').');
+                                        
+                            if($insert_transaction_log == 1){
+                                return true;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $update_system_parameter_value;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $error;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_pay_run_payee
+    # Purpose    : Insert pay run payee.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_pay_run_payee($pay_run_id, $payee, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_pay_run_payee(:pay_run_id, :payee, :record_log)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+            $sql->bindValue(':payee', $payee);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9485,7 +9666,7 @@ class Api{
             $sql->bindValue(':parameter_id', $parameter_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9508,7 +9689,7 @@ class Api{
             $sql->bindValue(':policy_id', $policy_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9533,7 +9714,7 @@ class Api{
             $sql->bindValue(':policy_id', $policy_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9556,7 +9737,7 @@ class Api{
             $sql->bindValue(':permission_id', $permission_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9579,7 +9760,7 @@ class Api{
             $sql->bindValue(':role_id', $role_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9602,7 +9783,7 @@ class Api{
             $sql->bindValue(':role_id', $role_id);
         
             if($sql->execute()){
-               return 1;
+               return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9626,7 +9807,7 @@ class Api{
             $sql->bindValue(':system_code', $system_code);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9649,7 +9830,7 @@ class Api{
             $sql->bindValue(':notification_id', $notification_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9672,7 +9853,7 @@ class Api{
             $sql->bindValue(':notification_id', $notification_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9695,7 +9876,7 @@ class Api{
             $sql->bindValue(':notification_id', $notification_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9717,7 +9898,7 @@ class Api{
             $sql = $this->db_connection->prepare('CALL delete_all_application_notification()');
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9740,7 +9921,7 @@ class Api{
             $sql->bindValue(':department_id', $department_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9768,14 +9949,14 @@ class Api{
             if($sql->execute()){
                 if(!empty($job_description)){
                     if (unlink($job_description)) {
-                        return 1;
+                        return true;
                     }
                     else {
                         return $job_description . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return 1;
+                    return true;
                 }
             }
             else{
@@ -9799,7 +9980,7 @@ class Api{
             $sql->bindValue(':branch_id', $branch_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9822,7 +10003,7 @@ class Api{
             $sql->bindValue(':upload_setting_id', $upload_setting_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9845,7 +10026,7 @@ class Api{
             $sql->bindValue(':upload_setting_id', $upload_setting_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9868,7 +10049,7 @@ class Api{
             $sql->bindValue(':employment_status_id', $employment_status_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9891,7 +10072,7 @@ class Api{
             $sql->bindValue(':employee_id', $employee_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9914,7 +10095,7 @@ class Api{
             $sql->bindValue(':contact_id', $contact_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9937,7 +10118,7 @@ class Api{
             $sql->bindValue(':address_id', $address_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9960,7 +10141,7 @@ class Api{
             $sql->bindValue(':social_id', $social_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -9983,7 +10164,7 @@ class Api{
             $sql->bindValue(':work_shift_id', $work_shift_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10006,7 +10187,7 @@ class Api{
             $sql->bindValue(':work_shift_id', $work_shift_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10029,7 +10210,7 @@ class Api{
             $sql->bindValue(':work_shift_id', $work_shift_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10052,7 +10233,7 @@ class Api{
             $sql->bindValue(':employee_id', $employee_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10075,7 +10256,7 @@ class Api{
             $sql->bindValue(':attendance_id', $attendance_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10098,7 +10279,7 @@ class Api{
             $sql->bindValue(':leave_type_id', $leave_type_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10121,7 +10302,7 @@ class Api{
             $sql->bindValue(':leave_entitlement_id', $leave_entitlement_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10144,7 +10325,7 @@ class Api{
             $sql->bindValue(':leave_id', $leave_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10172,14 +10353,14 @@ class Api{
             if($sql->execute()){ 
                 if(!empty($file_path)){
                     if (unlink($file_path)) {
-                        return 1;
+                        return true;
                     }
                     else {
                         return $file_path . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return 1;
+                    return true;
                 }
             }
             else{
@@ -10203,7 +10384,7 @@ class Api{
             $sql->bindValue(':user_code', $user_code);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10226,7 +10407,7 @@ class Api{
             $sql->bindValue(':holiday_id', $holiday_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10249,7 +10430,7 @@ class Api{
             $sql->bindValue(':holiday_id', $holiday_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10271,7 +10452,7 @@ class Api{
             $sql = $this->db_connection->prepare('CALL delete_attendance_creation_approval()');
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10293,7 +10474,7 @@ class Api{
             $sql = $this->db_connection->prepare('CALL delete_attendance_adjustment_approval()');
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10321,14 +10502,14 @@ class Api{
             if($sql->execute()){
                 if(!empty($file_path)){
                     if (unlink($file_path)) {
-                        return 1;
+                        return true;
                     }
                     else {
                         return $file_path . ' cannot be deleted due to an error.';
                     }
                 }
                 else{
-                    return 1;
+                    return true;
                 }
             }
             else{
@@ -10352,7 +10533,7 @@ class Api{
             $sql->bindValue(':allowance_type_id', $allowance_type_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10375,7 +10556,7 @@ class Api{
             $sql->bindValue(':allowance_id', $allowance_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10398,7 +10579,7 @@ class Api{
             $sql->bindValue(':deduction_type_id', $deduction_type_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10421,7 +10602,7 @@ class Api{
             $sql->bindValue(':government_contribution_id', $government_contribution_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10444,7 +10625,7 @@ class Api{
             $sql->bindValue(':government_contribution_id', $government_contribution_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10467,7 +10648,7 @@ class Api{
             $sql->bindValue(':contribution_bracket_id', $contribution_bracket_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10490,7 +10671,7 @@ class Api{
             $sql->bindValue(':deduction_id', $deduction_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10513,7 +10694,7 @@ class Api{
             $sql->bindValue(':contribution_deduction_id', $contribution_deduction_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10536,7 +10717,7 @@ class Api{
             $sql->bindValue(':salary_id', $salary_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10559,7 +10740,7 @@ class Api{
             $sql->bindValue(':payroll_group_id', $payroll_group_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -10582,7 +10763,7 @@ class Api{
             $sql->bindValue(':payroll_group_id', $payroll_group_id);
         
             if($sql->execute()){
-                return 1;
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];
@@ -12690,6 +12871,78 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_pay_run_details
+    # Purpose    : Gets the pay run details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_pay_run_details($pay_run_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_pay_run_details(:pay_run_id)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'START_DATE' => $row['START_DATE'],
+                        'END_DATE' => $row['END_DATE'],
+                        'PAYSLIP_NOTE' => $row['PAYSLIP_NOTE'],
+                        'CONSIDER_OVERTIME' => $row['CONSIDER_OVERTIME'],
+                        'STATUS' => $row['STATUS'],
+                        'GENERATION_DATE' => $row['GENERATION_DATE'],
+                        'GENERATION_TIME' => $row['GENERATION_TIME'],
+                        'GENERATED_BY' => $row['GENERATED_BY'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_pay_run_payee_details
+    # Purpose    : Gets the pay run payee details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_pay_run_payee_details($pay_run_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_payroll_group_employee_details(:pay_run_id)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -14126,6 +14379,39 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_pay_run_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_pay_run_status($stat){
+        $response = array();
+
+        if($stat == 'GEN'){
+            $status = 'Generated';
+            $button_class = 'bg-success';
+        }
+        else if($stat == 'LOCK'){
+            $status = 'Locked';
+            $button_class = 'bg-danger';
+        }
+        else{
+            $status = 'Unlocked';
+            $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
 
@@ -14393,7 +14679,7 @@ class Api{
                         $update_user_interface_settings_images = $this->update_user_interface_settings_images($file_tmp_name, $file_actual_ext, $request, $setting_id, $username);
 
                         if($update_user_interface_settings_images == 1){
-                            return 1;
+                            return true;
                         }
                         else{
                             return $update_user_interface_settings_images;
@@ -14412,7 +14698,7 @@ class Api{
             }
         }
         else{
-            return 1;
+            return true;
         }
     }
     # -------------------------------------------------------------
@@ -14555,7 +14841,7 @@ class Api{
             $failed_login = $user_account_details[0]['FAILED_LOGIN'];
 
             if($active == 0 || $failed_login >= 5){
-                return 1;
+                return true;
             }
             else{
                 return 0;
@@ -15546,6 +15832,41 @@ class Api{
             }
             else{
                 return $sql->errorInfo();
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_payroll_group_options
+    # Purpose    : Generates payroll group options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_payroll_group_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_payroll_group_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $payroll_group_id = $row['PAYROLL_GROUP_ID'];
+                        $payroll_group = $row['PAYROLL_GROUP'];
+    
+                        $option .= "<option value='". $payroll_group_id ."'>". $payroll_group ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
             }
         }
     }

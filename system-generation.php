@@ -2651,6 +2651,76 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'pay run form'){
+                $form .= '<div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">End Date <span class="required">*</span></label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Consider Overtime? <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="consider_overtime" name="consider_overtime">
+                                            <option value="">--</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payroll Group</label>
+                                        <select class="form-control form-select2" multiple="multiple" id="payroll_group_id" name="payroll_group_id">';
+                                        $form .= $api->generate_payroll_group_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee</label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="payslip_note" class="form-label">Payslip Note </label>
+                                        <textarea class="form-control form-maxlength" id="payslip_note" name="payslip_note" maxlength="500" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'send payslip form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Employee <span class="required">*</span></label>
+                                    <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">
+                                    </select>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -9195,7 +9265,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # -------------------------------------------------------------
 
     # Temporary contribution deduction table
-    else if($type == 'temporary contribution deduction table'){
+    else if($type == 'temporary contribution deduction table'){ 
         if ($api->databaseConnection()) {
             $sql = $api->db_connection->prepare('SELECT CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE FROM temp_contribution_deduction');
 
@@ -9508,6 +9578,153 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Pay run table
+    else if($type == 'pay run table'){
+        if(isset($_POST['filter_pay_run_status']) && isset($_POST['filter_pay_run_start_date']) && isset($_POST['filter_pay_run_end_date']) & isset($_POST['filter_generated_start_date']) && isset($_POST['filter_generated_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $delete_pay_run = $api->check_role_permissions($username, 299);
+                $lock_pay_run = $api->check_role_permissions($username, 300);
+                $unlock_pay_run = $api->check_role_permissions($username, 301);
+                $send_payslip = $api->check_role_permissions($username, 302);
+                $view_transaction_log = $api->check_role_permissions($username, 303);
+    
+                $filter_pay_run_status = $_POST['filter_pay_run_status'];
+                $filter_pay_run_start_date = $api->check_date('empty', $_POST['filter_pay_run_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_pay_run_end_date = $api->check_date('empty', $_POST['filter_pay_run_end_date'], '', 'Y-m-d', '', '', '');
+                $filter_generated_start_date = $api->check_date('empty', $_POST['filter_generated_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_generated_end_date = $api->check_date('empty', $_POST['filter_generated_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT PAY_RUN_ID, START_DATE, END_DATE, STATUS, GENERATION_DATE, GENERATION_TIME, TRANSACTION_LOG_ID FROM tblpayrun WHERE ';
+    
+                if(!empty($filter_pay_run_status) || (!empty($filter_pay_run_start_date) && !empty($filter_pay_run_end_date)) || (!empty($filter_generated_start_date) && !empty($filter_generated_end_date))){
+                    if(!empty($filter_pay_run_status)){
+                        $filter[] = 'STATUS = :filter_pay_run_status';
+                    }
+
+                    if(!empty($filter_pay_run_start_date) && !empty($filter_pay_run_end_date)){
+                        $filter[] = 'START_DATE BETWEEN :filter_pay_run_start_date AND :filter_pay_run_end_date';
+                    }
+
+                    if(!empty($filter_generated_start_date) && !empty($filter_generated_end_date)){
+                        $filter[] = 'GENERATION_DATE BETWEEN :filter_generated_start_date AND :filter_generated_end_date';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_pay_run_status) || (!empty($filter_pay_run_start_date) && !empty($filter_pay_run_end_date)) || (!empty($filter_generated_start_date) && !empty($filter_generated_end_date))){
+                    if(!empty($filter_pay_run_status)){
+                        $sql->bindValue(':filter_pay_run_status', $filter_pay_run_status);
+                    }
+
+                    if(!empty($filter_pay_run_start_date) && !empty($filter_pay_run_end_date)){
+                        $sql->bindValue(':filter_pay_run_start_date', $filter_pay_run_start_date);
+                        $sql->bindValue(':filter_pay_run_end_date', $filter_pay_run_end_date);
+                    }
+
+                    if(!empty($filter_generated_start_date) && !empty($filter_generated_end_date)){
+                        $sql->bindValue(':filter_generated_start_date', $filter_generated_start_date);
+                        $sql->bindValue(':filter_generated_end_date', $filter_generated_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $pay_run_id = $row['PAY_RUN_ID'];
+                        $status = $row['STATUS'];
+                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $row['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $generation_date = $api->check_date('empty', $row['GENERATION_DATE'], '', 'm/d/Y', '', '', '');
+                        $generation_time = $api->check_date('empty', $row['GENERATION_TIME'], '', 'h:i:s a', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $pay_run_status = $api->get_pay_run_status($status)[0]['BADGE'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($status == 'LOCK'){
+                            if($unlock_pay_run > 0){
+                                $lock_unlock = '<button class="btn btn-info waves-effect waves-light unlock-pay-run" title="Unlock Pay Run" data-pay-run-id="'. $pay_run_id .'">
+                                <i class="bx bx-lock-open-alt font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $lock_unlock = '';
+                            }
+    
+                            $data_lock = '1';
+                            $delete = '';
+                        }
+                        else{
+                            if($lock_pay_run > 0){
+                                $lock_unlock = '<button class="btn btn-warning waves-effect waves-light lock-pay-run" title="Lock Pay Run" data-pay-run-id="'. $pay_run_id .'">
+                                <i class="bx bx-lock-alt font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $lock_unlock = '';
+                            }
+
+                            if($delete_pay_run > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-pay-run" data-pay-run-id="'. $pay_run_id .'" title="Delete Salary">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+    
+                            $data_lock = '0';
+                        }
+
+                        if($send_payslip > 0){
+                            $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-pay-run-id="'. $pay_run_id .'" title="Send Payslip">
+                                            <i class="bx bx-send font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $send = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-lock="'. $data_lock .'" value="'. $pay_run_id .'">',
+                            'PAY_RUN_ID' => $pay_run_id,
+                            'COVERAGE_DATE' => $start_date . ' - ' . $end_date,
+                            'GENERATION_DATE' => $generation_date . ' ' . $generation_time,
+                            'STATUS' => $pay_run_status,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-pay-run" data-pay-run-id="'. $pay_run_id .'" title="View Pay Run">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $send .'
+                                '. $lock_unlock .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Generate option functions
     # -------------------------------------------------------------
@@ -9534,6 +9751,31 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 else{
                     echo $sql->errorInfo();
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Pay run payee options
+    else if($type == 'pay run payee options'){
+        if ($api->databaseConnection()) {
+            if(isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+                $pay_run_id = $_POST['pay_run_id'];
+
+                $pay_run_payee_details = $api->get_pay_run_payee_details($pay_run_id);
+
+                for($i = 0; $i < count($pay_run_payee_details); $i++) {
+                    $employee_id = $pay_run_payee_details[$i]['EMPLOYEE_ID'];
+                    $employee_details = $api->get_employee_details($employee_id, '');
+                    $file_as = $employee_details[0]['FILE_AS'];
+
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $employee_id,
+                        'FILE_AS' => $file_as
+                    );
+                }
+
+                echo json_encode($response);
             }
         }
     }

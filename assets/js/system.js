@@ -9300,6 +9300,87 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'pay run form'){
+        $('#pay-run-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit pay run';
+
+                var payroll_group_id = $('#payroll_group_id').val();
+                var employee_id = $('#employee_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&payroll_group_id=' + payroll_group_id + '&employee_id=' + employee_id,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Pay Run Success', 'The pay run has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#pay-run-datatable');
+                        }
+                        else if(response === 'Payee'){
+                            show_alert('Pay Run Error', 'Please choose at least one (1) payroll group or employee.', 'error');
+                        }
+                        else{
+                            show_alert('Pay Run Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                start_date: {
+                    required: true
+                },
+                end_date: {
+                    required: true
+                },
+                consider_overtime: {
+                    required: true
+                }
+            },
+            messages: {
+                start_date: {
+                    required: 'Please choose the start date',
+                },
+                end_date: {
+                    required: 'Please choose the end date',
+                },
+                consider_overtime: {
+                    required: 'Please choose if consider overtime',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -9536,6 +9617,11 @@ function generate_form(form_type, form_id, add, username){
                     var loan_details_id = sessionStorage.getItem('loan_details_id');
                     $('#loan_details_id').val(loan_details_id);
                 }
+                else if(form_type == 'send payslip form'){
+                    var pay_run_id = sessionStorage.getItem('pay_run_id');
+
+                    generate_pay_run_payee_option(pay_run_id);
+                }
             }
 
             initialize_elements();
@@ -9701,6 +9787,27 @@ function generate_city_option(province, selected){
         complete: function(){
             if(selected != ''){
                 $('#city').val(selected).change();
+            }
+        }
+    });
+}
+
+function generate_pay_run_payee_option(pay_run_id){
+    var username = $('#username').text();
+    var type = 'pay run payee options';
+
+    $.ajax({
+        url: 'system-generation.php',
+        method: 'POST',
+        dataType: 'JSON',
+        data: {type : type, pay_run_id : pay_run_id, username : username},
+        beforeSend: function(){
+            $('#employee_id').empty();
+        },
+        success: function(response) {
+            for(var i = 0; i < response.length; i++) {
+                newOption = new Option(response[i].FILE_AS, response[i].EMPLOYEE_ID, false, false);
+                $('#employee_id').append(newOption);
             }
         }
     });

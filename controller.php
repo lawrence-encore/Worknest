@@ -17,7 +17,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $authenticate = $api->authenticate($username, $password);
             
-            if($authenticate == 1){
+            if($authenticate){
                 $_SESSION['lock'] = 0;
                 $_SESSION['logged_in'] = 1;
                 $_SESSION['username'] = $username;
@@ -40,13 +40,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $check_user_account_exist = $api->check_user_account_exist($username);
 
-            if($check_user_account_exist == 1){
+            if($check_user_account_exist){
                 $update_user_password = $api->update_user_password($username, $password, $password_expiry_date);
 
-                if($update_user_password == 1){
+                if($update_user_password){
                     $update_login_attempt = $api->update_login_attempt($username, '', 0, NULL);
 
-                    if($update_login_attempt == 1){
+                    if($update_login_attempt){
                         echo 'Updated';
                     }
                     else{
@@ -299,7 +299,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $backup_database = $api->backup_database($file_name, $username);
 
-            if($backup_database == 1){
+            if($backup_database){
                 echo 'Backed-up';
             }
             else{
@@ -345,7 +345,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_employee_table = $api->truncate_temporary_employee_table();
 
-                        if($truncate_temporary_employee_table == 1){
+                        if($truncate_temporary_employee_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -484,7 +484,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_attendance_record_table = $api->truncate_temporary_attendance_record_table();
 
-                        if($truncate_temporary_attendance_record_table == 1){
+                        if($truncate_temporary_attendance_record_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -616,7 +616,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_leave_table = $api->truncate_temporary_leave_table();
 
-                        if($truncate_temporary_leave_table == 1){
+                        if($truncate_temporary_leave_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -730,7 +730,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_leave_table = $api->truncate_temporary_leave_table();
 
-                        if($truncate_temporary_leave_table == 1){
+                        if($truncate_temporary_leave_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -821,7 +821,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($get_available_leave_entitlement > 0){
                         $insert_leave = $api->insert_leave($employee_id[$i], $leave_type[$i], $leave_date[$i], $start_time[$i], $end_time[$i], $leave_status[$i], $leave_reason[$i], $decision_date, $decision_time, $decision_by, $username);
 
-                        if($insert_leave == 1){
+                        if($insert_leave){
                             $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id[$i], $leave_type[$i], $leave_date[$i], $total_hours, $username);
                         }
                     }
@@ -868,7 +868,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_attendance_adjustment_table = $api->truncate_temporary_attendance_adjustment_table();
 
-                        if($truncate_temporary_attendance_adjustment_table == 1){
+                        if($truncate_temporary_attendance_adjustment_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1035,7 +1035,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_attendance_creation_table = $api->truncate_temporary_attendance_creation_table();
 
-                        if($truncate_temporary_attendance_creation_table == 1){
+                        if($truncate_temporary_attendance_creation_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1169,7 +1169,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_allowance_table = $api->truncate_temporary_allowance_table();
 
-                        if($truncate_temporary_allowance_table == 1){
+                        if($truncate_temporary_allowance_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1266,7 +1266,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_deduction_table = $api->truncate_temporary_deduction_table();
 
-                        if($truncate_temporary_deduction_table == 1){
+                        if($truncate_temporary_deduction_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1363,7 +1363,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_government_contribution_table = $api->truncate_temporary_government_contribution_table();
 
-                        if($truncate_temporary_government_contribution_table == 1){
+                        if($truncate_temporary_government_contribution_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1454,7 +1454,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_contribution_bracket_table = $api->truncate_temporary_contribution_bracket_table();
 
-                        if($truncate_temporary_contribution_bracket_table == 1){
+                        if($truncate_temporary_contribution_bracket_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1559,7 +1559,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($import_file_size < $file_max_size){
                         $truncate_temporary_contribution_deduction_table = $api->truncate_temporary_contribution_deduction_table();
 
-                        if($truncate_temporary_contribution_deduction_table == 1){
+                        if($truncate_temporary_contribution_deduction_table){
                             $file = fopen($import_file_tmp_name, 'r');
                             fgetcsv($file);
     
@@ -1669,7 +1669,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $truncate_table = 1;
             }
 
-            if($truncate_table == 1){
+            if($truncate_table){
                 echo 'Truncated';
             }
             else{
@@ -1697,7 +1697,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_system_parameter_exist > 0){
                 $update_system_parameter = $api->update_system_parameter($parameter_id, $parameter, $extension, $parameter_number, $username);
                                         
-                if($update_system_parameter == 1){
+                if($update_system_parameter){
                     echo 'Updated';
                 }
                 else{
@@ -1707,7 +1707,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_system_parameter = $api->insert_system_parameter($parameter, $extension, $parameter_number, $username);
                         
-                if($insert_system_parameter == 1){
+                if($insert_system_parameter){
                     echo 'Inserted';
                 }
                 else{
@@ -1731,7 +1731,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_policy_exist > 0){
                 $update_policy = $api->update_policy($policy, $policy_id, $description, $username);
 
-                if($update_policy == 1){
+                if($update_policy){
                     echo 'Updated';
                 }
                 else{
@@ -1741,7 +1741,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_policy = $api->insert_policy($policy, $description, $username);
 
-                if($insert_policy == 1){
+                if($insert_policy){
                     echo 'Inserted';
                 }
                 else{
@@ -1765,7 +1765,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_permission_exist > 0){
                 $update_permission = $api->update_permission($permission_id, $policy_id, $permission, $username);
 
-                if($update_permission == 1){
+                if($update_permission){
                     echo 'Updated';
                 }
                 else{
@@ -1775,7 +1775,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_permission = $api->insert_permission($policy_id, $permission, $username);
 
-                if($insert_permission == 1){
+                if($insert_permission){
                     echo 'Inserted';
                 }
                 else{
@@ -1799,7 +1799,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_role_exist > 0){
                 $update_role = $api->update_role($role_id, $role, $description, $username);
 
-                if($update_role == 1){
+                if($update_role){
                     echo 'Updated';
                 }
                 else{
@@ -1809,7 +1809,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_role = $api->insert_role($role, $description, $username);
 
-                if($insert_role == 1){
+                if($insert_role){
                     echo 'Inserted';
                 }
                 else{
@@ -1832,14 +1832,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $check_role_exist = $api->check_role_exist($role_id);
 
-            if($check_role_exist == 1){
+            if($check_role_exist){
                 $delete_permission_role = $api->delete_permission_role($role_id, $username);
 
-                if($delete_permission_role == 1){
+                if($delete_permission_role){
                     foreach($permissions as $permission){
                         $insert_permission_role = $api->insert_permission_role($role_id, $permission, $username);
 
-                        if($insert_permission_role != 1){
+                        if(!$insert_permission_role){
                             $error = $insert_permission_role;
                         }
                     }
@@ -1847,7 +1847,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if(empty($error)){
                         $insert_transaction_log = $api->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated role permission (' . $role_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             echo 'Assigned';
                         }
                         else{
@@ -1882,7 +1882,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_system_code_exist > 0){
                 $update_system_code = $api->update_system_code($system_type, $system_code, $system_description, $username);
                                     
-                if($update_system_code == 1){
+                if($update_system_code){
                     echo 'Updated';
                 }
                 else{
@@ -1892,7 +1892,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_system_code = $api->insert_system_code($system_type, $system_code, $system_description, $username);
                         
-                if($insert_system_code == 1){
+                if($insert_system_code){
                     echo 'Inserted';
                 }
                 else{
@@ -1915,22 +1915,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_interface_settings_exist > 0){
                 $login_bg_upload = $api->check_user_interface_upload($_FILES['login_bg'], 'login background', $setting_id, $username);
 
-                if($login_bg_upload == 1){
+                if($login_bg_upload){
                     $logo_light_upload = $api->check_user_interface_upload($_FILES['logo_light'], 'logo light', $setting_id, $username);
 
-                    if($logo_light_upload == 1){
+                    if($logo_light_upload){
                         $logo_dark_upload = $api->check_user_interface_upload($_FILES['logo_dark'], 'logo dark', $setting_id, $username);
 
-                        if($logo_dark_upload == 1){
+                        if($logo_dark_upload){
                             $logo_icon_light_upload = $api->check_user_interface_upload($_FILES['login_icon_light'], 'logo icon light', $setting_id, $username);
 
-                            if($logo_icon_light_upload == 1){
+                            if($logo_icon_light_upload){
                                 $logo_icon_dark_upload = $api->check_user_interface_upload($_FILES['login_icon_dark'], 'logo icon dark', $setting_id, $username);
 
-                                if($logo_icon_dark_upload == 1){
+                                if($logo_icon_dark_upload){
                                     $favicon_upload = $api->check_user_interface_upload($_FILES['favicon_image'], 'favicon image', $setting_id, $username);
 
-                                    if($favicon_upload == 1){
+                                    if($favicon_upload){
                                         echo 'Updated';
                                     }
                                     else{
@@ -1960,25 +1960,25 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_user_interface_settings = $api->insert_user_interface_settings($setting_id, $username);
 
-                if($insert_user_interface_settings == 1){
+                if($insert_user_interface_settings){
                     $login_bg_upload = $api->check_user_interface_upload($_FILES['login_bg'], 'login background', $setting_id, $username);
 
-                    if($login_bg_upload == 1){
+                    if($login_bg_upload){
                         $logo_light_upload = $api->check_user_interface_upload($_FILES['logo_light'], 'logo light', $setting_id, $username);
     
-                        if($logo_light_upload == 1){
+                        if($logo_light_upload){
                             $logo_dark_upload = $api->check_user_interface_upload($_FILES['logo_dark'], 'logo dark', $setting_id, $username);
     
-                            if($logo_dark_upload == 1){
+                            if($logo_dark_upload){
                                 $logo_icon_light_upload = $api->check_user_interface_upload($_FILES['login_icon_light'], 'logo icon light', $setting_id, $username);
     
-                                if($logo_icon_light_upload == 1){
+                                if($logo_icon_light_upload){
                                     $logo_icon_dark_upload = $api->check_user_interface_upload($_FILES['login_icon_dark'], 'logo icon dark', $setting_id, $username);
     
-                                    if($logo_icon_dark_upload == 1){
+                                    if($logo_icon_dark_upload){
                                         $favicon_upload = $api->check_user_interface_upload($_FILES['favicon_image'], 'favicon image', $setting_id, $username);
     
-                                        if($favicon_upload == 1){
+                                        if($favicon_upload){
                                             echo 'Inserted';
                                         }
                                         else{
@@ -2033,7 +2033,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_mail_configuration_exist > 0){
                 $update_email_configuration = $api->update_email_configuration($mail_id, $mail_host, $port, $smtp_auth, $smtp_auto_tls, $mail_user, $mail_password, $mail_encryption, $mail_from_name, $mail_from_email, $username);
 
-                if($update_email_configuration == 1){
+                if($update_email_configuration){
                     echo 'Updated';
                 }
                 else{
@@ -2043,7 +2043,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_email_configuration = $api->insert_email_configuration($mail_id, $mail_host, $port, $smtp_auth, $smtp_auto_tls, $mail_user, $mail_password, $mail_encryption, $mail_from_name, $mail_from_email, $username);
 
-                if($insert_email_configuration == 1){
+                if($insert_email_configuration){
                     echo 'Inserted';
                 }
                 else{
@@ -2067,7 +2067,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_notification_type_exist > 0){
                 $update_notification_type = $api->update_notification_type($notification_id, $notification, $description, $username);
 
-                if($update_notification_type == 1){
+                if($update_notification_type){
                     echo 'Updated';
                 }
                 else{
@@ -2077,7 +2077,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_notification_type = $api->insert_notification_type($notification, $description, $username);
 
-                if($insert_notification_type == 1){
+                if($insert_notification_type){
                     echo 'Inserted';
                 }
                 else{
@@ -2105,14 +2105,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_notification_details_exist > 0){
                 $update_notification_details = $api->update_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username);
 
-                if($update_notification_details == 1){
+                if($update_notification_details){
                     $delete_notification_recipient = $api->delete_notification_recipient($notification_id);
 
-                    if($delete_notification_recipient == 1){
+                    if($delete_notification_recipient){
                         foreach($notification_recipients as $notification_recipient){
                             $insert_notification_recipient = $api->insert_notification_recipient($notification_id, $notification_recipient, $username);
     
-                            if($insert_notification_recipient != 1){
+                            if(!$insert_notification_recipient){
                                 $error = $insert_notification_recipient;
                             }
                         }
@@ -2128,11 +2128,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_notification_details = $api->insert_notification_details($notification_id, $notification_title, $notification_message, $system_link, $web_link, $username);
 
-                if($insert_notification_details == 1){
+                if($insert_notification_details){
                     foreach($notification_recipients as $notification_recipient){
                         $insert_notification_recipient = $api->insert_notification_recipient($notification_id, $notification_recipient, $username);
 
-                        if($insert_notification_recipient != 1){
+                        if(!$insert_notification_recipient){
                             $error = $insert_notification_recipient;
                         }
                     }
@@ -2161,7 +2161,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $delete_all_application_notification = $api->delete_all_application_notification($username);
 
-            if($delete_all_application_notification == 1){
+            if($delete_all_application_notification){
                 foreach($notifications as $notification){            
                     $notification_string = explode('-', $notification);
                     $notification_id = $notification_string[0];
@@ -2169,7 +2169,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                     $insert_application_notification = $api->insert_application_notification($notification_id, $notification_type, $username);
 
-                    if($insert_application_notification != 1){
+                    if(!$insert_application_notification){
                         $error = $insert_application_notification;
                     }
                 }
@@ -2207,7 +2207,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_company_setting_exist > 0){
                 $update_company_setting = $api->update_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
 
-                if($update_company_setting == 1){
+                if($update_company_setting){
                     echo 'Updated';
                 }
                 else{
@@ -2217,7 +2217,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_company_setting = $api->insert_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
 
-                if($insert_company_setting == 1){
+                if($insert_company_setting){
                     echo 'Updated';
                 }
                 else{
@@ -2243,7 +2243,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_department_exist > 0){
                 $update_department = $api->update_department($department_id, $department, $description, $department_head, $parent_department, $username);
 
-                if($update_department == 1){
+                if($update_department){
                     echo 'Updated';
                 }
                 else{
@@ -2253,7 +2253,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_department = $api->insert_department($department, $description, $department_head, $parent_department, $username);
 
-                if($insert_department == 1){
+                if($insert_department){
                     echo 'Inserted';
                 }
                 else{
@@ -2303,10 +2303,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($job_description_size < $file_max_size){
                                 $update_designation_file = $api->update_designation_file($job_description_tmp_name, $job_description_actual_ext, $designation_id, $username);
         
-                                if($update_designation_file == 1){
+                                if($update_designation_file){
                                     $update_designation = $api->update_designation($designation_id, $designation, $description, $username);
 
-                                    if($update_designation == 1){
+                                    if($update_designation){
                                         echo 'Updated';
                                     }
                                     else{
@@ -2332,7 +2332,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_designation = $api->update_designation($designation_id, $designation, $description, $username);
 
-                    if($update_designation == 1){
+                    if($update_designation){
                         echo 'Updated';
                     }
                     else{
@@ -2347,7 +2347,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($job_description_size < $file_max_size){
                                 $insert_designation = $api->insert_designation($job_description_tmp_name, $job_description_actual_ext, $designation, $description, $username);
 
-                                if($insert_designation == 1){
+                                if($insert_designation){
                                     echo 'Inserted';
                                 }
                                 else{
@@ -2369,7 +2369,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $insert_designation = $api->insert_designation('', '', $designation, $description, $username);
 
-                    if($insert_designation == 1){
+                    if($insert_designation){
                         echo 'Inserted';
                     }
                     else{
@@ -2397,7 +2397,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_branch_exist > 0){
                 $update_branch = $api->update_branch($branch_id, $branch, $email, $phone, $telephone, $address, $username);
 
-                if($update_branch == 1){
+                if($update_branch){
                     echo 'Updated';
                 }
                 else{
@@ -2407,7 +2407,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_branch = $api->insert_branch($branch, $email, $phone, $telephone, $address, $username);
 
-                if($insert_branch == 1){
+                if($insert_branch){
                     echo 'Inserted';
                 }
                 else{
@@ -2434,14 +2434,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_upload_setting_exist > 0){
                 $update_upload_setting = $api->update_upload_setting($upload_setting_id, $upload_setting, $description, $max_file_size, $username);
 
-                if($update_upload_setting == 1){
+                if($update_upload_setting){
                     $delete_all_upload_file_type = $api->delete_all_upload_file_type($upload_setting_id, $username);
 
-                    if($delete_all_upload_file_type == 1){
+                    if($delete_all_upload_file_type){
                         foreach($file_types as $file_type){
                             $insert_upload_file_type = $api->insert_upload_file_type($upload_setting_id, $file_type, $username);
 
-                            if($insert_upload_file_type != 1){
+                            if(!$insert_upload_file_type){
                                 $error = $insert_upload_file_type;
                             }
                         }
@@ -2464,7 +2464,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_upload_setting = $api->insert_upload_setting($upload_setting, $description, $max_file_size, $file_types, $username);
 
-                if($insert_upload_setting == 1){
+                if($insert_upload_setting){
                     echo 'Inserted';
                 }
                 else{
@@ -2489,7 +2489,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employment_status_exist > 0){
                 $update_employment_status = $api->update_employment_status($employment_status_id, $employment_status, $color_value, $description, $username);
 
-                if($update_employment_status == 1){
+                if($update_employment_status){
                     echo 'Updated';
                 }
                 else{
@@ -2499,7 +2499,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_employment_status = $api->insert_employment_status($employment_status, $color_value, $description, $username);
 
-                if($insert_employment_status == 1){
+                if($insert_employment_status){
                     echo 'Inserted';
                 }
                 else{
@@ -2540,7 +2540,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_exist > 0){
                 $update_employee = $api->update_employee($employee_id, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username);
 
-                if($update_employee == 1){
+                if($update_employee){
                     echo 'Updated';
                 }
                 else{
@@ -2553,7 +2553,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_employee_id_number_exist == 0){
                     $insert_employee = $api->insert_employee($id_number, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $employment_status, $joining_date, $permanency_date, $exit_date, $exit_reason, $email, $phone, $telephone, $department, $designation, $branch, $gender, $username);
 
-                    if($insert_employee == 1){
+                    if($insert_employee){
                         echo 'Inserted';
                     }
                     else{
@@ -2588,7 +2588,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_emergency_contact_exist > 0){
                 $update_emergency_contact = $api->update_emergency_contact($contact_id, $contact_name, $relationship, $email, $phone, $telephone, $address, $city, $province, $username);
 
-                if($update_emergency_contact == 1){
+                if($update_emergency_contact){
                     echo 'Updated';
                 }
                 else{
@@ -2598,7 +2598,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_emergency_contact = $api->insert_emergency_contact($employee_id, $contact_name, $relationship, $email, $phone, $telephone, $address, $city, $province, $username);
 
-                if($insert_emergency_contact == 1){
+                if($insert_emergency_contact){
                     echo 'Inserted';
                 }
                 else{
@@ -2625,7 +2625,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_address_exist > 0){
                 $update_employee_address = $api->update_employee_address($address_id, $address_type, $address, $city, $province, $username);
 
-                if($update_employee_address == 1){
+                if($update_employee_address){
                     echo 'Updated';
                 }
                 else{
@@ -2635,7 +2635,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_employee_address = $api->insert_employee_address($employee_id, $address_type, $address, $city, $province, $username);
 
-                if($insert_employee_address == 1){
+                if($insert_employee_address){
                     echo 'Inserted';
                 }
                 else{
@@ -2660,7 +2660,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_social_exist > 0){
                 $update_employee_social = $api->update_employee_social($social_id, $social_type, $link, $username);
 
-                if($update_employee_social == 1){
+                if($update_employee_social){
                     echo 'Updated';
                 }
                 else{
@@ -2670,7 +2670,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_employee_social = $api->insert_employee_social($employee_id, $social_type, $link, $username);
 
-                if($insert_employee_social == 1){
+                if($insert_employee_social){
                     echo 'Inserted';
                 }
                 else{
@@ -2695,7 +2695,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_work_shift_exist > 0){
                 $update_work_shift = $api->update_work_shift($work_shift_id, $work_shift, $work_shift_type, $description, $username);
 
-                if($update_work_shift == 1){
+                if($update_work_shift){
                     echo 'Updated';
                 }
                 else{
@@ -2705,7 +2705,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_work_shift = $api->insert_work_shift($work_shift, $work_shift_type, $description, $username);
 
-                if($insert_work_shift == 1){
+                if($insert_work_shift){
                     echo 'Inserted';
                 }
                 else{
@@ -2762,7 +2762,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_work_shift_schedule_exist > 0){
                 $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
-                if($update_work_shift_schedule == 1){
+                if($update_work_shift_schedule){
                     echo 'Updated';
                 }
                 else{
@@ -2772,7 +2772,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, null, null, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
-                if($insert_work_shift_schedule == 1){
+                if($insert_work_shift_schedule){
                     echo 'Inserted';
                 }
                 else{
@@ -2831,7 +2831,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_work_shift_schedule_exist > 0){
                 $update_work_shift_schedule = $api->update_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
-                if($update_work_shift_schedule == 1){
+                if($update_work_shift_schedule){
                     echo 'Updated';
                 }
                 else{
@@ -2841,7 +2841,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_work_shift_schedule = $api->insert_work_shift_schedule($work_shift_id, $start_date, $end_date, $monday_start_time, $monday_end_time, $monday_lunch_start_time, $monday_lunch_end_time, $monday_half_day_mark, $tuesday_start_time, $tuesday_end_time, $tuesday_lunch_start_time, $tuesday_lunch_end_time, $tuesday_half_day_mark, $wednesday_start_time, $wednesday_end_time, $wednesday_lunch_start_time, $wednesday_lunch_end_time, $wednesday_half_day_mark, $thursday_start_time, $thursday_end_time, $thursday_lunch_start_time, $thursday_lunch_end_time, $thursday_half_day_mark, $friday_start_time, $friday_end_time, $friday_lunch_start_time, $friday_lunch_end_time, $friday_half_day_mark, $saturday_start_time, $saturday_end_time, $saturday_lunch_start_time, $saturday_lunch_end_time, $saturday_half_day_mark, $sunday_start_time, $sunday_end_time, $sunday_lunch_start_time, $sunday_lunch_end_time, $sunday_half_day_mark, $username);
 
-                if($insert_work_shift_schedule == 1){
+                if($insert_work_shift_schedule){
                     echo 'Inserted';
                 }
                 else{
@@ -2864,14 +2864,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_work_shift_exist > 0){
                 $delete_employee_work_shift = $api->delete_employee_work_shift($work_shift_id, $username);
 
-                if($delete_employee_work_shift == 1){
+                if($delete_employee_work_shift){
                     foreach($employees as $employee){
                         $delete_employee_work_shift_assignment = $api->delete_employee_work_shift_assignment($employee, $username);
 
-                        if($delete_employee_work_shift_assignment == 1){
+                        if($delete_employee_work_shift_assignment){
                             $insert_employee_work_shift = $api->insert_employee_work_shift($work_shift_id, $employee, $username);
 
-                            if($insert_employee_work_shift != 1){
+                            if(!$insert_employee_work_shift){
                                 $error = $insert_employee_work_shift;
                             }
                         }
@@ -2941,7 +2941,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($get_clock_in_total < $max_attendance){
                             $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_id, $time_in_date, $time_in, $time_in_behavior, $time_out_date, $time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, $remarks, $username);
 
-                            if($update_manual_employee_attendance == 1){
+                            if($update_manual_employee_attendance){
                                 echo 'Updated';
                             }
                             else{
@@ -2955,7 +2955,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     else{
                         $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_id, $time_in_date, $time_in, $time_in_behavior, $time_out_date, $time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, $remarks, $username);
 
-                        if($update_manual_employee_attendance == 1){
+                        if($update_manual_employee_attendance){
                             echo 'Updated';
                         }
                         else{
@@ -2967,7 +2967,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($get_clock_in_total < $max_attendance){
                         $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($employee_id, $time_in_date, $time_in, $time_in_behavior, $time_out_date, $time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, $remarks, $username);
 
-                        if($insert_manual_employee_attendance == 1){
+                        if($insert_manual_employee_attendance){
                             echo 'Inserted';
                         }
                         else{
@@ -3001,7 +3001,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_type_exist > 0){
                 $update_leave_type = $api->update_leave_type($leave_type_id, $leave_name, $description, $no_leaves, $paid_status, $username);
 
-                if($update_leave_type == 1){
+                if($update_leave_type){
                     echo 'Updated';
                 }
                 else{
@@ -3011,7 +3011,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_leave_type = $api->insert_leave_type($leave_name, $description, $no_leaves, $paid_status, $username);
 
-                if($insert_leave_type == 1){
+                if($insert_leave_type){
                     echo 'Updated';
                 }
                 else{
@@ -3039,7 +3039,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($leave_overlap == 0){
                     $insert_leave_entitlement = $api->insert_leave_entitlement($employee, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement != 1){
+                    if(!$insert_leave_entitlement){
                         $error = $insert_leave_entitlement;
                     }
                 }
@@ -3080,7 +3080,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($leave_entitlement_overlap == 0){
                         $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
 
-                        if($update_leave_entitlement == 1){
+                        if($update_leave_entitlement){
                             echo 'Updated';
                         }
                         else{
@@ -3094,7 +3094,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
 
-                    if($update_leave_entitlement == 1){
+                    if($update_leave_entitlement){
                         echo 'Updated';
                     }
                     else{
@@ -3108,7 +3108,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($leave_entitlement_overlap == 0){
                     $insert_leave_entitlement = $api->insert_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement == 1){
+                    if($insert_leave_entitlement){
                         echo 'Updated';
                     }
                     else{
@@ -3148,7 +3148,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($leave_entitlement_overlap == 0){
                         $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
 
-                        if($update_leave_entitlement == 1){
+                        if($update_leave_entitlement){
                             echo 'Updated';
                         }
                         else{
@@ -3162,7 +3162,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_leave_entitlement = $api->update_leave_entitlement($leave_entitlement_id, $no_leaves, $start_date, $end_date, $username);
 
-                    if($update_leave_entitlement == 1){
+                    if($update_leave_entitlement){
                          echo 'Updated';
                     }
                     else{
@@ -3176,7 +3176,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($leave_entitlement_overlap == 0){
                     $insert_leave_entitlement = $api->insert_leave_entitlement($employee_id, $leave_type, $no_leaves, $start_date, $end_date, $username);
 
-                    if($insert_leave_entitlement == 1){
+                    if($insert_leave_entitlement){
                         echo 'Inserted';
                     }
                     else{
@@ -3258,10 +3258,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($get_available_leave_entitlement > 0){
                     $insert_leave = $api->insert_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, $leave_status, $reason, $decision_date, $decision_time, $decision_by, $username);
 
-                    if($insert_leave == 1){
+                    if($insert_leave){
                         $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
+                        if(!$update_leave_entitlement_count){
                             $error = $update_leave_entitlement_count;
                             break;
                         }
@@ -3329,10 +3329,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($employee_file_size < $file_max_size){
                                 $update_employee_file = $api->update_employee_file($employee_file_tmp_name, $employee_file_actual_ext, $file_id, $username);
         
-                                if($update_employee_file == 1){
+                                if($update_employee_file){
                                     $update_employee_file_details = $api->update_employee_file_details($file_id, $file_name, $file_category, $remarks, $file_date, $username);
 
-                                    if($update_employee_file_details == 1){
+                                    if($update_employee_file_details){
                                         echo 'Updated';
                                     }
                                     else{
@@ -3358,7 +3358,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_employee_file_details = $api->update_employee_file_details($file_id, $file_name, $file_category, $remarks, $file_date, $username);
 
-                    if($update_employee_file_details == 1){
+                    if($update_employee_file_details){
                         echo 'Updated';
                     }
                     else{
@@ -3372,7 +3372,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($employee_file_size < $file_max_size){
                             $insert_employee_file = $api->insert_employee_file($employee_file_tmp_name, $employee_file_actual_ext, $employee_id, $file_name, $file_category, $remarks, $file_date, $system_date, $current_time, $username);
 
-                            if($insert_employee_file == 1){
+                            if($insert_employee_file){
                                 echo 'Inserted';
                             }
                             else{
@@ -3414,14 +3414,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account = $api->update_user_account($user_code, $password, $password_expiry_date, $username);
 
-                if($update_user_account == 1){
+                if($update_user_account){
                     $delete_all_role_users = $api->delete_all_user_role($user_code);
 
-                    if($delete_all_role_users == 1){
+                    if($delete_all_role_users){
                         foreach($roles as $role){
                             $insert_user_role = $api->insert_user_role($user_code, $role, $username);
 
-                            if($insert_user_role != 1){
+                            if(!$insert_user_role){
                                 $error = $insert_user_role;
                             }
                         }
@@ -3444,11 +3444,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_user_account = $api->insert_user_account($user_code, $password, $password_expiry_date, $username);
 
-                if($insert_user_account == 1){
+                if($insert_user_account){
                     foreach($roles as $role){
                         $insert_user_role = $api->insert_user_role($user_code, $role, $username);
 
-                        if($insert_user_role != 1){
+                        if(!$insert_user_role){
                             $error = $insert_user_role;
                         }
                     }
@@ -3457,7 +3457,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if(!empty($employee_id)){
                             $update_employee_user_account = $api->update_employee_user_account($employee_id, $user_code, $username);
 
-                            if($update_employee_user_account == 1){
+                            if($update_employee_user_account){
                                 echo 'Inserted';
                             }
                             else{
@@ -3498,14 +3498,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account = $api->update_user_account($user_code, $password, $password_expiry_date, $username);
 
-                if($update_user_account == 1){
+                if($update_user_account){
                     $delete_all_role_users = $api->delete_all_user_role($user_code);
 
-                    if($delete_all_role_users == 1){
+                    if($delete_all_role_users){
                         foreach($roles as $role){
                             $insert_user_role = $api->insert_user_role($user_code, $role, $username);
 
-                            if($insert_user_role != 1){
+                            if(!$insert_user_role){
                                 $error = $insert_user_role;
                             }
                         }
@@ -3548,14 +3548,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_holiday_exist > 0){
                 $update_holiday = $api->update_holiday($holiday_id, $holiday, $holiday_date, $holiday_type, $username);
 
-                if($update_holiday == 1){
+                if($update_holiday){
                     $delete_all_holiday_branch = $api->delete_all_holiday_branch($holiday_id);
 
-                    if($delete_all_holiday_branch == 1){
+                    if($delete_all_holiday_branch){
                         foreach($branches as $branch){
                             $insert_holiday_branch = $api->insert_holiday_branch($holiday_id, $branch, $username);
 
-                            if($insert_holiday_branch != 1){
+                            if(!$insert_holiday_branch){
                                 $error = $insert_holiday_branch;
                             }
                         }
@@ -3578,7 +3578,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_holiday = $api->insert_holiday($holiday, $holiday_date, $holiday_type, $branches, $username);
 
-                if($insert_holiday == 1){
+                if($insert_holiday){
                    echo 'Inserted';
                 }
                 else{
@@ -3611,14 +3611,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_setting_exist > 0){
                 $update_attendance_setting = $api->update_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
 
-                if($update_attendance_setting == 1){
+                if($update_attendance_setting){
                     $delete_attendance_creation_approval = $api->delete_attendance_creation_approval();
 
-                    if($delete_attendance_creation_approval == 1){
+                    if($delete_attendance_creation_approval){
                         foreach($attendance_creation_approvals as $attendance_creation_approval){
                             $insert_attendance_creation_approval = $api->insert_attendance_creation_approval($attendance_creation_approval, $username);
 
-                            if($insert_attendance_creation_approval != 1){
+                            if(!$insert_attendance_creation_approval){
                                 $error = $insert_attendance_creation_approval;
                             }
                         }
@@ -3629,11 +3629,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                     $delete_attendance_adjustment_approval = $api->delete_attendance_adjustment_approval();
 
-                    if($delete_attendance_adjustment_approval == 1){
+                    if($delete_attendance_adjustment_approval){
                         foreach($attendance_adjustment_approvals as $attendance_adjustment_approval){
                             $insert_attendance_adjustment_approval = $api->insert_attendance_adjustment_approval($attendance_adjustment_approval, $username);
 
-                            if($insert_attendance_adjustment_approval != 1){
+                            if(!$insert_attendance_adjustment_approval){
                                 $error = $insert_attendance_adjustment_approval;
                             }
                         }
@@ -3656,11 +3656,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_attendance_setting = $api->insert_attendance_setting($setting_id, $maximum_attendance, $time_out_allowance, $late_allowance, $late_policy, $early_leaving_policy, $overtime_policy, $attendance_creation_recommendation, $attendance_adjustment_recommendation, $username);
 
-                if($insert_attendance_setting == 1){
+                if($insert_attendance_setting){
                     foreach($attendance_adjustment_approvals as $attendance_adjustment_approval){
                         $insert_attendance_creation_approval = $api->insert_attendance_creation_approval($attendance_adjustment_approval, $username);
 
-                        if($insert_attendance_creation_approval != 1){
+                        if(!$insert_attendance_creation_approval){
                             $error = $insert_attendance_creation_approval;
                         }
                     }
@@ -3668,7 +3668,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     foreach($attendance_adjustment_approvals as $attendance_adjustment_approval){
                         $insert_attendance_adjustment_approval = $api->insert_attendance_adjustment_approval($attendance_adjustment_approval, $username);
 
-                        if($insert_attendance_adjustment_approval != 1){
+                        if(!$insert_attendance_adjustment_approval){
                             $error = $insert_attendance_adjustment_approval;
                         }
                     }
@@ -3719,7 +3719,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($insert_time_in > 0){
                         $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Recorded';
                         }
                         else{
@@ -3741,7 +3741,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($insert_time_in > 0){
                         $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Recorded';
                         }
                         else{
@@ -3801,7 +3801,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($update_time_out > 0){
                         $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Recorded';
                         }
                         else{
@@ -3823,7 +3823,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($update_time_out > 0){
                         $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Recorded';
                         }
                         else{
@@ -3866,7 +3866,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($health_declaration_count == 0){
                 $insert_health_declaration = $api->insert_health_declaration($employee_id, $temperature, $question_1, $question_2, $question_3, $question_4, $question_5, $specific, $system_date, $current_time, $username);
 
-                if($insert_health_declaration == 1){
+                if($insert_health_declaration){
                    echo 'Inserted';
                 }
                 else{
@@ -3935,7 +3935,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($update_time_out > 0){
                                 $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
-                                if($send_notification == 1){
+                                if($send_notification){
                                     echo 'Time Out';
                                 }
                                 else{
@@ -3957,7 +3957,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($update_time_out > 0){
                                 $send_notification = $api->send_notification(2, null, $employee_id, $notification_title, $notification_message, $username);
 
-                                if($send_notification == 1){
+                                if($send_notification){
                                     echo 'Time Out';
                                 }
                                 else{
@@ -3996,7 +3996,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($insert_time_in > 0){
                             $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
-                            if($send_notification == 1){
+                            if($send_notification){
                                 echo 'Time In';
                             }
                             else{
@@ -4018,7 +4018,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($insert_time_in > 0){
                             $send_notification = $api->send_notification(1, null, $employee_id, $notification_title, $notification_message, $username);
 
-                            if($send_notification == 1){
+                            if($send_notification){
                                 echo 'Time In';
                             }
                             else{
@@ -4051,7 +4051,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if(!empty($position)){
                 $insert_location = $api->insert_location($employee_id, $position, $system_date, $current_time, $remarks, $username);
 
-                if($insert_location == 1){
+                if($insert_location){
                    echo 'Inserted';
                 }
                 else{
@@ -4113,10 +4113,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 if($attendance_creation_file_size < $file_max_size){
                                     $update_attendance_creation_file = $api->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $request_id, $username);
             
-                                    if($update_attendance_creation_file == 1){
+                                    if($update_attendance_creation_file){
                                         $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
 
-                                        if($update_attendance_creation == 1){
+                                        if($update_attendance_creation){
                                             echo 'Updated';
                                         }
                                         else{
@@ -4142,7 +4142,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     else{
                         $update_attendance_creation = $api->update_attendance_creation($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
 
-                        if($update_attendance_creation == 1){
+                        if($update_attendance_creation){
                             echo 'Updated';
                         }
                         else{
@@ -4156,7 +4156,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($attendance_creation_file_size < $file_max_size){
                                 $insert_attendance_creation = $api->insert_attendance_creation($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $employee_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
 
-                                if($insert_attendance_creation == 1){
+                                if($insert_attendance_creation){
                                     echo 'Inserted';
                                 }
                                 else{
@@ -4240,7 +4240,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($attendance_adjustment_file_size < $file_max_size){
                             $insert_attendance_adjustment = $api->insert_attendance_adjustment($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $employee_id, $attendance_id, $time_in_date_default, $time_in_default, $time_in_date, $time_in, $time_out_date_default, $time_out_default, $time_out_date, $time_out, $reason, $system_date, $current_time, $username);
 
-                            if($insert_attendance_adjustment == 1){
+                            if($insert_attendance_adjustment){
                                 echo 'Inserted';
                             }
                             else{
@@ -4318,10 +4318,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 if($attendance_adjustment_file_size < $file_max_size){
                                     $update_attendance_adjustment = $api->update_attendance_adjustment($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
         
-                                    if($update_attendance_adjustment == 1){
+                                    if($update_attendance_adjustment){
                                         $update_attendance_adjustment_file = $api->update_attendance_adjustment_file($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $request_id, $username);
                 
-                                        if($update_attendance_adjustment_file == 1){
+                                        if($update_attendance_adjustment_file){
                                             echo 'Updated';
                                         }
                                         else{
@@ -4347,7 +4347,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     else{
                         $update_attendance_adjustment = $api->update_attendance_adjustment($request_id, $time_in_date, $time_in, $time_out_date, $time_out, $reason, $username);
         
-                        if($update_attendance_adjustment == 1){
+                        if($update_attendance_adjustment){
                             echo 'Updated';
                         }
                         else{
@@ -4432,10 +4432,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($get_available_leave_entitlement > 0){
                     $insert_leave = $api->insert_leave($employee_id, $leave_type, $leave_date, $start_time, $end_time, 'PEN', $reason, null, null, null, $username);
 
-                    if($insert_leave == 1){
+                    if($insert_leave){
                         $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
+                        if(!$update_leave_entitlement_count){
                             $error = $update_leave_entitlement_count;
                             break;
                         }
@@ -4454,7 +4454,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if(empty($error)){
                 $send_notification = $api->send_notification(15, $employee_id, $department_head, $notification_title, $notification_message, $username);
     
-                if($send_notification == 1){
+                if($send_notification){
                     echo 'Inserted';
                 }
                 else{
@@ -4482,7 +4482,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_allowance_type_exist > 0){
                 $update_allowance_type = $api->update_allowance_type($allowance_type_id, $allowance_type, $taxable, $description, $username);
 
-                if($update_allowance_type == 1){
+                if($update_allowance_type){
                     echo 'Updated';
                 }
                 else{
@@ -4492,7 +4492,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_allowance_type = $api->insert_allowance_type($allowance_type, $taxable, $description, $username);
 
-                if($insert_allowance_type == 1){
+                if($insert_allowance_type){
                     echo 'Inserted';
                 }
                 else{
@@ -4526,7 +4526,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     
                         $insert_allowance = $api->insert_allowance($employee_id, $allowance_type, $payroll_date, $amount, $username);
     
-                        if($insert_allowance != 1){
+                        if(!$insert_allowance){
                             $error = $insert_allowance;
                         }
                     }
@@ -4534,7 +4534,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $insert_allowance = $api->insert_allowance($employee_id, $allowance_type, $start_date, $amount, $username);
 
-                    if($insert_allowance != '1'){
+                    if(!$insert_allowance){
                         $error =  $insert_allowance;
                     }
                 }
@@ -4563,7 +4563,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_allowance_exist > 0){
                 $update_allowance = $api->update_allowance($allowance_id, $payroll_date, $amount, $username);
 
-                if($update_allowance == 1){
+                if($update_allowance){
                     echo 'Updated';
                 }
                 else{
@@ -4590,7 +4590,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_deduction_type_exist > 0){
                 $update_deduction_type = $api->update_deduction_type($deduction_type_id, $deduction_type, $description, $username);
 
-                if($update_deduction_type == 1){
+                if($update_deduction_type){
                     echo 'Updated';
                 }
                 else{
@@ -4600,7 +4600,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_deduction_type = $api->insert_deduction_type($deduction_type, $description, $username);
 
-                if($insert_deduction_type == 1){
+                if($insert_deduction_type){
                     echo 'Inserted';
                 }
                 else{
@@ -4624,7 +4624,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_government_contribution_exist > 0){
                 $update_government_contribution = $api->update_government_contribution($government_contribution_id, $government_contribution, $description, $username);
 
-                if($update_government_contribution == 1){
+                if($update_government_contribution){
                     echo 'Updated';
                 }
                 else{
@@ -4634,7 +4634,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_government_contribution = $api->insert_government_contribution($government_contribution, $description, $username);
 
-                if($insert_government_contribution == 1){
+                if($insert_government_contribution){
                     echo 'Inserted';
                 }
                 else{
@@ -4664,7 +4664,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
                     $update_contribution_bracket = $api->update_contribution_bracket($contribution_bracket_id, $start_range, $end_range, $deduction_amount, $username);
 
-                    if($update_contribution_bracket == 1){
+                    if($update_contribution_bracket){
                         echo 'Updated';
                     }
                     else{
@@ -4682,7 +4682,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_start_contribution_bracket_range_overlap == 0 && $check_end_contribution_bracket_range_overlap == 0){
                     $insert_contribution_bracket = $api->insert_contribution_bracket($government_contribution_id, $start_range, $end_range, $deduction_amount, $username);
 
-                    if($insert_contribution_bracket == 1){
+                    if($insert_contribution_bracket){
                         echo 'Inserted';
                     }
                     else{
@@ -4720,7 +4720,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     
                         $insert_deduction = $api->insert_deduction($employee_id, $deduction_type, $payroll_date, $amount, $username);
     
-                        if($insert_deduction != 1){
+                        if(!$insert_deduction){
                             $error = $insert_deduction;
                         }
                     }
@@ -4728,7 +4728,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $insert_deduction = $api->insert_deduction($employee_id, $deduction_type, $start_date, $amount, $username);
 
-                    if($insert_deduction != '1'){
+                    if(!$insert_deduction){
                         $error =  $insert_deduction;
                     }
                 }
@@ -4757,7 +4757,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_deduction_exist > 0){
                 $update_deduction = $api->update_deduction($deduction_id, $payroll_date, $amount, $username);
 
-                if($update_deduction == 1){
+                if($update_deduction){
                     echo 'Updated';
                 }
                 else{
@@ -4793,7 +4793,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     
                         $insert_contribution_deduction = $api->insert_contribution_deduction($employee_id, $government_contribution, $payroll_date, $username);
     
-                        if($insert_contribution_deduction != 1){
+                        if(!$insert_contribution_deduction){
                             $error = $insert_contribution_deduction;
                         }
                     }
@@ -4801,7 +4801,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $insert_contribution_deduction = $api->insert_contribution_deduction($employee_id, $government_contribution, $start_date, $username);
 
-                    if($insert_contribution_deduction != '1'){
+                    if(!$insert_contribution_deduction){
                         $error =  $insert_contribution_deduction;
                     }
                 }
@@ -4829,7 +4829,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_contribution_deduction_exist > 0){
                 $update_contribution_deduction = $api->update_contribution_deduction($contribution_deduction_id, $payroll_date, $username);
 
-                if($update_contribution_deduction == 1){
+                if($update_contribution_deduction){
                     echo 'Updated';
                 }
                 else{
@@ -4867,7 +4867,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_salary_effectivity_date_conflict == 0){
                     $insert_salary = $api->insert_salary($employee_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
     
-                    if($insert_salary != 1){
+                    if(!$insert_salary){
                         $error = $insert_salary;
                     }
                 }
@@ -4917,7 +4917,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($check_salary_effectivity_date_conflict == 0){
                         $update_salary = $api->update_salary($salary_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
 
-                        if($update_salary == 1){
+                        if($update_salary){
                             echo 'Updated';
                         }
                         else{
@@ -4931,7 +4931,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_salary = $api->update_salary($salary_id, $salary_amount, $salary_frequency, $hours_per_week, $hours_per_day, $minute_rate, $hourly_rate, $daily_rate, $weekly_rate, $bi_weekly_rate, $monthly_rate, $effectivity_date, $remarks, $username);
 
-                    if($update_salary == 1){
+                    if($update_salary){
                         echo 'Updated';
                     }
                     else{
@@ -4961,7 +4961,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_payroll_setting_exist > 0){
                 $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
 
-                if($update_payroll_setting == 1){
+                if($update_payroll_setting){
                     echo 'Updated';
                 }
                 else{
@@ -4971,7 +4971,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
 
-                if($insert_payroll_setting == 1){
+                if($insert_payroll_setting){
                     echo 'Updated';
                 }
                 else{
@@ -4997,14 +4997,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_payroll_group_exist > 0){
                 $update_payroll_group = $api->update_payroll_group($payroll_group_id, $payroll_group, $description, $username);
 
-                if($update_payroll_group == 1){
+                if($update_payroll_group){
                     $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
 
-                    if($delete_all_payroll_group_employee == 1){
+                    if($delete_all_payroll_group_employee){
                         foreach($employee_ids as $employee_id){
                             $insert_payroll_group_employee = $api->insert_payroll_group_employee($payroll_group_id, $employee_id, $username);
 
-                            if($insert_payroll_group_employee != 1){
+                            if(!$insert_payroll_group_employee){
                                 $error = $insert_payroll_group_employee;
                             }
                         }
@@ -5027,12 +5027,77 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             else{
                 $insert_payroll_group = $api->insert_payroll_group($payroll_group, $description, $employee_ids, $username);
 
-                if($insert_payroll_group == 1){
+                if($insert_payroll_group){
                     echo 'Inserted';
                 }
                 else{
                     echo $insert_payroll_group;
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit pay run
+    else if($transaction == 'submit pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date']) && isset($_POST['consider_overtime']) && isset($_POST['payroll_group_id']) && isset($_POST['employee_id']) && isset($_POST['payslip_note'])){
+            $error = '';
+            $username = $_POST['username'];
+            $consider_overtime = $_POST['consider_overtime'];
+            $payslip_note = $_POST['payslip_note'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+            $end_date = $api->check_date('empty', $_POST['end_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($_POST['payroll_group_id']) || !empty($_POST['employee_id'])){
+                $payroll_group_ids = explode(',', $_POST['payroll_group_id']);
+                $employee_ids = explode(',', $_POST['employee_id']);
+                $payees = array();
+
+                if(!empty($_POST['payroll_group_id']) && !empty($_POST['employee_id'])){
+                    foreach($payroll_group_ids as $payroll_group_id){
+                        $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+
+                        for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                            $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+
+                            if (!in_array($payroll_group_employee, $employee_ids)){
+                                $employee_ids[] = $payroll_group_employee; 
+                            }
+                        }
+                    }
+
+                    foreach($employee_ids as $employee_id){
+                        $payees[] = $employee_id; 
+                    }
+                }
+                else if(!empty($_POST['payroll_group_id']) && empty($_POST['employee_id'])){
+                    foreach($payroll_group_ids as $payroll_group_id){
+                        $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+
+                        for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                            $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+
+                            $payees[] = $payroll_group_employee;
+                        }
+                    }
+                }
+                else {
+                    foreach($employee_ids as $employee_id){
+                        $payees[] = $employee_id; 
+                    }
+                }
+
+                $insert_pay_run = $api->insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username);
+
+                if($insert_pay_run){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_pay_run;
+                }
+            }
+            else{
+                echo 'Payee';
             }
         }
     }
@@ -5053,7 +5118,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_system_parameter_exist > 0){
                 $delete_system_parameter = $api->delete_system_parameter($parameter_id, $username);
                                     
-                if($delete_system_parameter == 1){
+                if($delete_system_parameter){
                     echo 'Deleted';
                 }
                 else{
@@ -5079,7 +5144,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_system_parameter_exist > 0){
                     $delete_system_parameter = $api->delete_system_parameter($parameter_id, $username);
                                         
-                    if($delete_system_parameter != 1){
+                    if(!$delete_system_parameter){
                         $error = $delete_system_parameter;
                     }
                 }
@@ -5109,10 +5174,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_policy_exist > 0){
                 $delete_all_permission = $api->delete_all_permission($policy_id, $username);
                                     
-                if($delete_all_permission == 1){
+                if($delete_all_permission){
                     $delete_policy = $api->delete_policy($policy_id, $username);
                                     
-                    if($delete_policy == 1){
+                    if($delete_policy){
                         echo 'Deleted';
                     }
                     else{
@@ -5142,10 +5207,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_policy_exist > 0){
                     $delete_policy = $api->delete_policy($policy_id, $username);
                                     
-                    if($delete_policy == 1){
+                    if($delete_policy){
                         $delete_all_permission = $api->delete_all_permission($policy_id, $username);
                                         
-                        if($delete_all_permission != 1){
+                        if(!$delete_all_permission){
                             $error = $delete_all_permission;
                         }
                     }
@@ -5179,7 +5244,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_permission_exist > 0){
                 $delete_permission = $api->delete_permission($permission_id, $username);
                                     
-                if($delete_permission == 1){
+                if($delete_permission){
                     echo 'Deleted';
                 }
                 else{
@@ -5205,7 +5270,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_permission_exist > 0){
                     $delete_permission = $api->delete_permission($permission_id, $username);
                                         
-                    if($delete_permission != 1){
+                    if(!$delete_permission){
                         $error = $delete_permission;
                     }
                 }
@@ -5235,10 +5300,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_role_exist > 0){
                 $delete_role = $api->delete_role($role_id, $username);
                                     
-                if($delete_role == 1){
+                if($delete_role){
                     $delete_permission_role = $api->delete_permission_role($role_id, $username);
                                     
-                    if($delete_permission_role == 1){
+                    if($delete_permission_role){
                         echo 'Deleted';
                     }
                     else{
@@ -5268,10 +5333,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_role_exist > 0){
                     $delete_role = $api->delete_role($role_id, $username);
                                     
-                    if($delete_role == 1){
+                    if($delete_role){
                         $delete_permission_role = $api->delete_permission_role($role_id, $username);
                                         
-                        if($delete_permission_role != 1){
+                        if(!$delete_permission_role){
                             $error = $delete_permission_role;
                         }
                     }
@@ -5306,7 +5371,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_system_code_exist > 0){
                 $delete_system_code = $api->delete_system_code($system_type, $system_code, $username);
                                     
-                if($delete_system_code == 1){
+                if($delete_system_code){
                     echo 'Deleted';
                 }
                 else{
@@ -5334,7 +5399,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_system_code_exist > 0){
                     $delete_system_code = $api->delete_system_code($system_type[$i], $system_code[$i], $username);
                                         
-                    if($delete_system_code != 1){
+                    if(!$delete_system_code){
                         $error = $delete_system_code;
                     }
                 }
@@ -5364,13 +5429,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_notification_type_exist > 0){
                 $delete_notification_type = $api->delete_notification_type($notification_id, $username);
                                     
-                if($delete_notification_type == 1){
+                if($delete_notification_type){
                     $delete_notification_details = $api->delete_notification_details($notification_id, $username);
                                     
-                    if($delete_notification_details == 1){
+                    if($delete_notification_details){
                         $delete_notification_recipient = $api->delete_notification_recipient($notification_id, $username);
                                     
-                        if($delete_notification_recipient == 1){
+                        if($delete_notification_recipient){
                             echo 'Deleted';
                         }
                         else{
@@ -5404,7 +5469,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_notification_type_exist > 0){
                     $delete_notification_type = $api->delete_notification_type($notification_id, $username);
                                     
-                    if($delete_notification_type != 1){
+                    if(!$delete_notification_type){
                         $error = $delete_policy;
                     }
                 }
@@ -5434,7 +5499,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_department_exist > 0){
                 $delete_department = $api->delete_department($department_id, $username);
                                     
-                if($delete_department == 1){
+                if($delete_department){
                     echo 'Deleted';
                 }
                 else{
@@ -5460,7 +5525,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_department_exist > 0){
                     $delete_department = $api->delete_department($department_id, $username);
                                     
-                    if($delete_department != 1){
+                    if(!$delete_department){
                         $error = $delete_department;
                     }
                 }
@@ -5490,7 +5555,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_designation_exist > 0){
                 $delete_designation = $api->delete_designation($designation_id, $username);
                                     
-                if($delete_designation == 1){
+                if($delete_designation){
                     echo 'Deleted';
                 }
                 else{
@@ -5516,7 +5581,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_designation_exist > 0){
                     $delete_designation = $api->delete_designation($designation_id, $username);
                                     
-                    if($delete_designation != 1){
+                    if(!$delete_designation){
                         $error = $delete_designation;
                     }
                 }
@@ -5546,7 +5611,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_branch_exist > 0){
                 $delete_branch = $api->delete_branch($branch_id, $username);
                                     
-                if($delete_branch == 1){
+                if($delete_branch){
                     echo 'Deleted';
                 }
                 else{
@@ -5572,7 +5637,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_branch_exist > 0){
                     $delete_branch = $api->delete_branch($branch_id, $username);
                                     
-                    if($delete_branch != 1){
+                    if(!$delete_branch){
                         $error = $delete_branch;
                     }
                 }
@@ -5602,10 +5667,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_upload_setting_exist > 0){
                 $delete_upload_setting = $api->delete_upload_setting($upload_setting_id, $username);
                                     
-                if($delete_upload_setting == 1){
+                if($delete_upload_setting){
                     $delete_all_upload_file_type = $api->delete_all_upload_file_type($upload_setting_id, $username);
                                     
-                    if($delete_all_upload_file_type == 1){
+                    if($delete_all_upload_file_type){
                         echo 'Deleted';
                     }
                     else{
@@ -5635,10 +5700,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_upload_setting_exist > 0){
                     $delete_upload_setting = $api->delete_upload_setting($upload_setting_id, $username);
                                     
-                    if($delete_upload_setting == 1){
+                    if($delete_upload_setting){
                         $delete_all_upload_file_type = $api->delete_all_upload_file_type($upload_setting_id, $username);
                                     
-                        if($delete_all_upload_file_type != 1){
+                        if(!$delete_all_upload_file_type){
                             $error = $delete_all_upload_file_type;
                         }                       
                     }
@@ -5672,7 +5737,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employment_status_exist > 0){
                 $delete_employment_status = $api->delete_employment_status($employment_status_id, $username);
                                     
-                if($delete_employment_status == 1){
+                if($delete_employment_status){
                     echo 'Deleted';
                 }
                 else{
@@ -5698,7 +5763,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_employment_status_exist > 0){
                     $delete_employment_status = $api->delete_employment_status($employment_status_id, $username);
 
-                    if($delete_employment_status != 1){
+                    if(!$delete_employment_status){
                         $error = $delete_employment_status;
                     }
                 }
@@ -5728,7 +5793,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_exist > 0){
                 $delete_employee = $api->delete_employee($employee_id, $username);
                                     
-                if($delete_employee == 1){
+                if($delete_employee){
                     echo 'Deleted';
                 }
                 else{
@@ -5754,7 +5819,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_employee_exist > 0){
                     $delete_employee = $api->delete_employee($employee_id, $username);
                                     
-                    if($delete_employee != 1){
+                    if(!$delete_employee){
                         $error = $delete_employee;
                     }
                 }
@@ -5784,7 +5849,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_emergency_contact_exist > 0){
                 $delete_emergency_contact = $api->delete_emergency_contact($contact_id, $username);
                                     
-                if($delete_emergency_contact == 1){
+                if($delete_emergency_contact){
                     echo 'Deleted';
                 }
                 else{
@@ -5809,7 +5874,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_address_exist > 0){
                 $delete_employee_address = $api->delete_employee_address($address_id, $username);
                                     
-                if($delete_employee_address == 1){
+                if($delete_employee_address){
                     echo 'Deleted';
                 }
                 else{
@@ -5834,7 +5899,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_social_exist > 0){
                 $delete_employee_social = $api->delete_employee_social($social_id, $username);
                                     
-                if($delete_employee_social == 1){
+                if($delete_employee_social){
                     echo 'Deleted';
                 }
                 else{
@@ -5859,13 +5924,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_work_shift_exist > 0){
                 $delete_work_shift = $api->delete_work_shift($work_shift_id, $username);
                                     
-                if($delete_work_shift == 1){
+                if($delete_work_shift){
                     $delete_work_shift_schedule = $api->delete_work_shift_schedule($work_shift_id, $username);
                                     
-                    if($delete_work_shift_schedule == 1){
+                    if($delete_work_shift_schedule){
                         $delete_employee_work_shift = $api->delete_employee_work_shift($work_shift_id, $username);
                                     
-                        if($delete_employee_work_shift == 1){
+                        if($delete_employee_work_shift){
                             echo 'Deleted';
                         }
                         else{
@@ -5899,13 +5964,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_work_shift_exist > 0){
                     $delete_work_shift = $api->delete_work_shift($work_shift_id, $username);
                                     
-                    if($delete_work_shift == 1){
+                    if($delete_work_shift){
                         $delete_work_shift_schedule = $api->delete_work_shift_schedule($work_shift_id, $username);
                                     
-                        if($delete_work_shift_schedule == 1){
+                        if($delete_work_shift_schedule){
                             $delete_employee_work_shift = $api->delete_employee_work_shift($work_shift_id, $username);
                                     
-                            if($delete_employee_work_shift != 1){
+                            if(!$delete_employee_work_shift){
                                 $error = $delete_employee_work_shift;
                             }
                         }
@@ -5943,7 +6008,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_attendance_exist > 0){
                 $delete_employee_attendance = $api->delete_employee_attendance($attendance_id, $username);
                                     
-                if($delete_employee_attendance == 1){
+                if($delete_employee_attendance){
                     echo 'Deleted';
                 }
                 else{
@@ -5968,7 +6033,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_type_exist > 0){
                 $delete_leave_type = $api->delete_leave_type($leave_type_id, $username);
                                     
-                if($delete_leave_type == 1){
+                if($delete_leave_type){
                     echo 'Deleted';
                 }
                 else{
@@ -5994,7 +6059,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_type_exist > 0){
                     $delete_leave_type = $api->delete_leave_type($leave_type_id, $username);
                                     
-                    if($delete_leave_type != 1){
+                    if($delete_leave_type){
                         $error = $delete_leave_type;
                     }
                 }
@@ -6024,7 +6089,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_entitlement_exist > 0){
                 $delete_leave_entitlement = $api->delete_leave_entitlement($leave_entitlement_id, $username);
                                     
-                if($delete_leave_entitlement == 1){
+                if($delete_leave_entitlement){
                     echo 'Deleted';
                 }
                 else{
@@ -6050,7 +6115,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_entitlement_exist > 0){
                     $delete_leave_entitlement = $api->delete_leave_entitlement($leave_entitlement_id, $username);
                                     
-                    if($delete_leave_entitlement != 1){
+                    if(!$delete_leave_entitlement){
                         $error = $delete_leave_entitlement;
                     }
                 }
@@ -6103,10 +6168,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_exist > 0){
                 $delete_leave = $api->delete_leave($leave_id, $username);
                                     
-                if($delete_leave == 1){
+                if($delete_leave){
                     $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_entitlement_count){
                         echo 'Deleted';
                     }
                     else{
@@ -6159,10 +6224,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_exist > 0){
                     $delete_leave = $api->delete_leave($leave_id, $username);
                                     
-                    if($delete_leave == 1){
+                    if($delete_leave){
                         $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count != 1){
+                        if(!$update_leave_entitlement_count){
                             $error = $update_leave_entitlement_count;
                         }
                     }
@@ -6196,7 +6261,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_employee_file_exist > 0){
                 $delete_employee_file = $api->delete_employee_file($file_id, $username);
                                     
-                if($delete_employee_file == 1){
+                if($delete_employee_file){
                     echo 'Deleted';
                 }
                 else{
@@ -6222,7 +6287,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_employee_file_exist > 0){
                     $delete_employee_file = $api->delete_employee_file($file_id, $username);
                                     
-                    if($delete_employee_file != 1){
+                    if(!$delete_employee_file){
                         $error = $delete_employee_file;
                     }
                 }
@@ -6252,10 +6317,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_holiday_exist > 0){
                 $delete_holiday = $api->delete_holiday($holiday_id, $username);
                                     
-                if($delete_holiday == 1){
+                if($delete_holiday){
                     $delete_all_holiday_branch = $api->delete_all_holiday_branch($holiday_id);
 
-                    if($delete_all_holiday_branch == 1){
+                    if($delete_all_holiday_branch){
                         echo 'Deleted';
                     }
                     else{
@@ -6285,10 +6350,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_holiday_exist > 0){
                     $delete_holiday = $api->delete_holiday($holiday_id, $username);
                                     
-                    if($delete_holiday == 1){
+                    if($delete_holiday){
                         $delete_all_holiday_branch = $api->delete_all_holiday_branch($holiday_id);
 
-                        if($delete_all_holiday_branch != 1){
+                        if(!$delete_all_holiday_branch){
                             $error = $delete_all_holiday_branch;
                         }
                     }
@@ -6322,7 +6387,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_creation_exist > 0){
                 $delete_attendance_creation = $api->delete_attendance_creation($request_id, $username);
                                     
-                if($delete_attendance_creation == 1){
+                if($delete_attendance_creation){
                     echo 'Deleted';
                 }
                 else{
@@ -6348,7 +6413,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_creation_exist > 0){
                     $delete_attendance_creation = $api->delete_attendance_creation($request_id, $username);
                                     
-                    if($delete_attendance_creation != 1){
+                    if(!$delete_attendance_creation){
                         $error = $delete_attendance_creation;
                     }
                 }
@@ -6378,7 +6443,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_department_exist > 0){
                 $delete_allowance_type = $api->delete_allowance_type($allowance_type_id, $username);
                                     
-                if($delete_allowance_type == 1){
+                if($delete_allowance_type){
                     echo 'Deleted';
                 }
                 else{
@@ -6404,7 +6469,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_allowance_type_exist > 0){
                     $delete_allowance_type = $api->delete_allowance_type($allowance_type_id, $username);
                                     
-                    if($delete_allowance_type != 1){
+                    if(!$delete_allowance_type){
                         $error = $delete_allowance_type;
                     }
                 }
@@ -6434,7 +6499,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_allowance_exist > 0){
                 $delete_allowance = $api->delete_allowance($allowance_id, $username);
                                     
-                if($delete_allowance == 1){
+                if($delete_allowance){
                     echo 'Deleted';
                 }
                 else{
@@ -6460,7 +6525,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_allowance_exist > 0){
                     $delete_allowance = $api->delete_allowance($allowance_id, $username);
                                     
-                    if($delete_allowance != 1){
+                    if(!$delete_allowance){
                         $error = $delete_allowance;
                     }
                 }
@@ -6490,7 +6555,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_department_exist > 0){
                 $delete_deduction_type = $api->delete_deduction_type($deduction_type_id, $username);
                                     
-                if($delete_deduction_type == 1){
+                if($delete_deduction_type){
                     echo 'Deleted';
                 }
                 else{
@@ -6516,7 +6581,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_deduction_type_exist > 0){
                     $delete_deduction_type = $api->delete_deduction_type($deduction_type_id, $username);
                                     
-                    if($delete_deduction_type != 1){
+                    if(!$delete_deduction_type){
                         $error = $delete_deduction_type;
                     }
                 }
@@ -6546,10 +6611,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_government_contribution_exist > 0){
                 $delete_government_contribution = $api->delete_government_contribution($government_contribution_id, $username);
                                     
-                if($delete_government_contribution == 1){
+                if($delete_government_contribution){
                     $delete_all_contribution_bracket = $api->delete_all_contribution_bracket($government_contribution_id, $username);
                                     
-                    if($delete_all_contribution_bracket == 1){
+                    if($delete_all_contribution_bracket){
                         echo 'Deleted';
                     }
                     else{
@@ -6579,11 +6644,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_government_contribution_exist > 0){
                     $delete_government_contribution = $api->delete_government_contribution($government_contribution_id, $username);
                                     
-                    if($delete_government_contribution == 1){
+                    if($delete_government_contribution){
                         
                         $delete_all_contribution_bracket = $api->delete_all_contribution_bracket($government_contribution_id, $username);
                                     
-                        if($delete_all_contribution_bracket != 1){
+                        if(!$delete_all_contribution_bracket){
                             $error = $delete_all_contribution_bracket;
                         }
                     }
@@ -6617,7 +6682,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_contribution_bracket_exist > 0){
                 $delete_contribution_bracket = $api->delete_contribution_bracket($contribution_bracket_id, $username);
                                     
-                if($delete_contribution_bracket == 1){
+                if($delete_contribution_bracket){
                     echo 'Deleted';
                 }
                 else{
@@ -6643,7 +6708,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_contribution_bracket_exist > 0){
                     $delete_contribution_bracket = $api->delete_contribution_bracket($contribution_bracket_id, $username);
                                     
-                    if($delete_contribution_bracket != 1){
+                    if(!$delete_contribution_bracket){
                         $error = $delete_contribution_bracket;
                     }
                 }
@@ -6673,7 +6738,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_deduction_exist > 0){
                 $delete_deduction = $api->delete_deduction($deduction_id, $username);
                                     
-                if($delete_deduction == 1){
+                if($delete_deduction){
                     echo 'Deleted';
                 }
                 else{
@@ -6699,7 +6764,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_deduction_exist > 0){
                     $delete_deduction = $api->delete_deduction($deduction_id, $username);
                                     
-                    if($delete_deduction != 1){
+                    if(!$delete_deduction){
                         $error = $delete_deduction;
                     }
                 }
@@ -6729,7 +6794,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_contribution_deduction_exist > 0){
                 $delete_contribution_deduction_exist = $api->delete_contribution_deduction_exist($contribution_deduction_id, $username);
                                     
-                if($delete_contribution_deduction_exist == 1){
+                if($delete_contribution_deduction_exist){
                     echo 'Deleted';
                 }
                 else{
@@ -6755,7 +6820,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_contribution_deduction_exist > 0){
                     $delete_contribution_deduction_exist = $api->delete_contribution_deduction_exist($contribution_deduction_id, $username);
                                     
-                    if($delete_contribution_deduction_exist != 1){
+                    if(!$delete_contribution_deduction_exist){
                         $error = $delete_contribution_deduction_exist;
                     }
                 }
@@ -6785,7 +6850,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_salary_exist > 0){
                 $delete_salary = $api->delete_salary($salary_id, $username);
                                     
-                if($delete_salary == 1){
+                if($delete_salary){
                     echo 'Deleted';
                 }
                 else{
@@ -6811,7 +6876,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_salary_exist > 0){
                     $delete_salary = $api->delete_salary($salary_id, $username);
                                     
-                    if($delete_salary != 1){
+                    if(!$delete_salary){
                         $error = $delete_salary;
                     }
                 }
@@ -6841,10 +6906,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_payroll_group_exist > 0){
                 $delete_payroll_group = $api->delete_payroll_group($payroll_group_id, $username);
                                     
-                if($delete_payroll_group == 1){
+                if($delete_payroll_group){
                     $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
                                     
-                    if($delete_all_payroll_group_employee == 1){
+                    if($delete_all_payroll_group_employee){
                         echo 'Deleted';
                     }
                     else{
@@ -6874,10 +6939,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_payroll_group_exist > 0){
                     $delete_payroll_group = $api->delete_payroll_group($payroll_group_id, $username);
                                     
-                    if($delete_payroll_group == 1){
+                    if($delete_payroll_group){
                         $delete_all_payroll_group_employee = $api->delete_all_payroll_group_employee($payroll_group_id, $username);
                                     
-                        if($delete_all_payroll_group_employee != 1){
+                        if(!$delete_all_payroll_group_employee){
                             $error = $delete_all_payroll_group_employee;
                         }                       
                     }
@@ -6926,7 +6991,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_overlap_start == 0 && $check_leave_overlap_end == 0){
                     $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
     
-                    if($update_leave_status == 1){
+                    if($update_leave_status){
                         $from_details = $api->get_leave_details($leave_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $from_details = $api->get_employee_details('', $from_id);
@@ -6939,7 +7004,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                         $send_notification = $api->send_notification(16, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Approved';
                         }
                         else{
@@ -6986,7 +7051,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($check_leave_overlap_start == 0 && $check_leave_overlap_end == 0){
                         $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
         
-                        if($update_leave_status == 1){
+                        if($update_leave_status){
                             $from_details = $api->get_leave_details($leave_id);
                             $from_id = $from_details[0]['DECISION_BY'];
                             $from_details = $api->get_employee_details('', $from_id);
@@ -6999,7 +7064,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                         
                             $send_notification = $api->send_notification(16, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error_count = $error_count + 1;
                             }
                         }
@@ -7017,7 +7082,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error approving '. number_format($error_count) .' leave.<br/>';
                 }
                 else{
@@ -7053,7 +7118,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                 $update_leave_status = $api->update_leave_status($leave_id, 'APV', $decision_remarks, $username);
     
-                if($update_leave_status == 1){
+                if($update_leave_status){
                     $from_details = $api->get_leave_details($leave_id);
                     $from_id = $from_details[0]['DECISION_BY'];
                     $from_details = $api->get_employee_details('', $from_id);
@@ -7066,7 +7131,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                     $send_notification = $api->send_notification(16, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         echo 'Approved';
                     }
                     else{
@@ -7128,10 +7193,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     if($get_clock_in_total < $max_attendance){
                         $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($attendance_creation_employee_id, $attendance_creation_time_in_date, $attendance_creation_time_in, $attendance_creation_time_in_behavior, $attendance_creation_time_out_date, $attendance_creation_time_out, $attendance_creation_time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Created through attendance creation.', $username);
 
-                        if($insert_manual_employee_attendance == 1){
+                        if($insert_manual_employee_attendance){
                             $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
-                            if($update_attendance_creation_status == 1){
+                            if($update_attendance_creation_status){
                                 $from_details = $api->get_attendance_creation_details($request_id);
                                 $from_id = $from_details[0]['DECISION_BY'];
                                 $from_details = $api->get_employee_details('', $from_id);
@@ -7144,7 +7209,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             
                                 $send_notification = $api->send_notification(13, $from_id, $attendance_creation_employee_id, $notification_title, $notification_message, $username);
 
-                                if($send_notification == 1){
+                                if($send_notification){
                                     echo 'Approved';
                                 }
                                 else{
@@ -7221,10 +7286,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         if($get_clock_in_total < $max_attendance){
                             $insert_manual_employee_attendance = $api->insert_manual_employee_attendance($attendance_creation_employee_id, $attendance_creation_time_in_date, $attendance_creation_time_in, $attendance_creation_time_in_behavior, $attendance_creation_time_out_date, $attendance_creation_time_out, $attendance_creation_time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Created through attendance creation.', $username);
 
-                            if($insert_manual_employee_attendance == 1){
+                            if($insert_manual_employee_attendance){
                                 $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
-                                if($update_attendance_creation_status == 1){
+                                if($update_attendance_creation_status){
                                     $from_details = $api->get_attendance_creation_details($request_id);
                                     $from_id = $from_details[0]['DECISION_BY'];
                                     $from_details = $api->get_employee_details('', $from_id);
@@ -7237,7 +7302,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                                     $send_notification = $api->send_notification(13, $from_id, $attendance_creation_employee_id, $notification_title, $notification_message, $username);
 
-                                    if($send_notification != 1){
+                                    if(!$send_notification){
                                         $error_count = $error_count + 1;
                                     }
                                 }
@@ -7263,7 +7328,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error approving '. number_format($error_count) .' attendance creation.<br/>';
                 }
                 else{
@@ -7328,10 +7393,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             if($get_clock_in_total < $max_attendance){
                                 $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.', $username);
 
-                                if($update_manual_employee_attendance == 1){
+                                if($update_manual_employee_attendance){
                                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
-                                    if($update_attendance_adjustment_status == 1){
+                                    if($update_attendance_adjustment_status){
                                         $from_details = $api->get_attendance_adjustment_details($request_id);
                                         $from_id = $from_details[0]['DECISION_BY'];
                                         $from_details = $api->get_employee_details('', $from_id);
@@ -7344,7 +7409,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                                         $send_notification = $api->send_notification(14, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
     
-                                        if($send_notification == 1){
+                                        if($send_notification){
                                             echo 'Approved';
                                         }
                                         else{
@@ -7366,10 +7431,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         else{
                             $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.' , $username);
 
-                            if($update_manual_employee_attendance == 1){
+                            if($update_manual_employee_attendance){
                                 $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
     
-                                if($update_attendance_adjustment_status == 1){
+                                if($update_attendance_adjustment_status){
                                     $from_details = $api->get_attendance_adjustment_details($request_id);
                                     $from_id = $from_details[0]['DECISION_BY'];
                                     $from_details = $api->get_employee_details('', $from_id);
@@ -7382,7 +7447,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                                     $send_notification = $api->send_notification(14, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
 
-                                    if($send_notification == 1){
+                                    if($send_notification){
                                         echo 'Approved';
                                     }
                                     else{
@@ -7463,10 +7528,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 if($get_clock_in_total < $max_attendance){
                                     $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.', $username);
     
-                                    if($update_manual_employee_attendance == 1){
+                                    if($update_manual_employee_attendance){
                                         $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
-                                        if($update_attendance_adjustment_status == 1){
+                                        if($update_attendance_adjustment_status){
                                             $from_details = $api->get_attendance_adjustment_details($request_id);
                                             $from_id = $from_details[0]['DECISION_BY'];
                                             $from_details = $api->get_employee_details('', $from_id);
@@ -7479,7 +7544,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                         
                                             $send_notification = $api->send_notification(14, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
         
-                                            if($send_notification != 1){
+                                            if(!$send_notification){
                                                 $error_count = $error_count + 1;
                                             }
                                         }
@@ -7498,10 +7563,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                             else{
                                 $update_manual_employee_attendance = $api->update_manual_employee_attendance($attendance_adjustment_attendance_id, $attendance_adjustment_time_in_date, $attendance_adjustment_time_in, $time_in_behavior, $attendance_adjustment_time_out_date, $attendance_adjustment_time_out, $time_out_behavior, $late, $early_leaving, $overtime, $total_hours_worked, 'Adjusted using attendance adjustment.' , $username);
     
-                                if($update_manual_employee_attendance == 1){
+                                if($update_manual_employee_attendance){
                                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'APV', $decision_remarks, $sanction, $username);
         
-                                    if($update_attendance_adjustment_status == 1){
+                                    if($update_attendance_adjustment_status){
                                         $from_details = $api->get_attendance_adjustment_details($request_id);
                                         $from_id = $from_details[0]['DECISION_BY'];
                                         $from_details = $api->get_employee_details('', $from_id);
@@ -7514,7 +7579,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                                         $send_notification = $api->send_notification(14, $from_id, $attendance_adjustment_employee_id, $notification_title, $notification_message, $username);
     
-                                        if($send_notification != 1){
+                                        if(!$send_notification){
                                             $error_count = $error_count + 1;
                                         }
                                     }
@@ -7541,7 +7606,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error approving '. number_format($error_count) .' attendance adjustment.<br/>';
                 }
                 else{
@@ -7598,10 +7663,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_exist > 0){
                 $update_leave_status = $api->update_leave_status($leave_id, 'REJ', $decision_remarks, $username);
     
-                if($update_leave_status == 1){
+                if($update_leave_status){
                     $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_entitlement_count){
                         $from_details = $api->get_leave_details($leave_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $from_details = $api->get_employee_details('', $from_id);
@@ -7614,7 +7679,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                         $send_notification = $api->send_notification(17, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Rejected';
                         }
                         else{
@@ -7674,10 +7739,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_exist > 0){
                     $update_leave_status = $api->update_leave_status($leave_id, 'REJ', $decision_remarks, $username);
         
-                    if($update_leave_status == 1){
+                    if($update_leave_status){
                         $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count == 1){
+                        if($update_leave_entitlement_count){
                             $from_details = $api->get_leave_details($leave_id);
                             $from_id = $from_details[0]['DECISION_BY'];
                             $from_details = $api->get_employee_details('', $from_id);
@@ -7690,7 +7755,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                             $send_notification = $api->send_notification(17, $from_id, $employee_id, $notification_title, $notification_message, $username);
     
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error_count = $error_count + 1;
                             }
                         }
@@ -7708,7 +7773,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error rejecting '. number_format($error_count) .' leave.<br/>';
                 }
                 else{
@@ -7738,7 +7803,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_creation_exist > 0){
                 $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, null, $username);
     
-                if($update_attendance_creation_status == 1){
+                if($update_attendance_creation_status){
                     $from_details = $api->get_attendance_creation_details($request_id);
                     $from_id = $from_details[0]['DECISION_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -7752,7 +7817,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                     $send_notification = $api->send_notification(11, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         echo 'Rejected';
                     }
                     else{
@@ -7785,7 +7850,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_creation_exist > 0){
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REJ', $decision_remarks, null, $username);
         
-                    if($update_attendance_creation_status == 1){
+                    if($update_attendance_creation_status){
                         $from_details = $api->get_attendance_creation_details($request_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -7799,7 +7864,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                         $send_notification = $api->send_notification(11, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification != 1){
+                        if(!$send_notification){
                             $error_count = $error_count + 1;
                         }
                     }
@@ -7813,7 +7878,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error rejecting '. number_format($error_count) .' attendance creation.<br/>';
                 }
                 else{
@@ -7843,7 +7908,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_adjustment_exist > 0){
                 $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, null, $username);
     
-                if($update_attendance_adjustment_status == 1){
+                if($update_attendance_adjustment_status){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
                     $from_id = $from_details[0]['DECISION_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -7857,7 +7922,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                     $send_notification = $api->send_notification(12, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         echo 'Rejected';
                     }
                     else{
@@ -7890,7 +7955,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_adjustment_exist > 0){
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REJ', $decision_remarks, null, $username);
         
-                    if($update_attendance_adjustment_status == 1){
+                    if($update_attendance_adjustment_status){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -7904,7 +7969,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                         $send_notification = $api->send_notification(12, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification != 1){
+                        if(!$send_notification){
                             $error_count = $error_count + 1;
                         }
                     }
@@ -7918,7 +7983,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error rejecting '. number_format($error_count) .' attendance adjustment.<br/>';
                 }
                 else{
@@ -7975,10 +8040,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_leave_exist > 0){
                 $update_leave_status = $api->update_leave_status($leave_id, 'CAN', $decision_remarks, $username);
     
-                if($update_leave_status == 1){
+                if($update_leave_status){
                     $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                    if($update_leave_entitlement_count == 1){
+                    if($update_leave_entitlement_count){
                         $from_details = $api->get_leave_details($leave_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $from_details = $api->get_employee_details('', $from_id);
@@ -7991,7 +8056,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 
                         $send_notification = $api->send_notification(18, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'Cancelled';
                         }
                         else{
@@ -8052,10 +8117,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_leave_exist > 0){
                     $update_leave_status = $api->update_leave_status($leave_id, 'CAN', $decision_remarks, $username);
         
-                    if($update_leave_status == 1){
+                    if($update_leave_status){
                         $update_leave_entitlement_count = $api->update_leave_entitlement_count($employee_id, $leave_type, $leave_date, $total_hours, $username);
 
-                        if($update_leave_entitlement_count == 1){
+                        if($update_leave_entitlement_count){
                             $from_details = $api->get_leave_details($leave_id);
                             $from_id = $from_details[0]['DECISION_BY'];
                             $from_details = $api->get_employee_details('', $from_id);
@@ -8068,7 +8133,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                             $send_notification = $api->send_notification(18, $from_id, $employee_id, $notification_title, $notification_message, $username);
     
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error_count = $error_count + 1;
                             }
                         }
@@ -8086,7 +8151,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error cancelling '. number_format($error_count) .' leave.<br/>';
                 }
                 else{
@@ -8116,7 +8181,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_creation_exist > 0){
                 $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, null, $username);
     
-                if($update_attendance_creation_status == 1){
+                if($update_attendance_creation_status){
                     $from_details = $api->get_attendance_creation_details($request_id);
                     $from_id = $from_details[0]['DECISION_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -8130,7 +8195,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                     $send_notification = $api->send_notification(7, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         echo 'Cancelled';
                     }
                     else{
@@ -8163,7 +8228,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_creation_exist > 0){
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'CAN', $decision_remarks, null, $username);
         
-                    if($update_attendance_creation_status == 1){
+                    if($update_attendance_creation_status){
                         $from_details = $api->get_attendance_creation_details($request_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -8177,7 +8242,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                         $send_notification = $api->send_notification(7, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification != 1){
+                        if(!$send_notification){
                             $error_count = $error_count + 1;
                         }
                     }
@@ -8191,7 +8256,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error cancelling '. number_format($error_count) .' attendance creation.<br/>';
                 }
                 else{
@@ -8221,7 +8286,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_adjustment_exist > 0){
                 $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, null, $username);
     
-                if($update_attendance_adjustment_status == 1){
+                if($update_attendance_adjustment_status){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
                     $from_id = $from_details[0]['DECISION_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -8235,7 +8300,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                     $send_notification = $api->send_notification(8, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         echo 'Cancelled';
                     }
                     else{
@@ -8268,7 +8333,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_adjustment_exist > 0){
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'CAN', $decision_remarks, null, $username);
         
-                    if($update_attendance_adjustment_status == 1){
+                    if($update_attendance_adjustment_status){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
                         $from_id = $from_details[0]['DECISION_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -8282,7 +8347,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                         $send_notification = $api->send_notification(8, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification != 1){
+                        if(!$send_notification){
                             $error_count = $error_count + 1;
                         }
                     }
@@ -8296,7 +8361,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if($error_count > 0){
-                if($error_count == 1){
+                if($error_count){
                     $error = 'There was an error cancelling '. number_format($error_count) .' attendance adjustment.<br/>';
                 }
                 else{
@@ -8329,7 +8394,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account_lock_status = $api->update_user_account_lock_status($user_code, 'unlock', $system_date, $username);
     
-                if($update_user_account_lock_status == 1){
+                if($update_user_account_lock_status){
                     echo 'Unlocked';
                 }
                 else{
@@ -8355,8 +8420,64 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_user_account_exist > 0){
                     $update_user_account_lock_status = $api->update_user_account_lock_status($user_code, 'unlock', $system_date, $username);
                                     
-                    if($update_user_account_lock_status != 1){
+                    if(!$update_user_account_lock_status){
                         $error = $update_user_account_lock_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Unlocked';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Unlock pay run
+    else if($transaction == 'unlock pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_id = $_POST['pay_run_id'];
+
+            $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+            if($check_pay_run_exist > 0){
+                $update_pay_run_status = $api->update_pay_run_status($pay_run_id, 'UNLOCK', $username);
+    
+                if($update_pay_run_status){
+                    echo 'Unlocked';
+                }
+                else{
+                    echo $update_pay_run_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Unlock multiple pay run
+    else if($transaction == 'unlock multiple pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_ids = $_POST['pay_run_id'];
+
+            foreach($pay_run_ids as $pay_run_id){
+                $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+                if($check_pay_run_exist > 0){
+                    $update_pay_run_status = $api->update_pay_run_status($pay_run_id, 'UNLOCK', $username);
+                                    
+                    if(!$update_pay_run_status){
+                        $error = $update_pay_run_status;
                     }
                 }
                 else{
@@ -8389,7 +8510,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account_lock_status = $api->update_user_account_lock_status($user_code, 'lock', $system_date, $username);
     
-                if($update_user_account_lock_status == 1){
+                if($update_user_account_lock_status){
                     echo 'Locked';
                 }
                 else{
@@ -8415,8 +8536,64 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_user_account_exist > 0){
                     $update_user_account_lock_status = $api->update_user_account_lock_status($user_code, 'lock', $system_date, $username);
                                     
-                    if($update_user_account_lock_status != 1){
+                    if(!$update_user_account_lock_status){
                         $error = $update_user_account_lock_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Locked';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Lock pay run
+    else if($transaction == 'lock pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_id = $_POST['pay_run_id'];
+
+            $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+            if($check_pay_run_exist > 0){
+                $update_pay_run_status = $api->update_pay_run_status($pay_run_id, 'LOCK', $username);
+    
+                if($update_pay_run_status){
+                    echo 'Locked';
+                }
+                else{
+                    echo $update_pay_run_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Lock multiple pay run
+    else if($transaction == 'lock multiple pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_ids = $_POST['pay_run_id'];
+
+            foreach($pay_run_ids as $pay_run_id){
+                $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+                if($check_pay_run_exist > 0){
+                    $update_pay_run_status = $api->update_pay_run_status($pay_run_id, 'LOCK', $username);
+                                    
+                    if(!$update_pay_run_status){
+                        $error = $update_pay_run_status;
                     }
                 }
                 else{
@@ -8449,7 +8626,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account_status = $api->update_user_account_status($user_code, 1, $username);
     
-                if($update_user_account_status == 1){
+                if($update_user_account_status){
                     echo 'Activated';
                 }
                 else{
@@ -8475,7 +8652,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_user_account_exist > 0){
                     $update_user_account_status = $api->update_user_account_status($user_code, 1, $username);
                                     
-                    if($update_user_account_status != 1){
+                    if(!$update_user_account_status){
                         $error = $update_user_account_status;
                     }
                 }
@@ -8509,7 +8686,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_user_account_exist > 0){
                 $update_user_account_status = $api->update_user_account_status($user_code, 0, $username);
     
-                if($update_user_account_status == 1){
+                if($update_user_account_status){
                     echo 'Deactivated';
                 }
                 else{
@@ -8535,7 +8712,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_user_account_exist > 0){
                     $update_user_account_status = $api->update_user_account_status($user_code, 0, $username);
                                     
-                    if($update_user_account_status != 1){
+                    if(!$update_user_account_status){
                         $error = $update_user_account_status;
                     }
                 }
@@ -8587,10 +8764,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $attendance_creation_recommendation = $attendance_setting_details[0]['ATTENDANCE_CREATION_RECOMMENDATION'];
                 $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_creation_recommendation_exception_exist($employee_id);
 
-                if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
     
-                    if($update_attendance_creation_status == 1){
+                    if($update_attendance_creation_status){
                         $sent_to_notification_details = $api->get_notification_details(9);
                         $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                         $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -8603,7 +8780,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                             $send_notification = $api->send_notification(9, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
     
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -8622,10 +8799,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, null, $username);
     
-                    if($update_attendance_creation_status == 1){
+                    if($update_attendance_creation_status){
                         $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
     
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'For Recommendation';
                         }
                         else{
@@ -8674,10 +8851,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $attendance_creation_recommendation = $attendance_setting_details[0]['ATTENDANCE_CREATION_RECOMMENDATION'];
                     $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_creation_recommendation_exception_exist($employee_id);
 
-                    if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                    if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                         $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
         
-                        if($update_attendance_creation_status == 1){
+                        if($update_attendance_creation_status){
                             $sent_to_notification_details = $api->get_notification_details(9);
                             $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                             $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -8690,7 +8867,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                                 $send_notification = $api->send_notification(9, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
         
-                                if($send_notification != 1){
+                                if(!$send_notification){
                                     $error = $send_notification;
                                 }
                             }
@@ -8702,10 +8879,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     else{
                         $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'FRREC', null, null, $username);
         
-                        if($update_attendance_creation_status == 1){
+                        if($update_attendance_creation_status){
                             $send_notification = $api->send_notification(3, $from_id, $department_head, $notification_title, $notification_message, $username);
     
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -8720,7 +8897,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if(empty($error)){
-                if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                if($attendance_creation_recommendation == 0 || ($attendance_creation_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                     echo 'Recommended';
                 }
                 else{
@@ -8763,10 +8940,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $attendance_adjustment_recommendation = $attendance_setting_details[0]['ATTENDANCE_ADJUSTMENT_RECOMMENDATION'];
                 $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_adjustment_recommendation_exception_exist($employee_id);
 
-                if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
     
-                    if($update_attendance_adjustment_status == 1){
+                    if($update_attendance_adjustment_status){
                         $sent_to_notification_details = $api->get_notification_details(10);
                         $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                         $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -8779,7 +8956,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                             $send_notification = $api->send_notification(10, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
 
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -8798,10 +8975,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 else{
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
     
-                    if($update_attendance_adjustment_status == 1){
+                    if($update_attendance_adjustment_status){
                         $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
     
-                        if($send_notification == 1){
+                        if($send_notification){
                             echo 'For Recommendation';
                         }
                         else{
@@ -8850,10 +9027,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $attendance_adjustment_recommendation = $attendance_setting_details[0]['ATTENDANCE_ADJUSTMENT_RECOMMENDATION'];
                     $check_attendance_creation_recommendation_exception_exist = $api->check_attendance_adjustment_recommendation_exception_exist($employee_id);
 
-                    if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                    if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                         $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
             
-                        if($update_attendance_adjustment_status == 1){
+                        if($update_attendance_adjustment_status){
                             $sent_to_notification_details = $api->get_notification_details(10);
                             $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                             $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -8866,7 +9043,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                                 $send_notification = $api->send_notification(10, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
         
-                                if($send_notification != 1){
+                                if(!$send_notification){
                                     $error = $send_notification;
                                 }
                             }
@@ -8878,10 +9055,10 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     else{
                         $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'FRREC', null, null, $username);
             
-                        if($update_attendance_adjustment_status == 1){
+                        if($update_attendance_adjustment_status){
                             $send_notification = $api->send_notification(4, $from_id, $department_head, $notification_title, $notification_message, $username);
 
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -8896,7 +9073,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
 
             if(empty($error)){
-                if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation == 1 && $check_attendance_creation_recommendation_exception_exist > 0)){
+                if($attendance_adjustment_recommendation == 0 || ($attendance_adjustment_recommendation && $check_attendance_creation_recommendation_exception_exist > 0)){
                     echo 'Recommended';
                 }
                 else{
@@ -8926,7 +9103,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_creation_exist > 0){
                 $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
     
-                if($update_attendance_creation_status == 1){
+                if($update_attendance_creation_status){
                     $from_details = $api->get_attendance_creation_details($request_id);
                     $from_id = $from_details[0]['RECOMMENDED_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -8942,7 +9119,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                     $send_notification = $api->send_notification(5, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         $sent_to_notification_details = $api->get_notification_details(9);
                         $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                         $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -8955,7 +9132,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                             $send_notification = $api->send_notification(9, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
 
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -8995,7 +9172,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_creation_exist > 0){
                     $update_attendance_creation_status = $api->update_attendance_creation_status($request_id, 'REC', null, null, $username);
         
-                    if($update_attendance_creation_status == 1){
+                    if($update_attendance_creation_status){
                         $from_details = $api->get_attendance_creation_details($request_id);
                         $from_id = $from_details[0]['RECOMMENDED_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -9011,7 +9188,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                         $send_notification = $api->send_notification(5, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             $sent_to_notification_details = $api->get_notification_details(9);
                             $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                             $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -9024,7 +9201,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                                 $send_notification = $api->send_notification(9, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
     
-                                if($send_notification != 1){
+                                if(!$send_notification){
                                     $error = $send_notification;
                                 }
                             }
@@ -9064,7 +9241,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             if($check_attendance_adjustment_exist > 0){
                 $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
     
-                if($update_attendance_adjustment_status == 1){
+                if($update_attendance_adjustment_status){
                     $from_details = $api->get_attendance_adjustment_details($request_id);
                     $from_id = $from_details[0]['RECOMMENDED_BY'];
                     $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -9080,7 +9257,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                     $send_notification = $api->send_notification(6, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                    if($send_notification == 1){
+                    if($send_notification){
                         $sent_to_notification_details = $api->get_notification_details(10);
                         $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                         $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -9093,7 +9270,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 
                             $send_notification = $api->send_notification(10, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
 
-                            if($send_notification != 1){
+                            if(!$send_notification){
                                 $error = $send_notification;
                             }
                         }
@@ -9132,7 +9309,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_attendance_adjustment_exist > 0){
                     $update_attendance_adjustment_status = $api->update_attendance_adjustment_status($request_id, 'REC', null, null, $username);
         
-                    if($update_attendance_adjustment_status == 1){
+                    if($update_attendance_adjustment_status){
                         $from_details = $api->get_attendance_adjustment_details($request_id);
                         $from_id = $from_details[0]['RECOMMENDED_BY'];
                         $employee_id = $from_details[0]['EMPLOYEE_ID'];
@@ -9148,7 +9325,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         
                         $send_notification = $api->send_notification(6, $from_id, $employee_id, $notification_title, $notification_message, $username);
 
-                        if($send_notification == 1){
+                        if($send_notification){
                             $sent_to_notification_details = $api->get_notification_details(10);
                             $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
                             $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
@@ -9161,7 +9338,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     
                                 $send_notification = $api->send_notification(10, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
 
-                                if($send_notification != 1){
+                                if(!$send_notification){
                                     $error = $send_notification;
                                 }
                             }
@@ -9202,7 +9379,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
            
             $update_notification_status = $api->update_notification_status($employee_id, '', 2);
 
-            if($update_notification_status == 1){
+            if($update_notification_status){
                 echo 'Updated';
             }
             else{
@@ -9222,7 +9399,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
            
             $update_notification_status = $api->update_notification_status($employee_id, $notification_id, 1);
 
-            if($update_notification_status == 1){
+            if($update_notification_status){
                 echo 'Updated';
             }
             else{
@@ -9244,7 +9421,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $send_email_notification = $api->send_email_notification('test email', $email, 'Test Email', 'This is a test email.', '', 0, '');
 
-            if($send_email_notification == 1){
+            if($send_email_notification){
                 echo 'Sent';
             }
             else{
