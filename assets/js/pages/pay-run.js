@@ -60,7 +60,7 @@ function initialize_pay_run_table(datatable_name, buttons = false, show_all = fa
             buttons: [
                 'csv', 'excel', 'pdf'
             ],
-            'order': [[ 1, 'asc' ]],
+            'order': [[ 1, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,
@@ -87,7 +87,7 @@ function initialize_pay_run_table(datatable_name, buttons = false, show_all = fa
                 'data': {'type' : type, 'username' : username, 'filter_pay_run_start_date' : filter_pay_run_start_date, 'filter_pay_run_end_date' : filter_pay_run_end_date, 'filter_generated_start_date' : filter_generated_start_date, 'filter_generated_end_date' : filter_generated_end_date, 'filter_pay_run_status' : filter_pay_run_status},
                 'dataSrc' : ''
             },
-            'order': [[ 1, 'asc' ]],
+            'order': [[ 1, 'desc' ]],
             'columns' : column,
             'scrollY': false,
             'scrollX': true,

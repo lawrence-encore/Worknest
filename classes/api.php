@@ -9577,10 +9577,17 @@ class Api{
         
             if($sql->execute()){
                 foreach($payees as $payee){
-                    $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+                    $insert_payslip = $this->insert_payslip($id, $payee, $username);
 
-                    if(!$insert_pay_run_payee){
-                        $error = $insert_pay_run_payee;
+                    if($insert_payslip){
+                        $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+
+                        if(!$insert_pay_run_payee){
+                            $error = $insert_pay_run_payee;
+                        }
+                    }
+                    else{
+                        $error = $insert_payslip;
                     }
                 }
 
@@ -9616,6 +9623,60 @@ class Api{
             }
             else{
                 return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_payslip
+    # Purpose    : Insert payslip.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_payslip($pay_run_id, $employee_id, $username){
+        if ($this->databaseConnection()) {
+            $pay_run_details = $this->get_pay_run_details($pay_run_id);
+            $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
+            $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
+
+            for ($i = strotime($start_date); $i <= strotime($end_date); $i = $i + (60 * 60 * 24)) {
+                $payroll_date = $date('Y-m-d', $i);
+                $day = date('N', $i);
+
+                # Get salary details
+                $get_employee_salary = $this->get_employee_salary($employee_id, $payroll_date);
+                $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+                $salary_frequency = $get_employee_salary[0]['SALARY_FREQUENCY'];
+                $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
+                $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
+                $daily_rate = $get_employee_salary[0]['DAILY_RATE'];
+                
+                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, date('Y-m-d', $i), $day);
+                $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
+
+                if(!empty($work_shift_id)){
+                    $get_employee_attendance = $api->get_employee_attendance($employee_id, $payroll_date);
+                    $attendance_id = $get_employee_attendance[0]['ATTENDANCE_ID'];
+
+                    if(!empty($attendance_id)){
+                        $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
+                        $attendance_late = $get_employee_attendance_details[0]['LATE'];
+                        $attendance_early_leaving = $get_employee_attendance_details[0]['EARLY_LEAVING'];
+                        $attendance_overtime = $get_employee_attendance_details[0]['OVERTIME'];
+                        $attendance_total_working_hours = $get_employee_attendance_details[0]['TOTAL_WORKING_HOURS'];
+
+                        if($attendance_late > 0 || $attendance_early_leaving > 0){
+                            # Check if there is a paid leave that overlaps with the attendance
+                        }
+                    }
+                    else{
+                        # Check if there is a paid leave
+                        # use "get_attendance_total_hours" 
+                    }
+                }
             }
         }
     }
@@ -12922,7 +12983,7 @@ class Api{
         if ($this->databaseConnection()) {
             $response = array();
 
-            $sql = $this->db_connection->prepare('CALL get_payroll_group_employee_details(:pay_run_id)');
+            $sql = $this->db_connection->prepare('CALL get_pay_run_payee_details(:pay_run_id)');
             $sql->bindValue(':pay_run_id', $pay_run_id);
 
             if($sql->execute()){
@@ -14409,6 +14470,34 @@ class Api{
 
         return $response;
     }
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_consider_overtime_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_consider_overtime_status($stat){
+        $response = array();
+
+        if($stat == 1){
+            $status = 'Yes';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -14948,6 +15037,32 @@ class Api{
             else{
                 return $sql->errorInfo()[2];
             }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_date_validation
+    # Purpose    : Checks date range validation.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function check_date_validation($start_date, $end_date){
+        if(!empty($start_date) && !empty($end_date)){
+            if(strtotime($start_date) > strtotime($end_date)){
+                return 'Start Date';
+            }
+            else if(strtotime($end_date . ' ' . $time_out) < strtotime($start_date . ' ' . $time_in)){
+                return 'End Date';
+            }
+            else{
+                return null;
+            }
+        }
+        else{
+            return null;
         }
     }
     # -------------------------------------------------------------

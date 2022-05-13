@@ -5048,56 +5048,63 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
             $end_date = $api->check_date('empty', $_POST['end_date'], '', 'Y-m-d', '', '', '');
 
-            if(!empty($_POST['payroll_group_id']) || !empty($_POST['employee_id'])){
-                $payroll_group_ids = explode(',', $_POST['payroll_group_id']);
-                $employee_ids = explode(',', $_POST['employee_id']);
-                $payees = array();
+            $check_date_validation = $api->check_date_validation($start_date, $end_date);
 
-                if(!empty($_POST['payroll_group_id']) && !empty($_POST['employee_id'])){
-                    foreach($payroll_group_ids as $payroll_group_id){
-                        $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
-
-                        for($i = 0; $i < count($payroll_group_employee_details); $i++) {
-                            $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
-
-                            if (!in_array($payroll_group_employee, $employee_ids)){
-                                $employee_ids[] = $payroll_group_employee; 
+            if(empty($check_date_validation)){
+                if(!empty($_POST['payroll_group_id']) || !empty($_POST['employee_id'])){
+                    $payroll_group_ids = explode(',', $_POST['payroll_group_id']);
+                    $employee_ids = explode(',', $_POST['employee_id']);
+                    $payees = array();
+    
+                    if(!empty($_POST['payroll_group_id']) && !empty($_POST['employee_id'])){
+                        foreach($payroll_group_ids as $payroll_group_id){
+                            $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+    
+                            for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                                $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+    
+                                if (!in_array($payroll_group_employee, $employee_ids)){
+                                    $employee_ids[] = $payroll_group_employee; 
+                                }
+                            }
+                        }
+    
+                        foreach($employee_ids as $employee_id){
+                            $payees[] = $employee_id; 
+                        }
+                    }
+                    else if(!empty($_POST['payroll_group_id']) && empty($_POST['employee_id'])){
+                        foreach($payroll_group_ids as $payroll_group_id){
+                            $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
+    
+                            for($i = 0; $i < count($payroll_group_employee_details); $i++) {
+                                $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
+    
+                                $payees[] = $payroll_group_employee;
                             }
                         }
                     }
-
-                    foreach($employee_ids as $employee_id){
-                        $payees[] = $employee_id; 
-                    }
-                }
-                else if(!empty($_POST['payroll_group_id']) && empty($_POST['employee_id'])){
-                    foreach($payroll_group_ids as $payroll_group_id){
-                        $payroll_group_employee_details = $api->get_payroll_group_employee_details($payroll_group_id);
-
-                        for($i = 0; $i < count($payroll_group_employee_details); $i++) {
-                            $payroll_group_employee = $payroll_group_employee_details[$i]['EMPLOYEE_ID'];
-
-                            $payees[] = $payroll_group_employee;
+                    else {
+                        foreach($employee_ids as $employee_id){
+                            $payees[] = $employee_id; 
                         }
                     }
-                }
-                else {
-                    foreach($employee_ids as $employee_id){
-                        $payees[] = $employee_id; 
+    
+                    $insert_pay_run = $api->insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username);
+    
+                    if($insert_pay_run){
+                        echo 'Inserted';
+                    }
+                    else{
+                        echo $insert_pay_run;
                     }
                 }
-
-                $insert_pay_run = $api->insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username);
-
-                if($insert_pay_run){
-                    echo 'Inserted';
-                }
                 else{
-                    echo $insert_pay_run;
+                    echo 'Payee';
                 }
             }
             else{
-                echo 'Payee';
+                echo $check_date_validation;
             }
         }
     }
@@ -10972,6 +10979,48 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'PAYROLL_GROUP' => $payroll_group_details[0]['PAYROLL_GROUP'],
                 'DESCRIPTION' => $payroll_group_details[0]['DESCRIPTION'],
                 'EMPLOYEE' => $employee
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Pay run summary details
+    else if($transaction == 'pay run summary details'){
+        if(isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+            $payee = '';
+            $pay_run_id = $_POST['pay_run_id'];
+            $pay_run_details = $api->get_pay_run_details($pay_run_id);
+            $pay_run_payee_details = $api->get_pay_run_payee_details($pay_run_id);
+
+            for($i = 0; $i < count($pay_run_payee_details); $i++) {
+                $employee_id = $pay_run_payee_details[$i]['EMPLOYEE_ID'];
+
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $payee .= $employee_details[0]['FILE_AS'] ?? '--';
+
+                if($i != (count($pay_run_payee_details) - 1)){
+                    $payee .= '<br/>';
+                }
+            }
+
+            $generated_by_details = $api->get_employee_details('', $pay_run_details[0]['GENERATED_BY']);
+            $generated_by = $generated_by_details[0]['FILE_AS'] ?? '--';
+
+            $pay_run_status = $api->get_pay_run_status($pay_run_details[0]['STATUS'])[0]['BADGE'];
+            $consider_overtime_status = $api->get_consider_overtime_status($pay_run_details[0]['CONSIDER_OVERTIME'])[0]['BADGE'];
+
+            $response[] = array(
+                'START_DATE' => $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', ''),
+                'END_DATE' => $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', ''),
+                'GENERATION_DATE' => $api->check_date('empty', $pay_run_details[0]['GENERATION_DATE'], '', 'F d, Y', '', '', ''),
+                'GENERATION_TIME' => $api->check_date('empty', $pay_run_details[0]['GENERATION_TIME'], '', 'h:i:s a', '', '', ''),
+                'PAYSLIP_NOTE' => $pay_run_details[0]['PAYSLIP_NOTE'],
+                'GENERATED_BY' => $generated_by,
+                'STATUS' => $pay_run_status,
+                'CONSIDER_OVERTIME' => $consider_overtime_status,
+                'PAYEE' => $payee
             );
 
             echo json_encode($response);

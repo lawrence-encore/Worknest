@@ -9326,6 +9326,12 @@ function initialize_form_validation(form_type){
                         else if(response === 'Payee'){
                             show_alert('Pay Run Error', 'Please choose at least one (1) payroll group or employee.', 'error');
                         }
+                        else if(response === 'Start Date'){
+                            show_alert('Pay Run Error', 'The start date cannot be greater than the end date.', 'error');
+                        }
+                        else if(response === 'End Date'){
+                            show_alert('Pay Run Error', 'The end date cannot be less than the start date.', 'error');
+                        }
                         else{
                             show_alert('Pay Run Error', response, 'error');
                         }
@@ -9659,7 +9665,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -9802,12 +9808,12 @@ function generate_pay_run_payee_option(pay_run_id){
         dataType: 'JSON',
         data: {type : type, pay_run_id : pay_run_id, username : username},
         beforeSend: function(){
-            $('#employee_id').empty();
+            $('#payee').empty();
         },
         success: function(response) {
             for(var i = 0; i < response.length; i++) {
                 newOption = new Option(response[i].FILE_AS, response[i].EMPLOYEE_ID, false, false);
-                $('#employee_id').append(newOption);
+                $('#payee').append(newOption);
             }
         }
     });
@@ -11369,6 +11375,31 @@ function display_form_details(form_type){
                 document.getElementById('employee').innerHTML = response[0].EMPLOYEE;
                 $('#payroll_group').text(response[0].PAYROLL_GROUP);
                 $('#description').text(response[0].DESCRIPTION);
+            }
+        });
+    }
+    else if(form_type == 'pay run details'){
+        transaction = 'pay run summary details';
+        
+        var pay_run_id = sessionStorage.getItem('pay_run_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {pay_run_id : pay_run_id, transaction : transaction},
+            success: function(response) {
+                document.getElementById('payees').innerHTML = response[0].PAYEE;
+                document.getElementById('consider_overtime').innerHTML = response[0].CONSIDER_OVERTIME;
+                document.getElementById('pay_run_status').innerHTML = response[0].STATUS;
+
+                $('#pay_run_id').text(pay_run_id);
+                $('#start_date').text(response[0].START_DATE);
+                $('#end_date').text(response[0].END_DATE);
+                $('#payslip_note').text(response[0].PAYSLIP_NOTE);
+                $('#generated_date').text(response[0].GENERATION_DATE);
+                $('#generated_time').text(response[0].GENERATION_TIME);
+                $('#generated_by').text(response[0].GENERATED_BY);
             }
         });
     }
