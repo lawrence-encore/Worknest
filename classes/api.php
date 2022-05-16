@@ -9641,6 +9641,14 @@ class Api{
             $pay_run_details = $this->get_pay_run_details($pay_run_id);
             $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
             $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
+            $total_late = 0;
+            $total_early_leaving = 0;
+            $total_overtime = 0;
+            $total_working_hours = 0;
+            $total_absent = 0;
+            $total_allowance = 0;
+            $total_deduction = 0;
+            $total_contribution_deduction = 0;
 
             for ($i = strotime($start_date); $i <= strotime($end_date); $i = $i + (60 * 60 * 24)) {
                 $payroll_date = $date('Y-m-d', $i);
@@ -9658,23 +9666,79 @@ class Api{
                 $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
 
                 if(!empty($work_shift_id)){
-                    $get_employee_attendance = $api->get_employee_attendance($employee_id, $payroll_date);
+                    $work_shift_start_time = $work_shift_schedule[0]['START_TIME'];
+                    $work_shift_end_time = $work_shift_schedule[0]['END_TIME'];
+                    $work_shift_lunch_start_time = $work_shift_schedule[0]['LUNCH_START_TIME'];
+                    $work_shift_lunch_end_time = $work_shift_schedule[0]['LUNCH_END_TIME'];
+
+                    $get_employee_attendance = $this->get_employee_attendance($employee_id, $payroll_date);
                     $attendance_id = $get_employee_attendance[0]['ATTENDANCE_ID'];
 
                     if(!empty($attendance_id)){
-                        $get_employee_attendance_details = $api->get_employee_attendance_details($attendance_id);
+                        $get_employee_attendance_details = $this->get_employee_attendance_details($attendance_id);
+                        $attendance_time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
+                        $attendance_time_in = $get_employee_attendance_details[0]['TIME_IN'];
+                        $attendance_time_out_date = $get_employee_attendance_details[0]['TIME_OUT_DATE'];
+                        $attendance_time_out = $get_employee_attendance_details[0]['TIME_OUT'];
                         $attendance_late = $get_employee_attendance_details[0]['LATE'];
                         $attendance_early_leaving = $get_employee_attendance_details[0]['EARLY_LEAVING'];
                         $attendance_overtime = $get_employee_attendance_details[0]['OVERTIME'];
                         $attendance_total_working_hours = $get_employee_attendance_details[0]['TOTAL_WORKING_HOURS'];
 
                         if($attendance_late > 0 || $attendance_early_leaving > 0){
-                            # Check if there is a paid leave that overlaps with the attendance
+                            # Check if there is a paid leave that overlaps with the attendance record
+                            $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
+                            $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
+
+                            if(!empty($paid_employee_leave_id)){
+                                $paid_employee_leave_start_time = $get_paid_employee_leave[0]['START_TIME'];
+                                $paid_employee_leave_end_time = $get_paid_employee_leave[0]['END_TIME'];
+
+                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_start_time) < strtotime($attendance_time_in_date . ' ' . $attendance_time_in)){
+                                    $adjusted_time_in_date = $payroll_date;
+                                    $adjusted_time_in = $paid_employee_leave_start_time;
+                                }
+                                else{
+                                    $adjusted_time_in_date = $attendance_time_in_date;
+                                    $adjusted_time_in = $attendance_time_in;
+                                }
+
+                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_end_time) > strtotime($attendance_time_out_date . ' ' . $attendance_time_out)){
+                                    $adjusted_time_out_date = $payroll_date;
+                                    $adjusted_time_out = $paid_employee_leave_end_time;
+                                }
+                                else{
+                                    $adjusted_time_out_date = $attendance_time_out_date;
+                                    $adjusted_time_out = $attendance_time_out;
+                                }
+
+                                $late = $this->get_attendance_late_total($employee_id, $adjusted_time_out_date, $adjusted_time_in);
+                                $early_leaving = $this->get_attendance_early_leaving_total($employee_id, $adjusted_time_out_date, $adjusted_time_out);
+                                $overtime = $this->get_attendance_overtime_total($employee_id, $adjusted_time_out_date, $adjusted_time_out_date, $adjusted_time_out);
+                                $working_hours = $this->get_attendance_total_hours($employee_id, $adjusted_time_out_date, $adjusted_time_in, $adjusted_time_out_date, $adjusted_time_out);
+                            }
+                            else{
+                                $late = $attendance_late;
+                                $early_leaving = $attendance_early_leaving;
+                                $overtime = $attendance_overtime;
+                                $working_hours = $attendance_total_working_hours;
+                            }
+
+                            $total_late = $total_late + $late;
+                            $total_early_leaving = $total_early_leaving + $early_leaving;
+                            $total_overtime = $total_overtime + $overtime;
+                            $total_working_hours = $total_working_hours + $working_hours;
                         }
                     }
                     else{
-                        # Check if there is a paid leave
-                        # use "get_attendance_total_hours" 
+                        $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
+                        $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
+
+                        if(empty($paid_employee_leave_id)){
+                           $absent = $this->get_attendance_total_hours($employee_id, $payroll_date, $work_shift_start_time, $payroll_date, $work_shift_end_time);
+
+                           $total_absent = $total_absent + $absent;
+                        }
                     }
                 }
             }
@@ -14497,6 +14561,82 @@ class Api{
         );
 
         return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_employee_salary
+    # Purpose    : Gets the employee salary.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_employee_salary($employee_id, $effectivity_date){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_employee_salary(:employee_id, :effectivity_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':effectivity_date', $effectivity_date);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'SALARY_ID' => $row['SALARY_ID'],
+                        'SALARY_AMOUNT' => $row['SALARY_AMOUNT'],
+                        'SALARY_FREQUENCY' => $row['SALARY_FREQUENCY'],
+                        'HOURS_PER_WEEK' => $row['HOURS_PER_WEEK'],
+                        'HOURS_PER_DAY' => $row['HOURS_PER_DAY'],
+                        'MINUTE_RATE' => $row['MINUTE_RATE'],
+                        'HOURLY_RATE' => $row['HOURLY_RATE'],
+                        'DAILY_RATE' => $row['DAILY_RATE'],
+                        'WEEKLY_RATE' => $row['WEEKLY_RATE'],
+                        'BI_WEEKLY_RATE' => $row['BI_WEEKLY_RATE'],
+                        'MONTHLY_RATE' => $row['MONTHLY_RATE']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_paid_employee_leave
+    # Purpose    : Gets the paid employee leave.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_paid_employee_leave($employee_id, $leave_date){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_paid_employee_leave(:employee_id, :leave_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':leave_date', $leave_date);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'LEAVE_ID' => $row['LEAVE_ID'],
+                        'START_TIME' => $row['START_TIME'],
+                        'END_TIME' => $row['END_TIME']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
     }
     # -------------------------------------------------------------
 
