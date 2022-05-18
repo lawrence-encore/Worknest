@@ -7333,6 +7333,9 @@ function initialize_form_validation(form_type){
                             $('#System-Modal').modal('hide');
                             reload_datatable('#contribution-bracket-datatable');
                         }
+                        else if(response === 'Overlap'){
+                            show_alert('Contribution Bracket Error', 'The contribution bracket range overlaps with the other contribution bracket.', 'error');
+                        }
                         else{
                             show_alert('Contribution Bracket Error', response, 'error');
                         }
@@ -9387,6 +9390,95 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'withholding tax form'){
+        $('#withholding-tax-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit withholding tax';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Withholding Tax Success', 'The withholding tax has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Withholding Tax Success', 'The withholding tax has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#withholding-tax-datatable');
+                        }
+                        else if(response === 'Overlap'){
+                            show_alert('Withholding Tax Error', 'The withholding tax range overlaps with the other withholding tax.', 'error');
+                        }
+                        else{
+                            show_alert('Withholding Tax Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                salary_frequency: {
+                    required: true
+                },
+                start_range: {
+                    required: true
+                },
+                end_range: {
+                    required: true
+                },
+                rate: {
+                    required: true
+                }
+            },
+            messages: {
+                salary_frequency: {
+                    required: 'Please choose the salary frequency',
+                },
+                start_range: {
+                    required: 'Please enter the start range',
+                },
+                end_range: {
+                    required: 'Please enter the end range',
+                },
+                rate: {
+                    required: 'Please enter the rate',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -11400,6 +11492,26 @@ function display_form_details(form_type){
                 $('#generated_date').text(response[0].GENERATION_DATE);
                 $('#generated_time').text(response[0].GENERATION_TIME);
                 $('#generated_by').text(response[0].GENERATED_BY);
+            }
+        });
+    }
+    else if(form_type == 'withholding tax form'){
+        transaction = 'withholding tax details';
+        
+        var withholding_tax_id = sessionStorage.getItem('withholding_tax_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {withholding_tax_id : withholding_tax_id, transaction : transaction},
+            success: function(response) {
+                $('#withholding_tax_id').val(withholding_tax_id);
+                $('#start_range').val(response[0].START_RANGE);
+                $('#end_range').val(response[0].END_RANGE);
+                $('#rate').val(response[0].ADDITIONAL_RATE);
+
+                check_option_exist('#salary_frequency', response[0].SALARY_FREQUENCY, '');
             }
         });
     }

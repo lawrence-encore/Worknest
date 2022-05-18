@@ -2721,6 +2721,40 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'withholding tax form'){
+                $form .= '<div class="row">
+                                <div class="col-md-7">
+                                    <div class="mb-3">
+                                        <label for="salary_frequency" class="form-label">Salary Frequency <span class="required">*</span></label>
+                                        <input type="hidden" id="withholding_tax_id" name="withholding_tax_id">
+                                        <select class="form-control form-select2" id="salary_frequency" name="salary_frequency">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('SALARYFREQUENCY');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="mb-3">
+                                        <label for="rate" class="form-label">Rate <span class="required">*</span></label>
+                                        <input id="rate" name="rate" class="form-control" type="number" min="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="start_range" class="form-label">Start Range <span class="required">*</span></label>
+                                        <input id="start_range" name="start_range" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
+                                        <input id="end_range" name="end_range" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -9778,6 +9812,74 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 else{
                     echo $sql->errorInfo()[2];
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Withholding tax table
+    else if($type == 'withholding tax table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_contribution_bracket = $api->check_role_permissions($username, 311);
+            $delete_contribution_bracket = $api->check_role_permissions($username, 312);
+            $view_transaction_log = $api->check_role_permissions($username, 313);
+
+            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE, TRANSACTION_LOG_ID FROM tblwithholdingtax');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $withholding_tax_id = $row['WITHHOLDING_TAX_ID'];
+                    $salary_frequency = $api->get_system_code_details('SALARYFREQUENCY', $row['SALARY_FREQUENCY'])[0]['DESCRIPTION'];
+                    $start_range = $row['START_RANGE'];
+                    $end_range = $row['END_RANGE'];
+                    $additional_rate = $row['ADDITIONAL_RATE'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_contribution_bracket > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-withholding-tax" data-withholding-tax-id="'. $withholding_tax_id .'" title="Edit Withholding Tax">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_contribution_bracket > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-withholding-tax" data-withholding-tax-id="'. $withholding_tax_id .'" title="Delete Withholding Tax">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $withholding_tax_id .'">',
+                        'SALARY_FREQUENCY' => $salary_frequency,
+                        'COMPENSATION_RANGE' => number_format($start_range, 2) . ' - ' . number_format($end_range, 2),
+                        'RATE' => number_format($additional_rate, 2),
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
             }
         }
     }

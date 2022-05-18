@@ -8,7 +8,7 @@
 
     $page_access = $api->check_role_permissions($username, 309);
 	$add_withholding_tax = $api->check_role_permissions($username, 310);
-	$delete_withholding_tax = $api->check_role_permissions($username, 313);
+	$delete_withholding_tax = $api->check_role_permissions($username, 312);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 

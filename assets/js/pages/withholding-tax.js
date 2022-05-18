@@ -19,16 +19,18 @@ function initialize_withholding_tax_table(datatable_name, buttons = false, show_
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ALLOWANCE_TYPE' },
-        { 'data' : 'TAXABLE' },
+        { 'data' : 'SALARY_FREQUENCY' },
+        { 'data' : 'COMPENSATION_RANGE' },
+        { 'data' : 'RATE' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '59%', 'aTargets': 1 },
+        { 'width': '39%', 'aTargets': 1 },
         { 'width': '20%', 'aTargets': 2 },
-        { 'width': '20%','bSortable': false, 'aTargets': 3 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '20%','bSortable': false, 'aTargets': 4 },
     ];
 
     if(show_all){

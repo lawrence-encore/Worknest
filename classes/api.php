@@ -1863,6 +1863,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_withholding_tax_exist
+    # Purpose    : Checks if the withholding tax exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_withholding_tax_exist($withholding_tax_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_withholding_tax_exist(:withholding_tax_id)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -5813,6 +5838,75 @@ class Api{
                 }
                 else{
                     return $insert_transaction_log;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_withholding_tax
+    # Purpose    : Updates withholding tax.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $rate, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $withholding_tax_details = $this->get_withholding_tax_details($withholding_tax_id);
+
+            if(!empty($withholding_tax_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $withholding_tax_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :rate, :transaction_log_id, :record_log)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':rate', $rate);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($withholding_tax_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated withholding tax (' . $withholding_tax_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated withholding tax (' . $withholding_tax_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
                 }
             }
             else{
@@ -9831,6 +9925,71 @@ class Api{
     }
     # -------------------------------------------------------------
 
+    # ------------------------------------------------------------
+    #
+    # Name       : insert_withholding_tax
+    # Purpose    : Insert withholding tax.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_withholding_tax($salary_frequency, $start_range, $end_range, $rate, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(39, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_withholding_tax(:id, :salary_frequency, :start_range, :end_range, :rate, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':rate', $rate);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 39, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted withholding tax (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
@@ -10944,6 +11103,29 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_all_payroll_group_employee(:payroll_group_id)');
             $sql->bindValue(':payroll_group_id', $payroll_group_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_withholding_tax
+    # Purpose    : Delete withholding tax.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_withholding_tax($withholding_tax_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_withholding_tax(:withholding_tax_id)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
         
             if($sql->execute()){
                 return true;
@@ -13126,6 +13308,42 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_withholding_tax_details
+    # Purpose    : Gets the withholding tax details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_withholding_tax_details($withholding_tax_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_withholding_tax_details(:withholding_tax_id)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'SALARY_FREQUENCY' => $row['SALARY_FREQUENCY'],
+                        'START_RANGE' => $row['START_RANGE'],
+                        'END_RANGE' => $row['END_RANGE'],
+                        'ADDITIONAL_RATE' => $row['ADDITIONAL_RATE'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -15261,6 +15479,45 @@ class Api{
         }
         else{
             return null;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_withholding_tax_overlap
+    # Purpose    : Checks the withholding tax overlap.
+    #
+    # Returns    : Date
+    #
+    # -------------------------------------------------------------
+    public function check_withholding_tax_overlap($withholding_tax_id, $salary_frequency, $range){
+        if ($this->databaseConnection()) {
+            $overlap_count = 0;
+
+            $sql = $this->db_connection->prepare('CALL check_withholding_tax_overlap(:withholding_tax_id, :salary_frequency)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+                                                        
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $start_range = $row['START_RANGE'];
+                        $end_range = $row['END_RANGE'];
+
+                        if(($range >= $start_range && $range <= $end_range)){
+                            $overlap_count++;
+                        }                        
+                    }
+    
+                    return $overlap_count;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
         }
     }
     # -------------------------------------------------------------

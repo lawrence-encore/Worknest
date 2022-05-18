@@ -5110,6 +5110,58 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit withholding tax
+    else if($transaction == 'submit withholding tax'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && !empty($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['rate'])){
+            $username = $_POST['username'];
+            $withholding_tax_id = $_POST['withholding_tax_id'];
+            $salary_frequency = $_POST['salary_frequency'];
+            $start_range = $_POST['start_range'];
+            $end_range = $_POST['end_range'];
+            $rate = $_POST['rate'];
+
+            $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id);
+
+            if($check_withholding_tax_exist > 0){
+                $check_start_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id, $salary_frequency, $start_range);
+                $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id, $salary_frequency, $end_range);
+
+                if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
+                    $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $rate, $username);
+
+                    if($update_withholding_tax){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_withholding_tax;
+                    }
+                }
+                else{
+                    echo 'Overlap';
+                }
+            }
+            else{
+                $check_start_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency, $start_range);
+                $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency, $end_range);
+
+                if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
+                    $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency, $start_range, $end_range, $rate, $username);
+
+                    if($insert_withholding_tax){
+                        echo 'Inserted';
+                    }
+                    else{
+                        echo $insert_withholding_tax;
+                    }
+                }
+                else{
+                    echo 'Overlap';
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -6955,6 +7007,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                     else{
                         $error = $delete_payroll_group;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete withholding tax
+    else if($transaction == 'delete withholding tax'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && !empty($_POST['withholding_tax_id'])){
+            $username = $_POST['username'];
+            $withholding_tax_id = $_POST['withholding_tax_id'];
+
+            $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id);
+
+            if($check_withholding_tax_exist > 0){
+                $delete_withholding_tax = $api->delete_withholding_tax($withholding_tax_id, $username);
+                                    
+                if($delete_withholding_tax){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_withholding_tax;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple withholding tax
+    else if($transaction == 'delete multiple withholding tax'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id'])){
+            $username = $_POST['username'];
+            $withholding_tax_ids = $_POST['withholding_tax_id'];
+
+            foreach($withholding_tax_ids as $withholding_tax_id){
+                $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id);
+
+                if($check_withholding_tax_exist > 0){
+                    $delete_withholding_tax = $api->delete_withholding_tax($withholding_tax_id, $username);
+                                    
+                    if(!$delete_withholding_tax){
+                        $error = $delete_withholding_tax;
                     }
                 }
                 else{
@@ -11018,6 +11126,24 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'STATUS' => $pay_run_status,
                 'CONSIDER_OVERTIME' => $consider_overtime_status,
                 'PAYEE' => $payee
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Withholding tax details
+    else if($transaction == 'withholding tax details'){
+        if(isset($_POST['withholding_tax_id']) && !empty($_POST['withholding_tax_id'])){
+            $withholding_tax_id = $_POST['withholding_tax_id'];
+            $withholding_tax_details = $api->get_withholding_tax_details($withholding_tax_id);
+
+            $response[] = array(
+                'SALARY_FREQUENCY' => $withholding_tax_details[0]['SALARY_FREQUENCY'],
+                'START_RANGE' => $withholding_tax_details[0]['START_RANGE'],
+                'END_RANGE' => $withholding_tax_details[0]['END_RANGE'],
+                'ADDITIONAL_RATE' => $withholding_tax_details[0]['ADDITIONAL_RATE']
             );
 
             echo json_encode($response);

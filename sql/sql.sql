@@ -5676,6 +5676,99 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE TABLE tblwithholdingtax(
+	WITHHOLDING_TAX_ID VARCHAR(100) PRIMARY KEY,
+	SALARY_FREQUENCY VARCHAR(50),
+	START_RANGE DOUBLE,
+	END_RANGE DOUBLE,
+	ADDITIONAL_RATE DOUBLE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_withholding_tax_exist(IN withholding_tax_id VARCHAR(100))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblwithholdingtax WHERE WITHHOLDING_TAX_ID = @withholding_tax_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_withholding_tax(IN withholding_tax_id VARCHAR(100), IN salary_frequency VARCHAR(50), IN start_range DOUBLE, IN end_range DOUBLE, IN addition_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+	SET @salary_frequency = salary_frequency;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @addition_rate = addition_rate;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblwithholdingtax SET SALARY_FREQUENCY = @salary_frequency, START_RANGE = @start_range, END_RANGE = @end_range, ADDITIONAL_RATE = @addition_rate, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE WITHHOLDING_TAX_ID = @withholding_tax_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_withholding_tax(IN withholding_tax_id VARCHAR(100), IN salary_frequency VARCHAR(50), IN start_range DOUBLE, IN end_range DOUBLE, IN addition_rate DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+	SET @salary_frequency = salary_frequency;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @addition_rate = addition_rate;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblwithholdingtax (WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@withholding_tax_id, @salary_frequency, @start_range, @end_range, @addition_rate, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_withholding_tax_details(IN withholding_tax_id VARCHAR(100))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+
+	SET @query = 'SELECT SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE, TRANSACTION_LOG_ID, RECORD_LOG FROM tblwithholdingtax WHERE WITHHOLDING_TAX_ID = @withholding_tax_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_withholding_tax(IN withholding_tax_id VARCHAR(100))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+
+	SET @query = 'DELETE FROM tblwithholdingtax WHERE WITHHOLDING_TAX_ID = @withholding_tax_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_withholding_tax_overlap(IN withholding_tax_id VARCHAR(100), IN salary_frequency VARCHAR(50))
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+	SET @salary_frequency = salary_frequency;
+
+	IF @withholding_tax_id IS NULL OR @withholding_tax_id = '' THEN
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblwithholdingtax WHERE SALARY_FREQUENCY = @salary_frequency';
+	ELSE
+		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblwithholdingtax WHERE WITHHOLDING_TAX_ID != @withholding_tax_id AND SALARY_FREQUENCY = @salary_frequency';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 /* Insert */
 
 INSERT INTO tbluseraccount (USERNAME, PASSWORD, USER_ROLE, ACTIVE, PASSWORD_EXPIRY_DATE, FAILED_LOGIN, TRANSACTION_LOG_ID) VALUES ('ADMIN', '68aff5412f35ed76', 'RL-1', 1, '2021-12-30', 0);
