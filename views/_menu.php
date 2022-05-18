@@ -58,6 +58,7 @@
     $payroll_setting_page = $api->check_role_permissions($username, 289);
     $payroll_group_page = $api->check_role_permissions($username, 292);
     $pay_run_page = $api->check_role_permissions($username, 297);
+    $withholding_tax_page = $api->check_role_permissions($username, 309);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -191,7 +192,7 @@
         }
     }
 
-    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $withholding_tax_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
 
         if($payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
@@ -238,7 +239,7 @@
                     </li>';
         }
 
-        if($deduction_type_page > 0 || $government_contribution_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0){
+        if($deduction_type_page > 0 || $government_contribution_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $withholding_tax_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-minus"></i>
@@ -260,6 +261,10 @@
 
                         if($government_contribution_page > 0){
                             $menu .= '<li><a href="government-contribution.php" key="t-government-contribution">Government Contribution</a></li>';
+                        }
+
+                        if($withholding_tax_page > 0){
+                            $menu .= '<li><a href="withholding-tax.php" key="t-withholding-tax">Withholding Tax</a></li>';
                         }
 
             $menu .= '</ul>

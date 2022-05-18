@@ -9638,43 +9638,58 @@ class Api{
     # -------------------------------------------------------------
     public function insert_payslip($pay_run_id, $employee_id, $username){
         if ($this->databaseConnection()) {
+            # Pay run details
             $pay_run_details = $this->get_pay_run_details($pay_run_id);
+            $consider_overtime = $pay_run_details[0]['CONSIDER_OVERTIME'];
             $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
             $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
+
+            # Payroll setting details
+            $payroll_setting_details = $this->get_payroll_setting_details(1);
+            $late_deduction_rate = $payroll_setting_details[0]['LATE_DEDUCTION_RATE'];
+            $early_leaving_deduction_rate = $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'];
+            $overtime_rate = $payroll_setting_details[0]['OVERTIME_RATE'] / 100;
+
             $total_late = 0;
+            $total_late_minutes = 0;
             $total_early_leaving = 0;
+            $total_early_leaving_minutes = 0;
             $total_overtime = 0;
+            $total_overtime_hours = 0;
             $total_working_hours = 0;
             $total_absent = 0;
+            $total_absent_deduction = 0;
             $total_allowance = 0;
             $total_deduction = 0;
             $total_contribution_deduction = 0;
+            $total_salary = 0;
 
             for ($i = strotime($start_date); $i <= strotime($end_date); $i = $i + (60 * 60 * 24)) {
                 $payroll_date = $date('Y-m-d', $i);
                 $day = date('N', $i);
 
-                # Get salary details
+                # Salary details
                 $get_employee_salary = $this->get_employee_salary($employee_id, $payroll_date);
-                $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
-                $salary_frequency = $get_employee_salary[0]['SALARY_FREQUENCY'];
                 $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
                 $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
                 $daily_rate = $get_employee_salary[0]['DAILY_RATE'];
+
+                $total_salary = $total_salary + $daily_rate;
                 
-                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, date('Y-m-d', $i), $day);
+                # Work shift schedule
+                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $payroll_date, $day);
                 $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
 
                 if(!empty($work_shift_id)){
                     $work_shift_start_time = $work_shift_schedule[0]['START_TIME'];
                     $work_shift_end_time = $work_shift_schedule[0]['END_TIME'];
-                    $work_shift_lunch_start_time = $work_shift_schedule[0]['LUNCH_START_TIME'];
-                    $work_shift_lunch_end_time = $work_shift_schedule[0]['LUNCH_END_TIME'];
 
+                    # Get employee attendance id
                     $get_employee_attendance = $this->get_employee_attendance($employee_id, $payroll_date);
                     $attendance_id = $get_employee_attendance[0]['ATTENDANCE_ID'];
 
                     if(!empty($attendance_id)){
+                        # Employee attendance details
                         $get_employee_attendance_details = $this->get_employee_attendance_details($attendance_id);
                         $attendance_time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
                         $attendance_time_in = $get_employee_attendance_details[0]['TIME_IN'];
@@ -9686,7 +9701,7 @@ class Api{
                         $attendance_total_working_hours = $get_employee_attendance_details[0]['TOTAL_WORKING_HOURS'];
 
                         if($attendance_late > 0 || $attendance_early_leaving > 0){
-                            # Check if there is a paid leave that overlaps with the attendance record
+                            # Check if there is an approve paid employee leave
                             $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
                             $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
 
@@ -9724,10 +9739,26 @@ class Api{
                                 $working_hours = $attendance_total_working_hours;
                             }
 
-                            $total_late = $total_late + $late;
-                            $total_early_leaving = $total_early_leaving + $early_leaving;
-                            $total_overtime = $total_overtime + $overtime;
+                            $total_late_minutes = $total_late_minutes + $late;
+                            $total_early_leaving_minutes = $total_early_leaving_minutes + $early_leaving;
+                            $total_overtime_hours = $total_overtime_hours + $overtime;
                             $total_working_hours = $total_working_hours + $working_hours;
+                            
+                            if($late_deduction_rate > 0){
+                                $total_late = $total_late + ($late * $late_deduction_rate);
+                            }
+                            else{
+                                $total_late = $total_late + ($late * $minute_rate);
+                            }
+                            
+                            if($early_leaving_deduction_rate > 0){
+                                $total_early_leaving = $total_early_leaving + ($early_leaving * $early_leaving_deduction_rate);
+                            }
+                            else{
+                                $total_early_leaving = $total_early_leaving + ($early_leaving * $minute_rate);
+                            }
+                            
+                            $total_overtime = $total_overtime + ($overtime * ($hourly_rate * $overtime_rate));
                         }
                     }
                     else{
@@ -9737,10 +9768,37 @@ class Api{
                         if(empty($paid_employee_leave_id)){
                            $absent = $this->get_attendance_total_hours($employee_id, $payroll_date, $work_shift_start_time, $payroll_date, $work_shift_end_time);
 
-                           $total_absent = $total_absent + $absent;
+                           $total_absent = $total_absent + 1;
+                           $total_absent_deduction = $total_absent_deduction + ($absent * $hourly_rate);
                         }
                     }
                 }
+
+                $allowance = $this->get_employee_allowance($employee_id, $payroll_date);
+                $deduction = $this->get_employee_deduction($employee_id, $payroll_date);
+                $contribution_deduction = $this->get_employee_contribution_deduction($employee_id, $payroll_date);
+
+                $total_allowance = $total_allowance + $allowance;
+                $total_deduction = $total_deduction + $deduction;
+                $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
+            }
+
+            if($consider_overtime == 1){
+                $net_pay = ($total_salary + $total_allowance + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving);
+
+                $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
+            }
+            else{
+                $net_pay = ($total_salary + $total_allowance) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving);
+
+                $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, 0, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
+            }
+
+            if($insert_payslip){
+                return true;
+            }
+            else{
+                return $insert_payslip;
             }
         }
     }

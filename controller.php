@@ -10914,11 +10914,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Payroll setting details
     else if($transaction == 'payroll setting details'){
-        $creation = '';
-        $adjustment = '';
         $payroll_setting_details = $api->get_payroll_setting_details(1);
        
-
         $response[] = array(
             'LATE_DEDUCTION_RATE' => $payroll_setting_details[0]['LATE_DEDUCTION_RATE'] ?? 0,
             'EARLY_LEAVING_DEDUCTION_RATE' => $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'] ?? 0,
