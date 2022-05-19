@@ -8931,6 +8931,86 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'import other income form'){
+        $('#import-other-income-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import other income';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Other Income Success', 'The other income has been imported.', 'success');
+                            reload_datatable('#import-other-income-datatable');
+
+                            $('#import-other-income').addClass('d-none');
+                            $('#submit-import-other-income').removeClass('d-none');
+                            $('#clear-import-other-income').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Other Income Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Other Income Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Other Income Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
     else if(form_type == 'import deduction form'){
         $('#import-deduction-form').validate({
             submitHandler: function (form) {
@@ -10102,7 +10182,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details' || element_type == 'other income details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -12001,6 +12081,10 @@ function truncate_temporary_table(table_name){
 
             if($('#import-withholding-tax-datatable').length){
                 initialize_temporary_withholding_tax_table('#import-withholding-tax-datatable', false, true);
+            }
+
+            if($('#import-other-income-datatable').length){
+                initialize_temporary_other_income_table('#import-other-income-datatable', false, true);
             }
         }
     });

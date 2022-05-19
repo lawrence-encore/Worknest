@@ -110,15 +110,15 @@ function initialize_click_events(){
     });
 
     $(document).on('click','.update-other-income-type',function() {
-        var allowance_type_id = $(this).data('other-income-type-id');
+        var other_income_type_id = $(this).data('other-income-type-id');
 
-        sessionStorage.setItem('allowance_type_id', allowance_type_id);
+        sessionStorage.setItem('other_income_type_id', other_income_type_id);
         
         generate_modal('other income type form', 'Other Income Type', 'R' , '1', '1', 'form', 'other-income-type-form', '0', username);
     });
     
     $(document).on('click','.delete-other-income-type',function() {
-        var allowance_type_id = $(this).data('other-income-type-id');
+        var other_income_type_id = $(this).data('other-income-type-id');
         var transaction = 'delete other income type';
 
         Swal.fire({
@@ -136,7 +136,7 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                    data: {username : username, other_income_type_id : other_income_type_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
                           show_alert('Delete Other Income Type', 'The other income type has been deleted.', 'success');
@@ -157,16 +157,16 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#delete-other-income-type',function() {
-        var allowance_type_id = [];
+        var other_income_type_id = [];
         var transaction = 'delete multiple other income type';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                allowance_type_id.push(this.value);  
+                other_income_type_id.push(this.value);  
             }
         });
 
-        if(allowance_type_id.length > 0){
+        if(other_income_type_id.length > 0){
             Swal.fire({
                 title: 'Delete Multiple Other Income Types',
                 text: 'Are you sure you want to delete these other income types?',
@@ -183,7 +183,7 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, allowance_type_id : allowance_type_id, transaction : transaction},
+                        data: {username : username, other_income_type_id : other_income_type_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
                                 show_alert('Delete Multiple Other Income Types', 'The other income types have been deleted.', 'success');

@@ -739,6 +739,15 @@ CREATE TABLE temp_allowance(
 	AMOUNT DOUBLE NOT NULL
 );
 
+CREATE TABLE temp_other_income(
+	OTHER_INCOME_ID VARCHAR(100),
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	OTHER_INCOME_TYPE VARCHAR(100) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE NOT NULL
+);
+
 CREATE TABLE temp_deduction(
 	DEDUCTION_ID VARCHAR(100),
 	EMPLOYEE_ID VARCHAR(100) NOT NULL,
@@ -5279,6 +5288,22 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE insert_temporary_other_income(IN other_income_id VARCHAR(100), IN employee_id VARCHAR(100), IN other_income_type VARCHAR(100), IN payroll_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE)
+BEGIN
+	SET @other_income_id = other_income_id;
+	SET @employee_id = employee_id;
+	SET @other_income_type = other_income_type;
+	SET @payroll_id = payroll_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+
+	SET @query = 'INSERT INTO temp_other_income (OTHER_INCOME_ID, EMPLOYEE_ID, OTHER_INCOME_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT) VALUES(@other_income_id, @employee_id, @other_income_type, @payroll_id, @payroll_date, @amount)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 CREATE PROCEDURE insert_temporary_deduction(IN deduction_id VARCHAR(100), IN employee_id VARCHAR(100), IN deduction_type VARCHAR(100), IN payroll_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE)
 BEGIN
 	SET @deduction_id = deduction_id;
@@ -5805,7 +5830,7 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE PROCEDURE check_other_income_exist_type(IN other_income_id VARCHAR(100))
+CREATE PROCEDURE check_other_income_type_exist(IN other_income_id VARCHAR(100))
 BEGIN
 	SET @other_income_id = other_income_id;
 

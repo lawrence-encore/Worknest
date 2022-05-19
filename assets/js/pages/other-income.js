@@ -18,7 +18,7 @@ function initialize_other_income_table(datatable_name, buttons = false, show_all
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
     var filter_other_income_type = $('#filter_other_income_type').val();
-    var type = 'allowance table';
+    var type = 'other income table';
     var settings;
 
     var column = [ 

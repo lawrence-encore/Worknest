@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form' || $form_type == 'import contribution deduction form' || $form_type == 'import withholding tax form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form' || $form_type == 'import contribution deduction form' || $form_type == 'import withholding tax form' || $form_type == 'import other income form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -2759,7 +2759,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $form .= '<div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="other_income_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <label for="other_income_type" class="form-label">Other Income Type <span class="required">*</span></label>
                                         <input type="hidden" id="other_income_type_id" name="other_income_type_id">
                                         <input type="text" class="form-control form-maxlength" autocomplete="off" id="other_income_type" name="other_income_type" maxlength="100">
                                     </div>
@@ -2798,7 +2798,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="other_income_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <label for="other_income_type" class="form-label">Other Income Type <span class="required">*</span></label>
                                         <select class="form-control form-select2" id="other_income_type" name="other_income_type">
                                         <option value="">--</option>'; 
                                         $form .= $api->generate_other_income_type_options();
@@ -9414,6 +9414,41 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         }
     }
     # -------------------------------------------------------------
+    
+    # Temporary other income table
+    else if($type == 'temporary other income table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT OTHER_INCOME_ID, EMPLOYEE_ID, OTHER_INCOME_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT FROM temp_other_income');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $other_income_id = $row['OTHER_INCOME_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+                    $other_income_type = $row['OTHER_INCOME_TYPE'];
+                    $payroll_id = $row['PAYROLL_ID'];
+                    $amount = $row['AMOUNT'];
+                    
+                    $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'] ?? null, '', 'Y-m-d', '', '', '');
+
+                    $response[] = array(
+                        'OTHER_INCOME_ID' => $other_income_id,
+                        'EMPLOYEE_ID' => $employee_id,
+                        'OTHER_INCOME_TYPE' => $other_income_type,
+                        'PAYROLL_ID' => $payroll_id,
+                        'PAYROLL_DATE' => $payroll_date,
+                        'AMOUNT' => $amount
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
 
     # Temporary deduction table
     else if($type == 'temporary deduction table'){
@@ -10147,7 +10182,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # -------------------------------------------------------------
 
     # Other income table
-    else if($type == 'other income table'){ 
+    else if($type == 'other income table'){
         if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_other_income_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 # Get permission

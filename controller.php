@@ -1755,6 +1755,103 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Import other income
+    else if($transaction == 'import other income'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(19);
+            $upload_file_type_details = $api->get_upload_file_type_details(19);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_other_income_table = $api->truncate_temporary_other_income_table();
+
+                        if($truncate_temporary_other_income_table){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $other_income_id = $column[0];
+                                $employee_id = $column[1];
+                                $other_income_type = $column[2];
+                                $payroll_id = $column[3];
+                                $payroll_date = $api->check_date('empty', $column[4], '', 'Y-m-d', '', '', '');
+                                $amount = $column[5];
+
+                                if(!empty($employee_id) && !empty($other_income_type) && !empty($payroll_date) && !empty($amount)){
+                                    $insert_temporary_other_income = $api->insert_temporary_other_income($other_income_id, $employee_id, $other_income_type, $payroll_id, $payroll_date, $amount);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_other_income_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import other income data
+    else if($transaction == 'import other income data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_id']) && isset($_POST['employee_id']) && isset($_POST['other_income_type']) && isset($_POST['payroll_id']) && isset($_POST['payroll_date']) && isset($_POST['amount'])){
+            $username = $_POST['username'];
+            $other_income_id = $_POST['other_income_id'];
+            $employee_id = $_POST['employee_id'];
+            $other_income_type = $_POST['other_income_type'];
+            $payroll_id = $_POST['payroll_id'];
+            $payroll_date = $_POST['payroll_date'];
+            $amount = $_POST['amount'];
+
+            for($i = 0; $i < count($employee_id); $i++){
+                $check_other_income_exist = $api->check_other_income_exist($other_income_id[$i]);
+
+                if($check_other_income_exist > 0){
+                    $update_other_income = $api->update_other_income($other_income_id[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+                else{
+                    $insert_other_income = $api->insert_other_income($employee_id[$i], $other_income_type[$i], $payroll_date[$i], $amount[$i], $username);
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Truncate transactions
     # -------------------------------------------------------------
@@ -1785,6 +1882,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else if($table_name == 'import allowance'){
                 $truncate_table = $api->truncate_temporary_allowance_table();
+            }
+            else if($table_name == 'import other income'){
+                $truncate_table = $api->truncate_temporary_other_income_table();
             }
             else if($table_name == 'import deduction'){
                 $truncate_table = $api->truncate_temporary_deduction_table();
@@ -6933,7 +7033,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     else if($transaction == 'delete multiple other income'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_id'])){
             $username = $_POST['username'];
-            $other_income_type_ids = $_POST['other_income_id'];
+            $other_income_ids = $_POST['other_income_id'];
 
             foreach($other_income_ids as $other_income_id){
                 $check_other_income_exist = $api->check_other_income_exist($other_income_id);
