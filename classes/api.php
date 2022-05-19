@@ -620,6 +620,28 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : truncate_temporary_other_income_table
+    # Purpose    : Truncates the temporary table for other income.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_other_income_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_other_income');
+
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : truncate_temporary_deduction_table
     # Purpose    : Truncates the temporary table for deduction.
     #
@@ -5312,7 +5334,7 @@ class Api{
     public function update_other_income_type($other_income_type_id, $other_income_type, $taxable, $description, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
-            $other_income_type_details = $this->other_income_type_details($other_income_type_id);
+            $other_income_type_details = $this->get_other_income_type_details($other_income_type_id);
 
             if(!empty($other_income_type_details[0]['TRANSACTION_LOG_ID'])){
                 $transaction_log_id = $other_income_type_details[0]['TRANSACTION_LOG_ID'];
@@ -9619,6 +9641,34 @@ class Api{
             $sql->bindValue(':allowance_id', $allowance_id);
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':allowance_type', $allowance_type);
+            $sql->bindValue(':payroll_id', $payroll_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_other_income
+    # Purpose    : Inserts temporary other income for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_other_income($other_income_id, $employee_id, $other_income_type, $payroll_id, $payroll_date, $amount){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_other_income(:other_income_id, :employee_id, :other_income_type, :payroll_id, :payroll_date, :amount)');
+            $sql->bindValue(':other_income_id', $other_income_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':other_income_type', $other_income_type);
             $sql->bindValue(':payroll_id', $payroll_id);
             $sql->bindValue(':payroll_date', $payroll_date);
             $sql->bindValue(':amount', $amount);
