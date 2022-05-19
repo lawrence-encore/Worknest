@@ -7160,6 +7160,271 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'other income type form'){
+        $('#other-income-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit other income type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Other Income Type Success', 'The other income type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Other Income Type Success', 'The other income type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#other-income-type-datatable');
+                        }
+                        else{
+                            show_alert('Other Income Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                other_income_type: {
+                    required: true
+                },
+                taxable: {
+                    required: true
+                },
+                description: {
+                    required: true
+                }
+            },
+            messages: {
+                other_income_type: {
+                    required: 'Please enter the other income type',
+                },
+                taxable: {
+                    required: 'Please choose the tax type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'other income form'){
+        $('#other-income-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit other income';
+
+                var employee = $('#employee').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee=' + employee,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Inserted'){
+                            show_alert('Insert Other Income Success', 'The other income has been inserted.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#other-income-datatable');
+                        }
+                        else{
+                            show_alert('Other Income Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+                allowance_type: {
+                    required: true
+                },
+                amount: {
+                    required: true
+                },
+                recurrence_pattern: {
+                    required:  function(element){
+                        var recurrence = $('#recurrence').val();
+
+                        if(recurrence > 0){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                recurrence: {
+                    required:  function(element){
+                        var recurrence_pattern = $('#recurrence_pattern').val();
+
+                        if(recurrence_pattern != ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                start_date: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+                allowance_type: {
+                    required: 'Please choose the allowance type',
+                },
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                recurrence_pattern: {
+                    required: 'Please choose the recurrence pattern',
+                },
+                recurrence: {
+                    required: 'Please enter the recurrence',
+                },
+                start_date: {
+                    required: 'Please choose the start date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'other income update form'){
+        $('#other-income-update-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit other income update';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Update Other Income Success', 'The other income has been updated.', 'success');
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#other-income-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                            show_alert('Update Other Income Error', 'The other income does not exist.', 'error');
+                        }
+                        else{
+                            show_alert('Other Income Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                amount: {
+                    required: true
+                },
+                payroll_date: {
+                    required: true
+                }
+            },
+            messages: {
+                amount: {
+                    required: 'Please enter the amount',
+                },
+                payroll_date: {
+                    required: 'Please choose the payroll date',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
     else if(form_type == 'deduction type form'){
         $('#deduction-type-form').validate({
             submitHandler: function (form) {
@@ -8945,6 +9210,86 @@ function initialize_form_validation(form_type){
                         }
                         else{
                             show_alert('Import Contribution Deduction Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'import withholding tax form'){
+        $('#import-withholding-tax-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import withholding tax';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Withholding Tax Success', 'The withholding tax has been imported.', 'success');
+                            reload_datatable('#import-withholding-tax-datatable');
+
+                            $('#import-withholding-tax').addClass('d-none');
+                            $('#submit-import-withholding-tax').removeClass('d-none');
+                            $('#clear-import-withholding-tax').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Withholding Tax Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Withholding Tax Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Withholding Tax Error', response, 'error');
                         }
                     },
                     complete: function(){
@@ -11233,6 +11578,64 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'other income type form'){
+        transaction = 'other income type details';
+        
+        var other_income_type_id = sessionStorage.getItem('other_income_type_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {other_income_type_id : other_income_type_id, transaction : transaction},
+            success: function(response) {
+                $('#other_income_type_id').val(other_income_type_id);
+                $('#other_income_type').val(response[0].OTHER_INCOME_TYPE);
+                $('#description').val(response[0].DESCRIPTION);
+
+                check_option_exist('#taxable', response[0].TAXABLE, '');
+            }
+        });
+    }
+    else if(form_type == 'other income update form'){
+        transaction = 'other income details';
+        
+        var other_income_id = sessionStorage.getItem('other_income_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {other_income_id : other_income_id, transaction : transaction},
+            success: function(response) {
+                $('#other_income_id').val(other_income_id);
+                $('#amount').val(response[0].AMOUNT);
+                $('#payroll_date').val(response[0].PAYROLL_DATE);
+
+                check_option_exist('#employee_id', response[0].EMPLOYEE_ID, '');
+                check_option_exist('#other_income_type', response[0].OTHER_INCOME_TYPE, '');
+            }
+        });
+    }
+    else if(form_type == 'other income details'){
+        transaction = 'other income summary details';
+
+        var other_income_id = sessionStorage.getItem('other_income_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {other_income_id : other_income_id, transaction : transaction},
+            success: function(response) {
+                $('#employee').text(response[0].EMPLOYEE_ID);
+                $('#other_income_type').text(response[0].OTHER_INCOME_TYPE);
+                $('#payroll_date').text(response[0].PAYROLL_DATE);
+                $('#amount').text(response[0].AMOUNT);
+                document.getElementById('payroll').innerHTML = response[0].PAYROLL;
+            }
+        });
+    }
     else if(form_type == 'deduction type form'){
         transaction = 'deduction type details';
         
@@ -11594,6 +11997,10 @@ function truncate_temporary_table(table_name){
 
             if($('#import-contribution-deduction-datatable').length){
                 initialize_temporary_contribution_deduction_table('#import-contribution-deduction-datatable', false, true);
+            }
+
+            if($('#import-withholding-tax-datatable').length){
+                initialize_temporary_withholding_tax_table('#import-withholding-tax-datatable', false, true);
             }
         }
     });

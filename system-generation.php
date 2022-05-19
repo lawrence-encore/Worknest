@@ -2404,7 +2404,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
-            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form' || $form_type == 'import contribution deduction form'){
+            else if($form_type == 'import employee form' || $form_type == 'import attendance record form' || $form_type == 'import leave entitlement form' || $form_type == 'import leave form' || $form_type == 'import attendance adjustment form' || $form_type == 'import attendance creation form' || $form_type == 'import allowance form' || $form_type == 'import deduction form' || $form_type == 'import government contribution form' || $form_type == 'import contribution bracket form' || $form_type == 'import contribution deduction form' || $form_type == 'import withholding tax form'){
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
@@ -2751,6 +2751,143 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <div class="mb-3">
                                         <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
                                         <input id="end_range" name="end_range" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'other income type form'){
+                $form .= '<div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="other_income_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <input type="hidden" id="other_income_type_id" name="other_income_type_id">
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="other_income_type" name="other_income_type" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="taxable" class="form-label">Tax Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="taxable" name="taxable">
+                                            <option value="">--</option>
+                                            <option value="TAX">Taxable</option>
+                                            <option value="NTAX">Non-Taxable</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                        <textarea class="form-control form-maxlength" id="description" name="description" maxlength="200" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'other income form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <select class="form-control form-select2" multiple="multiple" id="employee_id" name="employee_id">';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="other_income_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="other_income_type" name="other_income_type">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_other_income_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence" class="form-label">Recurrence</label>
+                                        <input id="recurrence" name="recurrence" class="form-control" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="recurrence_pattern" class="form-label">Recurrence Pattern</label>
+                                        <select class="form-control form-select2" id="recurrence_pattern" name="recurrence_pattern">
+                                        <option value="">--</option>'; 
+                                        $form .= $api->generate_system_code_options('RECURRENCEPATTERN');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Start Date <span class="required">*</span></label>
+                                        <div class="input-group" id="start-date-container">
+                                            <input type="text" class="form-control" id="start_date" name="start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#start-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">End Date</label>
+                                        <div class="input-group" id="end-date-container">
+                                            <input type="text" class="form-control" id="end_date" name="end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#end-date-container" data-provide="datepicker" data-date-autoclose="true" disabled>
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+            }
+            else if($form_type == 'other income update form'){
+                $form .= '<div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employee <span class="required">*</span></label>
+                                        <input type="hidden" id="other_income_id" name="other_income_id">
+                                        <select class="form-control form-select2" id="employee_id" name="employee_id" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_employee_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="other_income_type" class="form-label">Allowance Type <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="other_income_type" name="other_income_type" disabled>
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_other_income_type_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount <span class="required">*</span></label>
+                                        <input id="amount" name="amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payroll Date <span class="required">*</span></label>
+                                        <div class="input-group" id="payroll-date-container">
+                                            <input type="text" class="form-control" id="payroll_date" name="payroll_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#payroll-date-container" data-provide="datepicker" data-date-autoclose="true">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>';
@@ -3407,6 +3544,32 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <tr>
                                         <th scope="row">Allowance Type :</th>
                                         <td id="allowance_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll :</th>
+                                        <td id="payroll"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Payroll Date :</th>
+                                        <td id="payroll_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Amount :</th>
+                                        <td id="amount"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
+            else if($element_type == 'other income details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Employee :</th>
+                                        <td id="employee"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Other Income Type :</th>
+                                        <td id="other_income_type"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Payroll :</th>
@@ -9345,7 +9508,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # -------------------------------------------------------------
 
     # Temporary contribution deduction table
-    else if($type == 'temporary contribution deduction table'){ 
+    else if($type == 'temporary contribution deduction table'){
         if ($api->databaseConnection()) {
             $sql = $api->db_connection->prepare('SELECT CONTRIBUTION_DEDUCTION_ID, EMPLOYEE_ID, GOVERNMENT_CONTRIBUTION_TYPE, PAYROLL_ID, PAYROLL_DATE FROM temp_contribution_deduction');
 
@@ -9364,6 +9527,37 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'GOVERNMENT_CONTRIBUTION_TYPE' => $government_contribution_type,
                         'PAYROLL_ID' => $payroll_id,
                         'PAYROLL_DATE' => $payroll_date
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Temporary withholding tax table
+    else if($type == 'temporary withholding tax table'){
+        if ($api->databaseConnection()) {
+            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE FROM temp_withholding_tax');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $withholding_tax_id = $row['WITHHOLDING_TAX_ID'];
+                    $salary_frequency = $row['SALARY_FREQUENCY'];
+                    $start_range = $row['START_RANGE'];
+                    $end_range = $row['END_RANGE'];
+                    $additional_rate = $row['ADDITIONAL_RATE'];
+
+                    $response[] = array(
+                        'WITHHOLDING_TAX_ID' => $withholding_tax_id,
+                        'SALARY_FREQUENCY' => $salary_frequency,
+                        'START_RANGE' => $start_range,
+                        'END_RANGE' => $end_range,
+                        'ADDITIONAL_RATE' => $additional_rate
                     );
                 }
 
@@ -9880,6 +10074,211 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else{
                 echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Other income type table
+    else if($type == 'other income type table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_other_income_type = $api->check_role_permissions($username, 318);
+            $delete_other_income_type = $api->check_role_permissions($username, 319);
+            $view_transaction_log = $api->check_role_permissions($username, 320);
+
+            $sql = $api->db_connection->prepare('SELECT OTHER_INCOME_TYPE_ID, DESCRIPTION, OTHER_INCOME_TYPE, TAXABLE, TRANSACTION_LOG_ID FROM tblotherincometype ORDER BY OTHER_INCOME_TYPE');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $other_income_type_id = $row['OTHER_INCOME_TYPE_ID'];
+                    $other_income_type = $row['OTHER_INCOME_TYPE'];
+                    $description = $row['DESCRIPTION'];
+                    $taxable = $row['TAXABLE'];
+                    $other_income_type_status_name = $api->get_other_income_type_status($taxable)[0]['BADGE'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_other_income_type > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-other-income-type" data-other-income-type-id="'. $other_income_type_id .'" title="Edit Other Income Type">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_other_income_type > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-other-income-type" data-other-income-type-id="'. $other_income_type_id .'" title="Delete Other Income Type">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $other_income_type_id .'">',
+                        'OTHER_INCOME_TYPE' => $other_income_type . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'TAXABLE' => $other_income_type_status_name,
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Other income table
+    else if($type == 'other income table'){ 
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_other_income_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_other_income = $api->check_role_permissions($username, 323);
+                $delete_other_income = $api->check_role_permissions($username, 324);
+                $view_transaction_log = $api->check_role_permissions($username, 325);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_other_income_type = $_POST['filter_other_income_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT OTHER_INCOME_ID, EMPLOYEE_ID, OTHER_INCOME_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID FROM tblotherincome WHERE ';
+    
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_other_income_type)){
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $filter[] = 'PAYROLL_DATE BETWEEN :filter_start_date AND :filter_end_date';
+                    }
+
+                    if(!empty($filter_other_income_type)){
+                        $filter[] = 'OTHER_INCOME_TYPE = :filter_other_income_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch)  || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date)) || !empty($filter_other_income_type)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+
+                    if(!empty($filter_other_income_type)){
+                        $sql->bindValue(':filter_other_income_type', $filter_other_income_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $other_income_id = $row['OTHER_INCOME_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $other_income_type = $row['OTHER_INCOME_TYPE'];
+                        $payroll_id = $row['PAYROLL_ID'];
+                        $amount = $row['AMOUNT'];
+                        $payroll_date = $api->check_date('empty', $row['PAYROLL_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $other_income_type_details = $api->get_other_income_type_details($other_income_type);
+                        $other_income_type_name = $other_income_type_details[0]['OTHER_INCOME_TYPE'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if(empty($payroll_id)){
+                            if($update_other_income > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-other-income" data-other-income-id="'. $other_income_id .'" title="Edit Other Income">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
+                            }
+        
+                            if($delete_other_income > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-other-income" data-other-income-id="'. $other_income_id .'" title="Delete Other Income">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $check_box = '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $other_income_id .'">';
+                        }
+                        else{
+                            $update = '';
+                            $delete = '';
+                            $check_box = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => $check_box,
+                            'FILE_AS' => $file_as,
+                            'OTHER_INCOME_TYPE' => $other_income_type_name,
+                            'PAYROLL_DATE' => $payroll_date,
+                            'AMOUNT' => number_format($amount, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-other-income" data-other-income-id="'. $other_income_id .'" title="View Other Income">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
             }
         }
     }

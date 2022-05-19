@@ -770,6 +770,14 @@ CREATE TABLE temp_contribution_deduction(
 	PAYROLL_DATE DATE NOT NULL
 );
 
+CREATE TABLE temp_withholding_tax(
+	WITHHOLDING_TAX_ID VARCHAR(100),
+	SALARY_FREQUENCY VARCHAR(50),
+	START_RANGE DOUBLE,
+	END_RANGE DOUBLE,
+	ADDITIONAL_RATE DOUBLE
+);
+
 CREATE TABLE tblpayrollsetting(
 	SETTING_ID INT PRIMARY KEY,
 	LATE_DEDUCTION_RATE DOUBLE NOT NULL,
@@ -844,6 +852,29 @@ CREATE TABLE tblwithholdingtax(
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
+
+CREATE TABLE tblotherincometype(
+	OTHER_INCOME_TYPE_ID VARCHAR(100) PRIMARY KEY,
+	OTHER_INCOME_TYPE VARCHAR(50),
+	DESCRIPTION VARCHAR(100),
+	TAXABLE VARCHAR(5),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tblotherincome(
+	OTHER_INCOME_ID VARCHAR(100) PRIMARY KEY,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	OTHER_INCOME_TYPE VARCHAR(100) NOT NULL,
+	PAYROLL_ID DATE,
+	PAYROLL_DATE DATE NOT NULL,
+	AMOUNT DOUBLE,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX other_income_type_index ON tblotherincometype(OTHER_INCOME_TYPE_ID);
+CREATE INDEX other_income_index ON tblotherincome(OTHER_INCOME_ID);
 
 /* Index */
 
@@ -5676,16 +5707,6 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
-CREATE TABLE tblwithholdingtax(
-	WITHHOLDING_TAX_ID VARCHAR(100) PRIMARY KEY,
-	SALARY_FREQUENCY VARCHAR(50),
-	START_RANGE DOUBLE,
-	END_RANGE DOUBLE,
-	ADDITIONAL_RATE DOUBLE,
-	TRANSACTION_LOG_ID VARCHAR(500),
-	RECORD_LOG VARCHAR(100)
-);
-
 CREATE PROCEDURE check_withholding_tax_exist(IN withholding_tax_id VARCHAR(100))
 BEGIN
 	SET @withholding_tax_id = withholding_tax_id;
@@ -5763,6 +5784,160 @@ BEGIN
 	ELSE
 		SET @query = 'SELECT START_RANGE, END_RANGE FROM tblwithholdingtax WHERE WITHHOLDING_TAX_ID != @withholding_tax_id AND SALARY_FREQUENCY = @salary_frequency';
     END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_temporary_withholding_tax(IN withholding_tax_id VARCHAR(100), IN salary_frequency VARCHAR(50), IN start_range DOUBLE, IN end_range DOUBLE, IN addition_rate DOUBLE)
+BEGIN
+	SET @withholding_tax_id = withholding_tax_id;
+	SET @salary_frequency = salary_frequency;
+	SET @start_range = start_range;
+	SET @end_range = end_range;
+	SET @addition_rate = addition_rate;
+
+	SET @query = 'INSERT INTO temp_withholding_tax (WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE) VALUES(@withholding_tax_id, @salary_frequency, @start_range, @end_range, @addition_rate)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_other_income_exist_type(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblotherincometype WHERE OTHER_INCOME_TYPE_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_other_income_type(IN other_income_id VARCHAR(100), IN other_income VARCHAR(50), IN taxable VARCHAR(5), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+	SET @other_income = other_income;
+	SET @taxable = taxable;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblotherincometype SET OTHER_INCOME_TYPE = @other_income, TAXABLE = @taxable, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE OTHER_INCOME_TYPE_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_other_income_type(IN other_income_id VARCHAR(100), IN other_income VARCHAR(50), IN taxable VARCHAR(5), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+	SET @other_income = other_income;
+	SET @taxable = taxable;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblotherincometype (OTHER_INCOME_TYPE_ID, OTHER_INCOME_TYPE, TAXABLE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@other_income_id, @other_income, @taxable, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_other_income_type_details(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'SELECT OTHER_INCOME_TYPE, TAXABLE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblotherincometype WHERE OTHER_INCOME_TYPE_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_other_income_type(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'DELETE FROM tblotherincometype WHERE OTHER_INCOME_TYPE_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_other_income_type_options()
+BEGIN
+	SET @query = 'SELECT OTHER_INCOME_TYPE_ID, OTHER_INCOME_TYPE FROM tblotherincometype ORDER BY OTHER_INCOME_TYPE';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_other_income_exist(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblotherincome WHERE OTHER_INCOME_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_other_income(IN other_income_id VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblotherincome SET PAYROLL_DATE = @payroll_date, AMOUNT = @amount, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE OTHER_INCOME_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_other_income(IN other_income_id VARCHAR(100), IN employee_id VARCHAR(100), IN other_income VARCHAR(100), IN payroll_date DATE, IN amount DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+	SET @employee_id = employee_id;
+	SET @other_income = other_income;
+	SET @payroll_date = payroll_date;
+	SET @amount = amount;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblotherincome (OTHER_INCOME_ID, EMPLOYEE_ID, OTHER_INCOME_TYPE, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@other_income_id, @employee_id, @other_income, @payroll_date, @amount, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_other_income_details(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, OTHER_INCOME_TYPE, PAYROLL_ID, PAYROLL_DATE, AMOUNT, TRANSACTION_LOG_ID, RECORD_LOG FROM tblotherincome WHERE OTHER_INCOME_ID = @other_income_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_other_income(IN other_income_id VARCHAR(100))
+BEGIN
+	SET @other_income_id = other_income_id;
+
+	SET @query = 'DELETE FROM tblotherincome WHERE OTHER_INCOME_ID = @other_income_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

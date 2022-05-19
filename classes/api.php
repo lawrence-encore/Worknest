@@ -707,6 +707,28 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : truncate_temporary_withholding_tax_table
+    # Purpose    : Truncates the temporary table for withholding tax.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function truncate_temporary_withholding_tax_table(){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('TRUNCATE TABLE temp_withholding_tax');
+
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check data exist methods
     # -------------------------------------------------------------
     
@@ -1624,6 +1646,56 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL check_allowance_exist(:allowance_id)');
             $sql->bindValue(':allowance_id', $allowance_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_other_income_type_exist
+    # Purpose    : Checks if the other income type exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_other_income_type_exist($other_income_type_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_other_income_type_exist(:other_income_type_id)');
+            $sql->bindValue(':other_income_type_id', $other_income_type_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : check_other_income_exist
+    # Purpose    : Checks if the other income exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_other_income_exist($other_income_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_other_income_exist(:other_income_id)');
+            $sql->bindValue(':other_income_id', $other_income_id);
 
             if($sql->execute()){
                 $row = $sql->fetch();
@@ -5231,6 +5303,141 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : update_other_income_type
+    # Purpose    : Updates other income type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_other_income_type($other_income_type_id, $other_income_type, $taxable, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $other_income_type_details = $this->other_income_type_details($other_income_type_id);
+
+            if(!empty($other_income_type_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $other_income_type_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_other_income_type(:other_income_type_id, :other_income_type, :taxable, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':other_income_type_id', $other_income_type_id);
+            $sql->bindValue(':other_income_type', $other_income_type);
+            $sql->bindValue(':taxable', $taxable);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($other_income_type_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income type (' . $other_income_type_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income type (' . $other_income_type_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_other_income
+    # Purpose    : Updates other income.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_other_income($other_income_id, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $other_income_details = $this->get_other_income_details($other_income_id);
+
+            if(!empty($other_income_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $other_income_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_other_income(:other_income_id, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':other_income_id', $other_income_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($other_income_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income (' . $other_income_id . ').');
+                                    
+                    if($insert_transaction_log == 1){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income (' . $other_income_id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : update_deduction_type
     # Purpose    : Updates deduction type.
     #
@@ -8578,6 +8785,133 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : insert_other_income_type
+    # Purpose    : Insert other income type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_other_income_type($other_income_type, $taxable, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(40, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_other_income_type(:id, :other_income_type, :taxable, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':other_income_type', $other_income_type);
+            $sql->bindValue(':taxable', $taxable);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 40, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted other income type (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_other_income
+    # Purpose    : Insert other income.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_other_income($employee_id, $other_income_type, $payroll_date, $amount, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(41, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_other_income(:id, :employee_id, :other_income_type, :payroll_date, :amount, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':other_income_type', $other_income_type);
+            $sql->bindValue(':payroll_date', $payroll_date);
+            $sql->bindValue(':amount', $amount);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 41, $username);
+
+                if($update_system_parameter_value == 1){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value == 1){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted other income (' . $id . ').');
+                                    
+                        if($insert_transaction_log == 1){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : insert_deduction_type
     # Purpose    : Insert deduction type.
     #
@@ -9991,6 +10325,33 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_temporary_withholding_tax
+    # Purpose    : Inserts temporary withholding tax for importing.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $additional_rate){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL insert_temporary_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :additional_rate)');
+            $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+            $sql->bindValue(':start_range', $start_range);
+            $sql->bindValue(':end_range', $end_range);
+            $sql->bindValue(':additional_rate', $additional_rate);
+
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -10896,6 +11257,52 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_allowance(:allowance_id)');
             $sql->bindValue(':allowance_id', $allowance_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_other_income_type
+    # Purpose    : Delete other income type.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_other_income_type($other_income_type_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_other_income_type(:other_income_type_id)');
+            $sql->bindValue(':other_income_type_id', $other_income_type_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_other_income
+    # Purpose    : Delete other income.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_other_income($other_income_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_other_income(:other_income_id)');
+            $sql->bindValue(':other_income_id', $other_income_id);
         
             if($sql->execute()){
                 return true;
@@ -12914,6 +13321,78 @@ class Api{
 
     # -------------------------------------------------------------
     #
+    # Name       : get_other_income_type_details
+    # Purpose    : Gets the other income type details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_other_income_type_details($other_income_type_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_other_income_type_details(:other_income_type_id)');
+            $sql->bindValue(':other_income_type_id', $other_income_type_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'OTHER_INCOME_TYPE' => $row['OTHER_INCOME_TYPE'],
+                        'TAXABLE' => $row['TAXABLE'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_other_income_details
+    # Purpose    : Gets the income type details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_other_income_details($other_income_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_other_income_details(:other_income_id)');
+            $sql->bindValue(':other_income_id', $other_income_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'OTHER_INCOME_TYPE' => $row['OTHER_INCOME_TYPE'],
+                        'PAYROLL_ID' => $row['PAYROLL_ID'],
+                        'PAYROLL_DATE' => $row['PAYROLL_DATE'],
+                        'AMOUNT' => $row['AMOUNT'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Name       : get_deduction_type_details
     # Purpose    : Gets the deduction type details.
     #
@@ -14363,6 +14842,36 @@ class Api{
     #
     # -------------------------------------------------------------
     public function get_allowance_type_status($stat){
+        $response = array();
+
+        switch ($stat) {
+            case 'TAX':
+                $status = 'Taxable';
+                $button_class = 'bg-info';
+                break;
+            default:
+                $status = 'Non-Taxable';
+                $button_class = 'bg-success';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_other_income_type_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_other_income_type_status($stat){
         $response = array();
 
         switch ($stat) {
@@ -16212,6 +16721,42 @@ class Api{
         }
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_other_income_type_options
+    # Purpose    : Generates other income type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_other_income_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_other_income_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $other_income_type_id = $row['OTHER_INCOME_TYPE_ID'];
+                        $other_income_type = $row['OTHER_INCOME_TYPE'];
+    
+                        $option .= "<option value='". $other_income_type_id ."'>". $other_income_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
 
     # -------------------------------------------------------------
     #

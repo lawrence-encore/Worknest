@@ -60,6 +60,8 @@
     $pay_run_page = $api->check_role_permissions($username, 297);
     $withholding_tax_page = $api->check_role_permissions($username, 309);
     $import_withholding_tax_page = $api->check_role_permissions($username, 314);
+    $other_income_type_page = $api->check_role_permissions($username, 316);
+    $other_income_page = $api->check_role_permissions($username, 321);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -193,7 +195,7 @@
         }
     }
 
-    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $withholding_tax_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $withholding_tax_page > 0 || $other_income_type_page > 0 || $other_income_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
 
         if($payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
@@ -236,6 +238,26 @@
                             $menu .= '<li><a href="allowance-type.php" key="t-allowance-type">Allowance Type</a></li>';
                         }
 
+            $menu .= '</ul>
+                    </li>';
+        }
+
+        if($other_income_type_page > 0 || $other_income_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-plus"></i>
+                            <span key="t-allowance">Manage Other Income</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($other_income_page > 0){
+                            $menu .= '<li><a href="other-income.php" key="t-allowance">Other Income</a></li>';
+                        }
+
+                        if($other_income_type_page > 0){
+                            $menu .= '<li><a href="other-income-type.php" key="t-allowance">Other Income Type</a></li>';
+                        }
+                        
             $menu .= '</ul>
                     </li>';
         }

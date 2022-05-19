@@ -180,6 +180,34 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Calculate other income end date
+    else if($transaction == 'calculate other income end date'){
+        if(isset($_POST['recurrence_pattern']) && isset($_POST['recurrence']) && isset($_POST['start_date'])){
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                $payroll_date = $start_date;
+
+                for($i = 0; $i < $recurrence; $i++){
+                    if($i == 0){
+                        $payroll_date = $start_date;
+                    }
+                    else{
+                        $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                    }
+                }
+
+                echo $api->check_date('empty', $payroll_date, '', 'n/d/Y', '', '', '');
+            }
+            else{
+                echo $api->check_date('empty', $start_date, '', 'n/d/Y', '', '', '');
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Calculate deduction end date
     else if($transaction == 'calculate deduction end date'){
         if(isset($_POST['recurrence_pattern']) && isset($_POST['recurrence']) && isset($_POST['start_date'])){
@@ -1622,6 +1650,111 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Import withholding tax
+    else if($transaction == 'import withholding tax'){
+        if(isset($_POST['username']) && !empty($_POST['username'])){
+            $file_type = '';
+            $username = $_POST['username'];
+
+            $import_file_name = $_FILES['import_file']['name'];
+            $import_file_size = $_FILES['import_file']['size'];
+            $import_file_error = $_FILES['import_file']['error'];
+            $import_file_tmp_name = $_FILES['import_file']['tmp_name'];
+            $import_file_ext = explode('.', $import_file_name);
+            $import_file_actual_ext = strtolower(end($import_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(18);
+            $upload_file_type_details = $api->get_upload_file_type_details(18);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            if(in_array($import_file_actual_ext, $allowed_ext)){
+                if(!$import_file_error){
+                    if($import_file_size < $file_max_size){
+                        $truncate_temporary_withholding_tax_table = $api->truncate_temporary_withholding_tax_table();
+
+                        if($truncate_temporary_withholding_tax_table){
+                            $file = fopen($import_file_tmp_name, 'r');
+                            fgetcsv($file);
+    
+                            while (($column = fgetcsv($file, 0, ',')) !== FALSE) { 
+                                $withholding_tax_id = $column[0];
+                                $salary_frequency = $column[1];
+                                $start_range = $column[2];
+                                $end_range = $column[3];
+                                $additional_rate = $column[4];
+
+                                if(!empty($salary_frequency) && !empty($start_range) && !empty($end_range) && !empty($additional_rate)){
+                                    $insert_temporary_withholding_tax = $api->insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $additional_rate);
+                                }
+                            }
+
+                            echo 'Imported';
+                        }
+                        else{
+                            echo $truncate_temporary_withholding_tax_table;
+                        }
+                    }
+                    else{
+                        echo 'File Size';
+                    }
+                }
+                else{
+                    echo 'There was an error uploading the file.';
+                }
+            }
+            else{
+                echo 'File Type';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Import withholding tax data
+    else if($transaction == 'import withholding tax data'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['rate'])){
+            $username = $_POST['username'];
+            $withholding_tax_id = $_POST['withholding_tax_id'];
+            $salary_frequency = $_POST['salary_frequency'];
+            $start_range = $_POST['start_range'];
+            $end_range = $_POST['end_range'];
+            $rate = $_POST['rate'];
+
+            for($i = 0; $i < count($salary_frequency); $i++){
+                $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id[$i]);
+
+                if($check_withholding_tax_exist > 0){
+                    $check_start_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id[$i], $salary_frequency[$i], $start_range[$i]);
+                    $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id[$i], $salary_frequency[$i], $end_range[$i]);
+    
+                    if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
+                        $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id[$i], $salary_frequency[$i], $start_range[$i], $end_range[$i], $rate[$i], $username);
+                    }
+                }
+                else{
+                    $check_start_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency[$i], $start_range[$i]);
+                    $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency[$i], $end_range[$i]);
+    
+                    if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
+                        $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency[$i], $start_range[$i], $end_range[$i], $rate[$i], $username);
+                    }
+                }
+            }
+
+            echo 'Imported';
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Truncate transactions
     # -------------------------------------------------------------
@@ -1664,6 +1797,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             }
             else if($table_name == 'import contribution deduction'){
                 $truncate_table = $api->truncate_temporary_contribution_deduction_table();
+            }
+            else if($table_name == 'import withholding tax'){
+                $truncate_table = $api->truncate_temporary_withholding_tax_table();
             }
             else{
                 $truncate_table = 1;
@@ -4577,6 +4713,115 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit other income type
+    else if($transaction == 'submit other income type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_type_id']) && isset($_POST['other_income_type']) && !empty($_POST['other_income_type']) && isset($_POST['taxable']) && !empty($_POST['taxable']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $other_income_type_id = $_POST['other_income_type_id'];
+            $other_income_type = $_POST['other_income_type'];
+            $taxable = $_POST['taxable'];
+            $description = $_POST['description'];
+
+            $check_other_income_type_exist = $api->check_other_income_type_exist($other_income_type_id);
+
+            if($check_other_income_type_exist > 0){
+                $update_other_income_type = $api->update_other_income_type($other_income_type_id, $other_income_type, $taxable, $description, $username);
+
+                if($update_other_income_type){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_other_income_type;
+                }
+            }
+            else{
+                $insert_other_income_type = $api->insert_other_income_type($other_income_type, $taxable, $description, $username);
+
+                if($insert_other_income_type){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_other_income_type;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit other income
+    else if($transaction == 'submit other income'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['other_income_type']) && !empty($_POST['other_income_type']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['recurrence_pattern']) && isset($_POST['recurrence'])){
+            $username = $_POST['username'];
+            $employee_ids = explode(',', $_POST['employee_id']);
+            $other_income_type = $_POST['other_income_type'];
+            $amount = $_POST['amount'];
+            $recurrence_pattern = $_POST['recurrence_pattern'];
+            $recurrence = $_POST['recurrence'];
+            $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
+
+            foreach($employee_ids as $employee_id){
+                if(!empty($start_date) && !empty($recurrence_pattern) && $recurrence > 0){
+                    for($i = 0; $i < $recurrence; $i++){
+                        if($i == 0){
+                            $payroll_date = $start_date;
+                        }
+                        else{
+                            $payroll_date = $api->check_date('empty', $api->get_next_date($payroll_date, $recurrence_pattern), '', 'Y-m-d', '', '', '');
+                        }
+    
+                        $insert_other_income = $api->insert_other_income($employee_id, $other_income_type, $payroll_date, $amount, $username);
+    
+                        if(!$insert_other_income){
+                            $error = $insert_other_income;
+                        }
+                    }
+                }
+                else{
+                    $insert_other_income = $api->insert_other_income($employee_id, $other_income_type, $start_date, $amount, $username);
+
+                    if(!$insert_other_income){
+                        $error =  $insert_other_income;
+                    }
+                }
+            }
+            
+            if(empty($error)){
+                echo 'Inserted';
+            }
+            else{
+                echo $error;
+            }              
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit other income update
+    else if($transaction == 'submit other income update'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_id']) && !empty($_POST['other_income_id']) && isset($_POST['amount']) && !empty($_POST['amount']) && isset($_POST['payroll_date']) && !empty($_POST['payroll_date'])){
+            $username = $_POST['username'];
+            $other_income_id = $_POST['other_income_id'];
+            $amount = $_POST['amount'];
+            $payroll_date = $api->check_date('empty', $_POST['payroll_date'], '', 'Y-m-d', '', '', '');
+
+            $check_other_income_exist = $api->check_other_income_exist($other_income_id);
+
+            if($check_other_income_exist > 0){
+                $update_other_income = $api->update_other_income($other_income_id, $payroll_date, $amount, $username);
+
+                if($update_other_income){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_other_income;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Submit deduction type
     else if($transaction == 'submit deduction type'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['deduction_type_id']) && isset($_POST['deduction_type']) && !empty($_POST['deduction_type']) && isset($_POST['description']) && !empty($_POST['description'])){
@@ -6499,7 +6744,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $check_allowance_type_exist = $api->check_allowance_type_exist($allowance_type_id);
 
-            if($check_department_exist > 0){
+            if($check_allowance_type_exist > 0){
                 $delete_allowance_type = $api->delete_allowance_type($allowance_type_id, $username);
                                     
                 if($delete_allowance_type){
@@ -6586,6 +6831,118 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if(!$delete_allowance){
                         $error = $delete_allowance;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete other income type
+    else if($transaction == 'delete other income type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_type_id']) && !empty($_POST['other_income_type_id'])){
+            $username = $_POST['username'];
+            $other_income_type_id = $_POST['other_income_type_id'];
+
+            $check_other_income_type_exist = $api->check_other_income_type_exist($other_income_type_id);
+
+            if($check_other_income_type_exist > 0){
+                $delete_other_income_type = $api->delete_other_income_type($other_income_type_id, $username);
+                                    
+                if($delete_other_income_type){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_other_income_type;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple other income type
+    else if($transaction == 'delete multiple other income type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_type_id'])){
+            $username = $_POST['username'];
+            $other_income_type_ids = $_POST['other_income_type_id'];
+
+            foreach($other_income_type_ids as $other_income_type_id){
+                $check_other_income_type_exist = $api->check_other_income_type_exist($other_income_type_id);
+
+                if($check_other_income_type_exist > 0){
+                    $delete_other_income_type = $api->delete_other_income_type($other_income_type_id, $username);
+                                    
+                    if(!$delete_other_income_type){
+                        $error = $delete_other_income_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete other income
+    else if($transaction == 'delete other income'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_id']) && !empty($_POST['other_income_id'])){
+            $username = $_POST['username'];
+            $other_income_id = $_POST['other_income_id'];
+
+            $check_other_income_exist = $api->check_other_income_exist($other_income_id);
+
+            if($check_other_income_exist > 0){
+                $delete_other_income = $api->delete_other_income($other_income_id, $username);
+                                    
+                if($delete_other_income){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_other_income;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple other income
+    else if($transaction == 'delete multiple other income'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['other_income_id'])){
+            $username = $_POST['username'];
+            $other_income_type_ids = $_POST['other_income_id'];
+
+            foreach($other_income_ids as $other_income_id){
+                $check_other_income_exist = $api->check_other_income_exist($other_income_id);
+
+                if($check_other_income_exist > 0){
+                    $delete_other_income = $api->delete_other_income($other_income_id, $username);
+                                    
+                    if(!$delete_other_income){
+                        $error = $delete_other_income;
                     }
                 }
                 else{
@@ -10798,6 +11155,77 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'EMPLOYEE_ID' => $employee_file_as,
                 'ALLOWANCE_TYPE' => $allowance_type_name,
+                'PAYROLL' => $payroll,
+                'PAYROLL_DATE' => $payroll_date,
+                'AMOUNT' => number_format($amount, 2)
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Other income type details
+    else if($transaction == 'other income type details'){
+        if(isset($_POST['other_income_type_id']) && !empty($_POST['other_income_type_id'])){
+            $other_income_type_id = $_POST['other_income_type_id'];
+            $other_income_type_details = $api->get_other_income_type_details($other_income_type_id);
+
+            $response[] = array(
+                'OTHER_INCOME_TYPE' => $other_income_type_details[0]['OTHER_INCOME_TYPE'],
+                'TAXABLE' => $other_income_type_details[0]['TAXABLE'],
+                'DESCRIPTION' => $other_income_type_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Other income details
+    else if($transaction == 'other income details'){
+        if(isset($_POST['other_income_id']) && !empty($_POST['other_income_id'])){
+            $other_income_id = $_POST['other_income_id'];
+            $other_income_details = $api->get_other_income_details($other_income_id);
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $other_income_details[0]['EMPLOYEE_ID'],
+                'OTHER_INCOME_TYPE' => $other_income_details[0]['OTHER_INCOME_TYPE'],
+                'PAYROLL_DATE' => $api->check_date('empty', $other_income_details[0]['PAYROLL_DATE'], '', 'n/d/Y', '', '', ''),
+                'AMOUNT' => $other_income_details[0]['AMOUNT']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Other income summary details
+    else if($transaction == 'other income summary details'){
+        if(isset($_POST['other_income_id']) && !empty($_POST['other_income_id'])){
+            $other_income_id = $_POST['other_income_id'];
+            $other_income_details = $api->get_other_income_details($other_income_id);
+            $employee_id = $other_income_details[0]['EMPLOYEE_ID'];
+            $other_income_type = $other_income_details[0]['OTHER_INCOME_TYPE'];
+            $payroll_id = $other_income_details[0]['PAYROLL_ID'];
+            $payroll_date = $api->check_date('empty', $other_income_details[0]['PAYROLL_DATE'], '', 'F d, Y', '', '', '');
+            $amount = $other_income_details[0]['AMOUNT'];
+            $other_income_type_details = $api->get_other_income_type_details($other_income_type);
+            $other_income_type_name = $other_income_type_details[0]['OTHER_INCOME_TYPE'];
+
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
+
+            if(!empty($payroll_id)){
+                $payroll = '<a href="#">View Payroll</a>';
+            }
+            else{
+                $payroll = '--';
+            }
+
+            $response[] = array(
+                'EMPLOYEE_ID' => $employee_file_as,
+                'OTHER_INCOME_TYPE' => $other_income_type_name,
                 'PAYROLL' => $payroll,
                 'PAYROLL_DATE' => $payroll_date,
                 'AMOUNT' => number_format($amount, 2)
