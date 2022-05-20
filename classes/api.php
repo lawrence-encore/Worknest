@@ -10134,6 +10134,13 @@ class Api{
             $early_leaving_deduction_rate = $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'];
             $overtime_rate = $payroll_setting_details[0]['OVERTIME_RATE'] / 100;
 
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_frequency = $get_employee_salary[0]['SALARY_FREQUENCY'];
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+            $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
+            $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
+
             $total_late = 0;
             $total_late_minutes = 0;
             $total_early_leaving = 0;
@@ -10144,22 +10151,14 @@ class Api{
             $total_absent = 0;
             $total_absent_deduction = 0;
             $total_allowance = 0;
+            $other_income = 0;
             $total_deduction = 0;
-            $total_withholding_tax = 0;
             $total_contribution_deduction = 0;
             $total_salary = 0;
 
             for ($i = strotime($start_date); $i <= strotime($end_date); $i = $i + (60 * 60 * 24)) {
                 $payroll_date = $date('Y-m-d', $i);
                 $day = date('N', $i);
-
-                # Salary details
-                $get_employee_salary = $this->get_employee_salary($employee_id, $payroll_date);
-                $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
-                $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
-                $daily_rate = $get_employee_salary[0]['DAILY_RATE'];
-
-                $total_salary = $total_salary + $daily_rate;
                 
                 # Work shift schedule
                 $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $payroll_date, $day);
@@ -10259,11 +10258,13 @@ class Api{
                     }
                 }
 
-                $allowance = $this->get_employee_allowance($employee_id, $payroll_date);
-                $deduction = $this->get_employee_deduction($employee_id, $payroll_date);
-                $contribution_deduction = $this->get_employee_contribution_deduction($employee_id, $payroll_date);
+                $allowance = $this->get_payroll_allowance_total($employee_id, $payroll_date);
+                $other_income = $this->get_payroll_other_income_total($employee_id, $payroll_date);
+                $deduction = $this->get_payroll_deduction_total($employee_id, $payroll_date);
+                $contribution_deduction = $this->get_employee_contribution_deduction_total($employee_id, $payroll_date, $salary_amount);
 
                 $total_allowance = $total_allowance + $allowance;
+                $total_other_income = $other_income + $other_income;
                 $total_deduction = $total_deduction + $deduction;
                 $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
             }
@@ -10273,15 +10274,19 @@ class Api{
             }
 
             if($consider_withholding_tax){
-                $total_withholding_tax = $this->get_withholding_tax($employee_id, $payroll_date);
+                $taxable_allowance_total = $this->get_taxable_allowance_total($employee_id, $payroll_date);
+                $taxable_other_income_total = $this->get_taxable_other_income_total($employee_id, $payroll_date);
+                $compensation_range = $salary_amount + $taxable_allowance_total + $taxable_other_income_total;
+
+                $total_withholding_tax = $this->get_withholding_tax($compensation_range, $salary_frequency);
             }
             else{
                 $total_withholding_tax = 0;
             }
 
-            $net_pay = ($total_salary + $total_allowance + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving + $total_withholding_tax);
+            $net_pay = ($salary_amount + $total_allowance + $other_income + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving + $total_withholding_tax);
 
-            $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
+            $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $salary_amount, $net_pay, $total_deduction, $total_allowance, $username);
 
             if($insert_payslip){
                 return true;
@@ -15510,13 +15515,12 @@ class Api{
     # Returns    : Array
     #
     # -------------------------------------------------------------
-    public function get_employee_salary($employee_id, $effectivity_date){
+    public function get_employee_salary($employee_id){
         if ($this->databaseConnection()) {
             $response = array();
 
-            $sql = $this->db_connection->prepare('CALL get_employee_salary(:employee_id, :effectivity_date)');
+            $sql = $this->db_connection->prepare('CALL get_employee_salary(:employee_id)');
             $sql->bindValue(':employee_id', $employee_id);
-            $sql->bindValue(':effectivity_date', $effectivity_date);
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
@@ -15570,6 +15574,161 @@ class Api{
                 }
 
                 return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_allowance_total
+    # Purpose    : Gets the total allowance based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_allowance_total($employee_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_payroll_allowance_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['AMOUNT '];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_other_income_total
+    # Purpose    : Gets the total other income based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_other_income_total($employee_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_payroll_other_income_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['AMOUNT '];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payroll_deduction_total
+    # Purpose    : Gets the total deduction based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_payroll_deduction_total($employee_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_payroll_deduction_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['AMOUNT '];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_employee_contribution_deduction_total
+    # Purpose    : Gets the total contribution deduction based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_employee_contribution_deduction_total($employee_id, $payroll_date, $salary_amount){
+        if ($this->databaseConnection()) {
+            $deduction = 0;
+
+            $sql = $this->db_connection->prepare('CALL get_employee_contribution_deduction_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+
+                    $contribution_bracket_details = $this->get_contribution_bracket_details($government_contribution_type);
+
+                    for($i = 0; $i < count($contribution_bracket_details); $i++) {
+                        $start_range = $contribution_bracket_details[$i]['START_RANGE'];
+                        $end_range = $contribution_bracket_details[$i]['END_RANGE'];
+                        $deduction_amount = $contribution_bracket_details[$i]['DEDUCTION_AMOUNT'];
+
+                        if($salary_amount >= $start_range && $salary_amount <= $end_range){
+                            $deduction = $deduction +  $deduction_amount;
+                        }
+                    }
+                }
+
+                return $deduction;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_withholding_tax
+    # Purpose    : Gets the total witholding tax based on salary frequency.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_withholding_tax($compensation_range, $salary_frequency){
+        if ($this->databaseConnection()) {
+            $withholding_tax = 0;
+
+            $sql = $this->db_connection->prepare('CALL get_withholding_tax(:salary_frequency)');
+            $sql->bindValue(':salary_frequency', $salary_frequency);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $start_range = $row['START_RANGE'];
+                    $end_range = $row['END_RANGE'];
+                    $additional_rate = $row['ADDITIONAL_RATE'];
+
+                    if($compensation_range >= $start_range && $compensation_range <= $end_range){
+                        $withholding_tax = $deduction_amount;
+                    }
+                }
+
+                return $withholding_tax;
             }
             else{
                 return $sql->errorInfo()[2];

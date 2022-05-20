@@ -5969,6 +5969,89 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE get_payroll_allowance_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_payroll_other_income_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_taxable_allowance_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND ALLOWANCE_TYPE IN (SELECT ALLOWANCE_TYPE_ID FROM tblallowancetype WHERE TAXABLE = "TAX")';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_taxable_other_income_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND OTHER_INCOME_TYPE IN (SELECT OTHER_INCOME_TYPE_ID FROM tblotherincometype WHERE TAXABLE = "TAX")';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_payroll_deduction_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tbldeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_employee_contribution_deduction_total(IN employee_id VARCHAR(100), IN payroll_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @payroll_date = payroll_date;
+
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_withholding_tax(IN salary_frequency VARCHAR(50))
+BEGIN
+	SET @salary_frequency = salary_frequency;
+
+	SET @query = 'SELECT START_RANGE, END_RANGE, ADDITIONAL_RATE FROM tblwithholdingtax WHERE SALARY_FREQUENCY = @salary_frequency';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 /* Insert */
 
 INSERT INTO tbluseraccount (USERNAME, PASSWORD, USER_ROLE, ACTIVE, PASSWORD_EXPIRY_DATE, FAILED_LOGIN, TRANSACTION_LOG_ID) VALUES ('ADMIN', '68aff5412f35ed76', 'RL-1', 1, '2021-12-30', 0);
