@@ -123,7 +123,7 @@ function initialize_click_events(){
     });
 
     $(document).on('click','#add-pay-run',function() {
-        generate_modal('pay run form', 'Pay run', 'LG' , '0', '1', 'form', 'pay-run-form', '1', username);
+        generate_modal('pay run form', 'Pay run', 'XL' , '0', '1', 'form', 'pay-run-form', '1', username);
     });
 
     $(document).on('click','.update-pay-run',function() {
@@ -131,7 +131,7 @@ function initialize_click_events(){
 
         sessionStorage.setItem('pay_run_id', pay_run_id);
         
-        generate_modal('pay run form', 'Pay run', 'LG' , '0', '1', 'form', 'pay-run-form', '1', username);
+        generate_modal('pay run form', 'Pay run', 'XL' , '0', '1', 'form', 'pay-run-form', '1', username);
     });
 
     $(document).on('click','.unlock-pay-run',function() {

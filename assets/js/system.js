@@ -1069,7 +1069,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 exit_date: {
-                    required:  function(element){
+                    required: function(element){
                         var employment_status = $('#employment_status').val();
 
                         if(employment_status == '3' || employment_status == '4'){
@@ -1081,7 +1081,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 exit_reason: {
-                    required:  function(element){
+                    required: function(element){
                         var employment_status = $('#employment_status').val();
 
                         if(employment_status == '3' || employment_status == '4'){
@@ -1093,7 +1093,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 permanency_date: {
-                    required:  function(element){
+                    required: function(element){
                         var employment_status = $('#employment_status').val();
 
                         if(employment_status == '1'){
@@ -1575,7 +1575,7 @@ function initialize_form_validation(form_type){
             },
             rules: {
                 monday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time = $('#monday_lunch_start_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -1591,7 +1591,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_lunch_start_time = $('#monday_lunch_start_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -1607,7 +1607,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -1623,7 +1623,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -1639,7 +1639,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -1655,7 +1655,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -1671,7 +1671,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -1687,7 +1687,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -1703,7 +1703,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -1719,7 +1719,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -1735,7 +1735,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -1751,7 +1751,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -1767,7 +1767,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -1783,7 +1783,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -1799,7 +1799,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -1815,7 +1815,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -1831,7 +1831,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -1847,7 +1847,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -1863,7 +1863,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -1879,7 +1879,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -1895,7 +1895,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -1911,7 +1911,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -1927,7 +1927,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -1943,7 +1943,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -1959,7 +1959,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time = $('#friday_lunch_start_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -1975,7 +1975,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_lunch_start_time = $('#friday_lunch_start_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -1991,7 +1991,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -2007,7 +2007,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2023,7 +2023,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2039,7 +2039,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2055,7 +2055,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2071,7 +2071,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2087,7 +2087,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2103,7 +2103,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -2119,7 +2119,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -2135,7 +2135,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -2151,7 +2151,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -2167,7 +2167,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -2183,7 +2183,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -2199,7 +2199,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -2215,7 +2215,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -2231,7 +2231,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -2441,7 +2441,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 monday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time = $('#monday_lunch_start_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -2457,7 +2457,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_lunch_start_time = $('#monday_lunch_start_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -2473,7 +2473,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_end_time = $('#monday_lunch_end_time').val();
@@ -2489,7 +2489,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -2505,7 +2505,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -2521,7 +2521,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 monday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var monday_start_time = $('#monday_start_time').val();
                         var monday_end_time = $('#monday_end_time').val();
                         var monday_lunch_start_time  = $('#monday_lunch_start_time').val();
@@ -2537,7 +2537,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -2553,7 +2553,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_lunch_start_time = $('#tuesday_lunch_start_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -2569,7 +2569,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_end_time = $('#tuesday_lunch_end_time').val();
@@ -2585,7 +2585,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -2601,7 +2601,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -2617,7 +2617,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 tuesday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var tuesday_start_time = $('#tuesday_start_time').val();
                         var tuesday_end_time = $('#tuesday_end_time').val();
                         var tuesday_lunch_start_time  = $('#tuesday_lunch_start_time').val();
@@ -2633,7 +2633,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -2649,7 +2649,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_lunch_start_time = $('#wednesday_lunch_start_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -2665,7 +2665,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_end_time = $('#wednesday_lunch_end_time').val();
@@ -2681,7 +2681,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -2697,7 +2697,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -2713,7 +2713,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 wednesday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var wednesday_start_time = $('#wednesday_start_time').val();
                         var wednesday_end_time = $('#wednesday_end_time').val();
                         var wednesday_lunch_start_time  = $('#wednesday_lunch_start_time').val();
@@ -2729,7 +2729,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -2745,7 +2745,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_lunch_start_time = $('#thursday_lunch_start_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -2761,7 +2761,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_end_time = $('#thursday_lunch_end_time').val();
@@ -2777,7 +2777,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -2793,7 +2793,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -2809,7 +2809,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 thursday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var thursday_start_time = $('#thursday_start_time').val();
                         var thursday_end_time = $('#thursday_end_time').val();
                         var thursday_lunch_start_time  = $('#thursday_lunch_start_time').val();
@@ -2825,7 +2825,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time = $('#friday_lunch_start_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -2841,7 +2841,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_lunch_start_time = $('#friday_lunch_start_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -2857,7 +2857,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_end_time = $('#friday_lunch_end_time').val();
@@ -2873,7 +2873,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2889,7 +2889,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2905,7 +2905,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 friday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var friday_start_time = $('#friday_start_time').val();
                         var friday_end_time = $('#friday_end_time').val();
                         var friday_lunch_start_time  = $('#friday_lunch_start_time').val();
@@ -2921,7 +2921,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2937,7 +2937,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_lunch_start_time = $('#saturday_lunch_start_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2953,7 +2953,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_end_time = $('#saturday_lunch_end_time').val();
@@ -2969,7 +2969,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -2985,7 +2985,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -3001,7 +3001,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 saturday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var saturday_start_time = $('#saturday_start_time').val();
                         var saturday_end_time = $('#saturday_end_time').val();
                         var saturday_lunch_start_time  = $('#saturday_lunch_start_time').val();
@@ -3017,7 +3017,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -3033,7 +3033,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_lunch_start_time = $('#sunday_lunch_start_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -3049,7 +3049,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_lunch_start_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_end_time = $('#sunday_lunch_end_time').val();
@@ -3065,7 +3065,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_lunch_end_time: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -3081,7 +3081,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_half_day_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -3097,7 +3097,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 sunday_late_mark: {
-                    required:  function(element){
+                    required: function(element){
                         var sunday_start_time = $('#sunday_start_time').val();
                         var sunday_end_time = $('#sunday_end_time').val();
                         var sunday_lunch_start_time  = $('#sunday_lunch_start_time').val();
@@ -4500,7 +4500,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 file: {
-                    required:  function(element){
+                    required: function(element){
                         var update = $('#update').val();
 
                         if(update == '0'){
@@ -4620,7 +4620,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 file: {
-                    required:  function(element){
+                    required: function(element){
                         var update = $('#update').val();
 
                         if(update == '0'){
@@ -5150,7 +5150,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 specific: {
-                    required:  function(element){
+                    required: function(element){
                         var question_5 = $('#question_5').val();
 
                         if(question_5 == '1'){
@@ -5375,7 +5375,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 file: {
-                    required:  function(element){
+                    required: function(element){
                         var update = $('#update').val();
 
                         if(update == '0'){
@@ -5387,7 +5387,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 time_out_date: {
-                    required:  function(element){
+                    required: function(element){
                         var time_out = $('#time_out').val();
 
                         if(time_out != ''){
@@ -5399,7 +5399,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 time_out: {
-                    required:  function(element){
+                    required: function(element){
                         var time_out_date = $('#time_out_date').val();
 
                         if(time_out_date != ''){
@@ -7019,7 +7019,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 recurrence_pattern: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence = $('#recurrence').val();
 
                         if(recurrence > 0){
@@ -7031,7 +7031,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 recurrence: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence_pattern = $('#recurrence_pattern').val();
 
                         if(recurrence_pattern != ''){
@@ -7284,7 +7284,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 recurrence_pattern: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence = $('#recurrence').val();
 
                         if(recurrence > 0){
@@ -7296,7 +7296,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 recurrence: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence_pattern = $('#recurrence_pattern').val();
 
                         if(recurrence_pattern != ''){
@@ -8057,7 +8057,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 recurrence_pattern: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence = $('#recurrence').val();
 
                         if(recurrence > 0){
@@ -8069,7 +8069,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 recurrence: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence_pattern = $('#recurrence_pattern').val();
 
                         if(recurrence_pattern != ''){
@@ -8239,7 +8239,7 @@ function initialize_form_validation(form_type){
                     required: true
                 },
                 recurrence_pattern: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence = $('#recurrence').val();
 
                         if(recurrence > 0){
@@ -8251,7 +8251,7 @@ function initialize_form_validation(form_type){
                     }
                 },
                 recurrence: {
-                    required:  function(element){
+                    required: function(element){
                         var recurrence_pattern = $('#recurrence_pattern').val();
 
                         if(recurrence_pattern != ''){
@@ -9780,7 +9780,39 @@ function initialize_form_validation(form_type){
                 },
                 consider_overtime: {
                     required: true
-                }
+                },
+                consider_withholding_tax: {
+                    required: true
+                },
+                consider_night_differential: {
+                    required: true
+                },
+                payroll_group_id: {
+                    required: function(element){
+                        var payroll_group_id = $('#payroll_group_id').val();
+                        var employee_id = $('#employee_id').val();
+
+                        if(employee_id == '' && payroll_group_id == ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
+                employee_id: {
+                    required: function(element){
+                        var payroll_group_id = $('#payroll_group_id').val();
+                        var employee_id = $('#employee_id').val();
+
+                        if(employee_id == '' && payroll_group_id == ''){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                },
             },
             messages: {
                 start_date: {
@@ -9791,6 +9823,18 @@ function initialize_form_validation(form_type){
                 },
                 consider_overtime: {
                     required: 'Please choose if consider overtime',
+                },
+                consider_withholding_tax: {
+                    required: 'Please choose if consider withholding tax',
+                },
+                consider_night_differential: {
+                    required: 'Please choose if consider night differential',
+                },
+                payroll_group_id: {
+                    required: 'Please choose at least one (1) payroll group or employee',
+                },
+                employee_id: {
+                    required: 'Please choose at least one (1) payroll group or employee',
                 },
             },
             errorPlacement: function(label, element) {
@@ -11914,6 +11958,7 @@ function display_form_details(form_type){
                 $('#late_deduction_rate').val(response[0].LATE_DEDUCTION_RATE);
                 $('#early_leaving_deduction_rate').val(response[0].EARLY_LEAVING_DEDUCTION_RATE);
                 $('#overtime_rate').val(response[0].OVERTIME_RATE);
+                $('#night_differential_rate').val(response[0].NIGHT_DIFFERENTIAL_RATE);
             }
         });
     }
@@ -11966,6 +12011,9 @@ function display_form_details(form_type){
             success: function(response) {
                 document.getElementById('payees').innerHTML = response[0].PAYEE;
                 document.getElementById('consider_overtime').innerHTML = response[0].CONSIDER_OVERTIME;
+                document.getElementById('consider_withholding_tax').innerHTML = response[0].CONSIDER_WITHHOLDING_TAX;
+                document.getElementById('consider_holiday_pay').innerHTML = response[0].CONSIDER_HOLIDAY_PAY;
+                document.getElementById('consider_night_differential').innerHTML = response[0].CONSIDER_NIGHT_DIFFERENTIAL;
                 document.getElementById('pay_run_status').innerHTML = response[0].STATUS;
 
                 $('#pay_run_id').text(pay_run_id);

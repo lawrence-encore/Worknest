@@ -231,13 +231,13 @@ class Api{
 
             $check_user_account_exist = $this->check_user_account_exist($username);
            
-            if($check_user_account_exist == 1){
+            if($check_user_account_exist){
                 $user_account_details = $this->get_user_account_details($username);
                 $active = $user_account_details[0]['ACTIVE'];
                 $login_attemp = $user_account_details[0]['FAILED_LOGIN'];
                 $password_expiry_date = $user_account_details[0]['PASSWORD_EXPIRY_DATE'];
 
-                if($active == 1){
+                if($active){
                     if($login_attemp >= 5){
                         return 'Locked';
                     }
@@ -250,7 +250,7 @@ class Api{
                                 if($login_attemp > 0){
                                     $update_login_attempt = $this->update_login_attempt($username, '', 0, NULL);
 
-                                    if($update_login_attempt == 1){
+                                    if($update_login_attempt){
                                         return true;
                                     }
                                     else{
@@ -265,7 +265,7 @@ class Api{
                         else{
                             $update_login_attempt = $this->update_login_attempt($username, ($login_attemp + 1), date('Y-m-d'));
 
-                            if($update_login_attempt == 1){
+                            if($update_login_attempt){
                                 return 'Incorrect';
                             }
                             else{
@@ -323,21 +323,21 @@ class Api{
         $mail->addAddress($email, $email);
         $mail->Subject = $subject;
 
-        if($notification_type == 1 || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14 || $notification_type == 15 || $notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
+        if($notification_type || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type0 || $notification_type1 || $notification_type2 || $notification_type3 || $notification_type4 || $notification_type5 || $notification_type5 || $notification_type6 || $notification_type7 || $notification_type8){
             if(!empty($link)){
                 $message = file_get_contents('email_template/basic-notification-with-button.html');
 
-                if($notification_type == 1 || $notification_type == 2){
+                if($notification_type || $notification_type == 2){
                     $message = str_replace('@link', $link, $message);
                     $message = str_replace('@button_title', 'View Attendance Record', $message);
                 }
-                else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type == 11 || $notification_type == 13){
+                else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type1 || $notification_type3){
                     $message = str_replace('@button_title', 'View Attendance Creation', $message);
                 }
-                else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type == 10 || $notification_type == 12 || $notification_type == 14){
+                else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type0 || $notification_type2 || $notification_type4){
                     $message = str_replace('@button_title', 'View Attendance Adjustment', $message);
                 }
-                else if($notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
+                else if($notification_type5 || $notification_type6 || $notification_type7 || $notification_type8){
                     $message = str_replace('@button_title', 'View Leave Application', $message);
                 }
             }
@@ -351,7 +351,7 @@ class Api{
             $message = str_replace('@body', $body, $message);
         }
 
-        if($is_html == 1){
+        if($is_html){
             $mail->isHTML(true);
             $mail->MsgHTML($message);
             $mail->CharSet = $character_set;
@@ -400,7 +400,7 @@ class Api{
             }
 
             if($email_notification > 0){
-                if(!empty($email) && $validate_email == 1){
+                if(!empty($email) && $validate_email){
                     $send_email_notification = $this->send_email_notification($notification_id, $email, $title, $message, $web_link, 1, 'utf-8');
     
                     if(!$send_email_notification){
@@ -2028,7 +2028,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($username, 'Update Password', '');
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -2077,7 +2077,7 @@ class Api{
                 if(!empty($system_parameter_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system parameter (' . $parameter_id . ').');
                                         
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2088,10 +2088,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system parameter (' . $parameter_id . ').');
                                         
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2171,7 +2171,7 @@ class Api{
                 if(!empty($policy_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated policy (' . $policy_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2182,10 +2182,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated policy (' . $policy_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2238,7 +2238,7 @@ class Api{
                 if(!empty($permission_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated permission (' . $permission_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2249,10 +2249,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated permission (' . $permission_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2305,7 +2305,7 @@ class Api{
                 if(!empty($role_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated role (' . $role_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2316,10 +2316,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated role (' . $role_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2372,7 +2372,7 @@ class Api{
                 if(!empty($system_code_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system code (' . $system_code . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2383,10 +2383,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated system code (' . $system_code . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2478,7 +2478,7 @@ class Api{
                                 if(!empty($user_interface_settings_details[0]['TRANSACTION_LOG_ID'])){
                                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                                 
-                                    if($insert_transaction_log == 1){
+                                    if($insert_transaction_log){
                                         return true;
                                     }
                                     else{
@@ -2489,10 +2489,10 @@ class Api{
                                     # Update transaction log value
                                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
                 
-                                    if($update_system_parameter_value == 1){
+                                    if($update_system_parameter_value){
                                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                                 
-                                        if($insert_transaction_log == 1){
+                                        if($insert_transaction_log){
                                             return true;
                                         }
                                         else{
@@ -2529,7 +2529,7 @@ class Api{
                             if(!empty($user_interface_settings_details[0]['TRANSACTION_LOG_ID'])){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                             
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -2540,10 +2540,10 @@ class Api{
                                 # Update transaction log value
                                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
             
-                                if($update_system_parameter_value == 1){
+                                if($update_system_parameter_value){
                                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', $log);
                             
-                                    if($insert_transaction_log == 1){
+                                    if($insert_transaction_log){
                                         return true;
                                     }
                                     else{
@@ -2613,7 +2613,7 @@ class Api{
                 if(!empty($email_configuration_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated email configuration (' . $mail_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2624,10 +2624,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated email configuration (' . $mail_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2680,7 +2680,7 @@ class Api{
                 if(!empty($notification_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification type (' . $notification_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2691,10 +2691,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification type (' . $notification_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2749,7 +2749,7 @@ class Api{
                 if(!empty($notification_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2760,10 +2760,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated notification details (' . $notification_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2823,7 +2823,7 @@ class Api{
                 if(!empty($company_setting_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting (' . $company_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2834,10 +2834,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting (' . $company_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2892,7 +2892,7 @@ class Api{
                 if(!empty($department_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated department (' . $department_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2903,10 +2903,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated department (' . $department_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -2959,7 +2959,7 @@ class Api{
                 if(!empty($designation_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation (' . $designation_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -2970,10 +2970,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation (' . $designation_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3026,7 +3026,7 @@ class Api{
                             if($sql->execute()){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation job description (' . $designation_id . ').');
                                     
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -3056,7 +3056,7 @@ class Api{
                         if($sql->execute()){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated designation job description (' . $designation_id . ').');
                                     
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -3116,7 +3116,7 @@ class Api{
                 if(!empty($branch_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated branch (' . $branch_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3127,10 +3127,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated branch (' . $branch_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3184,7 +3184,7 @@ class Api{
                 if(!empty($upload_setting_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated upload setting (' . $setting_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3195,10 +3195,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated upload setting (' . $setting_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3252,7 +3252,7 @@ class Api{
                 if(!empty($employment_status_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employment status (' . $employment_status_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3263,10 +3263,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employment status (' . $employment_status_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3335,7 +3335,7 @@ class Api{
                 if(!empty($employee_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee (' . $employee_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3346,10 +3346,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee (' . $employee_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3408,7 +3408,7 @@ class Api{
                 if(!empty($emergency_contact_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated emergency contact (' . $contact_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3419,10 +3419,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated emergency contact (' . $contact_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3477,7 +3477,7 @@ class Api{
                 if(!empty($employee_address_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee address (' . $address_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3488,10 +3488,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee address (' . $address_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3544,7 +3544,7 @@ class Api{
                 if(!empty($employee_social_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee social (' . $social_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3555,10 +3555,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee social (' . $social_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3612,7 +3612,7 @@ class Api{
                 if(!empty($work_shift_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift (' . $work_shift_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3623,10 +3623,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift (' . $work_shift_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3704,7 +3704,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated work shift schedule (' . $work_shift_id . ').');
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -3761,7 +3761,7 @@ class Api{
                 if(!empty($employee_attendance_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee attendance (' . $attendance_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3772,10 +3772,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee attendance (' . $attendance_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3830,7 +3830,7 @@ class Api{
                 if(!empty($leave_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave type (' . $leave_type_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3841,10 +3841,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave type (' . $leave_type_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3898,7 +3898,7 @@ class Api{
                 if(!empty($leave_entitlement_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement (' . $leave_entitlement_id . ').');
 
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -3909,10 +3909,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement (' . $leave_entitlement_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -3955,7 +3955,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave entitlement count (' . $leave_entitlement_id . ').');
 
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -4003,7 +4003,7 @@ class Api{
                             if($sql->execute()){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
                                     
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -4033,7 +4033,7 @@ class Api{
                         if($sql->execute()){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated leave attachment (' . $leave_id . ').');
                                     
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -4107,7 +4107,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -4157,7 +4157,7 @@ class Api{
                 if(!empty($employee_file_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4168,10 +4168,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4224,7 +4224,7 @@ class Api{
                             if($sql->execute()){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -4254,7 +4254,7 @@ class Api{
                         if($sql->execute()){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee file (' . $file_id . ').');
                                     
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -4311,7 +4311,7 @@ class Api{
                 if(!empty($user_account_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated user account (' . $user_code . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4322,10 +4322,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated user account (' . $user_code . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4377,7 +4377,7 @@ class Api{
                 if(!empty($employee_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee user account (' . $employee_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4388,10 +4388,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated employee user account (' . $employee_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4443,7 +4443,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -4470,7 +4470,7 @@ class Api{
             $user_account_details = $this->get_user_account_details($user_code);
             $transaction_log_id = $user_account_details[0]['TRANSACTION_LOG_ID'];
 
-            if($active == 1){
+            if($active){
                 $record_log = 'ACT->' . $username . '->' . date('Y-m-d h:i:s');
                 $log_type = 'Activate';
                 $log = 'User ' . $username . ' activated user account (' . $user_code . ').';
@@ -4489,7 +4489,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -4538,7 +4538,7 @@ class Api{
                 if(!empty($holiday_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated holiday (' . $holiday_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4549,10 +4549,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated holiday (' . $holiday_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4611,7 +4611,7 @@ class Api{
                 if(!empty($attendance_setting_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance setting (' . $setting_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4622,10 +4622,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance setting (' . $setting_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4689,7 +4689,7 @@ class Api{
                 if(!empty($employee_attendance_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance time out (' . $attendance_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4700,10 +4700,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance time out (' . $attendance_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4759,7 +4759,7 @@ class Api{
                 if(!empty($attendance_creation_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation (' . $request_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4770,10 +4770,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation (' . $file_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4826,7 +4826,7 @@ class Api{
                             if($sql->execute()){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation file (' . $request_id . ').');
                                     
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -4856,7 +4856,7 @@ class Api{
                         if($sql->execute()){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance creation file (' . $request_id . ').');
                                     
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -4916,7 +4916,7 @@ class Api{
                 if(!empty($attendance_adjustment_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $request_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -4927,10 +4927,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment (' . $file_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -4983,7 +4983,7 @@ class Api{
                             if($sql->execute()){
                                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
                                     
-                                if($insert_transaction_log == 1){
+                                if($insert_transaction_log){
                                     return true;
                                 }
                                 else{
@@ -5013,7 +5013,7 @@ class Api{
                         if($sql->execute()){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated attendance adjustment file (' . $request_id . ').');
                                 
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -5098,7 +5098,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -5174,7 +5174,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
 
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -5223,7 +5223,7 @@ class Api{
                 if(!empty($allowance_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5234,10 +5234,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance type (' . $allowance_type_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5290,7 +5290,7 @@ class Api{
                 if(!empty($allowance_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5301,10 +5301,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated allowance (' . $allowance_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5358,7 +5358,7 @@ class Api{
                 if(!empty($other_income_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income type (' . $other_income_type_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5369,10 +5369,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income type (' . $other_income_type_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5425,7 +5425,7 @@ class Api{
                 if(!empty($other_income_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income (' . $other_income_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5436,10 +5436,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated other income (' . $other_income_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5492,7 +5492,7 @@ class Api{
                 if(!empty($deduction_type_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5503,10 +5503,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction type (' . $deduction_type_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5559,7 +5559,7 @@ class Api{
                 if(!empty($government_contribution_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5570,10 +5570,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated government contribution (' . $government_contribution_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5627,7 +5627,7 @@ class Api{
                 if(!empty($contribution_bracket_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5638,10 +5638,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution bracket (' . $contribution_bracket_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5694,7 +5694,7 @@ class Api{
                 if(!empty($deduction_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5705,10 +5705,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated deduction (' . $deduction_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5760,7 +5760,7 @@ class Api{
                 if(!empty($contribution_deduction_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5771,10 +5771,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated contribution deduction (' . $contribution_deduction_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5862,7 +5862,7 @@ class Api{
                 if(!empty($salary_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5873,10 +5873,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated salary (' . $salary_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5903,7 +5903,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username){
+    public function update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $night_differential_rate, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
             $payroll_setting_details = $this->get_payroll_setting_details($setting_id);
@@ -5918,11 +5918,12 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :night_differential_rate, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
             $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
             $sql->bindValue(':overtime_rate', $overtime_rate);
+            $sql->bindValue(':night_differential_rate', $night_differential_rate);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log);
         
@@ -5930,7 +5931,7 @@ class Api{
                 if(!empty($payroll_setting_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -5941,10 +5942,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll setting (' . $setting_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -5997,7 +5998,7 @@ class Api{
                 if(!empty($payroll_group_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6008,10 +6009,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated payroll group (' . $payroll_group_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6062,7 +6063,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -6112,7 +6113,7 @@ class Api{
                 if(!empty($withholding_tax_details[0]['TRANSACTION_LOG_ID'])){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated withholding tax (' . $withholding_tax_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6123,10 +6124,10 @@ class Api{
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated withholding tax (' . $withholding_tax_id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6212,14 +6213,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 1, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted system parameter (' . $id . ').');
                                         
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6274,14 +6275,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 3, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted policy (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6336,14 +6337,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 4, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted permission (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6398,14 +6399,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 5, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted role (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6482,10 +6483,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted system code (' . $system_code . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6529,10 +6530,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($username, 'Insert', 'User ' . $username . ' inserted application setting (' . $setting_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6585,10 +6586,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted email configuration (' . $mail_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6639,14 +6640,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 6, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted notification type (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6698,10 +6699,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted notification details (' . $notification_id . ').');
                                 
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6807,10 +6808,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted company setting (' . $company_id . ').');
                                     
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -6863,14 +6864,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 7, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted department (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -6925,18 +6926,18 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 8, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted designation (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             if(!empty($job_description_tmp_name)){
                                 $update_designation_file = $this->update_designation_file($job_description_tmp_name, $job_description_actual_ext, $id, $username);
         
-                                if($update_designation_file == '1'){
+                                if($update_designation_file){
                                     return true;
                                 }
                                 else{
@@ -7002,14 +7003,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 9, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted branch (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7075,14 +7076,14 @@ class Api{
                     # Update system parameter value
                     $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 10, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         # Update transaction log value
                         $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                        if($update_system_parameter_value == 1){
+                        if($update_system_parameter_value){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted upload setting (' . $id . ').');
                                         
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -7169,14 +7170,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 11, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employment status (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7248,14 +7249,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 12, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7317,14 +7318,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 13, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted emergency contact (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7382,14 +7383,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 14, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee address (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7445,14 +7446,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 15, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee social (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7508,14 +7509,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 16, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted work shift (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7596,7 +7597,7 @@ class Api{
             if($sql->execute()){
                 $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted work shift schedule (' . $work_shift_id . ').');
                                     
-                if($insert_transaction_log == 1){
+                if($insert_transaction_log){
                     return true;
                 }
                 else{
@@ -7680,14 +7681,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 17, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee attendance (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7744,14 +7745,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 18, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave type (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7809,14 +7810,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 19, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave entitlement (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7879,14 +7880,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 20, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted leave (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -7947,17 +7948,17 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 21, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted employee file (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             $update_employee_file = $this->update_employee_file($file_tmp_name, $file_actual_ext, $id, $username);
         
-                            if($update_employee_file == '1'){
+                            if($update_employee_file){
                                 return true;
                             }
                             else{
@@ -8011,10 +8012,10 @@ class Api{
                 # Update transaction log value
                 $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted user account (' . $user_code . ').');
                                  
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -8094,14 +8095,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 22, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted holiday (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             foreach($branches as $branch){
                                 $insert_holiday_branch = $this->insert_holiday_branch($id, $branch, $username);
     
@@ -8195,10 +8196,10 @@ class Api{
                # Update transaction log value
                $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-               if($update_system_parameter_value == 1){
+               if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance setting (' . $setting_id . ').');
                                 
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -8311,14 +8312,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 17, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance time in (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8381,14 +8382,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 23, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted health declaration (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8446,14 +8447,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 24, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted location (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8509,7 +8510,7 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 25, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     return true;
                 }
                 else{
@@ -8562,17 +8563,17 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 26, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance creation (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             $update_attendance_creation_file = $this->update_attendance_creation_file($attendance_creation_file_tmp_name, $attendance_creation_file_actual_ext, $id, $username);
         
-                            if($update_attendance_creation_file == 1){
+                            if($update_attendance_creation_file){
                                 return true;
                             }
                             else{
@@ -8642,17 +8643,17 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 27, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance adjustment (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             $update_attendance_adjustment_file = $this->update_attendance_adjustment_file($attendance_adjustment_file_tmp_name, $attendance_adjustment_file_actual_ext, $id, $username);
         
-                            if($update_attendance_adjustment_file == 1){
+                            if($update_attendance_adjustment_file){
                                 return true;
                             }
                             else{
@@ -8712,14 +8713,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 28, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance type (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8776,14 +8777,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 29, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted allowance (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8839,14 +8840,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 40, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted other income type (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8903,14 +8904,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 41, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted other income (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -8965,14 +8966,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 30, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction type (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9027,14 +9028,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 31, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted government contribution (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9092,14 +9093,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 32, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution bracket (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9156,14 +9157,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 33, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted deduction (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9219,14 +9220,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 34, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted contribution deduction (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9475,14 +9476,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 27, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance adjustment (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9598,14 +9599,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 26, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted attendance creation (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9834,14 +9835,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 35, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted salary (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -9871,7 +9872,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username){
+    public function insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $night_differential_rate, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -9880,11 +9881,12 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_payroll_setting(:setting_id, :late_deduction_rate, :early_leaving_deduction_rate, :overtime_rate, :night_differential_rate, :transaction_log_id, :record_log)');
             $sql->bindValue(':setting_id', $setting_id);
             $sql->bindValue(':late_deduction_rate', $late_deduction_rate);
             $sql->bindValue(':early_leaving_deduction_rate', $early_leaving_deduction_rate);
             $sql->bindValue(':overtime_rate', $overtime_rate);
+            $sql->bindValue(':night_differential_rate', $night_differential_rate);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -9892,10 +9894,10 @@ class Api{
                # Update transaction log value
                $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-               if($update_system_parameter_value == 1){
+               if($update_system_parameter_value){
                     $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll setting (' . $setting_id . ').');
                                 
-                    if($insert_transaction_log == 1){
+                    if($insert_transaction_log){
                         return true;
                     }
                     else{
@@ -9956,14 +9958,14 @@ class Api{
                     # Update system parameter value
                     $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 36, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         # Update transaction log value
                         $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                        if($update_system_parameter_value == 1){
+                        if($update_system_parameter_value){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payroll group (' . $id . ').');
                                         
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -10024,7 +10026,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username){
+    public function insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $consider_withholding_tax, $consider_holiday_pay, $consider_night_differential, $payees, $username){
         if ($this->databaseConnection()) {
             $system_date = date('Y-m-d');
             $current_time = date('H:i:s');
@@ -10041,12 +10043,15 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_pay_run(:id, :start_date, :end_date, :payslip_note, :consider_overtime, :system_date, :current_time, :username, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_pay_run(:id, :start_date, :end_date, :payslip_note, :consider_overtime, :consider_withholding_tax, :consider_holiday_pay, :consider_night_differential, :system_date, :current_time, :username, :transaction_log_id, :record_log)');
             $sql->bindValue(':id', $id);
             $sql->bindValue(':start_date', $start_date);
             $sql->bindValue(':end_date', $end_date);
             $sql->bindValue(':payslip_note', $payslip_note);
             $sql->bindValue(':consider_overtime', $consider_overtime);
+            $sql->bindValue(':consider_withholding_tax', $consider_withholding_tax);
+            $sql->bindValue(':consider_holiday_pay', $consider_holiday_pay);
+            $sql->bindValue(':consider_night_differential', $consider_night_differential);
             $sql->bindValue(':system_date', $system_date);
             $sql->bindValue(':current_time', $current_time);
             $sql->bindValue(':username', $username);
@@ -10055,17 +10060,17 @@ class Api{
         
             if($sql->execute()){
                 foreach($payees as $payee){
-                    $insert_payslip = $this->insert_payslip($id, $payee, $username);
+                    $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
 
-                    if($insert_payslip){
-                        $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+                    if($insert_pay_run_payee){
+                        /*$insert_payslip = $this->insert_payslip($id, $payee, $username);
 
-                        if(!$insert_pay_run_payee){
-                            $error = $insert_pay_run_payee;
-                        }
+                        if(!$insert_payslip){
+                            $error = $insert_payslip;
+                        }*/
                     }
                     else{
-                        $error = $insert_payslip;
+                        $error = $insert_pay_run_payee;
                     }
                 }
 
@@ -10073,14 +10078,14 @@ class Api{
                     # Update system parameter value
                     $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 37, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         # Update transaction log value
                         $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                        if($update_system_parameter_value == 1){
+                        if($update_system_parameter_value){
                             $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted pay run (' . $id . ').');
                                         
-                            if($insert_transaction_log == 1){
+                            if($insert_transaction_log){
                                 return true;
                             }
                             else{
@@ -10119,6 +10124,7 @@ class Api{
             # Pay run details
             $pay_run_details = $this->get_pay_run_details($pay_run_id);
             $consider_overtime = $pay_run_details[0]['CONSIDER_OVERTIME'];
+            $consider_withholding_tax = $pay_run_details[0]['CONSIDER_WITHHOLDING_TAX'];
             $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
             $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
 
@@ -10139,6 +10145,7 @@ class Api{
             $total_absent_deduction = 0;
             $total_allowance = 0;
             $total_deduction = 0;
+            $total_withholding_tax = 0;
             $total_contribution_deduction = 0;
             $total_salary = 0;
 
@@ -10261,16 +10268,20 @@ class Api{
                 $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
             }
 
-            if($consider_overtime == 1){
-                $net_pay = ($total_salary + $total_allowance + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving);
+            if(!$consider_overtime){
+               $total_overtime = 0;
+            }
 
-                $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
+            if($consider_withholding_tax){
+                $total_withholding_tax = $this->get_withholding_tax($employee_id, $payroll_date);
             }
             else{
-                $net_pay = ($total_salary + $total_allowance) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving);
-
-                $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, 0, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
+                $total_withholding_tax = 0;
             }
+
+            $net_pay = ($total_salary + $total_allowance + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving + $total_withholding_tax);
+
+            $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $total_salary, $net_pay, $total_deduction, $total_allowance, $username);
 
             if($insert_payslip){
                 return true;
@@ -10345,14 +10356,14 @@ class Api{
                 # Update system parameter value
                 $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 39, $username);
 
-                if($update_system_parameter_value == 1){
+                if($update_system_parameter_value){
                     # Update transaction log value
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-                    if($update_system_parameter_value == 1){
+                    if($update_system_parameter_value){
                         $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted withholding tax (' . $id . ').');
                                     
-                        if($insert_transaction_log == 1){
+                        if($insert_transaction_log){
                             return true;
                         }
                         else{
@@ -13684,6 +13695,7 @@ class Api{
                         'LATE_DEDUCTION_RATE' => $row['LATE_DEDUCTION_RATE'],
                         'EARLY_LEAVING_DEDUCTION_RATE' => $row['EARLY_LEAVING_DEDUCTION_RATE'],
                         'OVERTIME_RATE' => $row['OVERTIME_RATE'],
+                        'NIGHT_DIFFERENTIAL_RATE' => $row['NIGHT_DIFFERENTIAL_RATE'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -13786,6 +13798,9 @@ class Api{
                         'END_DATE' => $row['END_DATE'],
                         'PAYSLIP_NOTE' => $row['PAYSLIP_NOTE'],
                         'CONSIDER_OVERTIME' => $row['CONSIDER_OVERTIME'],
+                        'CONSIDER_WITHHOLDING_TAX' => $row['CONSIDER_WITHHOLDING_TAX'],
+                        'CONSIDER_HOLIDAY_PAY' => $row['CONSIDER_HOLIDAY_PAY'],
+                        'CONSIDER_NIGHT_DIFFERENTIAL' => $row['CONSIDER_NIGHT_DIFFERENTIAL'],
                         'STATUS' => $row['STATUS'],
                         'GENERATION_DATE' => $row['GENERATION_DATE'],
                         'GENERATION_TIME' => $row['GENERATION_TIME'],
@@ -14620,21 +14635,21 @@ class Api{
         $months = floor(($diff - $years * 365 * 60 * 60 * 24) / (30 * 60 * 60 * 24));
         $days = floor(($diff - $years * 365 * 60 * 60 * 24 - $months * 30 * 60 * 60 * 24)/ (60 * 60 * 24));
 
-        if($years == 1){
+        if($years){
             $years = $years . ' Year';
         }
         else{
             $years = $years . ' Years';
         }
 
-        if($months == 1){
+        if($months){
             $months = $months . ' Month';
         }
         else{
             $months = $months . ' Months';
         }
 
-        if($days == 1){
+        if($days){
             $days = $days . ' Day';
         }
         else{
@@ -14836,7 +14851,7 @@ class Api{
     public function get_attendance_creation_sanction_status($stat){
         $response = array();
 
-        if($stat == '1'){
+        if($stat){
             $status = 'Yes';
             $button_class = 'bg-danger';
         }
@@ -14865,7 +14880,7 @@ class Api{
     public function get_attendance_adjustment_sanction_status($stat){
         $response = array();
 
-        if($stat == '1'){
+        if($stat){
             $status = 'Yes';
             $button_class = 'bg-danger';
         }
@@ -15369,6 +15384,7 @@ class Api{
 
         return $response;
     }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
@@ -15381,7 +15397,94 @@ class Api{
     public function get_consider_overtime_status($stat){
         $response = array();
 
-        if($stat == 1){
+        if($stat){
+            $status = 'Yes';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_consider_withholding_tax_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_consider_withholding_tax_status($stat){
+        $response = array();
+
+        if($stat){
+            $status = 'Yes';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_consider_holiday_pay_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_consider_holiday_pay_status($stat){
+        $response = array();
+
+        if($stat){
+            $status = 'Yes';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'No';
+            $button_class = 'bg-warning';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_consider_night_differential_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_consider_night_differential_status($stat){
+        $response = array();
+
+        if($stat){
             $status = 'Yes';
             $button_class = 'bg-success';
         }
@@ -15521,7 +15624,7 @@ class Api{
     #
     # -------------------------------------------------------------
     public function check_modal_scrollable($scrollable){
-        if($scrollable == 1){
+        if($scrollable){
             return 'modal-dialog-scrollable';
         }
         else{
@@ -15742,7 +15845,7 @@ class Api{
                     if($file_size < $file_max_size){
                         $update_user_interface_settings_images = $this->update_user_interface_settings_images($file_tmp_name, $file_actual_ext, $request, $setting_id, $username);
 
-                        if($update_user_interface_settings_images == 1){
+                        if($update_user_interface_settings_images){
                             return true;
                         }
                         else{
@@ -16029,7 +16132,7 @@ class Api{
             if(strtotime($start_date) > strtotime($end_date)){
                 return 'Start Date';
             }
-            else if(strtotime($end_date . ' ' . $time_out) < strtotime($start_date . ' ' . $time_in)){
+            else if(strtotime($end_date) < strtotime($start_date)){
                 return 'End Date';
             }
             else{

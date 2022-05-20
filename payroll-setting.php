@@ -106,9 +106,15 @@
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">
-                                                        <label for="overtime_rate" class="col-md-4 col-form-label">Overtime Rate (%)  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the overtime rate per hour. Set the value to 0 if the rate is prorated."></i></label>
+                                                        <label for="overtime_rate" class="col-md-4 col-form-label">Overtime Rate (%)  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the overtime rate per hour"></i></label>
                                                         <div class="col-md-8">
                                                             <input id="overtime_rate" name="overtime_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="night_differential_rate" class="col-md-4 col-form-label">Night Differential Rate (%)  <i class="bx bx-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="This sets the night differential rate per hour."></i></label>
+                                                        <div class="col-md-8">
+                                                            <input id="night_differential_rate" name="night_differential_rate" class="form-control" type="number" min="0" value="0" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                 </form>

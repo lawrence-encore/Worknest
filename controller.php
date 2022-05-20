@@ -5293,18 +5293,19 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit payroll setting
     else if($transaction == 'submit payroll setting'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['late_deduction_rate']) && isset($_POST['early_leaving_deduction_rate']) && isset($_POST['overtime_rate'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['late_deduction_rate']) && isset($_POST['early_leaving_deduction_rate']) && isset($_POST['overtime_rate']) && isset($_POST['night_differential_rate'])){
             $error = '';
             $username = $_POST['username'];
             $setting_id = 1;
             $late_deduction_rate = $_POST['late_deduction_rate'];
             $early_leaving_deduction_rate = $_POST['early_leaving_deduction_rate'];
             $overtime_rate = $_POST['overtime_rate'];
+            $night_differential_rate = $_POST['night_differential_rate'];
 
             $check_payroll_setting_exist = $api->check_payroll_setting_exist($setting_id);
 
             if($check_payroll_setting_exist > 0){
-                $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
+                $update_payroll_setting = $api->update_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $night_differential_rate, $username);
 
                 if($update_payroll_setting){
                     echo 'Updated';
@@ -5314,7 +5315,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 }
             }
             else{
-                $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $username);
+                $insert_payroll_setting = $api->insert_payroll_setting($setting_id, $late_deduction_rate, $early_leaving_deduction_rate, $overtime_rate, $night_differential_rate, $username);
 
                 if($insert_payroll_setting){
                     echo 'Updated';
@@ -5385,10 +5386,11 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit pay run
     else if($transaction == 'submit pay run'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date']) && isset($_POST['consider_overtime']) && isset($_POST['payroll_group_id']) && isset($_POST['employee_id']) && isset($_POST['payslip_note'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['start_date']) && !empty($_POST['start_date']) && isset($_POST['end_date']) && !empty($_POST['end_date']) && isset($_POST['consider_overtime'])&& isset($_POST['consider_withholding_tax']) && isset($_POST['payroll_group_id']) && isset($_POST['employee_id']) && isset($_POST['payslip_note'])){
             $error = '';
             $username = $_POST['username'];
             $consider_overtime = $_POST['consider_overtime'];
+            $consider_withholding_tax = $_POST['consider_withholding_tax'];
             $payslip_note = $_POST['payslip_note'];
             $start_date = $api->check_date('empty', $_POST['start_date'], '', 'Y-m-d', '', '', '');
             $end_date = $api->check_date('empty', $_POST['end_date'], '', 'Y-m-d', '', '', '');
@@ -5435,7 +5437,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                         }
                     }
     
-                    $insert_pay_run = $api->insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $payees, $username);
+                    $insert_pay_run = $api->insert_pay_run($start_date, $end_date, $payslip_note, $consider_overtime, $consider_withholding_tax, 0, 0, $payees, $username);
     
                     if($insert_pay_run){
                         echo 'Inserted';
@@ -11555,7 +11557,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
         $response[] = array(
             'LATE_DEDUCTION_RATE' => $payroll_setting_details[0]['LATE_DEDUCTION_RATE'] ?? 0,
             'EARLY_LEAVING_DEDUCTION_RATE' => $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'] ?? 0,
-            'OVERTIME_RATE' => $payroll_setting_details[0]['OVERTIME_RATE'] ?? 125
+            'OVERTIME_RATE' => $payroll_setting_details[0]['OVERTIME_RATE'] ?? 125,
+            'NIGHT_DIFFERENTIAL_RATE' => $payroll_setting_details[0]['NIGHT_DIFFERENTIAL_RATE'] ?? 0
         );
 
         echo json_encode($response);
@@ -11643,6 +11646,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $pay_run_status = $api->get_pay_run_status($pay_run_details[0]['STATUS'])[0]['BADGE'];
             $consider_overtime_status = $api->get_consider_overtime_status($pay_run_details[0]['CONSIDER_OVERTIME'])[0]['BADGE'];
+            $consider_withholding_tax_status = $api->get_consider_withholding_tax_status($pay_run_details[0]['CONSIDER_WITHHOLDING_TAX'])[0]['BADGE'];
+            $consider_holiday_pay_status = $api->get_consider_holiday_pay_status($pay_run_details[0]['CONSIDER_HOLIDAY_PAY'])[0]['BADGE'];
+            $consider_night_differential_status = $api->get_consider_night_differential_status($pay_run_details[0]['CONSIDER_NIGHT_DIFFERENTIAL'])[0]['BADGE'];
 
             $response[] = array(
                 'START_DATE' => $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', ''),
@@ -11653,6 +11659,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'GENERATED_BY' => $generated_by,
                 'STATUS' => $pay_run_status,
                 'CONSIDER_OVERTIME' => $consider_overtime_status,
+                'CONSIDER_WITHHOLDING_TAX' => $consider_withholding_tax_status,
+                'CONSIDER_HOLIDAY_PAY' => $consider_holiday_pay_status,
+                'CONSIDER_NIGHT_DIFFERENTIAL' => $consider_night_differential_status,
                 'PAYEE' => $payee
             );
 
