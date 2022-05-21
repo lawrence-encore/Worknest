@@ -21,16 +21,19 @@ function initialize_withholding_tax_table(datatable_name, buttons = false, show_
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'SALARY_FREQUENCY' },
         { 'data' : 'COMPENSATION_RANGE' },
-        { 'data' : 'RATE' },
+        { 'data' : 'FIX_COMPENSATION_LEVEL' },
+        { 'data' : 'BASE_TAX' },
+        { 'data' : 'PERCENT_OVER' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '39%', 'aTargets': 1 },
+        { 'width': '29%', 'aTargets': 1 },
         { 'width': '20%', 'aTargets': 2 },
         { 'width': '20%', 'aTargets': 3 },
-        { 'width': '20%','bSortable': false, 'aTargets': 4 },
+        { 'width': '20%', 'aTargets': 4 },
+        { 'width': '20%','bSortable': false, 'aTargets': 5 },
     ];
 
     if(show_all){
@@ -108,7 +111,7 @@ function initialize_click_events(){
     var username = $('#username').text();
 
     $(document).on('click','#add-withholding-tax',function() {
-        generate_modal('withholding tax form', 'Withholding Tax', 'R' , '1', '1', 'form', 'withholding-tax-form', '1', username);
+        generate_modal('withholding tax form', 'Withholding Tax', 'LG' , '1', '1', 'form', 'withholding-tax-form', '1', username);
     });
 
     $(document).on('click','.update-withholding-tax',function() {
@@ -116,7 +119,7 @@ function initialize_click_events(){
 
         sessionStorage.setItem('withholding_tax_id', withholding_tax_id);
         
-        generate_modal('withholding tax form', 'Withholding Tax', 'R' , '1', '1', 'form', 'withholding-tax-form', '0', username);
+        generate_modal('withholding tax form', 'Withholding Tax', 'LG' , '1', '1', 'form', 'withholding-tax-form', '0', username);
     });
     
     $(document).on('click','.delete-withholding-tax',function() {

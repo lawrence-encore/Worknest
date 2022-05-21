@@ -90,7 +90,9 @@
                                                             <th class="all">Salary Frequency</th>
                                                             <th class="all">Start Range</th>
                                                             <th class="all">End Range</th>
-                                                            <th class="all">Rate</th>
+                                                            <th class="all">Fix Compensation Rate</th>
+                                                            <th class="all">Base Tax</th>
+                                                            <th class="all">% Over</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>

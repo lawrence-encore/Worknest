@@ -107,7 +107,9 @@
                                                             </th>
                                                             <th class="all">Salary Frequency</th>
                                                             <th class="all">Compensation Range</th>
-                                                            <th class="all">Rate</th>
+                                                            <th class="all">Fix Compensation Level</th>
+                                                            <th class="all">Base Tax</th>
+                                                            <th class="all">% Over</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>

@@ -18,7 +18,9 @@ function initialize_temporary_withholding_tax_table(datatable_name, buttons = fa
         { 'data' : 'SALARY_FREQUENCY' },
         { 'data' : 'START_RANGE' },
         { 'data' : 'END_RANGE' },
-        { 'data' : 'ADDITIONAL_RATE' },
+        { 'data' : 'FIX_COMPENSATION_LEVEL' },
+        { 'data' : 'BASE_TAX' },
+        { 'data' : 'PERCENT_OVER' },
     ];
 
     var column_definition = [
@@ -26,7 +28,9 @@ function initialize_temporary_withholding_tax_table(datatable_name, buttons = fa
         { 'width': '10%', 'aTargets': 1, 'className' : 'salary_frequency' },
         { 'width': '10%', 'aTargets': 2, 'className' : 'start_range' },
         { 'width': '10%', 'aTargets': 3, 'className' : 'end_range' },
-        { 'width': '10%', 'aTargets': 4, 'className' : 'rate' },
+        { 'width': '10%', 'aTargets': 4, 'className' : 'fix_compensation_level' },
+        { 'width': '10%', 'aTargets': 5, 'className' : 'base_tax' },
+        { 'width': '10%', 'aTargets': 6, 'className' : 'percent_over' },
     ];
 
     if(show_all){
@@ -112,7 +116,9 @@ function initialize_click_events(){
         var salary_frequency = [];
         var start_range = [];
         var end_range = [];
-        var rate = [];
+        var fix_compensation_level = [];
+        var base_tax = [];
+        var percent_over = [];
 
         $('.withholding_tax_id').each(function(){
             withholding_tax_id.push($(this).text());
@@ -130,15 +136,25 @@ function initialize_click_events(){
             end_range.push($(this).text());
         });
 
-        $('.rate').each(function(){
-            rate.push($(this).text());
+        $('.fix_compensation_level').each(function(){
+            fix_compensation_level.push($(this).text());
+        });
+
+        $('.base_tax').each(function(){
+            base_tax.push($(this).text());
+        });
+
+        $('.percent_over').each(function(){
+            percent_over.push($(this).text());
         });
 
         withholding_tax_id.splice(0,2);
         salary_frequency.splice(0,2);
         start_range.splice(0,2);
         end_range.splice(0,2);
-        rate.splice(0,2);
+        fix_compensation_level.splice(0,2);
+        base_tax.splice(0,2);
+        percent_over.splice(0,2);
        
         var transaction = 'import withholding tax data';
         var username = $('#username').text();
@@ -147,7 +163,7 @@ function initialize_click_events(){
             url: 'controller.php',
             method: 'POST',
             dataType: 'TEXT',
-            data: {withholding_tax_id : withholding_tax_id, salary_frequency : salary_frequency, start_range : start_range, end_range : end_range, rate : rate, transaction : transaction, username : username},
+            data: {withholding_tax_id : withholding_tax_id, salary_frequency : salary_frequency, start_range : start_range, end_range : end_range, fix_compensation_level : fix_compensation_level, base_tax : base_tax, percent_over : percent_over, transaction : transaction, username : username},
             success: function(response) {
                 if(response === 'Imported'){
                     show_alert('Import Withholding Tax Date', 'The withholding taxes have been imported.', 'success');

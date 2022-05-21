@@ -1691,10 +1691,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                 $salary_frequency = $column[1];
                                 $start_range = $column[2];
                                 $end_range = $column[3];
-                                $additional_rate = $column[4];
+                                $fix_compensation_level = $column[4];
+                                $base_tax = $column[5];
+                                $percent_over = $column[6];
 
-                                if(!empty($salary_frequency) && !empty($start_range) && !empty($end_range) && !empty($additional_rate)){
-                                    $insert_temporary_withholding_tax = $api->insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $additional_rate);
+                                if(!empty($salary_frequency) && !empty($start_range) && !empty($end_range)){
+                                    $insert_temporary_withholding_tax = $api->insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over);
                                 }
                             }
 
@@ -1721,13 +1723,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Import withholding tax data
     else if($transaction == 'import withholding tax data'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['rate'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['fix_compensation_level']) && isset($_POST['base_tax']) && isset($_POST['percent_over'])){
             $username = $_POST['username'];
             $withholding_tax_id = $_POST['withholding_tax_id'];
             $salary_frequency = $_POST['salary_frequency'];
             $start_range = $_POST['start_range'];
             $end_range = $_POST['end_range'];
-            $rate = $_POST['rate'];
+            $fix_compensation_level = $_POST['fix_compensation_level'];
+            $base_tax = $_POST['base_tax'];
+            $percent_over = $_POST['percent_over'];
 
             for($i = 0; $i < count($salary_frequency); $i++){
                 $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id[$i]);
@@ -1737,7 +1741,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id[$i], $salary_frequency[$i], $end_range[$i]);
     
                     if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
-                        $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id[$i], $salary_frequency[$i], $start_range[$i], $end_range[$i], $rate[$i], $username);
+                        $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id[$i], $salary_frequency[$i], $start_range[$i], $end_range[$i], $fix_compensation_level[$i], $base_tax[$i], $percent_over[$i], $username);
                     }
                 }
                 else{
@@ -1745,7 +1749,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency[$i], $end_range[$i]);
     
                     if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
-                        $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency[$i], $start_range[$i], $end_range[$i], $rate[$i], $username);
+                        $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency[$i], $start_range[$i], $end_range[$i], $fix_compensation_level[$i], $base_tax[$i], $percent_over[$i], $username);
                     }
                 }
             }
@@ -5459,13 +5463,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit withholding tax
     else if($transaction == 'submit withholding tax'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && !empty($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['rate'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['withholding_tax_id']) && isset($_POST['salary_frequency']) && !empty($_POST['salary_frequency']) && isset($_POST['start_range']) && isset($_POST['end_range']) && isset($_POST['base_tax']) && isset($_POST['fix_compensation_level']) && isset($_POST['percent_over'])){
             $username = $_POST['username'];
             $withholding_tax_id = $_POST['withholding_tax_id'];
             $salary_frequency = $_POST['salary_frequency'];
             $start_range = $_POST['start_range'];
             $end_range = $_POST['end_range'];
-            $rate = $_POST['rate'];
+            $fix_compensation_level = $_POST['fix_compensation_level'];
+            $base_tax = $_POST['base_tax'];
+            $percent_over = $_POST['percent_over'];
 
             $check_withholding_tax_exist = $api->check_withholding_tax_exist($withholding_tax_id);
 
@@ -5474,7 +5480,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap($withholding_tax_id, $salary_frequency, $end_range);
 
                 if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
-                    $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $rate, $username);
+                    $update_withholding_tax = $api->update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over, $username);
 
                     if($update_withholding_tax){
                         echo 'Updated';
@@ -5492,7 +5498,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency, $end_range);
 
                 if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
-                    $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency, $start_range, $end_range, $rate, $username);
+                    $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency, $start_range, $end_range, $fix_compensation_level, $percent_over, $base_tax, $username);
 
                     if($insert_withholding_tax){
                         echo 'Inserted';
@@ -11680,7 +11686,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'SALARY_FREQUENCY' => $withholding_tax_details[0]['SALARY_FREQUENCY'],
                 'START_RANGE' => $withholding_tax_details[0]['START_RANGE'],
                 'END_RANGE' => $withholding_tax_details[0]['END_RANGE'],
-                'ADDITIONAL_RATE' => $withholding_tax_details[0]['ADDITIONAL_RATE']
+                'FIX_COMPENSATION_LEVEL' => $withholding_tax_details[0]['FIX_COMPENSATION_LEVEL'],
+                'BASE_TAX' => $withholding_tax_details[0]['BASE_TAX'],
+                'PERCENT_OVER' => $withholding_tax_details[0]['PERCENT_OVER']
             );
 
             echo json_encode($response);

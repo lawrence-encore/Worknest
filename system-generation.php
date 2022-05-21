@@ -2751,7 +2751,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else if($form_type == 'withholding tax form'){
                 $form .= '<div class="row">
-                                <div class="col-md-7">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="salary_frequency" class="form-label">Salary Frequency <span class="required">*</span></label>
                                         <input type="hidden" id="withholding_tax_id" name="withholding_tax_id">
@@ -2761,24 +2761,36 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         $form .='</select>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
-                                    <div class="mb-3">
-                                        <label for="rate" class="form-label">Rate <span class="required">*</span></label>
-                                        <input id="rate" name="rate" class="form-control" type="number" min="0" step="0.01">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="start_range" class="form-label">Start Range <span class="required">*</span></label>
                                         <input id="start_range" name="start_range" class="form-control" type="number" min="1" step="0.01">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="end_range" class="form-label">End Range <span class="required">*</span></label>
                                         <input id="end_range" name="end_range" class="form-control" type="number" min="1" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="fix_compensation_level" class="form-label">Fix Compensation Level <span class="required">*</span></label>
+                                        <input id="fix_compensation_level" name="fix_compensation_level" class="form-control" type="number" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="base_tax" class="form-label">Base Tax <span class="required">*</span></label>
+                                        <input id="base_tax" name="base_tax" class="form-control" type="number" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="percent_over" class="form-label">% Over <span class="required">*</span></label>
+                                        <input id="percent_over" name="percent_over" class="form-control" type="number" min="0" step="0.01">
                                     </div>
                                 </div>
                             </div>';
@@ -9609,7 +9621,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     # Temporary withholding tax table
     else if($type == 'temporary withholding tax table'){
         if ($api->databaseConnection()) {
-            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE FROM temp_withholding_tax');
+            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, FIX_COMPENSATION_LEVEL, BASE_TAX, PERCENT_OVER FROM temp_withholding_tax');
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
@@ -9617,14 +9629,18 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $salary_frequency = $row['SALARY_FREQUENCY'];
                     $start_range = $row['START_RANGE'];
                     $end_range = $row['END_RANGE'];
-                    $additional_rate = $row['ADDITIONAL_RATE'];
+                    $fix_compensation_level = $row['FIX_COMPENSATION_LEVEL'];
+                    $base_tax = $row['BASE_TAX'];
+                    $percent_rate = $row['PERCENT_OVER'];
 
                     $response[] = array(
                         'WITHHOLDING_TAX_ID' => $withholding_tax_id,
                         'SALARY_FREQUENCY' => $salary_frequency,
                         'START_RANGE' => $start_range,
                         'END_RANGE' => $end_range,
-                        'ADDITIONAL_RATE' => $additional_rate
+                        'FIX_COMPENSATION_LEVEL' => $fix_compensation_level,
+                        'BASE_TAX' => $fix_compensation_level,
+                        'PERCENT_OVER' => $percent_rate
                     );
                 }
 
@@ -10086,7 +10102,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             $delete_contribution_bracket = $api->check_role_permissions($username, 312);
             $view_transaction_log = $api->check_role_permissions($username, 313);
 
-            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, ADDITIONAL_RATE, TRANSACTION_LOG_ID FROM tblwithholdingtax');
+            $sql = $api->db_connection->prepare('SELECT WITHHOLDING_TAX_ID, SALARY_FREQUENCY, START_RANGE, END_RANGE, FIX_COMPENSATION_LEVEL, BASE_TAX, PERCENT_OVER, TRANSACTION_LOG_ID FROM tblwithholdingtax');
 
             if($sql->execute()){
                 while($row = $sql->fetch()){
@@ -10094,7 +10110,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                     $salary_frequency = $api->get_system_code_details('SALARYFREQUENCY', $row['SALARY_FREQUENCY'])[0]['DESCRIPTION'];
                     $start_range = $row['START_RANGE'];
                     $end_range = $row['END_RANGE'];
-                    $additional_rate = $row['ADDITIONAL_RATE'];
+                    $fix_compensation_level = $row['FIX_COMPENSATION_LEVEL'];
+                    $base_tax = $row['BASE_TAX'];
+                    $percent_rate = $row['PERCENT_OVER'];
                     $transaction_log_id = $row['TRANSACTION_LOG_ID'];
 
                     if($update_contribution_bracket > 0){
@@ -10128,7 +10146,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $withholding_tax_id .'">',
                         'SALARY_FREQUENCY' => $salary_frequency,
                         'COMPENSATION_RANGE' => number_format($start_range, 2) . ' - ' . number_format($end_range, 2),
-                        'RATE' => number_format($additional_rate, 2),
+                        'FIX_COMPENSATION_LEVEL' => number_format($fix_compensation_level, 2),
+                        'BASE_TAX' => number_format($base_tax, 2),
+                        'PERCENT_OVER' => number_format($percent_rate, 2),
                         'ACTION' => '<div class="d-flex gap-2">
                             '. $update .'
                             '. $transaction_log .'

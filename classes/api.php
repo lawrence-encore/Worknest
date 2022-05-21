@@ -6085,7 +6085,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $rate, $username){
+    public function update_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over, $username){
         if ($this->databaseConnection()) {
             $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
             $withholding_tax_details = $this->get_withholding_tax_details($withholding_tax_id);
@@ -6100,12 +6100,14 @@ class Api{
                 $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
             }
 
-            $sql = $this->db_connection->prepare('CALL update_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL update_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :fix_compensation_level, :base_tax, :percent_over, :transaction_log_id, :record_log)');
             $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
             $sql->bindValue(':salary_frequency', $salary_frequency);
             $sql->bindValue(':start_range', $start_range);
             $sql->bindValue(':end_range', $end_range);
-            $sql->bindValue(':rate', $rate);
+            $sql->bindValue(':fix_compensation_level', $fix_compensation_level);
+            $sql->bindValue(':base_tax', $base_tax);
+            $sql->bindValue(':percent_over', $percent_over);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log);
         
@@ -10276,9 +10278,9 @@ class Api{
             if($consider_withholding_tax){
                 $taxable_allowance_total = $this->get_taxable_allowance_total($employee_id, $payroll_date);
                 $taxable_other_income_total = $this->get_taxable_other_income_total($employee_id, $payroll_date);
-                $compensation_range = $salary_amount + $taxable_allowance_total + $taxable_other_income_total;
+                $taxable_income = $salary_amount + $total_overtime + $taxable_allowance_total + $taxable_other_income_total;
 
-                $total_withholding_tax = $this->get_withholding_tax($compensation_range, $salary_frequency);
+                $total_withholding_tax = $this->get_withholding_tax($taxable_income, $salary_frequency);
             }
             else{
                 $total_withholding_tax = 0;
@@ -10333,7 +10335,7 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_withholding_tax($salary_frequency, $start_range, $end_range, $rate, $username){
+    public function insert_withholding_tax($salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over, $username){
         if ($this->databaseConnection()) {
             $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
 
@@ -10347,13 +10349,14 @@ class Api{
             $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
             $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
 
-            $sql = $this->db_connection->prepare('CALL insert_withholding_tax(:id, :salary_frequency, :start_range, :end_range, :rate, :transaction_log_id, :record_log)');
+            $sql = $this->db_connection->prepare('CALL insert_withholding_tax(:id, :salary_frequency, :start_range, :end_range, :fix_compensation_level, :base_tax, :percent_over, :transaction_log_id, :record_log)');
             $sql->bindValue(':id', $id);
             $sql->bindValue(':salary_frequency', $salary_frequency);
             $sql->bindValue(':start_range', $start_range);
             $sql->bindValue(':end_range', $end_range);
-            $sql->bindValue(':end_range', $end_range);
-            $sql->bindValue(':rate', $rate);
+            $sql->bindValue(':fix_compensation_level', $fix_compensation_level);
+            $sql->bindValue(':base_tax', $base_tax);
+            $sql->bindValue(':percent_over', $percent_over);
             $sql->bindValue(':transaction_log_id', $transaction_log_id);
             $sql->bindValue(':record_log', $record_log); 
         
@@ -10398,14 +10401,16 @@ class Api{
     # Returns    : Number/String
     #
     # -------------------------------------------------------------
-    public function insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $additional_rate){
+    public function insert_temporary_withholding_tax($withholding_tax_id, $salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over){
         if ($this->databaseConnection()) {
-            $sql = $this->db_connection->prepare('CALL insert_temporary_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :additional_rate)');
+            $sql = $this->db_connection->prepare('CALL insert_temporary_withholding_tax(:withholding_tax_id, :salary_frequency, :start_range, :end_range, :fix_compensation_level, :base_tax, :percent_over)');
             $sql->bindValue(':withholding_tax_id', $withholding_tax_id);
             $sql->bindValue(':salary_frequency', $salary_frequency);
             $sql->bindValue(':start_range', $start_range);
             $sql->bindValue(':end_range', $end_range);
-            $sql->bindValue(':additional_rate', $additional_rate);
+            $sql->bindValue(':fix_compensation_level', $fix_compensation_level);
+            $sql->bindValue(':base_tax', $base_tax);
+            $sql->bindValue(':percent_over', $percent_over);
 
             if($sql->execute()){
                 return true;
@@ -13877,7 +13882,9 @@ class Api{
                         'SALARY_FREQUENCY' => $row['SALARY_FREQUENCY'],
                         'START_RANGE' => $row['START_RANGE'],
                         'END_RANGE' => $row['END_RANGE'],
-                        'ADDITIONAL_RATE' => $row['ADDITIONAL_RATE'],
+                        'FIX_COMPENSATION_LEVEL' => $row['FIX_COMPENSATION_LEVEL'],
+                        'BASE_TAX' => $row['BASE_TAX'],
+                        'PERCENT_OVER' => $row['PERCENT_OVER'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -15710,7 +15717,7 @@ class Api{
     # Returns    : Double
     #
     # -------------------------------------------------------------
-    public function get_withholding_tax($compensation_range, $salary_frequency){
+    public function get_withholding_tax($taxable_income, $salary_frequency){
         if ($this->databaseConnection()) {
             $withholding_tax = 0;
 
@@ -15721,10 +15728,12 @@ class Api{
                 while($row = $sql->fetch()){
                     $start_range = $row['START_RANGE'];
                     $end_range = $row['END_RANGE'];
-                    $additional_rate = $row['ADDITIONAL_RATE'];
+                    $fix_compensation_level = $row['FIX_COMPENSATION_LEVEL'];
+                    $base_tax = $row['BASE_TAX'];
+                    $percent_over = $row['PERCENT_OVER'];
 
-                    if($compensation_range >= $start_range && $compensation_range <= $end_range){
-                        $withholding_tax = $deduction_amount;
+                    if($taxable_income >= $start_range && $taxable_income <= $end_range){
+                        $withholding_tax = (($taxable_income - $fix_compensation_level) * $percent_over) + $base_tax;
                     }
                 }
 

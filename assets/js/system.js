@@ -9331,86 +9331,6 @@ function initialize_form_validation(form_type){
             }
         });
     }
-    else if(form_type == 'import withholding tax form'){
-        $('#import-withholding-tax-form').validate({
-            submitHandler: function (form) {
-                var transaction = 'import withholding tax';
-                var username = $('#username').text();
-                
-                var formData = new FormData(form);
-                formData.append('username', username);
-                formData.append('transaction', transaction);
-
-                $.ajax({
-                    type: 'POST',
-                    url: 'controller.php',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function(){
-                        document.getElementById('submit-form').disabled = true;
-                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
-                    },
-                    success: function (response) {
-                        if(response === 'Imported'){
-                            show_alert('Import Withholding Tax Success', 'The withholding tax has been imported.', 'success');
-                            reload_datatable('#import-withholding-tax-datatable');
-
-                            $('#import-withholding-tax').addClass('d-none');
-                            $('#submit-import-withholding-tax').removeClass('d-none');
-                            $('#clear-import-withholding-tax').removeClass('d-none');
-
-                            $('#System-Modal').modal('hide');
-                        }
-                        else if(response === 'File Size'){
-                            show_alert('Import Withholding Tax Error', 'The file uploaded exceeds the maximum file size.', 'error');
-                        }
-                        else if(response === 'File Type'){
-                            show_alert('Import Withholding Tax Error', 'The file uploaded is not supported.', 'error');
-                        }
-                        else{
-                            show_alert('Import Withholding Tax Error', response, 'error');
-                        }
-                    },
-                    complete: function(){
-                        document.getElementById('submit-form').disabled = false;
-                        $('#submit-form').html('Submit');
-                    }
-                });
-                return false;
-            },
-            rules: {
-                import_file: {
-                    required: true
-                }
-            },
-            messages: {
-                import_file: {
-                    required: 'Please choose the import file',
-                }
-            },
-            errorPlacement: function(label, element) {
-                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
-                    label.insertAfter(element.next('.select2-container'));
-                }
-                else if(element.parent('.input-group').length){
-                    label.insertAfter(element.parent());
-                }
-                else{
-                    label.insertAfter(element);
-                }
-            },
-            highlight: function(element) {
-                $(element).parent().addClass('has-danger');
-                $(element).addClass('form-control-danger');
-            },
-            success: function(label,element) {
-                $(element).parent().removeClass('has-danger')
-                $(element).removeClass('form-control-danger')
-                label.remove();
-            }
-        });
-    }
     else if(form_type == 'backup database form'){
         $('#backup-database-form').validate({
             submitHandler: function (form) {
@@ -9908,6 +9828,12 @@ function initialize_form_validation(form_type){
                 end_range: {
                     required: true
                 },
+                fix_compensation_level: {
+                    required: true
+                },
+                base_tax: {
+                    required: true
+                },
                 rate: {
                     required: true
                 }
@@ -9922,8 +9848,94 @@ function initialize_form_validation(form_type){
                 end_range: {
                     required: 'Please enter the end range',
                 },
+                fix_compensation_level: {
+                    required: 'Please enter the fix compensation level',
+                },
+                base_tax: {
+                    required: 'Please enter the base tax',
+                },
                 rate: {
                     required: 'Please enter the rate',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'import withholding tax form'){
+        $('#import-withholding-tax-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'import withholding tax';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Imported'){
+                            show_alert('Import Withholding Tax Success', 'The withholding tax has been imported.', 'success');
+                            reload_datatable('#import-withholding-tax-datatable');
+
+                            $('#import-withholding-tax').addClass('d-none');
+                            $('#submit-import-withholding-tax').removeClass('d-none');
+                            $('#clear-import-withholding-tax').removeClass('d-none');
+
+                            $('#System-Modal').modal('hide');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Import Withholding Tax Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Import Withholding Tax Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Import Withholding Tax Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                import_file: {
+                    required: true
+                }
+            },
+            messages: {
+                import_file: {
+                    required: 'Please choose the import file',
                 }
             },
             errorPlacement: function(label, element) {
@@ -12040,7 +12052,9 @@ function display_form_details(form_type){
                 $('#withholding_tax_id').val(withholding_tax_id);
                 $('#start_range').val(response[0].START_RANGE);
                 $('#end_range').val(response[0].END_RANGE);
-                $('#rate').val(response[0].ADDITIONAL_RATE);
+                $('#fix_compensation_level').val(response[0].FIX_COMPENSATION_LEVEL);
+                $('#base_tax').val(response[0].BASE_TAX);
+                $('#percent_over').val(response[0].PERCENT_OVER);
 
                 check_option_exist('#salary_frequency', response[0].SALARY_FREQUENCY, '');
             }
