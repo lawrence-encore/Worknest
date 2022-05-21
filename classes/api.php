@@ -6149,6 +6149,122 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_allowance_payroll_id
+    # Purpose    : Updates allowance payroll id.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_allowance_payroll_id($payslip_id, $employee_id, $start_date, $end_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_allowance_payroll_id(:payslip_id, :employee_id, :start_date, :end_date, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_deduction_payroll_id
+    # Purpose    : Updates deduction payroll id.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_deduction_payroll_id($payslip_id, $employee_id, $start_date, $end_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_deduction_payroll_id(:payslip_id, :employee_id, :start_date, :end_date, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_other_income_payroll_id
+    # Purpose    : Updates other income payroll id.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_other_income_payroll_id($payslip_id, $employee_id, $start_date, $end_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_other_income_payroll_id(:payslip_id, :employee_id, :start_date, :end_date, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_contribution_deduction_payroll_id
+    # Purpose    : Updates contribution deduction payroll id.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_contribution_deduction_payroll_id($payslip_id, $employee_id, $start_date, $end_date, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_contribution_deduction_payroll_id(:payslip_id, :employee_id, :start_date, :end_date, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':start_date', $start_date);
+            $sql->bindValue(':end_date', $end_date);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -10065,11 +10181,11 @@ class Api{
                     $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
 
                     if($insert_pay_run_payee){
-                        /*$insert_payslip = $this->insert_payslip($id, $payee, $username);
+                        $insert_payslip = $this->insert_payslip($id, $payee, $username);
 
                         if(!$insert_payslip){
                             $error = $insert_payslip;
-                        }*/
+                        }
                     }
                     else{
                         $error = $insert_pay_run_payee;
@@ -10123,178 +10239,121 @@ class Api{
     # -------------------------------------------------------------
     public function insert_payslip($pay_run_id, $employee_id, $username){
         if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(38, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
             # Pay run details
             $pay_run_details = $this->get_pay_run_details($pay_run_id);
-            $consider_overtime = $pay_run_details[0]['CONSIDER_OVERTIME'];
-            $consider_withholding_tax = $pay_run_details[0]['CONSIDER_WITHHOLDING_TAX'];
             $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
             $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
 
-            # Payroll setting details
-            $payroll_setting_details = $this->get_payroll_setting_details(1);
-            $late_deduction_rate = $payroll_setting_details[0]['LATE_DEDUCTION_RATE'];
-            $early_leaving_deduction_rate = $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'];
-            $overtime_rate = $payroll_setting_details[0]['OVERTIME_RATE'] / 100;
+            # Get payslip amount
+            $get_payslip_amount_details = $this->get_payslip_amount_details($pay_run_id, $employee_id);
+            $absent = $get_payslip_amount_details[0]['ABSENT'];
+            $absent_deduction = $get_payslip_amount_details[0]['ABSENT_DEDUCTION'];
+            $late_minutes = $get_payslip_amount_details[0]['LATE_MINUTES'];
+            $late_deduction = $get_payslip_amount_details[0]['LATE_DEDUCTION'];
+            $early_leaving_minutes = $get_payslip_amount_details[0]['EARLY_LEAVING_MINUTES'];
+            $early_leaving_deduction = $get_payslip_amount_details[0]['EARLY_LEAVING_DEDUCTION'];
+            $overtime_hours = $get_payslip_amount_details[0]['OVERTIME_HOURS'];
+            $overtime_earning = $get_payslip_amount_details[0]['OVERTIME_EARNING'];
+            $total_hours_worked = $get_payslip_amount_details[0]['WORKING_HOURS'];
+            $total_deductions = $get_payslip_amount_details[0]['TOTAL_DEDUCTIONS'];
+            $total_allowance = $get_payslip_amount_details[0]['TOTAL_ALLOWANCE'];
+            $withholding_tax = $get_payslip_amount_details[0]['WITHHOLDING_TAX'];
+            $gross_pay = $get_payslip_amount_details[0]['GROSS_PAY'];
+            $net_pay = $get_payslip_amount_details[0]['NET_PAY'];
 
-            # Salary details
-            $get_employee_salary = $this->get_employee_salary($employee_id);
-            $salary_frequency = $get_employee_salary[0]['SALARY_FREQUENCY'];
-            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
-            $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
-            $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
+            $sql = $this->db_connection->prepare('CALL insert_payslip(:id, :pay_run_id, :employee_id, :absent, :absent_deduction, :late_minutes, :late_deduction, :early_leaving_minutes, :early_leaving_deduction, :overtime_hours, :overtime_earning, :total_hours_worked, :withholding_tax, :total_deductions, :total_allowance, :gross_pay, :net_pay, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':absent', $absent);
+            $sql->bindValue(':absent_deduction', $absent_deduction);
+            $sql->bindValue(':late_minutes', $late_minutes);
+            $sql->bindValue(':late_deduction', $late_deduction);
+            $sql->bindValue(':early_leaving_minutes', $early_leaving_minutes);
+            $sql->bindValue(':early_leaving_deduction', $early_leaving_deduction);
+            $sql->bindValue(':overtime_hours', $overtime_hours);
+            $sql->bindValue(':overtime_earning', $overtime_earning);
+            $sql->bindValue(':total_hours_worked', $total_hours_worked);
+            $sql->bindValue(':withholding_tax', $withholding_tax);
+            $sql->bindValue(':total_deductions', $total_deductions);
+            $sql->bindValue(':total_allowance', $total_allowance);
+            $sql->bindValue(':gross_pay', $gross_pay);
+            $sql->bindValue(':net_pay', $net_pay);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 38, $username);
 
-            $total_late = 0;
-            $total_late_minutes = 0;
-            $total_early_leaving = 0;
-            $total_early_leaving_minutes = 0;
-            $total_overtime = 0;
-            $total_overtime_hours = 0;
-            $total_working_hours = 0;
-            $total_absent = 0;
-            $total_absent_deduction = 0;
-            $total_allowance = 0;
-            $other_income = 0;
-            $total_deduction = 0;
-            $total_contribution_deduction = 0;
-            $total_salary = 0;
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
-            for ($i = strotime($start_date); $i <= strotime($end_date); $i = $i + (60 * 60 * 24)) {
-                $payroll_date = $date('Y-m-d', $i);
-                $day = date('N', $i);
-                
-                # Work shift schedule
-                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $payroll_date, $day);
-                $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
+                    if($update_system_parameter_value){
+                        # Update allowance payroll id
+                        $update_allowance_payroll_id = $this->update_allowance_payroll_id($id, $employee_id, $start_date, $end_date, $username);
 
-                if(!empty($work_shift_id)){
-                    $work_shift_start_time = $work_shift_schedule[0]['START_TIME'];
-                    $work_shift_end_time = $work_shift_schedule[0]['END_TIME'];
+                        if($update_allowance_payroll_id){
+                            # Update deduction payroll id
+                            $update_deduction_payroll_id = $this->update_deduction_payroll_id($id, $employee_id, $start_date, $end_date, $username);
 
-                    # Get employee attendance id
-                    $get_employee_attendance = $this->get_employee_attendance($employee_id, $payroll_date);
-                    $attendance_id = $get_employee_attendance[0]['ATTENDANCE_ID'];
+                            if($update_deduction_payroll_id){
+                                # Update other income payroll id
+                                $update_other_income_payroll_id = $this->update_other_income_payroll_id($id, $employee_id, $start_date, $end_date, $username);
 
-                    if(!empty($attendance_id)){
-                        # Employee attendance details
-                        $get_employee_attendance_details = $this->get_employee_attendance_details($attendance_id);
-                        $attendance_time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
-                        $attendance_time_in = $get_employee_attendance_details[0]['TIME_IN'];
-                        $attendance_time_out_date = $get_employee_attendance_details[0]['TIME_OUT_DATE'];
-                        $attendance_time_out = $get_employee_attendance_details[0]['TIME_OUT'];
-                        $attendance_late = $get_employee_attendance_details[0]['LATE'];
-                        $attendance_early_leaving = $get_employee_attendance_details[0]['EARLY_LEAVING'];
-                        $attendance_overtime = $get_employee_attendance_details[0]['OVERTIME'];
-                        $attendance_total_working_hours = $get_employee_attendance_details[0]['TOTAL_WORKING_HOURS'];
+                                if($update_other_income_payroll_id){
+                                    # Update contribution deduction payroll id
+                                    $update_contribution_deduction_payroll_id = $this->update_contribution_deduction_payroll_id($id, $employee_id, $start_date, $end_date, $username);
 
-                        if($attendance_late > 0 || $attendance_early_leaving > 0){
-                            # Check if there is an approve paid employee leave
-                            $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
-                            $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
-
-                            if(!empty($paid_employee_leave_id)){
-                                $paid_employee_leave_start_time = $get_paid_employee_leave[0]['START_TIME'];
-                                $paid_employee_leave_end_time = $get_paid_employee_leave[0]['END_TIME'];
-
-                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_start_time) < strtotime($attendance_time_in_date . ' ' . $attendance_time_in)){
-                                    $adjusted_time_in_date = $payroll_date;
-                                    $adjusted_time_in = $paid_employee_leave_start_time;
+                                    if($update_contribution_deduction_payroll_id){
+                                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted payslip (' . $id . ').');
+                                                    
+                                        if($insert_transaction_log){
+                                            return true;
+                                        }
+                                        else{
+                                            return $insert_transaction_log;
+                                        }
+                                    }
+                                    else{
+                                        return $update_contribution_deduction_payroll_id;
+                                    }
                                 }
                                 else{
-                                    $adjusted_time_in_date = $attendance_time_in_date;
-                                    $adjusted_time_in = $attendance_time_in;
+                                    return $update_other_income_payroll_id;
                                 }
-
-                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_end_time) > strtotime($attendance_time_out_date . ' ' . $attendance_time_out)){
-                                    $adjusted_time_out_date = $payroll_date;
-                                    $adjusted_time_out = $paid_employee_leave_end_time;
-                                }
-                                else{
-                                    $adjusted_time_out_date = $attendance_time_out_date;
-                                    $adjusted_time_out = $attendance_time_out;
-                                }
-
-                                $late = $this->get_attendance_late_total($employee_id, $adjusted_time_out_date, $adjusted_time_in);
-                                $early_leaving = $this->get_attendance_early_leaving_total($employee_id, $adjusted_time_out_date, $adjusted_time_out);
-                                $overtime = $this->get_attendance_overtime_total($employee_id, $adjusted_time_out_date, $adjusted_time_out_date, $adjusted_time_out);
-                                $working_hours = $this->get_attendance_total_hours($employee_id, $adjusted_time_out_date, $adjusted_time_in, $adjusted_time_out_date, $adjusted_time_out);
                             }
                             else{
-                                $late = $attendance_late;
-                                $early_leaving = $attendance_early_leaving;
-                                $overtime = $attendance_overtime;
-                                $working_hours = $attendance_total_working_hours;
+                                return $update_deduction_payroll_id;
                             }
-
-                            $total_late_minutes = $total_late_minutes + $late;
-                            $total_early_leaving_minutes = $total_early_leaving_minutes + $early_leaving;
-                            $total_overtime_hours = $total_overtime_hours + $overtime;
-                            $total_working_hours = $total_working_hours + $working_hours;
-                            
-                            if($late_deduction_rate > 0){
-                                $total_late = $total_late + ($late * $late_deduction_rate);
-                            }
-                            else{
-                                $total_late = $total_late + ($late * $minute_rate);
-                            }
-                            
-                            if($early_leaving_deduction_rate > 0){
-                                $total_early_leaving = $total_early_leaving + ($early_leaving * $early_leaving_deduction_rate);
-                            }
-                            else{
-                                $total_early_leaving = $total_early_leaving + ($early_leaving * $minute_rate);
-                            }
-                            
-                            $total_overtime = $total_overtime + ($overtime * ($hourly_rate * $overtime_rate));
+                        }
+                        else{
+                            return $update_allowance_payroll_id;
                         }
                     }
                     else{
-                        $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
-                        $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
-
-                        if(empty($paid_employee_leave_id)){
-                           $absent = $this->get_attendance_total_hours($employee_id, $payroll_date, $work_shift_start_time, $payroll_date, $work_shift_end_time);
-
-                           $total_absent = $total_absent + 1;
-                           $total_absent_deduction = $total_absent_deduction + ($absent * $hourly_rate);
-                        }
+                        return $update_system_parameter_value;
                     }
                 }
-
-                $allowance = $this->get_payroll_allowance_total($employee_id, $payroll_date);
-                $other_income = $this->get_payroll_other_income_total($employee_id, $payroll_date);
-                $deduction = $this->get_payroll_deduction_total($employee_id, $payroll_date);
-                $contribution_deduction = $this->get_employee_contribution_deduction_total($employee_id, $payroll_date, $salary_amount);
-
-                $total_allowance = $total_allowance + $allowance;
-                $total_other_income = $other_income + $other_income;
-                $total_deduction = $total_deduction + $deduction;
-                $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
-            }
-
-            if(!$consider_overtime){
-               $total_overtime = 0;
-            }
-
-            if($consider_withholding_tax){
-                $taxable_allowance_total = $this->get_taxable_allowance_total($employee_id, $payroll_date);
-                $taxable_other_income_total = $this->get_taxable_other_income_total($employee_id, $payroll_date);
-                $taxable_income = $salary_amount + $total_overtime + $taxable_allowance_total + $taxable_other_income_total;
-
-                $total_withholding_tax = $this->get_withholding_tax($taxable_income, $salary_frequency);
+                else{
+                    return $update_system_parameter_value;
+                }
             }
             else{
-                $total_withholding_tax = 0;
-            }
-
-            $net_pay = ($salary_amount + $total_allowance + $other_income + $total_overtime) - ($total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late + $total_early_leaving + $total_withholding_tax);
-
-            $insert_payslip = $this->insert_payslip($pay_run_id, $employee_id, $total_absent, $total_late, $total_late_minutes, $total_early_leaving, $total_early_leaving_minutes, $total_overtime, $total_overtime_hours, $total_working_hours, $salary_amount, $net_pay, $total_deduction, $total_allowance, $username);
-
-            if($insert_payslip){
-                return true;
-            }
-            else{
-                return $insert_payslip;
+                return $sql->errorInfo()[2];
             }
         }
     }
@@ -15211,9 +15270,9 @@ class Api{
                 $day = date('N', $i);
 
                 $work_shift_schedule = $this->get_work_shift_schedule($employee_id, date('Y-m-d', $i), $day);
-                $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
+                $work_shift_start_time = $work_shift_schedule[0]['START_TIME'] ?? null;
 
-                if(!empty($work_shift_id)){
+                if(!empty($work_shift_start_time)){
                     $working_days = $working_days + 1;
                 }
             }
@@ -15606,7 +15665,7 @@ class Api{
             if($sql->execute()){
                 $row = $sql->fetch();
 
-                return $row['AMOUNT '];
+                return $row['AMOUNT'];
             }
             else{
                 return $sql->errorInfo()[2];
@@ -15632,7 +15691,7 @@ class Api{
             if($sql->execute()){
                 $row = $sql->fetch();
 
-                return $row['AMOUNT '];
+                return $row['AMOUNT'];
             }
             else{
                 return $sql->errorInfo()[2];
@@ -15658,7 +15717,59 @@ class Api{
             if($sql->execute()){
                 $row = $sql->fetch();
 
-                return $row['AMOUNT '];
+                return $row['AMOUNT'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_taxable_allowance_total
+    # Purpose    : Gets the total taxable allowance based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_taxable_allowance_total($employee_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_taxable_allowance_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['AMOUNT'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_taxable_other_income_total
+    # Purpose    : Gets the total taxable allowance based on payroll date.
+    #
+    # Returns    : Double
+    #
+    # -------------------------------------------------------------
+    public function get_taxable_other_income_total($employee_id, $payroll_date){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_taxable_other_income_total(:employee_id, :payroll_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payroll_date', $payroll_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['AMOUNT'];
             }
             else{
                 return $sql->errorInfo()[2];
@@ -15679,7 +15790,7 @@ class Api{
         if ($this->databaseConnection()) {
             $deduction = 0;
 
-            $sql = $this->db_connection->prepare('CALL get_employee_contribution_deduction_total(:employee_id, :payroll_date)');
+            $sql = $this->db_connection->prepare('SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_DATE = :payroll_date AND PAYROLL_ID IS NULL');
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':payroll_date', $payroll_date);
 
@@ -15742,6 +15853,236 @@ class Api{
             else{
                 return $sql->errorInfo()[2];
             }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_employee_attendance_id
+    # Purpose    : Gets the employee attendance id.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function get_employee_attendance_id($employee_id, $time_in_date){
+        if ($this->databaseConnection()) {
+            $withholding_tax = 0;
+
+            $sql = $this->db_connection->prepare('CALL get_employee_attendance_id(:employee_id, :time_in_date)');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':time_in_date', $time_in_date);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['ATTENDANCE_ID'] ?? null;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_payslip_amount_details
+    # Purpose    : Gets the total witholding tax based on salary frequency.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_payslip_amount_details($pay_run_id, $employee_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            # Pay run details
+            $pay_run_details = $this->get_pay_run_details($pay_run_id);
+            $consider_overtime = $pay_run_details[0]['CONSIDER_OVERTIME'];
+            $consider_withholding_tax = $pay_run_details[0]['CONSIDER_WITHHOLDING_TAX'];
+            $start_date = $this->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'Y-m-d', '', '', '');
+            $end_date = $this->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'Y-m-d', '', '', '');
+
+            # Payroll setting details
+            $payroll_setting_details = $this->get_payroll_setting_details(1);
+            $late_deduction_rate = $payroll_setting_details[0]['LATE_DEDUCTION_RATE'];
+            $early_leaving_deduction_rate = $payroll_setting_details[0]['EARLY_LEAVING_DEDUCTION_RATE'];
+            $overtime_rate = $payroll_setting_details[0]['OVERTIME_RATE'] / 100;
+
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_frequency = $get_employee_salary[0]['SALARY_FREQUENCY'];
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+            $minute_rate = $get_employee_salary[0]['MINUTE_RATE'];
+            $hourly_rate = $get_employee_salary[0]['HOURLY_RATE'];
+
+            $total_late_deduction = 0;
+            $total_late_minutes = 0;
+            $total_early_leaving_deduction = 0;
+            $total_early_leaving_minutes = 0;
+            $total_overtime_earning = 0;
+            $total_overtime_hours = 0;
+            $total_working_hours = 0;
+            $total_absent = 0;
+            $total_absent_deduction = 0;
+            $total_allowance = 0;
+            $other_income = 0;
+            $total_deduction = 0;
+            $total_contribution_deduction = 0;
+            $total_salary = 0;
+
+            for ($i = strtotime($start_date); $i <= strtotime($end_date); $i = $i + (60 * 60 * 24)) {
+                $payroll_date = date('Y-m-d', $i);
+                $day = date('N', $i);
+                
+                # Work shift schedule
+                $work_shift_schedule = $this->get_work_shift_schedule($employee_id, $payroll_date, $day);
+                $work_shift_id = $work_shift_schedule[0]['WORK_SHIFT_ID'] ?? null;
+                $work_shift_start_time = $work_shift_schedule[0]['START_TIME'] ?? null;
+
+                if(!empty($work_shift_start_time)){
+                    $work_shift_start_time = $work_shift_schedule[0]['START_TIME'];
+                    $work_shift_end_time = $work_shift_schedule[0]['END_TIME'];
+
+                    # Get employee attendance id
+                    $get_employee_attendance_id = $this->get_employee_attendance_id($employee_id, $payroll_date);
+                    $attendance_id = $get_employee_attendance_id[0]['ATTENDANCE_ID'] ?? null;
+
+                    if(!empty($attendance_id)){
+                        # Employee attendance details
+                        $get_employee_attendance_details = $this->get_employee_attendance_details($attendance_id);
+                        $attendance_time_in_date = $get_employee_attendance_details[0]['TIME_IN_DATE'];
+                        $attendance_time_in = $get_employee_attendance_details[0]['TIME_IN'];
+                        $attendance_time_out_date = $get_employee_attendance_details[0]['TIME_OUT_DATE'];
+                        $attendance_time_out = $get_employee_attendance_details[0]['TIME_OUT'];
+                        $attendance_late = $get_employee_attendance_details[0]['LATE'];
+                        $attendance_early_leaving = $get_employee_attendance_details[0]['EARLY_LEAVING'];
+                        $attendance_overtime = $get_employee_attendance_details[0]['OVERTIME'];
+                        $attendance_total_working_hours = $get_employee_attendance_details[0]['TOTAL_WORKING_HOURS'];
+
+                        if($attendance_late > 0 || $attendance_early_leaving > 0){
+                            # Check if there is an approve paid employee leave
+                            $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
+                            $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
+
+                            if(!empty($paid_employee_leave_id)){
+                                $paid_employee_leave_start_time = $get_paid_employee_leave[0]['START_TIME'];
+                                $paid_employee_leave_end_time = $get_paid_employee_leave[0]['END_TIME'];
+
+                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_start_time) < strtotime($attendance_time_in_date . ' ' . $attendance_time_in)){
+                                    $adjusted_time_in_date = $payroll_date;
+                                    $adjusted_time_in = $paid_employee_leave_start_time;
+                                }
+                                else{
+                                    $adjusted_time_in_date = $attendance_time_in_date;
+                                    $adjusted_time_in = $attendance_time_in;
+                                }
+
+                                if(strtotime($payroll_date . ' ' . $paid_employee_leave_end_time) > strtotime($attendance_time_out_date . ' ' . $attendance_time_out)){
+                                    $adjusted_time_out_date = $payroll_date;
+                                    $adjusted_time_out = $paid_employee_leave_end_time;
+                                }
+                                else{
+                                    $adjusted_time_out_date = $attendance_time_out_date;
+                                    $adjusted_time_out = $attendance_time_out;
+                                }
+
+                                $late = $this->get_attendance_late_total($employee_id, $adjusted_time_out_date, $adjusted_time_in);
+                                $early_leaving = $this->get_attendance_early_leaving_total($employee_id, $adjusted_time_out_date, $adjusted_time_out);
+                                $overtime = $this->get_attendance_overtime_total($employee_id, $adjusted_time_out_date, $adjusted_time_out_date, $adjusted_time_out);
+                                $working_hours = $this->get_attendance_total_hours($employee_id, $adjusted_time_out_date, $adjusted_time_in, $adjusted_time_out_date, $adjusted_time_out);
+                            }
+                            else{
+                                $late = $attendance_late;
+                                $early_leaving = $attendance_early_leaving;
+                                $overtime = $attendance_overtime;
+                                $working_hours = $attendance_total_working_hours;
+                            }
+
+                            $total_late_minutes = $total_late_minutes + $late;
+                            $total_early_leaving_minutes = $total_early_leaving_minutes + $early_leaving;
+                            $total_overtime_hours = $total_overtime_hours + $overtime;
+                            $total_working_hours = $total_working_hours + $working_hours;
+                            
+                            if($late_deduction_rate > 0){
+                                $total_late_deduction = $total_late_deduction + ($late * $late_deduction_rate);
+                            }
+                            else{
+                                $total_late_deduction = $total_late_deduction + ($late * $minute_rate);
+                            }
+                            
+                            if($early_leaving_deduction_rate > 0){
+                                $total_early_leaving_deduction = $total_early_leaving_deduction + ($early_leaving * $early_leaving_deduction_rate);
+                            }
+                            else{
+                                $total_early_leaving_deduction = $total_early_leaving_deduction + ($early_leaving * $minute_rate);
+                            }
+                            
+                            $total_overtime_earning = $total_overtime_earning + ($overtime * ($hourly_rate * $overtime_rate));
+                        }
+                    }
+                    else{
+                        $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
+                        $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'] ?? null;
+
+                        if(empty($paid_employee_leave_id)){
+                           $absent = $this->get_attendance_total_hours($employee_id, $payroll_date, $work_shift_start_time, $payroll_date, $work_shift_end_time);
+
+                           $total_absent = $total_absent + 1;
+                           $total_absent_deduction = $total_absent_deduction + ($absent * $hourly_rate);
+                        }
+                    }
+                }
+
+                $allowance = $this->get_payroll_allowance_total($employee_id, $payroll_date);
+                $other_income = $this->get_payroll_other_income_total($employee_id, $payroll_date);
+                $deduction = $this->get_payroll_deduction_total($employee_id, $payroll_date);
+                $contribution_deduction = $this->get_employee_contribution_deduction_total($employee_id, $payroll_date, $salary_amount);
+
+                $total_allowance = $total_allowance + $allowance;
+                $total_other_income = $other_income + $other_income;
+                $total_deduction = $total_deduction + $deduction;
+                $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
+            }
+
+            if(!$consider_overtime){
+               $total_overtime_earning = 0;
+            }
+
+            if($consider_withholding_tax){
+                $taxable_allowance_total = $this->get_taxable_allowance_total($employee_id, $payroll_date);
+                $taxable_other_income_total = $this->get_taxable_other_income_total($employee_id, $payroll_date);
+                $taxable_income = $salary_amount + $total_overtime_earning + $taxable_allowance_total + $taxable_other_income_total;
+
+                $withholding_tax = $this->get_withholding_tax($taxable_income, $salary_frequency);
+            }
+            else{
+                $withholding_tax = 0;
+            }
+
+            $gross_pay = $salary_amount + $total_allowance + $other_income + $total_overtime_earning;
+            $total_deductions = $total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late_deduction + $total_early_leaving_deduction + $withholding_tax;
+            $net_pay = $gross_pay - $total_deductions;
+
+            $response[] = array(
+                'ABSENT' => $total_absent,
+                'ABSENT_DEDUCTION' => $total_absent_deduction,
+                'LATE_DEDUCTION' => $total_late_deduction,
+                'LATE_MINUTES' => $total_late_minutes,
+                'EARLY_LEAVING_DEDUCTION' => $total_early_leaving_deduction,
+                'EARLY_LEAVING_MINUTES' => $total_early_leaving_minutes,
+                'OVERTIME_HOURS' => $total_overtime_hours,
+                'OVERTIME_EARNING' => $total_overtime_earning,
+                'WORKING_HOURS' => $total_working_hours,
+                'TOTAL_DEDUCTIONS' => $total_deductions,
+                'TOTAL_ALLOWANCE' => $total_allowance,
+                'WITHHOLDING_TAX' => $withholding_tax,
+                'GROSS_PAY' => $gross_pay,
+                'NET_PAY' => $net_pay
+            );
+
+            return $response;
         }
     }
     # -------------------------------------------------------------
@@ -15999,7 +16340,7 @@ class Api{
             $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
 
             for($i = 0; $i < count($upload_file_type_details); $i++) {
-                $file_type .= $upload_file_type_details['FILE_TYPE'];
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
 
                 if($i != (count($upload_file_type_details) - 1)){
                     $file_type .= ',';

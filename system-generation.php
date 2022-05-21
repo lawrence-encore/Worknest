@@ -2673,7 +2673,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Consider Overtime? <span class="required">*</span></label>
                                         <select class="form-control form-select2" id="consider_overtime" name="consider_overtime">
@@ -2682,28 +2682,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Consider Withholding Tax? <span class="required">*</span></label>
                                         <select class="form-control form-select2" id="consider_withholding_tax" name="consider_withholding_tax">
-                                            <option value="1">Yes</option>
-                                            <option value="0" selected>No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Consider Holiday Pay? <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="consider_holiday_pay" name="consider_holiday_pay">
-                                            <option value="1">Yes</option>
-                                            <option value="0" selected>No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Consider Night Differential? <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="consider_night_differential" name="consider_night_differential">
                                             <option value="1">Yes</option>
                                             <option value="0" selected>No</option>
                                         </select>

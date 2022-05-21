@@ -1482,7 +1482,7 @@ BEGIN
 	ELSEIF @request_type = 'logo icon dark' THEN
 		SET @query = 'UPDATE tbluserinterfacesettings SET LOGO_ICON_DARK = @file_path, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SETTINGS_ID = @setting_id';
 	ELSE
-		SET @query = 'UPDATE tbluserinterfacesettings SET FAVICON = @file_path, TRANSACTION_LOG_ID = @transaction_log_id RECORD_LOG = @record_log WHERE SETTINGS_ID = @setting_id';
+		SET @query = 'UPDATE tbluserinterfacesettings SET FAVICON = @file_path, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE SETTINGS_ID = @setting_id';
     END IF;
 
 	PREPARE stmt FROM @query;
@@ -5974,7 +5974,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -5986,7 +5986,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -5998,7 +5998,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND ALLOWANCE_TYPE IN (SELECT ALLOWANCE_TYPE_ID FROM tblallowancetype WHERE TAXABLE = "TAX")';
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = @employee_id  AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL AND ALLOWANCE_TYPE IN (SELECT ALLOWANCE_TYPE_ID FROM tblallowancetype WHERE TAXABLE = "TAX")';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -6010,7 +6010,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND OTHER_INCOME_TYPE IN (SELECT OTHER_INCOME_TYPE_ID FROM tblotherincometype WHERE TAXABLE = "TAX")';
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL AND OTHER_INCOME_TYPE IN (SELECT OTHER_INCOME_TYPE_ID FROM tblotherincometype WHERE TAXABLE = "TAX")';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -6022,7 +6022,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tbldeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+	SET @query = 'SELECT SUM(AMOUNT) AS AMOUNT FROM tbldeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -6034,7 +6034,7 @@ BEGIN
 	SET @employee_id = employee_id;
 	SET @payroll_date = payroll_date;
 
-	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date';
+	SET @query = 'SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE = @payroll_date AND PAYROLL_ID IS NULL';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
@@ -6051,6 +6051,108 @@ BEGIN
 	EXECUTE stmt;
 	DROP PREPARE stmt;
 END //
+
+CREATE PROCEDURE insert_payslip(IN payslip_id INT, IN pay_run_id INT, IN employee_id VARCHAR(100), IN absent DOUBLE, IN absent_deduction DOUBLE, IN late_minutes DOUBLE, IN late_deduction DOUBLE, IN early_leaving_minutes DOUBLE, IN early_leaving_deduction DOUBLE, IN overtime_hours DOUBLE, IN overtime_earning DOUBLE, IN total_hours_worked DOUBLE, IN withholding_tax DOUBLE, IN total_deductions DOUBLE, IN total_allowance DOUBLE, IN gross_pay DOUBLE, IN net_pay DOUBLE, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @pay_run_id = pay_run_id;
+	SET @employee_id = employee_id;
+	SET @absent = absent;
+	SET @absent_deduction = absent_deduction;
+	SET @late_minutes = late_minutes;
+	SET @late_deduction = late_deduction;
+	SET @early_leaving_minutes = early_leaving_minutes;
+	SET @early_leaving_deduction = early_leaving_deduction;
+	SET @overtime_hours = overtime_hours;
+	SET @overtime_earning = overtime_earning;
+	SET @total_hours_worked = total_hours_worked;
+	SET @withholding_tax = withholding_tax;
+	SET @total_deductions = total_deductions;
+	SET @total_allowance = total_allowance;
+	SET @gross_pay = gross_pay;
+	SET @net_pay = net_pay;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblpayslip (PAYSLIP_ID, PAY_RUN_ID, EMPLOYEE_ID, ABSENT, ABSENT_DEDUCTION, LATE_MINUTES, LATE_DEDUCTION, EARLY_LEAVING_MINUTES, EARLY_LEAVING_DEDUCTION, OVERTIME_HOURS, OVERTIME_EARNING, HOURS_WORKED, WITHHOLDING_TAX, TOTAL_DEDUCTION, TOTAL_ALLOWANCE, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@payslip_id, @pay_run_id, @employee_id, @absent, @absent_deduction, @late_minutes, @late_deduction, @early_leaving_minutes, @early_leaving_deduction, @overtime_hours, @overtime_earning, @total_hours_worked, @withholding_tax, @total_deductions, @total_allowance, @gross_pay, @net_pay, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_allowance_payroll_id(IN payslip_id INT, IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblallowance SET PAYROLL_ID = @payslip_id, RECORD_LOG = @record_log WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE BETWEEN @start_date AND @end_date AND PAYROLL_ID IS NULL';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_deduction_payroll_id(IN payslip_id INT, IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbldeduction SET PAYROLL_ID = @payslip_id, RECORD_LOG = @record_log WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE BETWEEN @start_date AND @end_date AND PAYROLL_ID IS NULL';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_other_income_payroll_id(IN payslip_id INT, IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblotherincome SET PAYROLL_ID = @payslip_id, RECORD_LOG = @record_log WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE BETWEEN @start_date AND @end_date AND PAYROLL_ID IS NULL';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_contribution_deduction_payroll_id(IN payslip_id INT, IN employee_id VARCHAR(100), IN start_date DATE, IN end_date DATE, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @employee_id = employee_id;
+	SET @start_date = start_date;
+	SET @end_date = end_date;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblcontributiondeduction SET PAYROLL_ID = @payslip_id, RECORD_LOG = @record_log WHERE EMPLOYEE_ID = @employee_id AND PAYROLL_DATE BETWEEN @start_date AND @end_date AND PAYROLL_ID IS NULL';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_employee_attendance_id(IN employee_id VARCHAR(100), IN time_in_date DATE)
+BEGIN
+	SET @employee_id = employee_id;
+	SET @time_in_date = time_in_date;
+
+	SET @query = 'SELECT ATTENDANCE_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = @employee_id AND TIME_IN_DATE = @time_in_date';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
 
 /* Insert */
 

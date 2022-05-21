@@ -9704,9 +9704,6 @@ function initialize_form_validation(form_type){
                 consider_withholding_tax: {
                     required: true
                 },
-                consider_night_differential: {
-                    required: true
-                },
                 payroll_group_id: {
                     required: function(element){
                         var payroll_group_id = $('#payroll_group_id').val();
@@ -9746,9 +9743,6 @@ function initialize_form_validation(form_type){
                 },
                 consider_withholding_tax: {
                     required: 'Please choose if consider withholding tax',
-                },
-                consider_night_differential: {
-                    required: 'Please choose if consider night differential',
                 },
                 payroll_group_id: {
                     required: 'Please choose at least one (1) payroll group or employee',
@@ -12024,8 +12018,6 @@ function display_form_details(form_type){
                 document.getElementById('payees').innerHTML = response[0].PAYEE;
                 document.getElementById('consider_overtime').innerHTML = response[0].CONSIDER_OVERTIME;
                 document.getElementById('consider_withholding_tax').innerHTML = response[0].CONSIDER_WITHHOLDING_TAX;
-                document.getElementById('consider_holiday_pay').innerHTML = response[0].CONSIDER_HOLIDAY_PAY;
-                document.getElementById('consider_night_differential').innerHTML = response[0].CONSIDER_NIGHT_DIFFERENTIAL;
                 document.getElementById('pay_run_status').innerHTML = response[0].STATUS;
 
                 $('#pay_run_id').text(pay_run_id);

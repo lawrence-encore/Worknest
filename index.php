@@ -36,7 +36,7 @@
 
                                 <div class="d-flex flex-column h-100">
                                     <div class="mb-4 mb-md-5">
-                                        <a href="index.html" class="d-block auth-logo">
+                                        <a href="index.php" class="d-block auth-logo">
                                             <img src="<?php echo $logo_dark; ?>" alt="logo" style="max-height: 120px" class="auth-logo-dark">
                                             <img src="<?php echo $logo_light; ?>" alt="logo" style="max-height: 120px" class="auth-logo-light">
                                         </a>
