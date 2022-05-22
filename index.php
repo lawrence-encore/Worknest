@@ -37,15 +37,15 @@
                                 <div class="d-flex flex-column h-100">
                                     <div class="mb-4 mb-md-5">
                                         <a href="index.php" class="d-block auth-logo">
-                                            <img src="<?php echo $logo_dark; ?>" alt="logo" style="max-height: 120px" class="auth-logo-dark">
-                                            <img src="<?php echo $logo_light; ?>" alt="logo" style="max-height: 120px" class="auth-logo-light">
+                                            <img src="<?php echo $logo_dark; ?>" alt="logo" style="max-height: 80px" class="auth-logo-dark">
+                                            <img src="<?php echo $logo_light; ?>" alt="logo" style="max-height: 80px" class="auth-logo-light">
                                         </a>
                                     </div>
                                     <div class="my-auto">
                                         
                                         <div>
-                                            <h5 class="text-primary">Welcome Back !</h5>
-                                            <p class="text-muted">Sign in to continue to Worknest.</p>
+                                            <h5 class="text-primary">Welcome !</h5>
+                                            <p class="text-muted">Sign in to continue to Digify Integrated Solutions.</p>
                                         </div>
             
                                         <div class="mt-4">
@@ -76,7 +76,7 @@
                                     </div>
 
                                     <div class="mt-4 mt-md-5 text-center">
-                                        <p class="mb-0">Copyright © <?php echo date('Y') ?> Worknest. All rights reserved.</p>
+                                        <p class="mb-0">Copyright © <?php echo date('Y') ?> Digify Integrated Solutions. All rights reserved.</p>
                                     </div>
                                 </div>
                                 
