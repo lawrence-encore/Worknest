@@ -10177,46 +10177,46 @@ class Api{
             $sql->bindValue(':record_log', $record_log); 
         
             if($sql->execute()){
-                foreach($payees as $payee){
-                    $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 37, $username);
 
-                    if($insert_pay_run_payee){
-                        $insert_payslip = $this->insert_payslip($id, $payee, $username);
-
-                        if(!$insert_payslip){
-                            $error = $insert_payslip;
-                        }
-                    }
-                    else{
-                        $error = $insert_pay_run_payee;
-                    }
-                }
-
-                if(empty($error)){
-                    # Update system parameter value
-                    $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 37, $username);
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
                     if($update_system_parameter_value){
-                        # Update transaction log value
-                        $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
-
-                        if($update_system_parameter_value){
-                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted pay run (' . $id . ').');
-                                        
-                            if($insert_transaction_log){
-                                return true;
-                            }
-                            else{
-                                return $insert_transaction_log;
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted pay run (' . $id . ').');
+                                    
+                        if($insert_transaction_log){
+                            foreach($payees as $payee){
+                                $insert_pay_run_payee = $this->insert_pay_run_payee($id, $payee, $username);
+            
+                                if($insert_pay_run_payee){
+                                    $insert_payslip = $this->insert_payslip($id, $payee, $username);
+            
+                                    if(!$insert_payslip){
+                                        $error = $insert_payslip;
+                                    }
+                                }
+                                else{
+                                    $error = $insert_pay_run_payee;
+                                }
                             }
                         }
                         else{
-                            return $update_system_parameter_value;
+                            $error = $insert_transaction_log;
                         }
                     }
                     else{
-                        return $update_system_parameter_value;
+                        $error = $update_system_parameter_value;
                     }
+                }
+                else{
+                    $error = $update_system_parameter_value;
+                }
+
+                if(empty($error)){
+                    return true;
                 }
                 else{
                     return $error;
@@ -13959,6 +13959,54 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_payslip_details
+    # Purpose    : Gets the payslip details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_payslip_details($payslip_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_payslip_details(:payslip_id)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'PAY_RUN_ID' => $row['PAY_RUN_ID'],
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'ABSENT' => $row['ABSENT'],
+                        'ABSENT_DEDUCTION' => $row['ABSENT_DEDUCTION'],
+                        'LATE_MINUTES' => $row['LATE_MINUTES'],
+                        'LATE_DEDUCTION' => $row['LATE_DEDUCTION'],
+                        'EARLY_LEAVING_MINUTES' => $row['EARLY_LEAVING_MINUTES'],
+                        'EARLY_LEAVING_DEDUCTION' => $row['EARLY_LEAVING_DEDUCTION'],
+                        'OVERTIME_HOURS' => $row['OVERTIME_HOURS'],
+                        'OVERTIME_EARNING' => $row['OVERTIME_EARNING'],
+                        'HOURS_WORKED' => $row['HOURS_WORKED'],
+                        'WITHHOLDING_TAX' => $row['WITHHOLDING_TAX'],
+                        'TOTAL_DEDUCTION' => $row['TOTAL_DEDUCTION'],
+                        'TOTAL_ALLOWANCE' => $row['TOTAL_ALLOWANCE'],
+                        'GROSS_PAY' => $row['GROSS_PAY'],
+                        'NET_PAY' => $row['NET_PAY'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -17645,6 +17693,265 @@ class Api{
             else{
                 return $sql->errorInfo()[2];
             }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_payslip_earnings_table
+    # Purpose    : Generates payslip earnings table.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_payslip_earnings_table($payslip_id, $employee_id){
+        if ($this->databaseConnection()) {            
+            $item_no = 3;
+            $allowance_column = '';
+            $other_income_column = '';
+
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+
+            # Payslip details
+            $payslip_details = $this->get_payslip_details($payslip_id);
+            $gross_pay = $payslip_details[0]['GROSS_PAY'];
+            $overtime_hours = $payslip_details[0]['OVERTIME_HOURS'];
+            $overtime_earning = $payslip_details[0]['OVERTIME_EARNING'];
+
+            $sql = $this->db_connection->prepare('SELECT ALLOWANCE_TYPE, AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $allowance_count = $sql->rowCount();
+        
+                if($allowance_count > 0){
+                    while($row = $sql->fetch()){
+                        $allowance_type = $row['ALLOWANCE_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $allowance_type_details = $this->get_allowance_type_details($allowance_type);
+                        $allowance_type_name = $allowance_type_details[0]['ALLOWANCE_TYPE'];
+
+                        $allowance_column .= '<tr>
+                                                    <td>'. $item_no .'</td>
+                                                    <td>'. $allowance_type_name .'</td>
+                                                    <td class="text-end">'. number_format($amount, 2) .' PHP</td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $sql = $this->db_connection->prepare('SELECT OTHER_INCOME_TYPE, AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $other_income_count = $sql->rowCount();
+        
+                if($other_income_count > 0){
+                    while($row = $sql->fetch()){
+                        $other_income_type = $row['OTHER_INCOME_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $other_income_type_details = $this->get_other_income_type_details($other_income_type);
+                        $other_income_type_name = $other_income_type_details[0]['OTHER_INCOME_TYPE'];
+
+                        $other_income_column .= '<tr>
+                                                    <td>'. $item_no .'</td>
+                                                    <td>'. $other_income_type_name .'</td>
+                                                    <td class="text-end">'. number_format($amount, 2) .' PHP</td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $table = '<table class="table table-nowrap">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">No.</th>
+                                <th>Item</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>01</td>
+                                <td>Basic Salary</td>
+                                <td class="text-end">'. number_format($salary_amount, 2) .' PHP</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>02</td>
+                                <td>Overtime Pay - '. number_format($overtime_hours, 2) .' Hour(s)</td>
+                                <td class="text-end">'. number_format($overtime_earning, 2) .' PHP</td>
+                            </tr>
+                            '. $allowance_column .'
+                            '. $other_income_column .'
+                            <tr>
+                                <td colspan="2" class="text-end">Sub Total</td>
+                                <td class="text-end">'. number_format($gross_pay, 2) .' PHP</td>
+                            </tr>
+                        </tbody>
+                    </table>';
+
+                return $table;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_payslip_deduction_table
+    # Purpose    : Generates payslip deduction table.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_payslip_deduction_table($payslip_id, $employee_id){
+        if ($this->databaseConnection()) {            
+            $item_no = 3;
+            $deduction_column = '';
+            $contribution_deduction_column = '';
+
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+
+            # Payslip details
+            $payslip_details = $this->get_payslip_details($payslip_id);
+            $net_pay = $payslip_details[0]['NET_PAY'];
+            $absent = $payslip_details[0]['ABSENT'];
+            $absent_deduction = $payslip_details[0]['ABSENT_DEDUCTION'];
+            $late_minutes = $payslip_details[0]['LATE_MINUTES'];
+            $late_deduction = $payslip_details[0]['LATE_DEDUCTION'];
+            $early_leaving_minutes = $payslip_details[0]['EARLY_LEAVING_MINUTES'];
+            $early_leaving_deduction = $payslip_details[0]['EARLY_LEAVING_DEDUCTION'];
+            $withholding_tax = $payslip_details[0]['WITHHOLDING_TAX'];
+            $total_deduction = $payslip_details[0]['TOTAL_DEDUCTION'];
+
+            $sql = $this->db_connection->prepare('SELECT DEDUCTION_TYPE, AMOUNT FROM tbldeduction WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $deduction_count = $sql->rowCount();
+        
+                if($deduction_count > 0){
+                    while($row = $sql->fetch()){
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $deduction_type_details = $this->get_deduction_type_details($deduction_type);
+                        $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
+
+                        $deduction_column .= '<tr>
+                                                    <td>'. $item_no .'</td>
+                                                    <td>'. $deduction_type_name .'</td>
+                                                    <td class="text-end">'. number_format($amount, 2) .' PHP</td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $sql = $this->db_connection->prepare('SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $other_income_count = $sql->rowCount();
+        
+                if($other_income_count > 0){
+                    while($row = $sql->fetch()){
+                        $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+
+                        $government_contribution_type_details = $this->get_government_contribution_details($government_contribution_type);
+                        $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+
+                        $contribution_bracket_details = $this->get_contribution_bracket_details($government_contribution_type);
+
+                        for($i = 0; $i < count($contribution_bracket_details); $i++) {
+                            $start_range = $contribution_bracket_details[$i]['START_RANGE'];
+                            $end_range = $contribution_bracket_details[$i]['END_RANGE'];
+                            $deduction_amount = $contribution_bracket_details[$i]['DEDUCTION_AMOUNT'];
+    
+                            if($salary_amount >= $start_range && $salary_amount <= $end_range){
+                                $deduction = $deduction_amount;
+                            }
+                        }
+
+                        $contribution_deduction_column .= '<tr>
+                                                    <td>'. $item_no .'</td>
+                                                    <td>'. $government_contribution_type_name .'</td>
+                                                    <td class="text-end">'. number_format($deduction, 2) .' PHP</td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $table = '<table class="table table-nowrap">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px;">No.</th>
+                                <th>Item</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>                            
+                            <tr>
+                                <td>01</td>
+                                <td>Absences - '. number_format($absent) .' Day(s)</td>
+                                <td class="text-end">'. number_format($absent_deduction, 2) .' PHP</td>
+                            </tr>
+                            <tr>
+                                <td>02</td>
+                                <td>Late - '. number_format($late_minutes, 2) .' Minute(s)</td>
+                                <td class="text-end">'. number_format($late_deduction, 2) .' PHP</td>
+                            </tr>
+                            <tr>
+                                <td>03</td>
+                                <td>Early Leaving - '. number_format($early_leaving_minutes, 2) .' Minute(s)</td>
+                                <td class="text-end">'. number_format($early_leaving_deduction, 2) .' PHP</td>
+                            </tr>
+                            <tr>
+                                <td>04</td>
+                                <td>Withholding Tax</td>
+                                <td class="text-end">'. number_format($withholding_tax, 2) .' PHP</td>
+                            </tr>
+                            '. $deduction_column .'
+                            '. $contribution_deduction_column .'
+                            <tr>
+                                <td colspan="2" class="text-end">Sub Total</td>
+                                <td class="text-end">'. number_format($total_deduction, 2) .' PHP</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="border-0 text-end">
+                                    <strong>Net Pay</strong></td>
+                                <td class="border-0 text-end"><h4 class="m-0">'. number_format($net_pay, 2) .' PHP</h4></td>
+                            </tr>
+                        </tbody>
+                    </table>';
+
+                return $table;
         }
     }
     # -------------------------------------------------------------

@@ -11696,5 +11696,79 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Payslip summary details
+    else if($transaction == 'payslip summary details'){
+        if(isset($_POST['payslip_id']) && !empty($_POST['payslip_id'])){
+            $payslip_id = $_POST['payslip_id'];
+            $payslip_details = $api->get_payslip_details($payslip_id);
+            $pay_run_id = $payslip_details[0]['PAY_RUN_ID'];
+            $employee_id = $payslip_details[0]['EMPLOYEE_ID'];
+
+            # Company details
+            $company_setting_details = $api->get_company_setting_details(1);
+            $company_name = $company_setting_details[0]['COMPANY_NAME'];
+            $company_address = $company_setting_details[0]['ADDRESS'];
+            $company_province_id = $company_setting_details[0]['PROVINCE_ID'];
+            $company_city_id = $company_setting_details[0]['CITY_ID'];
+
+            # Company province details
+            $company_province_details = $api->get_province_details($company_province_id);
+            $company_province = $company_province_details[0]['PROVINCE'];
+
+            # Company city details
+            $city_details = $api->get_city_details($company_city_id, $company_province_id);
+            $company_city = $city_details[0]['CITY'];
+
+            # Employee details
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $file_as = $employee_details[0]['FILE_AS'];
+            $designation = $employee_details[0]['DESIGNATION'];
+            $department = $employee_details[0]['DEPARTMENT'];
+
+            # Designation details
+            $designation_details = $api->get_designation_details($designation);
+            $designation_name = $designation_details[0]['DESIGNATION'];
+            $system_date = date('Y-m-d');
+
+            # Department details
+            $department_details = $api->get_department_details($department);
+            $department_name = $department_details[0]['DEPARTMENT'];
+
+            # Payrun details
+            $pay_run_details = $api->get_pay_run_details($pay_run_id);
+            $coverage_start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
+            $coverage_end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', '');
+
+            $generated_date = ' <strong>Generated Date:</strong><br>
+                                            '. date('F d, Y');
+
+            $payslip_pay_run_details = ' <strong>Coverage Date:</strong><br>' . 
+                                            $coverage_start_date . ' - ' . $coverage_end_date;
+
+            $payslip_employee_details = ' <strong>'. $file_as .'</strong><br>
+                                            '. $designation_name .'<br>
+                                            '. $department_name .'<br>
+                                            Employee ID: ' . $employee_id;
+
+            $payslip_company_details = ' <strong>'. $company_name .'</strong><br>
+                                            ' . $company_address . ', ' . $company_city . ', ' . $company_province;
+
+            $payslip_earnings_table = $api->generate_payslip_earnings_table($payslip_id, $employee_id);
+            $payslip_deduction_table = $api->generate_payslip_deduction_table($payslip_id, $employee_id);
+
+            $response[] = array(
+                'EMPLOYEE_DETAILS' => $payslip_employee_details,
+                'COMPANY_DETAILS' => $payslip_company_details,
+                'GENERATED_DATE' => $generated_date,
+                'PAYRUN_DETAILS' => $payslip_pay_run_details,
+                'EARNINGS_TABLE' => $payslip_earnings_table,
+                'DEDUCTIONS_TABLE' => $payslip_deduction_table,
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
 }
 ?>

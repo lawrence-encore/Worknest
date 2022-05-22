@@ -10232,7 +10232,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details' || element_type == 'other income details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details' || element_type == 'other income details' || element_type == 'payslip details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -12052,6 +12052,28 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'payslip details'){
+        transaction = 'payslip summary details';
+        
+        var payslip_id = sessionStorage.getItem('payslip_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {payslip_id : payslip_id, transaction : transaction},
+            success: function(response) {
+                document.getElementById('company_details').innerHTML = response[0].COMPANY_DETAILS;
+                document.getElementById('generated_date').innerHTML = response[0].GENERATED_DATE;
+                document.getElementById('employee_details').innerHTML = response[0].EMPLOYEE_DETAILS;
+                document.getElementById('payrun_details').innerHTML = response[0].PAYRUN_DETAILS;
+                document.getElementById('earnings_table').innerHTML = response[0].EARNINGS_TABLE;
+                document.getElementById('deductions_table').innerHTML = response[0].DEDUCTIONS_TABLE;
+
+                $('#payslip_id').text('# ' + payslip_id);
+            }
+        });
+    }
 }
 
 // Destroy functions
@@ -12196,6 +12218,8 @@ function check_table_multiple_button(){
         var active_array = [];
         var paid_array = [];
         var unpaid_array = [];
+        var send_array = [];
+        var print_array = [];
         
         $(".datatable-checkbox-children").each(function () {
             var cancel_data = $(this).data('cancel');
@@ -12209,6 +12233,8 @@ function check_table_multiple_button(){
             var active = $(this).data('active');
             var paid = $(this).data('paid');
             var unpaid = $(this).data('unpaid');
+            var send = $(this).data('send');
+            var print = $(this).data('print');
 
             if($(this).prop('checked') === true){
                 lock_array.push(lock);
@@ -12222,6 +12248,8 @@ function check_table_multiple_button(){
                 active_array.push(active);
                 paid_array.push(paid);
                 unpaid_array.push(unpaid);
+                send_array.push(send);
+                print_array.push(print);
             }
         });
 
@@ -12238,7 +12266,9 @@ function check_table_multiple_button(){
         var deactivate_checker = arr => arr.every(v => v === 1);
         var paid_checker = arr => arr.every(v => v === 1);
         var unpaid_checker = arr => arr.every(v => v === 1);
-
+        var send_checker = arr => arr.every(v => v === 1);
+        var print_checker = arr => arr.every(v => v === 1);
+        
         if(lock_checker(lock_array) || unlock_checker(lock_array)){
             if(lock_checker(lock_array)){
                 $('.multiple-lock').removeClass('d-none');
@@ -12333,6 +12363,20 @@ function check_table_multiple_button(){
         else{
             $('.multiple-tag-loan-details-as-unpaid').addClass('d-none');
         }
+
+        if(send_checker(send_array)){
+            $('.multiple-send').removeClass('d-none');
+        }
+        else{
+            $('.multiple-send').addClass('d-none');
+        }
+
+        if(print_checker(print_array)){
+            $('.multiple-print').removeClass('d-none');
+        }
+        else{
+            $('.multiple-print').addClass('d-none');
+        }
     }
     else{
         $('.multiple-delete').addClass('d-none');
@@ -12348,6 +12392,8 @@ function check_table_multiple_button(){
         $('.multiple-deactivate').addClass('d-none');
         $('.multiple-tag-loan-details-as-paid').addClass('d-none');
         $('.multiple-tag-loan-details-as-unpaid').addClass('d-none');
+        $('.multiple-send').addClass('d-none');
+        $('.multiple-print').addClass('d-none');
     }
 }
 
@@ -12431,6 +12477,8 @@ function hide_multiple_buttons(){
     $('.multiple-recommendation').addClass('d-none');
     $('.multiple-reject').addClass('d-none');
     $('.multiple-approve').addClass('d-none');
+    $('.multiple-send').addClass('d-none');
+    $('.multiple-print').addClass('d-none');
 }
 
 // Form validation rules

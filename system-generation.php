@@ -3858,6 +3858,126 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </tbody>
                             </table>';
             }
+            else if($element_type == 'payslip details'){
+                $element = '<div class="row">
+                                <div class="col-lg-12">
+                                    <div class="invoice-title">
+                                        <h4 class="float-end font-size-16" id="payslip_id"># 1</h4>
+                                            <div class="mb-4" id="company_logo">
+                                                <img src="assets/images/logo-dark.png" alt="logo" height="20"/>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <address id="company_details"></address>
+                                            </div>
+                                            <div class="col-sm-6 text-sm-end">
+                                                <address class="mt-2 mt-sm-0" id="generated_date">
+                                                    <strong>Shipped To:</strong><br>
+                                                    Kenny Rigdon<br>
+                                                    1234 Main<br>
+                                                    Apt. 4B<br>
+                                                    Springfield, ST 54321
+                                                </address>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <address id="employee_details"></address>
+                                            </div>
+                                            <div class="col-sm-6 text-sm-end">
+                                                <address class="mt-2 mt-sm-0" id="payrun_details">
+                                                    <strong>Shipped To:</strong><br>
+                                                    Kenny Rigdon<br>
+                                                    1234 Main<br>
+                                                    Apt. 4B<br>
+                                                    Springfield, ST 54321
+                                                </address>
+                                            </div>
+                                        </div>
+                                        <div class="py-2 mt-3">
+                                            <h3 class="font-size-15 fw-bold">Earnings</h3>
+                                        </div>
+                                        <div class="table-responsive" id="earnings_table">
+                                            <table class="table table-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 70px;">No.</th>
+                                                        <th>Item</th>
+                                                        <th class="text-end">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>01</td>
+                                                        <td>Skote - Admin Dashboard Template</td>
+                                                        <td class="text-end">$499.00</td>
+                                                    </tr>
+                                                    
+                                                    <tr>
+                                                        <td>02</td>
+                                                        <td>Skote - Landing Template</td>
+                                                        <td class="text-end">$399.00</td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td>03</td>
+                                                        <td>Veltrix - Admin Dashboard Template</td>
+                                                        <td class="text-end">$499.00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="text-end">Sub Total</td>
+                                                        <td class="text-end">$1397.00</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="py-2 mt-2">
+                                            <h3 class="font-size-15 fw-bold">Deductions</h3>
+                                        </div>
+                                        <div class="table-responsive" id="deductions_table">
+                                            <table class="table table-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 70px;">No.</th>
+                                                        <th>Item</th>
+                                                        <th class="text-end">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>01</td>
+                                                        <td>Skote - Admin Dashboard Template</td>
+                                                        <td class="text-end">$499.00</td>
+                                                    </tr>
+                                                    
+                                                    <tr>
+                                                        <td>02</td>
+                                                        <td>Skote - Landing Template</td>
+                                                        <td class="text-end">$399.00</td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td>03</td>
+                                                        <td>Veltrix - Admin Dashboard Template</td>
+                                                        <td class="text-end">$499.00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="text-end">Sub Total</td>
+                                                        <td class="text-end">$1397.00</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="border-0 text-end">
+                                                            <strong>Net Pay</strong></td>
+                                                        <td class="border-0 text-end"><h4 class="m-0">$1410.00</h4></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>';
+            }
 
             $response[] = array(
                 'ELEMENT' => $element
@@ -9475,7 +9595,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
-
     # Temporary deduction table
     else if($type == 'temporary deduction table'){
         if ($api->databaseConnection()) {
@@ -10337,6 +10456,135 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Payslip table
+    else if($type == 'payslip table'){
+        if(isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id']) && isset($_POST['filter_branch']) && isset($_POST['filter_department'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $delete_payslip = $api->check_role_permissions($username, 305);
+                $send_payslip = $api->check_role_permissions($username, 306);
+                $print_payslip = $api->check_role_permissions($username, 307);
+                $view_transaction_log = $api->check_role_permissions($username, 308);
+    
+                $pay_run_id = $_POST['pay_run_id'];
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+
+                # Pay run details
+                $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
+                $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
+    
+                $query = 'SELECT PAYSLIP_ID, EMPLOYEE_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip WHERE PAY_RUN_ID = :pay_run_id';
+    
+                if(!empty($filter_branch) || !empty($filter_department)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':pay_run_id', $pay_run_id);
+
+                if(!empty($filter_branch) || !empty($filter_department)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $payslip_id = $row['PAYSLIP_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $gross_pay = $row['GROSS_PAY'];
+                        $net_pay = $row['NET_PAY'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+                        $department = $employee_details[0]['DEPARTMENT'];
+
+                        $department_details = $api->get_department_details($department);
+                        $department_name = $department_details[0]['DEPARTMENT'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($delete_payslip > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-payslip" data-payslip-id="'. $payslip_id .'" title="Delete Payslip">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+
+                        if($send_payslip > 0){
+                            $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-payslip-id="'. $payslip_id .'" title="Send Payslip">
+                                        <i class="bx bx-send font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $send = '';
+                        }
+
+                        if($print_payslip > 0){
+                            $print = '<button type="button" class="btn btn-info waves-effect waves-light print-payslip" data-payslip-id="'. $payslip_id .'" title="Print Payslip">
+                                        <i class="bx bx-printer font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $print = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-send="1" data-print="1" type="checkbox" value="'. $payslip_id .'">',
+                            'FILE_AS' => $file_as . '<p class="text-muted mb-0">'. $department_name .'</p>',
+                            'PAY_RUN' => $start_date . ' - ' . $end_date,
+                            'GROSS_PAY' => number_format($gross_pay, 2),
+                            'NET_PAY' => number_format($net_pay, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-payslip" data-payslip-id="'. $payslip_id .'" title="View Payslip">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $send .'
+                                '. $print .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'
