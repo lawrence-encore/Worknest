@@ -3863,9 +3863,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-lg-12">
                                     <div class="invoice-title">
                                         <h4 class="float-end font-size-16" id="payslip_id"># 1</h4>
-                                            <div class="mb-4" id="company_logo">
-                                                <img src="assets/images/logo-dark.png" alt="logo" height="20"/>
-                                            </div>
+                                            <div class="mb-4" id="company_logo"></div>
                                         </div>
                                         <hr>
                                         <div class="row">

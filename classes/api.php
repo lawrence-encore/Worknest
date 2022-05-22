@@ -1982,6 +1982,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_payslip_exist
+    # Purpose    : Checks if the payslip exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_payslip_exist($payslip_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_payslip_exist(:payslip_id)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -6259,6 +6284,197 @@ class Api{
             }
             else{
                 return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_allowance_reversal
+    # Purpose    : Updates allowance reversal.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_allowance_reversal($payslip_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_allowance_reversal(:payslip_id, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_deduction_reversal
+    # Purpose    : Updates deduction reversal.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_deduction_reversal($payslip_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_deduction_reversal(:payslip_id, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_other_income_reversal
+    # Purpose    : Updates other income reversal.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_other_income_reversal($payslip_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_other_income_reversal(:payslip_id, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_contribution_deduction_reversal
+    # Purpose    : Updates contribution deduction reversal.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_contribution_deduction_reversal($payslip_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_contribution_deduction_reversal(:payslip_id, :record_log)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_company_logo_file
+    # Purpose    : Updates company logo file.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_company_logo_file($company_logo_file_tmp_name, $company_logo_file_actual_ext, $company_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            if(!empty($company_logo_file_tmp_name)){ 
+                $file_name = $this->generate_file_name(10);
+                $file_new = $file_name . '.' . $company_logo_file_actual_ext;
+                $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/assets/images/company/' . $file_new;
+                $file_path = './assets/images/company/' . $file_new;
+                
+                $company_setting_details = $this->get_company_setting_details($company_id);
+                $company_logo_file_path = $company_setting_details[0]['COMPANY_LOGO'];
+                $transaction_log_id = $company_setting_details[0]['TRANSACTION_LOG_ID'];
+
+                if(file_exists($company_logo_file_path)){
+                    if (unlink($company_logo_file_path)) {
+                        if(move_uploaded_file($company_logo_file_tmp_name, $file_destination)){
+                            $sql = $this->db_connection->prepare('CALL update_company_logo_file(:company_id, :file_path, :transaction_log_id, :record_log)');
+                            $sql->bindValue(':company_id', $company_id);
+                            $sql->bindValue(':file_path', $file_path);
+                            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                            $sql->bindValue(':record_log', $record_log);
+                        
+                            if($sql->execute()){
+                                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting file (' . $company_id . ').');
+                                    
+                                if($insert_transaction_log){
+                                    return true;
+                                }
+                                else{
+                                    return $insert_transaction_log;
+                                }
+                            }
+                            else{
+                                return $sql->errorInfo()[2];
+                            }
+                        }
+                        else{
+                            return 'There was an error uploading your file.';
+                        }
+                    }
+                    else {
+                        return $attendance_creation_file_path . ' cannot be deleted due to an error.';
+                    }
+                }
+                else{
+                    if(move_uploaded_file($company_logo_file_tmp_name, $file_destination)){
+                        $sql = $this->db_connection->prepare('CALL update_company_logo_file(:company_id, :file_path, :transaction_log_id, :record_log)');
+                        $sql->bindValue(':company_id', $company_id);
+                        $sql->bindValue(':file_path', $file_path);
+                        $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                        $sql->bindValue(':record_log', $record_log);
+                    
+                        if($sql->execute()){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated company setting file (' . $company_id . ').');
+                                
+                            if($insert_transaction_log){
+                                return true;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $sql->errorInfo()[2];
+                        }
+                    }
+                    else{
+                        return 'There was an error uploading your file.';
+                    }
+                }
+            }
+            else{
+                return true;
             }
         }
     }
@@ -11675,6 +11891,145 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : delete_pay_run
+    # Purpose    : Delete pay run.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_pay_run($pay_run_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_pay_run(:pay_run_id)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_payslip
+    # Purpose    : Delete payslip.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_payslip($payslip_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_payslip(:payslip_id)');
+            $sql->bindValue(':payslip_id', $payslip_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_pay_run_payee
+    # Purpose    : Delete pay run payee.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_pay_run_payee($pay_run_id, $employee_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_pay_run_payee(:pay_run_id, :employee_id)');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+            $sql->bindValue(':employee_id', $employee_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_pay_run_payslip
+    # Purpose    : Delete pay run payslip.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_pay_run_payslip($pay_run_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('SELECT PAYSLIP_ID, EMPLOYEE_ID FROM tblpayslip WHERE PAY_RUN_ID = :pay_run_id');
+            $sql->bindValue(':pay_run_id', $pay_run_id);
+        
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $payslip_id = $row['PAYSLIP_ID'];
+                    $employee_id = $row['EMPLOYEE_ID'];
+
+                    $update_allowance_reversal = $this->update_allowance_reversal($payslip_id, $username);
+                                    
+                    if($update_allowance_reversal){
+                        $update_deduction_reversal = $this->update_deduction_reversal($payslip_id, $username);
+                                        
+                        if($update_deduction_reversal){
+                            $update_other_income_reversal = $this->update_other_income_reversal($payslip_id, $username);
+                                        
+                            if($update_other_income_reversal){
+                                $update_contribution_deduction_reversal = $this->update_contribution_deduction_reversal($payslip_id, $username);
+                                        
+                                if($update_contribution_deduction_reversal){
+                                    $delete_pay_run_payee = $this->delete_pay_run_payee($pay_run_id, $employee_id, $username);
+                                        
+                                    if($delete_pay_run_payee){
+                                        $delete_payslip = $this->delete_payslip($payslip_id, $username);
+                                        
+                                        if(!$delete_payslip){
+                                            return $delete_payslip;
+                                        }
+                                    }
+                                    else{
+                                        return $delete_pay_run_payee;
+                                    }
+                                }
+                                else{
+                                    return $update_contribution_deduction_reversal;
+                                }
+                            }
+                            else{
+                                return $update_other_income_reversal;
+                            }
+                        }
+                        else{
+                            return $update_deduction_reversal;
+                        }
+                    }
+                    else{
+                        return $update_allowance_reversal;
+                    }
+                }
+
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -12191,6 +12546,7 @@ class Api{
                         'ADDRESS' => $row['ADDRESS'],
                         'PROVINCE_ID' => $row['PROVINCE_ID'],
                         'CITY_ID' => $row['CITY_ID'],
+                        'COMPANY_LOGO' => $row['COMPANY_LOGO'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
@@ -15975,7 +16331,7 @@ class Api{
             $total_absent = 0;
             $total_absent_deduction = 0;
             $total_allowance = 0;
-            $other_income = 0;
+            $total_other_income = 0;
             $total_deduction = 0;
             $total_contribution_deduction = 0;
             $total_salary = 0;
@@ -16089,7 +16445,7 @@ class Api{
                 $contribution_deduction = $this->get_employee_contribution_deduction_total($employee_id, $payroll_date, $salary_amount);
 
                 $total_allowance = $total_allowance + $allowance;
-                $total_other_income = $other_income + $other_income;
+                $total_other_income = $total_other_income + $other_income;
                 $total_deduction = $total_deduction + $deduction;
                 $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
             }
@@ -16109,7 +16465,7 @@ class Api{
                 $withholding_tax = 0;
             }
 
-            $gross_pay = $salary_amount + $total_allowance + $other_income + $total_overtime_earning;
+            $gross_pay = $salary_amount + $total_allowance + $total_other_income + $total_overtime_earning;
             $total_deductions = $total_deduction + $total_contribution_deduction + $total_absent_deduction + $total_late_deduction + $total_early_leaving_deduction + $withholding_tax;
             $net_pay = $gross_pay - $total_deductions;
 
@@ -16322,6 +16678,27 @@ class Api{
             switch ($type) {
                 case 'profile':
                     return './assets/images/default/default-avatar.png';
+                break;
+                case 'login bg':
+                    return './assets/images/default/default-bg.jpg';
+                break;
+                case 'logo light':
+                    return './assets/images/default/default-logo-light-horizontal.png';
+                break;
+                case 'logo dark':
+                    return './assets/images/default/default-logo-dark-horizontal.png';
+                break;
+                case 'logo icon light':
+                    return './assets/images/default/default-logo-icon-light.png';
+                break;
+                case 'logo icon dark':
+                    return './assets/images/default/default-logo-icon-dark.png';
+                break;
+                case 'favicon':
+                    return './assets/images/default/default-logo-icon-light.png';
+                break;
+                case 'company logo':
+                    return './assets/images/default/default-logo-dark-horizontal.png';
                 break;
                 default:
                     return './assets/images/default/default-image-placeholder.png';
@@ -17787,13 +18164,13 @@ class Api{
                         </thead>
                         <tbody>
                             <tr>
-                                <td>01</td>
+                                <td>1</td>
                                 <td>Basic Salary</td>
                                 <td class="text-end">'. number_format($salary_amount, 2) .' PHP</td>
                             </tr>
                             
                             <tr>
-                                <td>02</td>
+                                <td>2</td>
                                 <td>Overtime Pay - '. number_format($overtime_hours, 2) .' Hour(s)</td>
                                 <td class="text-end">'. number_format($overtime_earning, 2) .' PHP</td>
                             </tr>
@@ -17918,22 +18295,22 @@ class Api{
                         </thead>
                         <tbody>                            
                             <tr>
-                                <td>01</td>
+                                <td>1</td>
                                 <td>Absences - '. number_format($absent) .' Day(s)</td>
                                 <td class="text-end">'. number_format($absent_deduction, 2) .' PHP</td>
                             </tr>
                             <tr>
-                                <td>02</td>
+                                <td>2</td>
                                 <td>Late - '. number_format($late_minutes, 2) .' Minute(s)</td>
                                 <td class="text-end">'. number_format($late_deduction, 2) .' PHP</td>
                             </tr>
                             <tr>
-                                <td>03</td>
+                                <td>3</td>
                                 <td>Early Leaving - '. number_format($early_leaving_minutes, 2) .' Minute(s)</td>
                                 <td class="text-end">'. number_format($early_leaving_deduction, 2) .' PHP</td>
                             </tr>
                             <tr>
-                                <td>04</td>
+                                <td>4</td>
                                 <td>Withholding Tax</td>
                                 <td class="text-end">'. number_format($withholding_tax, 2) .' PHP</td>
                             </tr>

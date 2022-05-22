@@ -95,6 +95,12 @@
                                             <div class="col-md-12">
                                                 <form class="cmxform" id="company-setting-form" method="post" action="#">
                                                     <div class="row mb-3">
+                                                        <label for="company_logo" class="col-md-2 col-form-label">Company Logo</label>
+                                                        <div class="col-md-10">
+                                                            <img class="rounded mr-2 mb-3" alt="company logo" width="150" src="" id="company-logo" data-holder-rendered="true">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
                                                         <label for="company_name" class="col-md-2 col-form-label">Company Name <span class="required">*</span></label>
                                                         <div class="col-md-10">
                                                             <input type="text" class="form-control maxlength" autocomplete="off" id="company_name" name="company_name" maxlength="300" <?php echo $disabled; ?>>
@@ -139,6 +145,12 @@
                                                             <select class="form-control form-select2" id="city" name="city" disabled>
                                                                 <option value="">--</option>
                                                             </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="company_logo" class="col-md-2 col-form-label">Company Logo</label>
+                                                        <div class="col-md-10">
+                                                        <input class="form-control" type="file" name="company_logo" id="company_logo" <?php echo $disabled; ?>>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-3">

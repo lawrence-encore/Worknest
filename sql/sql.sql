@@ -6164,6 +6164,112 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE check_payslip_exist(IN payslip_id VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblpayslip WHERE PAYSLIP_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_payslip(IN payslip_id VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+
+	SET @query = 'DELETE FROM tblpayslip WHERE PAYSLIP_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_allowance_reversal(IN payslip_id INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblallowance SET PAYROLL_ID = null, RECORD_LOG = @record_log WHERE PAYROLL_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_deduction_reversal(IN payslip_id INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbldeduction SET PAYROLL_ID = null, RECORD_LOG = @record_log WHERE PAYROLL_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_other_income_reversal(IN payslip_id INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblotherincome SET PAYROLL_ID = null, RECORD_LOG = @record_log WHERE PAYROLL_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_contribution_deduction_reversal(IN payslip_id INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @payslip_id = payslip_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblcontributiondeduction SET PAYROLL_ID = null, RECORD_LOG = @record_log WHERE PAYROLL_ID = @payslip_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_pay_run_payee(IN pay_run_id INT, IN employee_id VARCHAR(100))
+BEGIN
+	SET @pay_run_id = pay_run_id;
+	SET @employee_id = employee_id;
+
+	SET @query = 'DELETE FROM tblpayrunpayee WHERE PAY_RUN_ID = @pay_run_id AND EMPLOYEE_ID = @employee_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_pay_run(IN pay_run_id INT)
+BEGIN
+	SET @pay_run_id = pay_run_id;
+
+	SET @query = 'DELETE FROM tblpayrun WHERE PAY_RUN_ID = @pay_run_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_company_logo_file(IN company_id VARCHAR(50), IN company_logo VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @company_id = company_id;
+	SET @company_logo = company_logo;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblcompany SET COMPANY_LOGO = @company_logo, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE COMPANY_ID  = @company_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
 
 
 /* Insert */

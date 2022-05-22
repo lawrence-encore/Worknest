@@ -10669,6 +10669,8 @@ function display_form_details(form_type){
                 $('#website').val(response[0].WEBSITE);
                 $('#address').val(response[0].ADDRESS);
 
+                $('#company-logo').attr('src', response[0].COMPANY_LOGO + '?' + d.getMilliseconds());
+
                 check_option_exist('#province', response[0].PROVINCE_ID, '');
 
                 generate_city_option(response[0].PROVINCE_ID, response[0].CITY_ID);
@@ -12069,6 +12071,7 @@ function display_form_details(form_type){
                 document.getElementById('payrun_details').innerHTML = response[0].PAYRUN_DETAILS;
                 document.getElementById('earnings_table').innerHTML = response[0].EARNINGS_TABLE;
                 document.getElementById('deductions_table').innerHTML = response[0].DEDUCTIONS_TABLE;
+                document.getElementById('company_logo').innerHTML = response[0].COMPANY_LOGO;
 
                 $('#payslip_id').text('# ' + payslip_id);
             }

@@ -11,11 +11,17 @@
             submitHandler: function (form) {
                 var transaction = 'submit company setting';
                 var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
 
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     beforeSend: function(){
                         document.getElementById('submit-form').disabled = true;
                         $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
@@ -30,7 +36,7 @@
                     },
                     complete: function(){
                         document.getElementById('submit-form').disabled = false;
-                        $('#submit-form').html('Save');
+                        $('#submit-form').html('Submit');
                     }
                 });
 

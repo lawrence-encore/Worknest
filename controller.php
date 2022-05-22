@@ -2431,6 +2431,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # Submit company setting
     else if($transaction == 'submit company setting'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['company_name']) && !empty($_POST['company_name']) && isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['telephone']) && isset($_POST['website']) && isset($_POST['province']) && !empty($_POST['province']) && isset($_POST['city']) && !empty($_POST['city']) && isset($_POST['address']) && !empty($_POST['address'])){
+            $file_type = '';
             $username = $_POST['username'];
             $company_id = 1;
             $company_name = $_POST['company_name'];
@@ -2442,26 +2443,115 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $city = $_POST['city'];
             $address = $_POST['address'];
 
+            $company_logo_file_name = $_FILES['company_logo']['name'];
+            $company_logo_file_size = $_FILES['company_logo']['size'];
+            $company_logo_file_error = $_FILES['company_logo']['error'];
+            $company_logo_file_tmp_name = $_FILES['company_logo']['tmp_name'];
+            $company_logo_file_ext = explode('.', $company_logo_file_name);
+            $company_logo_file_actual_ext = strtolower(end($company_logo_file_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(20);
+            $upload_file_type_details = $api->get_upload_file_type_details(20);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
             $check_company_setting_exist = $api->check_company_setting_exist($company_id);
 
             if($check_company_setting_exist > 0){
-                $update_company_setting = $api->update_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
-
-                if($update_company_setting){
-                    echo 'Updated';
+                if(!empty($company_logo_file_tmp_name)){
+                    if(in_array($company_logo_file_actual_ext, $allowed_ext)){
+                        if(!$company_logo_file_error){
+                            if($company_logo_file_size < $file_max_size){
+                                $update_company_setting = $api->update_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
+    
+                                if($update_company_setting){
+                                    $update_company_logo_file = $api->update_company_logo_file($company_logo_file_tmp_name, $company_logo_file_actual_ext, $company_id, $username);
+            
+                                    if($update_company_logo_file){
+                                        echo 'Updated';
+                                    }
+                                    else{
+                                        echo $update_company_logo_file;
+                                    }
+                                }
+                                else{
+                                    echo $update_company_setting;
+                                }
+                            }
+                            else{
+                                echo 'File Size';
+                            }
+                        }
+                        else{
+                            echo 'There was an error uploading the file.';
+                        }
+                    }
+                    else{
+                        echo 'File Type';
+                    }
                 }
                 else{
-                    echo $update_company_setting;
+                    $update_company_setting = $api->update_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
+
+                    if($update_company_setting){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_company_setting;
+                    }
                 }
             }
             else{
-                $insert_company_setting = $api->insert_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
-
-                if($insert_company_setting){
-                    echo 'Updated';
+                if(!empty($company_logo_file_tmp_name)){
+                    if(in_array($company_logo_file_actual_ext, $allowed_ext)){
+                        if(!$company_logo_file_error){
+                            if($company_logo_file_size < $file_max_size){
+                                $insert_company_setting = $api->insert_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
+    
+                                if($insert_company_setting){
+                                    $update_company_logo_file = $api->update_company_logo_file($company_logo_file_tmp_name, $company_logo_file_actual_ext, $company_id, $username);
+            
+                                    if($update_company_logo_file){
+                                        echo 'Updated';
+                                    }
+                                    else{
+                                        echo $update_company_logo_file;
+                                    }
+                                }
+                                else{
+                                    echo $insert_company_setting;
+                                }
+                            }
+                            else{
+                                echo 'File Size';
+                            }
+                        }
+                        else{
+                            echo 'There was an error uploading the file.';
+                        }
+                    }
+                    else{
+                        echo 'File Type';
+                    }
                 }
                 else{
-                    echo $insert_company_setting;
+                    $insert_company_setting = $api->insert_company_setting($company_id, $company_name, $email, $telephone, $phone, $website, $address, $province, $city, $username);
+
+                    if($insert_company_setting){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $insert_company_setting;
+                    }
                 }
             }
         }
@@ -7545,6 +7635,210 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Delete pay run
+    else if($transaction == 'delete pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_id = $_POST['pay_run_id'];
+
+            $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+            if($check_pay_run_exist > 0){
+                $delete_pay_run_payslip = $api->delete_pay_run_payslip($pay_run_id, $username);
+
+                if($delete_pay_run_payslip){
+                    $delete_pay_run = $api->delete_pay_run($pay_run_id, $username);
+                                    
+                    if($delete_pay_run){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_pay_run;
+                    }
+                }
+                else{
+                    echo $delete_pay_run_payslip;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple pay run
+    else if($transaction == 'delete multiple pay run'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id'])){
+            $username = $_POST['username'];
+            $pay_run_ids = $_POST['pay_run_id'];
+
+            foreach($pay_run_ids as $pay_run_id){
+                $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
+
+                if($check_pay_run_exist > 0){
+                    $delete_pay_run_payslip = $api->delete_pay_run_payslip($pay_run_id, $username);
+
+                    if($delete_pay_run_payslip){
+                        $delete_pay_run = $api->delete_pay_run($pay_run_id, $username);
+                                        
+                        if(!$delete_pay_run){
+                            $error = $delete_pay_run;
+                        }
+                    }
+                    else{
+                        $error = $delete_pay_run_payslip;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete payslip
+    else if($transaction == 'delete payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payslip_id']) && !empty($_POST['payslip_id'])){
+            $username = $_POST['username'];
+            $payslip_id = $_POST['payslip_id'];
+
+            $get_payslip_details = $api->get_payslip_details($payslip_id);
+            $pay_run_id = $get_payslip_details[0]['PAY_RUN_ID'];
+            $employee_id = $get_payslip_details[0]['EMPLOYEE_ID'];
+
+            $check_payslip_exist = $api->check_payslip_exist($payslip_id);
+
+            if($check_payslip_exist > 0){
+                $update_allowance_reversal = $api->update_allowance_reversal($payslip_id, $username);
+                                    
+                if($update_allowance_reversal){
+                    $update_deduction_reversal = $api->update_deduction_reversal($payslip_id, $username);
+                                    
+                    if($update_deduction_reversal){
+                        $update_other_income_reversal = $api->update_other_income_reversal($payslip_id, $username);
+                                    
+                        if($update_other_income_reversal){
+                            $update_contribution_deduction_reversal = $api->update_contribution_deduction_reversal($payslip_id, $username);
+                                    
+                            if($update_contribution_deduction_reversal){
+                                $delete_pay_run_payee = $api->delete_pay_run_payee($pay_run_id, $employee_id, $username);
+                                    
+                                if($delete_pay_run_payee){
+                                    $delete_payslip = $api->delete_payslip($payslip_id, $username);
+                                    
+                                    if($delete_payslip){
+                                        echo 'Deleted';
+                                    }
+                                    else{
+                                        echo $delete_payslip;
+                                    }
+                                }
+                                else{
+                                    echo $delete_pay_run_payee;
+                                }
+                            }
+                            else{
+                                echo $update_contribution_deduction_reversal;
+                            }
+                        }
+                        else{
+                            echo $update_other_income_reversal;
+                        }
+                    }
+                    else{
+                        echo $update_deduction_reversal;
+                    }
+                }
+                else{
+                    echo $update_allowance_reversal;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple payslip
+    else if($transaction == 'delete multiple payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payslip_id'])){
+            $username = $_POST['username'];
+            $payslip_ids = $_POST['payslip_id'];
+
+            foreach($payslip_ids as $payslip_id){
+                $get_payslip_details = $api->get_payslip_details($payslip_id);
+                $pay_run_id = $get_payslip_details[0]['PAY_RUN_ID'];
+                $employee_id = $get_payslip_details[0]['EMPLOYEE_ID'];
+
+                $check_payslip_exist = $api->check_payslip_exist($payslip_id);
+
+                if($check_payslip_exist > 0){
+                    $update_allowance_reversal = $api->update_allowance_reversal($payslip_id, $username);
+                                    
+                    if($update_allowance_reversal){
+                        $update_deduction_reversal = $api->update_deduction_reversal($payslip_id, $username);
+                                        
+                        if($update_deduction_reversal){
+                            $update_other_income_reversal = $api->update_other_income_reversal($payslip_id, $username);
+                                        
+                            if($update_other_income_reversal){
+                                $update_contribution_deduction_reversal = $api->update_contribution_deduction_reversal($payslip_id, $username);
+                                        
+                                if($update_contribution_deduction_reversal){
+                                    $delete_pay_run_payee = $api->delete_pay_run_payee($pay_run_id, $employee_id, $username);
+                                    
+                                    if($delete_pay_run_payee){
+                                        $delete_payslip = $api->delete_payslip($payslip_id, $username);
+                                        
+                                        if(!$delete_payslip){
+                                            $error = $delete_payslip;
+                                        }
+                                    }
+                                    else{
+                                        $error = $delete_pay_run_payee;
+                                    }
+                                }
+                                else{
+                                    $error = $update_contribution_deduction_reversal;
+                                }
+                            }
+                            else{
+                                $error = $update_other_income_reversal;
+                            }
+                        }
+                        else{
+                            $error = $update_deduction_reversal;
+                        }
+                    }
+                    else{
+                        $error = $update_allowance_reversal;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Approve transactions
     # -------------------------------------------------------------
@@ -10120,12 +10414,12 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
         $user_interface_details = $api->get_user_interface_settings_details(1);
 
         $response[] = array(
-            'LOGIN_BG' => $api->check_image($user_interface_details[0]['LOGIN_BG'] ?? null, 'placeholder'),
-            'LOGO_LIGHT' => $api->check_image($user_interface_details[0]['LOGO_LIGHT'] ?? null, 'placeholder'),
-            'LOGO_DARK' => $api->check_image($user_interface_details[0]['LOGO_DARK'] ?? null, 'placeholder'),
-            'LOGO_ICON_LIGHT' => $api->check_image($user_interface_details[0]['LOGO_ICON_LIGHT'] ?? null, 'placeholder'),
-            'LOGO_ICON_DARK' => $api->check_image($user_interface_details[0]['LOGO_ICON_DARK'] ?? null, 'placeholder'),
-            'FAVICON' => $api->check_image($user_interface_details[0]['FAVICON'] ?? null, 'placeholder')
+            'LOGIN_BG' => $api->check_image($user_interface_details[0]['LOGIN_BG'] ?? null, 'login bg'),
+            'LOGO_LIGHT' => $api->check_image($user_interface_details[0]['LOGO_LIGHT'] ?? null, 'logo light'),
+            'LOGO_DARK' => $api->check_image($user_interface_details[0]['LOGO_DARK'] ?? null, 'logo dark'),
+            'LOGO_ICON_LIGHT' => $api->check_image($user_interface_details[0]['LOGO_ICON_LIGHT'] ?? null, 'logo icon light'),
+            'LOGO_ICON_DARK' => $api->check_image($user_interface_details[0]['LOGO_ICON_DARK'] ?? null, 'logo icon dark'),
+            'FAVICON' => $api->check_image($user_interface_details[0]['FAVICON'] ?? null, 'favicon')
         );
 
         echo json_encode($response);
@@ -10223,7 +10517,8 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             'WEBSITE' => $company_setting_details[0]['WEBSITE'],
             'ADDRESS' => $company_setting_details[0]['ADDRESS'],
             'PROVINCE_ID' => $company_setting_details[0]['PROVINCE_ID'],
-            'CITY_ID' => $company_setting_details[0]['CITY_ID']
+            'CITY_ID' => $company_setting_details[0]['CITY_ID'],
+            'COMPANY_LOGO' => $api->check_image($company_setting_details[0]['COMPANY_LOGO'] ?? null, 'company logo')
         );
 
         echo json_encode($response);
@@ -11710,6 +12005,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $company_address = $company_setting_details[0]['ADDRESS'];
             $company_province_id = $company_setting_details[0]['PROVINCE_ID'];
             $company_city_id = $company_setting_details[0]['CITY_ID'];
+            $company_logo = $api->check_image($company_setting_details[0]['COMPANY_LOGO'] ?? null, 'company logo');
 
             # Company province details
             $company_province_details = $api->get_province_details($company_province_id);
@@ -11739,11 +12035,9 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $coverage_start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
             $coverage_end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', '');
 
-            $generated_date = ' <strong>Generated Date:</strong><br>
-                                            '. date('F d, Y');
-
-            $payslip_pay_run_details = ' <strong>Coverage Date:</strong><br>' . 
-                                            $coverage_start_date . ' - ' . $coverage_end_date;
+            $payslip_logo = ' <img src="'. $company_logo .'" alt="company logo" style="max-height: 50px"/>';
+            $generated_date = ' <strong>Generated Date:</strong><br>'. date('F d, Y');
+            $payslip_pay_run_details = ' <strong>Coverage Date:</strong><br>' . $coverage_start_date . ' - ' . $coverage_end_date;
 
             $payslip_employee_details = ' <strong>'. $file_as .'</strong><br>
                                             '. $designation_name .'<br>
@@ -11763,6 +12057,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'PAYRUN_DETAILS' => $payslip_pay_run_details,
                 'EARNINGS_TABLE' => $payslip_earnings_table,
                 'DEDUCTIONS_TABLE' => $payslip_deduction_table,
+                'COMPANY_LOGO' => $payslip_logo,
             );
 
             echo json_encode($response);

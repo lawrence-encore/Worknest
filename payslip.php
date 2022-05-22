@@ -57,7 +57,6 @@
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Payroll</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Deduction</a></li>
                                             <li class="breadcrumb-item"><a href="pay-run.php">Pay Run</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
                                             <li class="breadcrumb-item" id="pay-run-id"><a href="javascript: void(0);"><?php echo $pay_run_id; ?></a></li>
