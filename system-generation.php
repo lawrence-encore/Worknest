@@ -3894,7 +3894,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                                 </address>
                                             </div>
                                         </div>
-                                        <div class="py-2 mt-3">
+                                        <div class="py-0 mt-0">
                                             <h3 class="font-size-15 fw-bold">Earnings</h3>
                                         </div>
                                         <div class="table-responsive" id="earnings_table">
@@ -3931,7 +3931,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="py-2 mt-2">
+                                        <div class="py-0 mt-0">
                                             <h3 class="font-size-15 fw-bold">Deductions</h3>
                                         </div>
                                         <div class="table-responsive" id="deductions_table">
@@ -3974,7 +3974,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                             </table>
                                         </div>
                                     </div>
-                                </div>';
+                                </div>
+                            </div>';
             }
 
             $response[] = array(
@@ -10527,6 +10528,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $gross_pay = $row['GROSS_PAY'];
                         $net_pay = $row['NET_PAY'];
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $payslip_id_encrypted = $api->encrypt_data($payslip_id);
 
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
@@ -10563,9 +10565,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         }
 
                         if($print_payslip > 0){
-                            $print = '<button type="button" class="btn btn-info waves-effect waves-light print-payslip" data-payslip-id="'. $payslip_id .'" title="Print Payslip">
-                                        <i class="bx bx-printer font-size-16 align-middle"></i>
-                                    </button>';
+                            $print = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
+                                            <i class="bx bx-printer font-size-16 align-middle"></i>
+                                        </a>';
                         }
                         else{
                             $print = '';

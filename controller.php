@@ -10241,6 +10241,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Print transactions
+    # -------------------------------------------------------------
+
+    # Print multiple payslip
+    else if($transaction == 'print multiple payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payslip_id']) && !empty($_POST['payslip_id'])){
+            $username = $_POST['username'];
+            $payslip_ids = implode(',', $_POST['payslip_id']);;
+            $payslip_encrypted = $api->encrypt_data($payslip_ids);
+            
+            echo 'payslip-multiple-print.php?id=' . $payslip_encrypted;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Notification transactions
     # -------------------------------------------------------------
 

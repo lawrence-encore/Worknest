@@ -250,6 +250,48 @@ function initialize_click_events(){
         }
     });
 
+    $(document).on('click','#print-payslip',function() {
+        var payslip_id = [];
+        var transaction = 'print multiple payslip';
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                payslip_id.push(this.value);  
+            }
+        });
+
+        if(payslip_id.length > 0){
+            Swal.fire({
+                title: 'Print Multiple Payslips',
+                text: 'Are you sure you want to print these payslips?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Print',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller.php',
+                        data: {username : username, payslip_id : payslip_id, transaction : transaction},
+                        success: function (response) {
+                            window.open(response, '_blank');
+                        }
+                    });
+                    
+                    return false;
+                }
+            });
+        }
+        else{
+            show_alert('Print Multiple Payslips', 'Please select the payslips you want to print.', 'error');
+        }
+    });
+
     $(document).on('click','#apply-filter',function() {
         initialize_payslip_table('#payslip-datatable');
     });

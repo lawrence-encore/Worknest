@@ -18154,7 +18154,7 @@ class Api{
                 return $sql->errorInfo()[2];
             }
 
-            $table = '<table class="table table-nowrap">
+            $table = '<table class="table table-sm table-nowrap">
                         <thead>
                             <tr>
                                 <th style="width: 70px;">No.</th>
@@ -18197,7 +18197,7 @@ class Api{
     #
     # -------------------------------------------------------------
     public function generate_payslip_deduction_table($payslip_id, $employee_id){
-        if ($this->databaseConnection()) {            
+        if ($this->databaseConnection()) {
             $item_no = 3;
             $deduction_column = '';
             $contribution_deduction_column = '';
@@ -18285,7 +18285,7 @@ class Api{
                 return $sql->errorInfo()[2];
             }
 
-            $table = '<table class="table table-nowrap">
+            $table = '<table class="table table-sm table-nowrap">
                         <thead>
                             <tr>
                                 <th style="width: 70px;">No.</th>
