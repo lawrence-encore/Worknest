@@ -323,7 +323,7 @@ class Api{
         $mail->addAddress($email, $email);
         $mail->Subject = $subject;
 
-        if($notification_type || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type0 || $notification_type1 || $notification_type2 || $notification_type3 || $notification_type4 || $notification_type5 || $notification_type5 || $notification_type6 || $notification_type7 || $notification_type8){
+        if($notification_type == 1 || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14 || $notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
             if(!empty($link)){
                 $message = file_get_contents('email_template/basic-notification-with-button.html');
 
@@ -337,7 +337,7 @@ class Api{
                 else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type0 || $notification_type2 || $notification_type4){
                     $message = str_replace('@button_title', 'View Attendance Adjustment', $message);
                 }
-                else if($notification_type5 || $notification_type6 || $notification_type7 || $notification_type8){
+                else if($notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
                     $message = str_replace('@button_title', 'View Leave Application', $message);
                 }
             }
@@ -349,6 +349,9 @@ class Api{
             $message = str_replace('@year', date('Y'), $message);
             $message = str_replace('@title', $subject, $message);
             $message = str_replace('@body', $body, $message);
+        }
+        else if($notification_type == 'send payslip'){
+            $message = $body;
         }
 
         if($is_html){
@@ -18326,6 +18329,283 @@ class Api{
                                 <td class="border-0 text-end"><h4 class="m-0">'. number_format($net_pay, 2) .' PHP</h4></td>
                             </tr>
                         </tbody>
+                    </table>';
+
+                return $table;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_email_payslip_earnings_table
+    # Purpose    : Generates email payslip earnings table.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_email_payslip_earnings_table($payslip_id, $employee_id){
+        if ($this->databaseConnection()) {            
+            $item_no = 3;
+            $allowance_column = '';
+            $other_income_column = '';
+
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+
+            # Payslip details
+            $payslip_details = $this->get_payslip_details($payslip_id);
+            $gross_pay = $payslip_details[0]['GROSS_PAY'];
+            $overtime_hours = $payslip_details[0]['OVERTIME_HOURS'];
+            $overtime_earning = $payslip_details[0]['OVERTIME_EARNING'];
+
+            $sql = $this->db_connection->prepare('SELECT ALLOWANCE_TYPE, AMOUNT FROM tblallowance WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $allowance_count = $sql->rowCount();
+        
+                if($allowance_count > 0){
+                    while($row = $sql->fetch()){
+                        $allowance_type = $row['ALLOWANCE_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $allowance_type_details = $this->get_allowance_type_details($allowance_type);
+                        $allowance_type_name = $allowance_type_details[0]['ALLOWANCE_TYPE'];
+
+                        $allowance_column .= '<tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                    <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $item_no .'
+                                                    </td> 
+                                                    <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Overtime Pay - '. $allowance_type_name .'
+                                                    </td> 
+                                                    <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($amount, 2) .' PHP
+                                                    </td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $sql = $this->db_connection->prepare('SELECT OTHER_INCOME_TYPE, AMOUNT FROM tblotherincome WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $other_income_count = $sql->rowCount();
+        
+                if($other_income_count > 0){
+                    while($row = $sql->fetch()){
+                        $other_income_type = $row['OTHER_INCOME_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $other_income_type_details = $this->get_other_income_type_details($other_income_type);
+                        $other_income_type_name = $other_income_type_details[0]['OTHER_INCOME_TYPE'];
+
+                        $other_income_column .= '<tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                    <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $item_no .'
+                                                    </td> 
+                                                    <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Overtime Pay - '. $other_income_type_name .'
+                                                    </td> 
+                                                    <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($amount, 2) .' PHP
+                                                    </td>
+                                                </tr>';
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $table = '<table class="invoice-items" cellpadding="0" cellspacing="0" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; margin: 0;">
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">1
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Basic Salary
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($salary_amount, 2) .' PHP
+                            </td>
+                        </tr>
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">2
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Overtime Pay - '. number_format($overtime_hours, 2) .' Hour(s)
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($overtime_earning, 2) .' PHP
+                            </td>
+                        </tr>
+                        '. $allowance_column .'
+                        '. $other_income_column .'
+                        <tr class="total" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td class="alignright" width="80%" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top" colspan="2">Subtotal
+                            </td>
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($gross_pay, 2) .' PHP
+                            </td>
+                        </tr>
+                    </table>';
+
+                return $table;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_email_payslip_deduction_table
+    # Purpose    : Generates email payslip deduction table.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_email_payslip_deduction_table($payslip_id, $employee_id){
+        if ($this->databaseConnection()) {
+            $item_no = 3;
+            $deduction_column = '';
+            $contribution_deduction_column = '';
+
+            # Salary details
+            $get_employee_salary = $this->get_employee_salary($employee_id);
+            $salary_amount = $get_employee_salary[0]['SALARY_AMOUNT'];
+
+            # Payslip details
+            $payslip_details = $this->get_payslip_details($payslip_id);
+            $net_pay = $payslip_details[0]['NET_PAY'];
+            $absent = $payslip_details[0]['ABSENT'];
+            $absent_deduction = $payslip_details[0]['ABSENT_DEDUCTION'];
+            $late_minutes = $payslip_details[0]['LATE_MINUTES'];
+            $late_deduction = $payslip_details[0]['LATE_DEDUCTION'];
+            $early_leaving_minutes = $payslip_details[0]['EARLY_LEAVING_MINUTES'];
+            $early_leaving_deduction = $payslip_details[0]['EARLY_LEAVING_DEDUCTION'];
+            $withholding_tax = $payslip_details[0]['WITHHOLDING_TAX'];
+            $total_deduction = $payslip_details[0]['TOTAL_DEDUCTION'];
+
+            $sql = $this->db_connection->prepare('SELECT DEDUCTION_TYPE, AMOUNT FROM tbldeduction WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $deduction_count = $sql->rowCount();
+        
+                if($deduction_count > 0){
+                    while($row = $sql->fetch()){
+                        $deduction_type = $row['DEDUCTION_TYPE'];
+                        $amount = $row['AMOUNT'];
+
+                        $deduction_type_details = $this->get_deduction_type_details($deduction_type);
+                        $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
+
+                        $deduction_column .= '<tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $item_no .'
+                                                </td> 
+                                                <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $deduction_type_name .'
+                                                </td> 
+                                                <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($amount, 2) .' PHP
+                                                </td>
+                                            </tr>';
+
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $sql = $this->db_connection->prepare('SELECT GOVERNMENT_CONTRIBUTION_TYPE FROM tblcontributiondeduction WHERE EMPLOYEE_ID = :employee_id AND PAYROLL_ID = :payslip_id');
+            $sql->bindValue(':employee_id', $employee_id);
+            $sql->bindValue(':payslip_id', $payslip_id);
+
+            if($sql->execute()){
+                $other_income_count = $sql->rowCount();
+        
+                if($other_income_count > 0){
+                    while($row = $sql->fetch()){
+                        $government_contribution_type = $row['GOVERNMENT_CONTRIBUTION_TYPE'];
+
+                        $government_contribution_type_details = $this->get_government_contribution_details($government_contribution_type);
+                        $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+
+                        $contribution_bracket_details = $this->get_contribution_bracket_details($government_contribution_type);
+
+                        for($i = 0; $i < count($contribution_bracket_details); $i++) {
+                            $start_range = $contribution_bracket_details[$i]['START_RANGE'];
+                            $end_range = $contribution_bracket_details[$i]['END_RANGE'];
+                            $deduction_amount = $contribution_bracket_details[$i]['DEDUCTION_AMOUNT'];
+    
+                            if($salary_amount >= $start_range && $salary_amount <= $end_range){
+                                $deduction = $deduction_amount;
+                            }
+                        }
+
+                        $deduction_column .= '<tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $item_no .'
+                                                </td> 
+                                                <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">'. $government_contribution_type_name .'
+                                                </td> 
+                                                <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($deduction, 2) .' PHP
+                                                </td>
+                                            </tr>';
+
+                        $item_no++;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+
+            $table = '<table class="invoice-items" cellpadding="0" cellspacing="0" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; margin: 0;">
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">1
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Absences - '. number_format($absent) .' Day(s)
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($absent_deduction, 2) .' PHP
+                            </td>
+                        </tr>
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">2
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Late - '. number_format($late_minutes, 2) .' Minute(s)
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($late_deduction, 2) .' PHP
+                            </td>
+                        </tr>
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">3
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Early Leaving - '. number_format($early_leaving_minutes, 2) .' Minute(s)
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top"
+                            </td>
+                        </tr>
+                        <tr style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">4
+                            </td> 
+                            <td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" valign="top">Withholding Tax
+                            </td> 
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 1px; border-top-color: #eee; border-top-style: solid; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($withholding_tax, 2).' PHP
+                            </td>
+                        </tr>
+                        '. $deduction_column .'
+                        '. $contribution_deduction_column .'
+                        <tr class="total" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td class="alignright" width="80%" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 0px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top" colspan="2">Subtotal
+                            </td>
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 0px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($total_deduction, 2) .' PHP
+                            </td>
+                        </tr>
+                        <tr class="total" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                            <td class="alignright" width="80%" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top" colspan="2">Net Pay
+                            </td>
+                            <td class="alignright" style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; text-align: right; border-top-width: 2px; border-top-color: #333; border-top-style: solid; border-bottom-color: #333; border-bottom-width: 2px; border-bottom-style: solid; font-weight: 700; margin: 0; padding: 5px 0;" align="right" valign="top">'. number_format($net_pay, 2) .' PHP
+                            </td>
+                       </tr>
                     </table>';
 
                 return $table;

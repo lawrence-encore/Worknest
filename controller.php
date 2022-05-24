@@ -10321,6 +10321,324 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Send payslip
+    else if($transaction == 'send payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payslip_id']) && !empty($_POST['payslip_id'])){
+            $username = $_POST['username'];
+            $payslip_id = $_POST['payslip_id'];
+
+            $payslip_details = $api->get_payslip_details($payslip_id);
+            $pay_run_id = $payslip_details[0]['PAY_RUN_ID'];
+            $employee_id = $payslip_details[0]['EMPLOYEE_ID'];
+
+            # Company details
+            $company_setting_details = $api->get_company_setting_details(1);
+            $company_name = $company_setting_details[0]['COMPANY_NAME'];
+            $company_address = $company_setting_details[0]['ADDRESS'];
+            $company_province_id = $company_setting_details[0]['PROVINCE_ID'];
+            $company_city_id = $company_setting_details[0]['CITY_ID'];
+
+            # Company province details
+            $company_province_details = $api->get_province_details($company_province_id);
+            $company_province = $company_province_details[0]['PROVINCE'];
+
+            # Company city details
+            $city_details = $api->get_city_details($company_city_id, $company_province_id);
+            $company_city = $city_details[0]['CITY'];
+
+            # Employee details
+            $employee_details = $api->get_employee_details($employee_id, '');
+            $file_as = $employee_details[0]['FILE_AS'];
+            $email = $employee_details[0]['EMAIL'];
+            $designation = $employee_details[0]['DESIGNATION'];
+            $department = $employee_details[0]['DEPARTMENT'];
+            $validate_email = $api->validate_email($email);
+
+            # Designation details
+            $designation_details = $api->get_designation_details($designation);
+            $designation_name = $designation_details[0]['DESIGNATION'];
+            $system_date = date('Y-m-d');
+
+            # Department details
+            $department_details = $api->get_department_details($department);
+            $department_name = $department_details[0]['DEPARTMENT'];
+
+            # Payrun details
+            $pay_run_details = $api->get_pay_run_details($pay_run_id);
+            $coverage_start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
+            $coverage_end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', '');
+
+            $payslip_employee_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0;" valign="top"><b>'. $file_as .'</b>
+                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $designation_name .'
+                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $department_name .'
+                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />Employee ID: '. $employee_id .'
+                                            </td>';
+
+            $pay_run_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0; text-align: right;" valign="top"><b>Coverage Date:</b>
+                                                    <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $coverage_start_date .' - '. $coverage_end_date .'
+                                                    <br/>
+                                                </td>';
+
+            $payslip_earnings_table = $api->generate_email_payslip_earnings_table($payslip_id, $employee_id);
+            $payslip_deduction_table = $api->generate_email_payslip_deduction_table($payslip_id, $employee_id);
+
+            $message = file_get_contents('email_template/basic-payslip.html');
+            $message = str_replace('@company_name', $company_name, $message);
+            $message = str_replace('@company_address', $company_address . ', ' . $company_city . ', ' . $company_province, $message);
+            $message = str_replace('@generated_date', date('F d, Y'), $message);
+            $message = str_replace('@employee_details', $payslip_employee_details, $message);
+            $message = str_replace('@pay_run_details', $pay_run_details, $message);
+            $message = str_replace('@earnings_table', $payslip_earnings_table, $message);
+            $message = str_replace('@deduction_table', $payslip_deduction_table, $message);
+
+            if(empty($email) || !$validate_email){
+                if(empty($email)){
+                    echo 'Email';
+                }
+                else{
+                    echo 'Invalid Email';
+                }
+            }
+            else{
+                $check_payslip_exist = $api->check_payslip_exist($payslip_id);
+
+                if($check_payslip_exist > 0){
+                    $send_email_notification = $api->send_email_notification('send payslip', $email, $file_as . ' Payslip ('.  $coverage_start_date . ' - ' . $coverage_end_date .') ', $message, '', true, '');
+
+                    if($send_email_notification){
+                        echo 'Sent';
+                    }
+                    else{
+                        echo $send_email_notification;
+                    }
+                }
+                else{
+                    echo 'Not Found';
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Send multiple payslip
+    else if($transaction == 'send multiple payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['payslip_id']) && !empty($_POST['payslip_id'])){
+            $error = '';
+            $username = $_POST['username'];
+            $payslip_ids = $_POST['payslip_id'];
+
+            foreach($payslip_ids as $payslip_id){
+                $payslip_details = $api->get_payslip_details($payslip_id);
+                $pay_run_id = $payslip_details[0]['PAY_RUN_ID'];
+                $employee_id = $payslip_details[0]['EMPLOYEE_ID'];
+    
+                # Company details
+                $company_setting_details = $api->get_company_setting_details(1);
+                $company_name = $company_setting_details[0]['COMPANY_NAME'];
+                $company_address = $company_setting_details[0]['ADDRESS'];
+                $company_province_id = $company_setting_details[0]['PROVINCE_ID'];
+                $company_city_id = $company_setting_details[0]['CITY_ID'];
+    
+                # Company province details
+                $company_province_details = $api->get_province_details($company_province_id);
+                $company_province = $company_province_details[0]['PROVINCE'];
+    
+                # Company city details
+                $city_details = $api->get_city_details($company_city_id, $company_province_id);
+                $company_city = $city_details[0]['CITY'];
+    
+                # Employee details
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $file_as = $employee_details[0]['FILE_AS'];
+                $email = $employee_details[0]['EMAIL'];
+                $designation = $employee_details[0]['DESIGNATION'];
+                $department = $employee_details[0]['DEPARTMENT'];
+                $validate_email = $api->validate_email($email);
+    
+                # Designation details
+                $designation_details = $api->get_designation_details($designation);
+                $designation_name = $designation_details[0]['DESIGNATION'];
+                $system_date = date('Y-m-d');
+    
+                # Department details
+                $department_details = $api->get_department_details($department);
+                $department_name = $department_details[0]['DEPARTMENT'];
+    
+                # Payrun details
+                $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                $coverage_start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
+                $coverage_end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', '');
+    
+                $payslip_employee_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0;" valign="top"><b>'. $file_as .'</b>
+                                                    <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $designation_name .'
+                                                    <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $department_name .'
+                                                    <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />Employee ID: '. $employee_id .'
+                                                </td>';
+    
+                $pay_run_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0; text-align: right;" valign="top"><b>Coverage Date:</b>
+                                                        <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $coverage_start_date .' - '. $coverage_end_date .'
+                                                        <br/>
+                                                    </td>';
+    
+                $payslip_earnings_table = $api->generate_email_payslip_earnings_table($payslip_id, $employee_id);
+                $payslip_deduction_table = $api->generate_email_payslip_deduction_table($payslip_id, $employee_id);
+    
+                $message = file_get_contents('email_template/basic-payslip.html');
+                $message = str_replace('@company_name', $company_name, $message);
+                $message = str_replace('@company_address', $company_address . ', ' . $company_city . ', ' . $company_province, $message);
+                $message = str_replace('@generated_date', date('F d, Y'), $message);
+                $message = str_replace('@employee_details', $payslip_employee_details, $message);
+                $message = str_replace('@pay_run_details', $pay_run_details, $message);
+                $message = str_replace('@earnings_table', $payslip_earnings_table, $message);
+                $message = str_replace('@deduction_table', $payslip_deduction_table, $message);
+    
+                if(!empty($email) && $validate_email){
+                    $check_payslip_exist = $api->check_payslip_exist($payslip_id);
+    
+                    if($check_payslip_exist > 0){
+                        $send_email_notification = $api->send_email_notification('send payslip', $email, $file_as . ' Payslip ('.  $coverage_start_date . ' - ' . $coverage_end_date .') ', $message, '', true, '');
+    
+                        if(!$send_email_notification){
+                            $error = $send_email_notification;
+                        }
+                    }
+                    else{
+                        $error = 'Not Found';
+                    }
+                }
+            }
+
+            if(empty($error)){
+                echo 'Sent';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Send pay run payslip
+    else if($transaction == 'send pay run payslip'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id']) && isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $error = '';
+                $username = $_POST['username'];
+                $pay_run_id = $_POST['pay_run_id'];
+                $payees = explode(',', $_POST['payee']);
+    
+                foreach($payees as $employee_id){
+                    $sql = $api->db_connection->prepare('SELECT PAYSLIP_ID FROM tblpayslip WHERE EMPLOYEE_ID = :employee_id AND PAY_RUN_ID = :pay_run_id');
+                    $sql->bindValue(':employee_id', $employee_id);
+                    $sql->bindValue(':pay_run_id', $pay_run_id);
+                    
+                    if($sql->execute()){
+                        while($row = $sql->fetch()){
+                            $payslip_id = $row['PAYSLIP_ID'];
+        
+                            $payslip_details = $api->get_payslip_details($payslip_id);
+                            $pay_run_id = $payslip_details[0]['PAY_RUN_ID'];
+        
+                            # Company details
+                            $company_setting_details = $api->get_company_setting_details(1);
+                            $company_name = $company_setting_details[0]['COMPANY_NAME'];
+                            $company_address = $company_setting_details[0]['ADDRESS'];
+                            $company_province_id = $company_setting_details[0]['PROVINCE_ID'];
+                            $company_city_id = $company_setting_details[0]['CITY_ID'];
+        
+                            # Company province details
+                            $company_province_details = $api->get_province_details($company_province_id);
+                            $company_province = $company_province_details[0]['PROVINCE'];
+        
+                            # Company city details
+                            $city_details = $api->get_city_details($company_city_id, $company_province_id);
+                            $company_city = $city_details[0]['CITY'];
+        
+                            # Employee details
+                            $employee_details = $api->get_employee_details($employee_id, '');
+                            $file_as = $employee_details[0]['FILE_AS'];
+                            $email = $employee_details[0]['EMAIL'];
+                            $designation = $employee_details[0]['DESIGNATION'];
+                            $department = $employee_details[0]['DEPARTMENT'];
+                            $validate_email = $api->validate_email($email);
+        
+                            # Designation details
+                            $designation_details = $api->get_designation_details($designation);
+                            $designation_name = $designation_details[0]['DESIGNATION'];
+                            $system_date = date('Y-m-d');
+        
+                            # Department details
+                            $department_details = $api->get_department_details($department);
+                            $department_name = $department_details[0]['DEPARTMENT'];
+        
+                            # Payrun details
+                            $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                            $coverage_start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'F d, Y', '', '', '');
+                            $coverage_end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'F d, Y', '', '', '');
+        
+                            $payslip_employee_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0;" valign="top"><b>'. $file_as .'</b>
+                                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $designation_name .'
+                                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $department_name .'
+                                                                <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />Employee ID: '. $employee_id .'
+                                                            </td>';
+        
+                            $pay_run_details = '<td style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 5px 0; text-align: right;" valign="top"><b>Coverage Date:</b>
+                                                                    <br style="font-family: Helvetica Neue,Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin-top: 0;" />'. $coverage_start_date .' - '. $coverage_end_date .'
+                                                                    <br/>
+                                                                </td>';
+        
+                            $payslip_earnings_table = $api->generate_email_payslip_earnings_table($payslip_id, $employee_id);
+                            $payslip_deduction_table = $api->generate_email_payslip_deduction_table($payslip_id, $employee_id);
+        
+                            $message = file_get_contents('email_template/basic-payslip.html');
+                            $message = str_replace('@company_name', $company_name, $message);
+                            $message = str_replace('@company_address', $company_address . ', ' . $company_city . ', ' . $company_province, $message);
+                            $message = str_replace('@generated_date', date('F d, Y'), $message);
+                            $message = str_replace('@employee_details', $payslip_employee_details, $message);
+                            $message = str_replace('@pay_run_details', $pay_run_details, $message);
+                            $message = str_replace('@earnings_table', $payslip_earnings_table, $message);
+                            $message = str_replace('@deduction_table', $payslip_deduction_table, $message);
+        
+                            if(empty($email) || !$validate_email){
+                                if(empty($email)){
+                                    $error = 'Email';
+                                }
+                                else{
+                                    $error = 'Invalid Email';
+                                }
+                            }
+                            else{
+                                $check_payslip_exist = $api->check_payslip_exist($payslip_id);
+        
+                                if($check_payslip_exist > 0){
+                                    $send_email_notification = $api->send_email_notification('send payslip', $email, $file_as . ' Payslip ('.  $coverage_start_date . ' - ' . $coverage_end_date .') ', $message, '', true, '');
+        
+                                    if(!$send_email_notification){
+                                        $error = $send_email_notification;
+                                    }
+                                }
+                                else{
+                                    $error = 'Not Found';
+                                }
+                            }                    
+                        }
+                    }
+                    else{
+                        $error = $sql->errorInfo()[2];
+                    }   
+                }
+    
+                if(empty($error)){
+                    echo 'Sent';
+                }
+                else{
+                    echo $error;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Get details transactions
     # -------------------------------------------------------------

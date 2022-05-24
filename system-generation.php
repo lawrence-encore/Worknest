@@ -2726,6 +2726,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Payee <span class="required">*</span></label>
+                                    <input type="hidden" id="pay_run_id" name="pay_run_id">
                                     <select class="form-control form-select2" multiple="multiple" id="payee" name="payee">
                                     </select>
                                 </div>
@@ -10133,6 +10134,15 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                             $data_lock = '1';
                             $delete = '';
+
+                            if($send_payslip > 0){
+                                $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-pay-run-id="'. $pay_run_id .'" title="Send Payslip">
+                                                <i class="bx bx-send font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $send = '';
+                            }
                         }
                         else{
                             if($lock_pay_run > 0){
@@ -10154,16 +10164,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             }
     
                             $data_lock = '0';
-                        }
-
-                        if($send_payslip > 0){
-                            $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-pay-run-id="'. $pay_run_id .'" title="Send Payslip">
-                                            <i class="bx bx-send font-size-16 align-middle"></i>
-                                        </button>';
-                        }
-                        else{
                             $send = '';
                         }
+
+                        
     
                         $response[] = array(
                             'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-lock="'. $data_lock .'" value="'. $pay_run_id .'">',
@@ -10489,6 +10493,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $pay_run_details = $api->get_pay_run_details($pay_run_id);
                 $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
                 $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
+                $pay_run_status = $pay_run_details[0]['STATUS'];
     
                 $query = 'SELECT PAYSLIP_ID, EMPLOYEE_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip WHERE PAY_RUN_ID = :pay_run_id';
     
@@ -10533,6 +10538,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $employee_details = $api->get_employee_details($employee_id, '');
                         $file_as = $employee_details[0]['FILE_AS'];
                         $department = $employee_details[0]['DEPARTMENT'];
+                        $email = $employee_details[0]['EMAIL'];
+                        $validate_email = $api->validate_email($email);
 
                         $department_details = $api->get_department_details($department);
                         $department_name = $department_details[0]['DEPARTMENT'];
@@ -10546,30 +10553,38 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $transaction_log = '';
                         }
 
-                        if($delete_payslip > 0){
-                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-payslip" data-payslip-id="'. $payslip_id .'" title="Delete Payslip">
-                                        <i class="bx bx-trash font-size-16 align-middle"></i>
-                                    </button>';
-                        }
-                        else{
+                        if($pay_run_status == 'LOCK'){
+                            if($send_payslip > 0 && (!empty($email) && $validate_email)){
+                                $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-payslip-id="'. $payslip_id .'" title="Send Payslip">
+                                            <i class="bx bx-send font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $send = '';
+                            }
+
+                            if($print_payslip > 0){
+                                $print = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
+                                                <i class="bx bx-printer font-size-16 align-middle"></i>
+                                            </a>';
+                            }
+                            else{
+                                $print = '';
+                            }
+
                             $delete = '';
                         }
-
-                        if($send_payslip > 0){
-                            $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-payslip-id="'. $payslip_id .'" title="Send Payslip">
-                                        <i class="bx bx-send font-size-16 align-middle"></i>
-                                    </button>';
-                        }
                         else{
+                            if($delete_payslip > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-payslip" data-payslip-id="'. $payslip_id .'" title="Delete Payslip">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
                             $send = '';
-                        }
-
-                        if($print_payslip > 0){
-                            $print = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
-                                            <i class="bx bx-printer font-size-16 align-middle"></i>
-                                        </a>';
-                        }
-                        else{
                             $print = '';
                         }
     

@@ -143,11 +143,15 @@ function initialize_click_events(){
                     success: function (response) {
                         if(response === 'Sent'){
                           show_alert('Send Payslip', 'The payslip has been sent.', 'success');
-
-                          reload_datatable('#payslip-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Send Payslip', 'The payslip does not exist.', 'info');
+                        }
+                        else if(response === 'Email'){
+                          show_alert('Send Payslip Error', 'The email of the employee does is empty.', 'error');
+                        }
+                        else if(response === 'Invalid Email'){
+                          show_alert('Send Payslip Error', 'The email of the employee does is not valid.', 'error');
                         }
                         else{
                           show_alert('Send Payslip', response, 'error');
@@ -157,6 +161,62 @@ function initialize_click_events(){
                 return false;
             }
         });
+    });
+
+    $(document).on('click','#send-payslip',function() {
+        var payslip_id = [];
+        var transaction = 'send multiple payslip';
+
+        $('.datatable-checkbox-children').each(function(){
+            if($(this).is(':checked')){  
+                payslip_id.push(this.value);  
+            }
+        });
+
+        if(payslip_id.length > 0){
+            Swal.fire({
+                title: 'Send Multiple Payslips',
+                text: 'Are you sure you want to send these payslips?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller.php',
+                        data: {username : username, payslip_id : payslip_id, transaction : transaction},
+                        success: function (response) {
+                            if(response === 'Sent'){
+                                show_alert('Send Payslip', 'The payslip has been sent.', 'success');
+                              }
+                              else if(response === 'Not Found'){
+                                show_alert('Send Multiple Payslip', 'The payslip does not exist.', 'info');
+                              }
+                              else if(response === 'Email'){
+                                show_alert('Send Multiple Payslip Error', 'The email of the employee does is empty.', 'error');
+                              }
+                              else if(response === 'Invalid Email'){
+                                show_alert('Send Multiple Payslip Error', 'The email of the employee does is not valid.', 'error');
+                              }
+                              else{
+                                show_alert('Send Multiple Payslip', response, 'error');
+                              }
+                        }
+                    });
+                    
+                    return false;
+                }
+            });
+        }
+        else{
+            show_alert('Send Multiple Payslips', 'Please select the payslips you want to send.', 'error');
+        }
     });
     
     $(document).on('click','.delete-payslip',function() {

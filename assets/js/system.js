@@ -9954,6 +9954,79 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'send payslip form'){
+        $('#send-payslip-form').validate({
+            submitHandler: function (form) {
+                transaction = 'send pay run payslip';
+
+                var employee_id = $('#employee_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Sent'){
+                            show_alert('Send Payslip', 'The payslip has been sent.', 'success');
+  
+                            $('#System-Modal').modal('hide');
+                          }
+                          else if(response === 'Not Found'){
+                            show_alert('Send Payslip', 'The payslip does not exist.', 'info');
+                          }
+                          else if(response === 'Email'){
+                            show_alert('Send Payslip Error', 'The email of the employee does is empty.', 'error');
+                          }
+                          else if(response === 'Invalid Email'){
+                            show_alert('Send Payslip Error', 'The email of the employee does is not valid.', 'error');
+                          }
+                          else{
+                            show_alert('Send Payslip', response, 'error');
+                          }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                employee_id: {
+                    required: true
+                },
+            },
+            messages: {
+                employee_id: {
+                    required: 'Please choose at least one (1) employee',
+                },
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -10193,6 +10266,7 @@ function generate_form(form_type, form_id, add, username){
                 else if(form_type == 'send payslip form'){
                     var pay_run_id = sessionStorage.getItem('pay_run_id');
 
+                    $('#pay_run_id').val(pay_run_id);
                     generate_pay_run_payee_option(pay_run_id);
                 }
             }
