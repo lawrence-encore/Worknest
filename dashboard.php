@@ -20,17 +20,17 @@
         }
 
         $employee_details = $api->get_employee_details('', $username);
-        $employee_id = $employee_details[0]['EMPLOYEE_ID'];
-        $file_as = $employee_details[0]['FILE_AS'];
-        $designation = $employee_details[0]['DESIGNATION'];
-        $department = $employee_details[0]['DEPARTMENT'];
-        $join_date = $api->check_date('empty', $employee_details[0]['JOIN_DATE'], '', 'm/d/Y', '', '', '');
+        $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
+        $file_as = $employee_details[0]['FILE_AS'] ?? $username;
+        $designation = $employee_details[0]['DESIGNATION'] ?? null;
+        $department = $employee_details[0]['DEPARTMENT'] ?? null;
+        $join_date = $api->check_date('empty', $employee_details[0]['JOIN_DATE']  ?? null, '', 'm/d/Y', '', '', '');
 
         $designation_details = $api->get_designation_details($designation);
-        $designation_name = $designation_details[0]['DESIGNATION'];
+        $designation_name = $designation_details[0]['DESIGNATION'] ?? null;
 
         $department_details = $api->get_department_details($department);
-        $department_name = $department_details[0]['DEPARTMENT'];
+        $department_name = $department_details[0]['DEPARTMENT'] ?? null;
 
         $latest_attendance_id = $api->get_attendance_by_date(date('Y-m-d'));
         $get_employee_attendance_details = $api->get_employee_attendance_details($latest_attendance_id);

@@ -48,7 +48,7 @@
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php
                                     $employee_details = $api->get_employee_details('', $username);
-                                    $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                                    $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? $username;
 
                                     $unread_notification = $api->get_notification_count($employee_id, 0);
 

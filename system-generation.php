@@ -4862,14 +4862,14 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
     
                         $employment_status_details = $api->get_employment_status_details($employment_status);
-                        $color_value = $employment_status_details[0]['COLOR_VALUE'];
+                        $color_value = $employment_status_details[0]['COLOR_VALUE'] ?? null;
                         $employment_status_description = $employment_status_details[0]['EMPLOYMENT_STATUS'];
     
                         $department_details = $api->get_department_details($department);
-                        $department_name = $department_details[0]['DEPARTMENT'];
+                        $department_name = $department_details[0]['DEPARTMENT'] ?? null;
     
                         $designation_details = $api->get_designation_details($designation);
-                        $designation_name = $designation_details[0]['DESIGNATION'];
+                        $designation_name = $designation_details[0]['DESIGNATION'] ?? null;
     
                         if($update_employee > 0){
                             $update = '<button type="button" class="btn btn-info waves-effect waves-light update-employee" data-employee-id="'. $employee_id .'" title="Edit Employee">
