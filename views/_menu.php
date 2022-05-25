@@ -63,6 +63,7 @@
     $other_income_type_page = $api->check_role_permissions($username, 316);
     $other_income_page = $api->check_role_permissions($username, 321);
     $import_other_income_page = $api->check_role_permissions($username, 326);
+    $payroll_summary_page = $api->check_role_permissions($username, 328);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -196,10 +197,10 @@
         }
     }
 
-    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $withholding_tax_page > 0 || $other_income_type_page > 0 || $other_income_page > 0){
+    if($allowance_type_page > 0 || $allowance_page > 0 || $deduction_type_page > 0 || $deduction_page > 0 || $contribution_deduction_page > 0 || $payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $withholding_tax_page > 0 || $other_income_type_page > 0 || $other_income_page > 0 || $payroll_summary_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Payroll</li>';
 
-        if($payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0){
+        if($payroll_setting_page > 0 || $payroll_group_page > 0 || $pay_run_page > 0 || $payroll_summary_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-money"></i>
@@ -213,6 +214,10 @@
 
                         if($payroll_group_page > 0){
                             $menu .= '<li><a href="payroll-group.php" key="t-payroll-group">Payroll Group</a></li>';
+                        }
+
+                        if($payroll_summary_page > 0){
+                            $menu .= '<li><a href="payroll-summary.php" key="t-payroll-summary">Payroll Summary</a></li>';
                         }
 
                         if($payroll_setting_page > 0){

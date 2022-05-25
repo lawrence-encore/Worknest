@@ -9432,8 +9432,15 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # Lock pay run
     else if($transaction == 'lock pay run'){
         if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pay_run_id']) && !empty($_POST['pay_run_id'])){
+            $error = '';
             $username = $_POST['username'];
+            $employee_details = $api->get_employee_details('', $username);
+            $employee_id = $employee_details[0]['EMPLOYEE_ID'];
             $pay_run_id = $_POST['pay_run_id'];
+
+            $pay_run_details = $api->get_pay_run_details($pay_run_id);
+            $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
+            $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
 
             $check_pay_run_exist = $api->check_pay_run_exist($pay_run_id);
 
@@ -9441,7 +9448,29 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $update_pay_run_status = $api->update_pay_run_status($pay_run_id, 'LOCK', $username);
     
                 if($update_pay_run_status){
-                    echo 'Locked';
+                    $pay_run_payee_details = $api->get_pay_run_payee_details($pay_run_id);
+
+                    $sent_to_notification_details = $api->get_notification_details(19);
+                    $sent_to_notification_title = $sent_to_notification_details[0]['NOTIFICATION_TITLE'] ?? null;
+                    $sent_to_notification_message = $sent_to_notification_details[0]['NOTIFICATION_MESSAGE'] ?? null;
+                    $sent_to_notification_message = str_replace('{coverage_date}', $start_date . ' - ' . $end_date, $sent_to_notification_message);
+
+                    for($i = 0; $i < count($pay_run_payee_details); $i++) {
+                        $recipient = $pay_run_payee_details[$i]['EMPLOYEE_ID'];
+        
+                        $send_notification = $api->send_notification(19, $employee_id, $recipient, $sent_to_notification_title, $sent_to_notification_message, $username);
+
+                        if(!$send_notification){
+                            $error = $send_notification;
+                        }
+                    }
+
+                    if(empty($error)){
+                        echo 'Locked';
+                    }
+                    else{
+                        echo $error;
+                    }
                 }
                 else{
                     echo $update_pay_run_status;

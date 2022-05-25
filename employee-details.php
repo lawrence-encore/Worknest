@@ -22,6 +22,7 @@
 	$add_employee_leave = $api->check_role_permissions($username, 127);
 	$view_employee_file = $api->check_role_permissions($username, 138);
 	$add_employee_file = $api->check_role_permissions($username, 139);
+	$view_employee_payroll_summary = $api->check_role_permissions($username, 333);
 
     $check_user_account_status = $api->check_user_account_status($username);
 
@@ -198,6 +199,10 @@
                                                             echo '<a class="nav-link mb-2" id="v-pills-leave-entitlement-tab" data-bs-toggle="pill" href="#v-pills-leave-entitlement" role="tab" aria-controls="v-pills-leave-entitlement" aria-selected="false">Leave Entitlement</a>';
                                                         }
 
+                                                        if($view_employee_payroll_summary > 0){
+                                                            echo '<a class="nav-link mb-2" id="v-pills-employee-payroll-summary-tab" data-bs-toggle="pill" href="#v-pills-employee-payroll-summary" role="tab" aria-controls="v-pills-employee-payroll-summary" aria-selected="false">Payroll Summary</a>';
+                                                        }
+
                                                         if($view_employee_file > 0){
                                                             echo '<a class="nav-link mb-2" id="v-pills-employee-file-tab" data-bs-toggle="pill" href="#v-pills-employee-file" role="tab" aria-controls="v-pills-employee-file" aria-selected="false">Employee File</a>';
                                                         }
@@ -236,13 +241,6 @@
                                                                 <div class="d-flex align-items-start">
                                                                     <div class="flex-grow-1 align-self-center">
                                                                         <h4 class="card-title">Employee Information</h4>
-                                                                    </div>
-                                                                    <div class="d-flex gap-2">
-                                                                        <?php
-                                                                            if($update_employee > 0){
-                                                                                echo '<button type="button" class="btn btn-info waves-effect btn-label waves-light" data-employee-id="'. $employee_id .'" id="update-employee"><i class="bx bx-pencil label-icon"></i> Update</button>';
-                                                                            }
-                                                                        ?>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -458,6 +456,7 @@
                                                                     </div>
                                                                 </div>';
                                                         }
+
                                                         if($view_employee_leave > 0){
                                                             if($add_employee_leave > 0){
                                                                 $add = '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-employee-leave"><i class="bx bx-plus label-icon"></i> Add</button>';
@@ -613,6 +612,62 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>';
+                                                        }
+
+                                                        if($view_employee_payroll_summary > 0){
+                                                            echo '<div class="tab-pane fade" id="v-pills-employee-payroll-summary" role="tabpanel" aria-labelledby="v-pills-employee-payroll-summary-tab">
+                                                                    <div class="row mb-4">
+                                                                        <div class="col-md-12">
+                                                                            <div class="d-flex align-items-start">
+                                                                                <div class="flex-grow-1 align-self-center">
+                                                                                    <h4 class="card-title">Payroll Summary</h4>
+                                                                                </div>
+                                                                                <div class="d-flex gap-2">
+                                                                                    <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-employee-payroll-summary" aria-controls="filter-employee-payroll-summary"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
+                                                                                </div>
+                                                                                <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-employee-payroll-summary" data-bs-backdrop="true" aria-labelledby="filter-employee-payroll-summary-label">
+                                                                                    <div class="offcanvas-header">
+                                                                                        <h5 class="offcanvas-title" id="filter-employee-payroll-summary-label">Filter</h5>
+                                                                                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                                                                    </div>
+                                                                                    <div class="offcanvas-body">
+                                                                                        <div class="mb-3">
+                                                                                            <p class="text-muted">Payroll Coverage</p>
+
+                                                                                            <div class="input-group mb-3" id="filter-employee-payroll-summary-start-date-container">
+                                                                                                <input type="text" class="form-control" id="filter_employee_payroll_summary_start_date" name="filter_employee_payroll_summary_start_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-employee-payroll-summary-start-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="Start Date" value="'. date('n/01/Y') .'">
+                                                                                                <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                                                                            </div>
+
+                                                                                            <div class="input-group" id="filter-employee-payroll-summary-end-date-container">
+                                                                                                <input type="text" class="form-control" id="filter_employee_payroll_summary_end_date" name="filter_employee_payroll_summary_end_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#filter-employee-payroll-summary-end-date-container" data-provide="datepicker" data-date-autoclose="true" data-date-orientation="right" placeholder="End Date" value="'. date('n/t/Y') .'">
+                                                                                                <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <button type="button" class="btn btn-primary waves-effect waves-light" id="apply-employee-payroll-summary-filter" data-bs-toggle="offcanvas" data-bs-target="#filter-employee-payroll-summary" aria-controls="filter-employee-payroll-summary">Apply Filter</button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+                                                                            <table id="employee-payroll-summary-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th class="all">Pay Run</th>
+                                                                                        <th class="all">Gross Pay</th>
+                                                                                        <th class="all">Net Pay</th>
+                                                                                        <th class="all">Action</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody></tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>';
                                                         }
                                                     
                                                         if($view_employee_file > 0){

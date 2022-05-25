@@ -174,6 +174,77 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'change profile password form'){
+        $('#change-profile-password-form').validate({
+            submitHandler: function (form) {
+                transaction = 'change password';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated'){
+                            show_alert('Change User Account Password Success', 'The user account password has been updated.', 'success');
+                            $('#System-Modal').modal('hide');
+                        }
+                        else{
+                            if(response === 'Not Found'){
+                                show_alert('Change User Account Password Error', 'The user account does not exist.', 'error');
+                            }
+                            else{
+                                show_alert('Change User Account Password Error', response, 'error');
+                            }                            
+
+                            document.getElementById('submit-form').disabled = false;
+                            $('#submit-form').html('Submit');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+
+                return false;
+            },
+            rules: {
+                change_password: {
+                    required: true,
+                    password_strength : true
+                }
+            },
+            messages: {
+                change_password: {
+                    required: 'Please enter your password',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if(element.hasClass('web-select2') && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.input-group'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
     else if(form_type == 'system parameter form'){
         $('#system-parameter-form').validate({
             submitHandler: function (form) {

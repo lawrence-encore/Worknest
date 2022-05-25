@@ -323,12 +323,12 @@ class Api{
         $mail->addAddress($email, $email);
         $mail->Subject = $subject;
 
-        if($notification_type == 1 || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14 || $notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
+        if($notification_type == 1 || $notification_type == 2 || $notification_type == 3 || $notification_type == 4 || $notification_type == 5 || $notification_type == 6 || $notification_type == 7 || $notification_type == 8 || $notification_type == 9 || $notification_type == 10 || $notification_type == 11 || $notification_type == 12 || $notification_type == 13 || $notification_type == 14 || $notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18 || $notification_type == 19){
             if(!empty($link)){
                 $message = file_get_contents('email_template/basic-notification-with-button.html');
+                $message = str_replace('@link', $link, $message);
 
-                if($notification_type || $notification_type == 2){
-                    $message = str_replace('@link', $link, $message);
+                if($notification_type == 1 || $notification_type == 2){
                     $message = str_replace('@button_title', 'View Attendance Record', $message);
                 }
                 else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type1 || $notification_type3){
@@ -339,6 +339,9 @@ class Api{
                 }
                 else if($notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
                     $message = str_replace('@button_title', 'View Leave Application', $message);
+                }
+                else if($notification_type == 19){
+                    $message = str_replace('@button_title', 'View Payslip', $message);
                 }
             }
             else{
@@ -2054,14 +2057,7 @@ class Api{
             $sql->bindValue(':username', $username);
 
             if($sql->execute()){
-                $insert_transaction_log = $this->insert_transaction_log($username, 'Update Password', '');
-                                    
-                if($insert_transaction_log){
-                    return true;
-                }
-                else{
-                    return $insert_transaction_log;
-                }
+                return true;
             }
             else{
                 return $sql->errorInfo()[2];

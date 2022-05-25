@@ -63,7 +63,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
             $form = '<form class="cmxform" id="'. $form_id .'" method="post" action="#">';
 
-            if($form_type == 'change password form'){
+            if($form_type == 'change password form' || $form_type == 'change profile password form'){
                 $form .= '<div class="mb-3">
                                 <label class="form-label" for="change_username">Password <span class="required">*</span></label>
                                 <input type="hidden" id="change_username" name="change_username" value="'. $username .'">
@@ -5020,6 +5020,53 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Profile emergency contact table
+    else if($type == 'profile emergency contact table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+    
+                $sql = $api->db_connection->prepare('SELECT CONTACT_ID, NAME, RELATIONSHIP, EMAIL, PHONE, TELEPHONE, ADDRESS, CITY, PROVINCE, TRANSACTION_LOG_ID FROM tblemergencycontact WHERE EMPLOYEE_ID = :employee_id');
+                $sql->bindValue(':employee_id', $employee_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $contact_id = $row['CONTACT_ID'];
+                        $name = $row['NAME'];
+                        $relationship = $api->get_system_code_details('RELATIONSHIP', $row['RELATIONSHIP'])[0]['DESCRIPTION'];
+                        $email = $row['EMAIL'];
+                        $phone = $row['PHONE'];
+                        $telephone = $row['TELEPHONE'];
+                        $address = $row['ADDRESS'];
+                        $city = $row['CITY'];
+                        $province = $row['PROVINCE'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $province_details = $api->get_province_details($province);
+                        $city_details = $api->get_city_details($city, $province);
+
+                        $province_name = $province_details[0]['PROVINCE'];
+                        $city_name = $city_details[0]['CITY'];
+    
+                        $response[] = array(
+                            'NAME' => $name . '<p class="text-muted mb-0">'. $relationship .'</p>',
+                            'PHONE' => $phone,
+                            'EMAIL' => $email,
+                            'TELEPHONE' => $telephone,
+                            'ADDRESS' => $address . ', ' . $city_name . ', ' . $province_name
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Employee address table
     else if($type == 'employee address table'){
         if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
@@ -5097,6 +5144,46 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Profile address table
+    else if($type == 'profile address table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+    
+                $sql = $api->db_connection->prepare('SELECT ADDRESS_ID, ADDRESS_TYPE, ADDRESS, CITY, PROVINCE, TRANSACTION_LOG_ID FROM tblemployeeaddress WHERE EMPLOYEE_ID = :employee_id');
+                $sql->bindValue(':employee_id', $employee_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $address_id = $row['ADDRESS_ID'];
+                        $address_type = $api->get_system_code_details('ADDRESSTYPE', $row['ADDRESS_TYPE'])[0]['DESCRIPTION'] ?? null;
+                        $address = $row['ADDRESS'];
+                        $city = $row['CITY'];
+                        $province = $row['PROVINCE'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $province_details = $api->get_province_details($province);
+                        $city_details = $api->get_city_details($city, $province);
+
+                        $province_name = $province_details[0]['PROVINCE'];
+                        $city_name = $city_details[0]['CITY'];
+    
+                        $response[] = array(
+                            'ADDRESS_TYPE' => $address_type,
+                            'ADDRESS' => $address . ', ' . $city_name . ', ' . $province_name,
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Employee social table
     else if($type == 'employee social table'){
         if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
@@ -5153,6 +5240,38 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Profile social table
+    else if($type == 'profile social table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+    
+                $sql = $api->db_connection->prepare('SELECT SOCIAL_ID, SOCIAL_TYPE, LINK, TRANSACTION_LOG_ID FROM tblemployeesocial WHERE EMPLOYEE_ID = :employee_id');
+                $sql->bindValue(':employee_id', $employee_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $social_id = $row['SOCIAL_ID'];
+                        $social_type = $api->get_system_code_details('SOCIAL', $row['SOCIAL_TYPE'])[0]['DESCRIPTION'] ?? null;
+                        $link = $row['LINK'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $response[] = array(
+                            'SOCIAL_TYPE' => $social_type,
+                            'LINK' => '<a href="'. $link .'">Visit Link</a>'
                         );
                     }
     
@@ -5381,6 +5500,100 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Profile attendance table
+    else if($type == 'profile attendance table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_attendance_record_start_date']) && isset($_POST['filter_attendance_record_end_date']) && isset($_POST['filter_attendance_record_time_in_behavior']) && isset($_POST['filter_attendance_record_time_out_behavior'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_attendance_record_time_in_behavior = $_POST['filter_attendance_record_time_in_behavior'];
+                $filter_attendance_record_time_out_behavior = $_POST['filter_attendance_record_time_out_behavior'];
+
+                $filter_attendance_record_start_date = $api->check_date('empty', $_POST['filter_attendance_record_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_attendance_record_end_date = $api->check_date('empty', $_POST['filter_attendance_record_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT ATTENDANCE_ID, TIME_IN_DATE, TIME_IN, TIME_IN_BEHAVIOR, TIME_OUT_DATE, TIME_OUT, TIME_OUT_BEHAVIOR, LATE, EARLY_LEAVING, OVERTIME, TOTAL_WORKING_HOURS, TRANSACTION_LOG_ID FROM tblattendancerecord WHERE EMPLOYEE_ID = :employee_id';
+    
+                if((!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)) || !empty($filter_attendance_record_time_in_behavior) || !empty($filter_attendance_record_time_out_behavior)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)){
+                        $filter[] = 'TIME_IN_DATE BETWEEN :filter_attendance_record_start_date AND :filter_attendance_record_end_date';
+                    }
+
+                    if(!empty($filter_attendance_record_time_in_behavior)){
+                        $filter[] = 'TIME_IN_BEHAVIOR = :filter_attendance_record_time_in_behavior';
+                    }
+
+                    if(!empty($filter_attendance_record_time_out_behavior)){
+                        $filter[] = 'TIME_OUT_BEHAVIOR = :filter_attendance_record_time_out_behavior';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)) || !empty($filter_attendance_record_time_in_behavior) || !empty($filter_attendance_record_time_out_behavior)){
+                    if(!empty($filter_attendance_record_start_date) && !empty($filter_attendance_record_end_date)){
+                        $sql->bindValue(':filter_attendance_record_start_date', $filter_attendance_record_start_date);
+                        $sql->bindValue(':filter_attendance_record_end_date', $filter_attendance_record_end_date);
+                    }
+
+                    if(!empty($filter_attendance_record_time_in_behavior)){
+                        $sql->bindValue(':filter_attendance_record_time_in_behavior', $filter_attendance_record_time_in_behavior);
+                    }
+
+                    if(!empty($filter_attendance_record_time_out_behavior)){
+                        $sql->bindValue(':filter_attendance_record_time_out_behavior', $filter_attendance_record_time_out_behavior);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $attendance_id = $row['ATTENDANCE_ID'];
+                        $time_in_date = $api->check_date('empty', $row['TIME_IN_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_in = $api->check_date('empty', $row['TIME_IN'], '', 'h:i a', '', '', '');
+                        $time_in_behavior = $api->get_time_in_behavior_status($row['TIME_IN_BEHAVIOR'])[0]['BADGE'];
+                        $time_out_date = $api->check_date('empty', $row['TIME_OUT_DATE'], '', 'm/d/Y', '', '', '');
+                        $time_out = $api->check_date('empty', $row['TIME_OUT'], '', 'h:i a', '', '', '');
+                        $time_out_behavior = $api->get_time_out_behavior_status($row['TIME_OUT_BEHAVIOR'])[0]['BADGE'];
+                        $late = number_format($row['LATE']);
+                        $early_leaving = number_format($row['EARLY_LEAVING']);
+                        $overtime = number_format($row['OVERTIME']);
+                        $total_working_hours = number_format($row['TOTAL_WORKING_HOURS'], 2);
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $response[] = array(
+                            'TIME_IN' => $time_in_date . '<br/>' . $time_in,
+                            'TIME_IN_BEHAVIOR' => $time_in_behavior,
+                            'TIME_OUT' => $time_out_date . '<br/>' . $time_out,
+                            'TIME_OUT_BEHAVIOR' => $time_out_behavior,
+                            'LATE' => $late,
+                            'EARLY_LEAVING' => $early_leaving,
+                            'OVERTIME' => $overtime,
+                            'TOTAL_WORKING_HOURS' => $total_working_hours,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-employee-attendance" data-attendance-id="'. $attendance_id .'" title="View Employee Attendance">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
                             </div>'
                         );
                     }
@@ -5692,6 +5905,80 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Profile leave entitlement table
+    else if($type == 'profile leave entitlement table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_leave_entitlement_start_date']) && isset($_POST['filter_leave_entitlement_end_date']) && isset($_POST['filter_leave_entitlement_leave_type'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_leave_entitlement_leave_type = $_POST['filter_leave_entitlement_leave_type'];
+
+                $filter_leave_entitlement_start_date = $api->check_date('empty', $_POST['filter_leave_entitlement_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_leave_entitlement_end_date = $api->check_date('empty', $_POST['filter_leave_entitlement_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT LEAVE_ENTITLEMENT_ID, LEAVE_TYPE, NO_LEAVES, ACQUIRED_LEAVES, START_DATE, END_DATE, TRANSACTION_LOG_ID FROM tblleaveentitlement WHERE EMPLOYEE_ID = :employee_id';
+    
+                if((!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)) || !empty($filter_leave_entitlement_leave_type)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)){
+                        $filter[] = 'START_DATE BETWEEN :filter_leave_entitlement_start_date AND :filter_leave_entitlement_end_date';
+                    }
+
+                    if(!empty($filter_leave_entitlement_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_leave_entitlement_leave_type';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)) || !empty($filter_leave_entitlement_leave_type)){
+                    if(!empty($filter_leave_entitlement_start_date) && !empty($filter_leave_entitlement_end_date)){
+                        $sql->bindValue(':filter_leave_entitlement_start_date', $filter_leave_entitlement_start_date);
+                        $sql->bindValue(':filter_leave_entitlement_end_date', $filter_leave_entitlement_end_date);
+                    }
+
+                    if(!empty($filter_leave_entitlement_leave_type)){
+                        $sql->bindValue(':filter_leave_entitlement_leave_type', $filter_leave_entitlement_leave_type);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $leave_entitlement_id = $row['LEAVE_ENTITLEMENT_ID'];
+                        $leave_type = $row['LEAVE_TYPE'];
+                        $no_leaves = $row['NO_LEAVES'];
+                        $acquired_leaves = $row['ACQUIRED_LEAVES'];
+                        $leave_entitlement_status = $api->get_leave_entitlement_status($no_leaves, $acquired_leaves)[0]['BADGE'];
+                        $start_date = $api->check_date('empty', $row['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $row['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $leave_type_details = $api->get_leave_type_details($leave_type);
+                        $leave_name = $leave_type_details[0]['LEAVE_NAME'];
+    
+                        $response[] = array(
+                            'LEAVE_NAME' => $leave_name,
+                            'COVERAGE' => $start_date . ' - ' . $end_date,
+                            'ENTITLEMENT' => $leave_entitlement_status
                         );
                     }
     
@@ -6051,6 +6338,101 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Profile leave table
+    else if($type == 'profile leave table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_employee_leave_start_date']) && isset($_POST['filter_employee_leave_end_date']) && isset($_POST['filter_employee_leave_type']) && isset($_POST['filter_employee_leave_status'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_employee_leave_type = $_POST['filter_employee_leave_type'];
+                $filter_employee_leave_status = $_POST['filter_employee_leave_status'];
+
+                $filter_employee_leave_start_date = $api->check_date('empty', $_POST['filter_employee_leave_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_employee_leave_end_date = $api->check_date('empty', $_POST['filter_employee_leave_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT LEAVE_ID, LEAVE_TYPE, LEAVE_DATE, START_TIME, END_TIME, LEAVE_STATUS, TRANSACTION_LOG_ID FROM tblleave WHERE EMPLOYEE_ID = :employee_id';
+    
+                if((!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)) || !empty($filter_employee_leave_type) || !empty($filter_employee_leave_status)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)){
+                        $filter[] = 'LEAVE_DATE BETWEEN :filter_employee_leave_start_date AND :filter_employee_leave_end_date';
+                    }
+
+                    if(!empty($filter_employee_leave_type)){
+                        $filter[] = 'LEAVE_TYPE = :filter_employee_leave_type';
+                    }
+
+                    if(!empty($filter_employee_leave_status)){
+                        $filter[] = 'LEAVE_STATUS = :filter_employee_leave_status';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+                
+                if((!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)) || !empty($filter_employee_leave_type) || !empty($filter_employee_leave_status)){
+                    if(!empty($filter_employee_leave_start_date) && !empty($filter_employee_leave_end_date)){
+                        $sql->bindValue(':filter_employee_leave_start_date', $filter_employee_leave_start_date);
+                        $sql->bindValue(':filter_employee_leave_end_date', $filter_employee_leave_end_date);
+                    }
+
+                    if(!empty($filter_employee_leave_type)){
+                        $sql->bindValue(':filter_employee_leave_type', $filter_employee_leave_type);
+                    }
+
+                    if(!empty($filter_employee_leave_status)){
+                        $sql->bindValue(':filter_employee_leave_status', $filter_employee_leave_status);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $leave_id = $row['LEAVE_ID'];
+                        $leave_type = $row['LEAVE_TYPE'];
+                        $leave_date = $api->check_date('empty', $row['LEAVE_DATE'], '', 'm/d/Y', '', '', '');
+                        $start_time = $api->check_date('empty', $row['START_TIME'], '', 'h:i a', '', '', '');
+                        $end_time = $api->check_date('empty', $row['END_TIME'], '', 'h:i a', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $leave_status = $row['LEAVE_STATUS'];
+                        $leave_status_name = $api->get_leave_status($leave_status, $system_date, $leave_date)[0]['BADGE'];
+    
+                        $employee_leave_entitlement_details = $api->get_employee_leave_entitlement_details($employee_id, $leave_type, $leave_date);
+                        $no_leaves = $employee_leave_entitlement_details[0]['NO_LEAVES'];
+                        $acquired_leaves = $employee_leave_entitlement_details[0]['ACQUIRED_LEAVES'];
+    
+                        $leave_entitlement_status = $api->get_leave_entitlement_status($no_leaves, $acquired_leaves)[0]['BADGE'];
+    
+                        $leave_type_details = $api->get_leave_type_details($leave_type);
+                        $leave_name = $leave_type_details[0]['LEAVE_NAME'];
+    
+                        $response[] = array(
+                            'LEAVE_NAME' => $leave_name,
+                            'LEAVE_ENTITLMENT' => $leave_entitlement_status,
+                            'LEAVE_DATE' => $leave_date . '<br/>' . $start_time . ' - ' . $end_time,
+                            'LEAVE_STATUS' => $leave_status_name,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-leave" data-leave-id="'. $leave_id .'" title="View Leave">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # Employee file management table
     else if($type == 'employee file management table'){
         if(isset($_POST['filter_branch']) && isset($_POST['filter_department']) && isset($_POST['filter_file_category']) && isset($_POST['filter_file_start_date']) && isset($_POST['filter_file_end_date']) && isset($_POST['filter_upload_start_date']) && isset($_POST['filter_upload_end_date'])){
@@ -6307,6 +6689,99 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $update .'
                                 '. $transaction_log .'
                                 '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Profile file table
+    else if($type == 'profile file table'){
+        if(isset($_POST['employee_id']) && !empty($_POST['employee_id']) && isset($_POST['filter_employee_file_start_date']) && isset($_POST['filter_employee_file_end_date']) && isset($_POST['filter_upload_employee_file_start_date']) && isset($_POST['filter_upload_employee_file_end_date']) && isset($_POST['filter_employee_file_category'])){
+            if ($api->databaseConnection()) {
+                $employee_id = $_POST['employee_id'];
+
+                $filter_employee_file_category = $_POST['filter_employee_file_category'];
+
+                $filter_employee_file_start_date = $api->check_date('empty', $_POST['filter_employee_file_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_employee_file_end_date = $api->check_date('empty', $_POST['filter_employee_file_end_date'], '', 'Y-m-d', '', '', '');
+                $filter_upload_employee_file_start_date = $api->check_date('empty', $_POST['filter_upload_employee_file_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_upload_employee_file_end_date = $api->check_date('empty', $_POST['filter_upload_employee_file_end_date'], '', 'Y-m-d', '', '', '');
+
+                $query = 'SELECT FILE_ID, EMPLOYEE_ID, FILE_NAME, FILE_CATEGORY, REMARKS, FILE_DATE, FILE_PATH, TRANSACTION_LOG_ID FROM tblemployeefile WHERE EMPLOYEE_ID = :employee_id';
+    
+                if((!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)) || (!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)) || !empty($filter_employee_file_category)){
+                    $query .= ' AND ';
+
+                    if(!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)){
+                        $filter[] = 'FILE_DATE BETWEEN :filter_employee_file_start_date AND :filter_employee_file_end_date';
+                    }
+
+                    if(!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)){
+                        $filter[] = 'UPLOAD_DATE BETWEEN :filter_upload_employee_file_start_date AND :filter_upload_employee_file_end_date';
+                    }
+
+                    if(!empty($filter_employee_file_category)){
+                        $filter[] = 'FILE_CATEGORY = :filter_employee_file_category';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+
+                if((!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)) || (!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)) || !empty($filter_employee_file_category)){
+                    if(!empty($filter_employee_file_start_date) && !empty($filter_employee_file_end_date)){
+                        $sql->bindValue(':filter_employee_file_start_date', $filter_employee_file_start_date);
+                        $sql->bindValue(':filter_employee_file_end_date', $filter_employee_file_end_date);
+                    }
+
+                    if(!empty($filter_upload_employee_file_start_date) && !empty($filter_upload_employee_file_end_date)){
+                        $sql->bindValue(':filter_upload_employee_file_start_date', $filter_upload_employee_file_start_date);
+                        $sql->bindValue(':filter_upload_employee_file_end_date', $filter_upload_employee_file_end_date);
+                    }
+
+                    if(!empty($filter_employee_file_category)){
+                        $sql->bindValue(':filter_employee_file_category', $filter_employee_file_category);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $file_id = $row['FILE_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $file_name = $row['FILE_NAME'];
+                        $file_category = $row['FILE_CATEGORY'];
+                        $remarks = $row['REMARKS'];
+                        $file_date = $api->check_date('empty', $row['FILE_DATE'], '', 'm/d/Y', '', '', '');
+                        $file_path = $row['FILE_PATH'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+    
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+    
+                        $system_code_details = $api->get_system_code_details('FILECATEGORY', $file_category);
+                        $file_category_name = $system_code_details[0]['DESCRIPTION'];
+    
+                        $response[] = array(
+                            'FILE_NAME' => '<a href="'. $file_path .'" target="_blank">' . $file_name . '</a>' . '<p class="text-muted mb-0">'. $remarks .'</p>',
+                            'FILE_DATE' => $file_date,
+                            'FILE_CATEGORY' => $file_category_name,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-employee-file" data-file-id="'. $file_id .'" title="View Employee File">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
                             </div>'
                         );
                     }
@@ -10602,6 +11077,337 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 '. $print .'
                                 '. $transaction_log .'
                                 '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Payroll summary table
+    else if($type == 'payroll summary table'){
+        if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_branch']) && isset($_POST['filter_department'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $delete_payslip = $api->check_role_permissions($username, 305);
+                $send_payslip = $api->check_role_permissions($username, 306);
+                $print_payslip = $api->check_role_permissions($username, 307);
+                $view_transaction_log = $api->check_role_permissions($username, 308);
+    
+                $filter_branch = $_POST['filter_branch'];
+                $filter_department = $_POST['filter_department'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT PAYSLIP_ID, PAY_RUN_ID, EMPLOYEE_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip';
+    
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= ' WHERE ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE BRANCH = :filter_branch)';
+                    }
+
+                    if(!empty($filter_department)){
+                        $filter[] = 'EMPLOYEE_ID IN (SELECT EMPLOYEE_ID FROM tblemployee WHERE DEPARTMENT = :filter_department)';
+                    }
+
+                    if((!empty($filter_start_date) && !empty($filter_end_date))){
+                        $filter[] = 'PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE START_DATE BETWEEN :filter_start_date AND :filter_start_date)';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch) || !empty($filter_department) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_department)){
+                        $sql->bindValue(':filter_department', $filter_department);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $payslip_id = $row['PAYSLIP_ID'];
+                        $pay_run_id = $row['PAY_RUN_ID'];
+                        $employee_id = $row['EMPLOYEE_ID'];
+                        $gross_pay = $row['GROSS_PAY'];
+                        $net_pay = $row['NET_PAY'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $payslip_id_encrypted = $api->encrypt_data($payslip_id);
+
+                        $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                        $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $pay_run_status = $pay_run_details[0]['STATUS'];
+
+                        $employee_details = $api->get_employee_details($employee_id, '');
+                        $file_as = $employee_details[0]['FILE_AS'];
+                        $department = $employee_details[0]['DEPARTMENT'];
+                        $email = $employee_details[0]['EMAIL'];
+                        $validate_email = $api->validate_email($email);
+
+                        $department_details = $api->get_department_details($department);
+                        $department_name = $department_details[0]['DEPARTMENT'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($pay_run_status == 'LOCK'){
+                            if($send_payslip > 0 && (!empty($email) && $validate_email)){
+                                $send = '<button type="button" class="btn btn-success waves-effect waves-light send-payslip" data-payslip-id="'. $payslip_id .'" title="Send Payslip">
+                                            <i class="bx bx-send font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $send = '';
+                            }
+
+                            if($print_payslip > 0){
+                                $print = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
+                                                <i class="bx bx-printer font-size-16 align-middle"></i>
+                                            </a>';
+                            }
+                            else{
+                                $print = '';
+                            }
+
+                            $delete = '';
+                        }
+                        else{
+                            if($delete_payslip > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-payslip" data-payslip-id="'. $payslip_id .'" title="Delete Payslip">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $send = '';
+                            $print = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-send="1" data-print="1" type="checkbox" value="'. $payslip_id .'">',
+                            'FILE_AS' => $file_as . '<p class="text-muted mb-0">'. $department_name .'</p>',
+                            'PAY_RUN' => $start_date . ' - ' . $end_date,
+                            'GROSS_PAY' => number_format($gross_pay, 2),
+                            'NET_PAY' => number_format($net_pay, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-payslip" data-payslip-id="'. $payslip_id .'" title="View Payslip">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $send .'
+                                '. $print .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Employee payroll summary
+    else if($type == 'employee payroll summary table'){
+        if(isset($_POST['employee_id']) && !empty(isset($_POST['employee_id'])) && isset($_POST['filter_employee_payroll_summary_start_date']) && isset($_POST['filter_employee_payroll_summary_end_date'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $delete_payslip = $api->check_role_permissions($username, 334);
+                $send_payslip = $api->check_role_permissions($username, 335);
+                $print_payslip = $api->check_role_permissions($username, 336);
+                $view_transaction_log = $api->check_role_permissions($username, 337);
+    
+                $employee_id = $_POST['employee_id'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_end_date'], '', 'Y-m-d', '', '', '');
+
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $email = $employee_details[0]['EMAIL'];
+                $validate_email = $api->validate_email($email);
+    
+                $query = 'SELECT PAYSLIP_ID, PAY_RUN_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip WHERE EMPLOYEE_ID = :employee_id AND PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE STATUS = "LOCK")';
+    
+                if(!empty($filter_start_date) && !empty($filter_end_date)){
+                    $query .= ' AND PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE START_DATE BETWEEN :filter_start_date AND :filter_start_date)';
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+
+                if(!empty($filter_start_date) && !empty($filter_end_date)){
+                    $sql->bindValue(':filter_start_date', $filter_start_date);
+                    $sql->bindValue(':filter_end_date', $filter_end_date);
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $payslip_id = $row['PAYSLIP_ID'];
+                        $pay_run_id = $row['PAY_RUN_ID'];
+                        $gross_pay = $row['GROSS_PAY'];
+                        $net_pay = $row['NET_PAY'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $payslip_id_encrypted = $api->encrypt_data($payslip_id);
+
+                        $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                        $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $pay_run_status = $pay_run_details[0]['STATUS'];
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+
+                        if($pay_run_status == 'LOCK'){
+                            if($send_payslip > 0 && (!empty($email) && $validate_email)){
+                                $send = '<button type="button" class="btn btn-success waves-effect waves-light send-employee-payslip" data-payslip-id="'. $payslip_id .'" title="Send Payslip">
+                                            <i class="bx bx-send font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $send = '';
+                            }
+
+                            if($print_payslip > 0){
+                                $print = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
+                                                <i class="bx bx-printer font-size-16 align-middle"></i>
+                                            </a>';
+                            }
+                            else{
+                                $print = '';
+                            }
+
+                            $delete = '';
+                        }
+                        else{
+                            if($delete_payslip > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-employee-payslip" data-payslip-id="'. $payslip_id .'" title="Delete Payslip">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $send = '';
+                            $print = '';
+                        }
+    
+                        $response[] = array(
+                            'PAY_RUN' => $start_date . ' - ' . $end_date,
+                            'GROSS_PAY' => number_format($gross_pay, 2),
+                            'NET_PAY' => number_format($net_pay, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-payslip" data-payslip-id="'. $payslip_id .'" title="View Payslip">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                '. $send .'
+                                '. $print .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Profile payroll summary
+    else if($type == 'profile payroll summary table'){
+        if(isset($_POST['employee_id']) && !empty(isset($_POST['employee_id'])) && isset($_POST['filter_employee_payroll_summary_start_date']) && isset($_POST['filter_employee_payroll_summary_end_date'])){
+            if ($api->databaseConnection()) {    
+                $employee_id = $_POST['employee_id'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_end_date'], '', 'Y-m-d', '', '', '');
+
+                $employee_details = $api->get_employee_details($employee_id, '');
+                $email = $employee_details[0]['EMAIL'];
+                $validate_email = $api->validate_email($email);
+    
+                $query = 'SELECT PAYSLIP_ID, PAY_RUN_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip WHERE EMPLOYEE_ID = :employee_id AND PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE STATUS = "LOCK")';
+    
+                if(!empty($filter_start_date) && !empty($filter_end_date)){
+                    $query .= ' AND PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE START_DATE BETWEEN :filter_start_date AND :filter_start_date)';
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+                $sql->bindValue(':employee_id', $employee_id);
+
+                if(!empty($filter_start_date) && !empty($filter_end_date)){
+                    $sql->bindValue(':filter_start_date', $filter_start_date);
+                    $sql->bindValue(':filter_end_date', $filter_end_date);
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $payslip_id = $row['PAYSLIP_ID'];
+                        $pay_run_id = $row['PAY_RUN_ID'];
+                        $gross_pay = $row['GROSS_PAY'];
+                        $net_pay = $row['NET_PAY'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $payslip_id_encrypted = $api->encrypt_data($payslip_id);
+
+                        $pay_run_details = $api->get_pay_run_details($pay_run_id);
+                        $start_date = $api->check_date('empty', $pay_run_details[0]['START_DATE'], '', 'm/d/Y', '', '', '');
+                        $end_date = $api->check_date('empty', $pay_run_details[0]['END_DATE'], '', 'm/d/Y', '', '', '');
+                        $pay_run_status = $pay_run_details[0]['STATUS'];
+    
+                        $response[] = array(
+                            'PAY_RUN' => $start_date . ' - ' . $end_date,
+                            'GROSS_PAY' => number_format($gross_pay, 2),
+                            'NET_PAY' => number_format($net_pay, 2),
+                            'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-payslip" data-payslip-id="'. $payslip_id .'" title="View Payslip">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
+                                <a href="payslip-print.php?id='. $payslip_id_encrypted .'" class="btn btn-info waves-effect waves-light" target="_blank" title="Print Payslip">
+                                    <i class="bx bx-printer font-size-16 align-middle"></i>
+                                </a>
                             </div>'
                         );
                     }
