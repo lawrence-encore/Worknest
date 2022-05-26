@@ -508,6 +508,12 @@
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <?php echo $menu; ?>
+                            <li>
+                                <a href="documentation.php" class="waves-effect">
+                                    <i class="bx bx-book"></i>
+                                    <span key="t-documentation">Documentation</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

@@ -4,20 +4,18 @@
 	require('classes/api.php');
 	$api = new Api;
 	$page_title = '404-Page';
+
+    require('views/_application_settings.php');
 ?>
-        <?php
-            require('views/_head.php');
-        ?>
+        <?php require('views/_head.php'); ?>
         <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
         <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
         <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
     </head>
 
     <body data-sidebar="dark">
-        <?php
-            require('views/_preloader.php');
-        ?>
-        <div class="account-pages my-2 pt-2">
+        <?php require('views/_preloader.php'); ?> 
+        <div class="account-pages my-2 pt-5">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
@@ -39,8 +37,6 @@
                 </div>
             </div>
         </div>
-        <?php
-	        require('views/_scripts.php');
-        ?>
+        <?php require('views/_script.php'); ?>
     </body>
 </html>
