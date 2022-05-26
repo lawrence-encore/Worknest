@@ -7253,7 +7253,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_time_in_behavior']) && isset($_POST['filter_time_out_behavior'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $add_attendance_adjustment = $api->check_role_permissions($username, 173);
@@ -7377,7 +7377,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_creation_status']) && isset($_POST['filter_attendance_creation_sanction'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $update_attendance_creation = $api->check_role_permissions($username, 177);
@@ -7548,7 +7548,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_attendance_adjustment_status']) && isset($_POST['filter_attendance_adjustment_sanction'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $update_attendance_adjustment = $api->check_role_permissions($username, 183);
@@ -7760,7 +7760,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null; 
 
                 # Get permission
                 $recommend_attendance_creation = $api->check_role_permissions($username, 189);
@@ -7876,7 +7876,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $recommend_attendance_adjustment = $api->check_role_permissions($username, 194);
@@ -8026,7 +8026,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_branch']) && isset($_POST['filter_department'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $approve_attendance_creation = $api->check_role_permissions($username, 199);
@@ -8165,7 +8165,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_start_date']) && isset($_POST['filter_end_date']) && isset($_POST['filter_branch']) && isset($_POST['filter_department'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $approve_attendance_adjustment = $api->check_role_permissions($username, 204);
@@ -8339,7 +8339,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_leave_status']) && isset($_POST['filter_leave_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $delete_leave = $api->check_role_permissions($username, 211);
@@ -8477,7 +8477,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
         if(isset($_POST['filter_leave_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if ($api->databaseConnection()) {
                 $employee_details = $api->get_employee_details('', $username);
-                $employee_id = $employee_details[0]['EMPLOYEE_ID'];
+                $employee_id = $employee_details[0]['EMPLOYEE_ID'] ?? null;
 
                 # Get permission
                 $approve_leave = $api->check_role_permissions($username, 214);

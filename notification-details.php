@@ -21,7 +21,7 @@
             $notification_id = $api->decrypt_data($id);
 
             $notification_details = $api->get_notification_details($notification_id);
-            $transaction_log_id = $company_setting_details[0]['TRANSACTION_LOG_ID'] ?? null;
+            $transaction_log_id = $notification_details[0]['TRANSACTION_LOG_ID'] ?? null;
         }
     }
     else{
