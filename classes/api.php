@@ -231,7 +231,7 @@ class Api{
 
             $check_user_account_exist = $this->check_user_account_exist($username);
            
-            if($check_user_account_exist){
+            if($check_user_account_exist > 0){
                 $user_account_details = $this->get_user_account_details($username);
                 $active = $user_account_details[0]['ACTIVE'];
                 $login_attemp = $user_account_details[0]['FAILED_LOGIN'];
@@ -242,23 +242,18 @@ class Api{
                         return 'Locked';
                     }
                     else{
-                        if($user_account_details[0]['PASSWORD'] == $password){
+                        if($user_account_details[0]['PASSWORD'] === $password){
                             if(strtotime($system_date) > strtotime($password_expiry_date)){
                                 return 'Password Expired';
                             }
                             else{
-                                if($login_attemp > 0){
-                                    $update_login_attempt = $this->update_login_attempt($username, '', 0, NULL);
+                                $update_login_attempt = $this->update_login_attempt($username, '', 0, NULL);
 
-                                    if($update_login_attempt){
-                                        return true;
-                                    }
-                                    else{
-                                        return $update_login_attempt;
-                                    }
+                                if($update_login_attempt){
+                                    return 1;
                                 }
                                 else{
-                                    return true;
+                                    return $update_login_attempt;
                                 }
                             }
                         }
@@ -331,10 +326,10 @@ class Api{
                 if($notification_type == 1 || $notification_type == 2){
                     $message = str_replace('@button_title', 'View Attendance Record', $message);
                 }
-                else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type1 || $notification_type3){
+                else if($notification_type == 3 || $notification_type == 5 || $notification_type == 7 || $notification_type == 9 || $notification_type == 11 || $notification_type == 13){
                     $message = str_replace('@button_title', 'View Attendance Creation', $message);
                 }
-                else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type0 || $notification_type2 || $notification_type4){
+                else if($notification_type == 4 || $notification_type == 6 || $notification_type == 8 || $notification_type == 10 || $notification_type == 12 || $notification_type == 14){
                     $message = str_replace('@button_title', 'View Attendance Adjustment', $message);
                 }
                 else if($notification_type == 15 || $notification_type == 16 || $notification_type == 17 || $notification_type == 18){
@@ -17603,90 +17598,99 @@ class Api{
                                         </thead>
                                         <tbody>';
 
-                while($row = $sql->fetch()){
-                    $monday_start_time = $this->check_date('empty', $row['MONDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $monday_end_time = $this->check_date('empty', $row['MONDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $monday_lunch_start_time = $this->check_date('empty', $row['MONDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $monday_lunch_end_time = $this->check_date('empty', $row['MONDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $monday_half_day_mark = $this->check_date('summary', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $tuesday_start_time = $this->check_date('empty', $row['TUESDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $tuesday_end_time = $this->check_date('empty', $row['TUESDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $tuesday_lunch_start_time = $this->check_date('empty', $row['TUESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $tuesday_lunch_end_time = $this->check_date('empty', $row['TUESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $tuesday_half_day_mark = $this->check_date('summary', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $wednesday_start_time = $this->check_date('empty', $row['WEDNESDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $wednesday_end_time = $this->check_date('empty', $row['WEDNESDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $wednesday_lunch_start_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $wednesday_lunch_end_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $wednesday_half_day_mark = $this->check_date('summary', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $thursday_start_time = $this->check_date('empty', $row['THURSDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $thursday_end_time = $this->check_date('empty', $row['THURSDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $thursday_lunch_start_time = $this->check_date('empty', $row['THURSDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $thursday_lunch_end_time = $this->check_date('empty', $row['THURSDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $thursday_half_day_mark = $this->check_date('summary', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $friday_start_time = $this->check_date('empty', $row['FRIDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $friday_end_time = $this->check_date('empty', $row['FRIDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $friday_lunch_start_time = $this->check_date('empty', $row['FRIDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $friday_lunch_end_time = $this->check_date('empty', $row['FRIDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $friday_half_day_mark = $this->check_date('summary', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $saturday_start_time = $this->check_date('empty', $row['SATURDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $saturday_end_time = $this->check_date('empty', $row['SATURDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $saturday_lunch_start_time = $this->check_date('empty', $row['SATURDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $saturday_lunch_end_time = $this->check_date('empty', $row['SATURDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $saturday_half_day_mark = $this->check_date('summary', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
-                    $sunday_start_time = $this->check_date('empty', $row['SUNDAY_START_TIME'], '', 'h:i a', '', '', '');
-                    $sunday_end_time = $this->check_date('empty', $row['SUNDAY_END_TIME'], '', 'h:i a', '', '', '');
-                    $sunday_lunch_start_time = $this->check_date('empty', $row['SUNDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
-                    $sunday_lunch_end_time = $this->check_date('empty', $row['SUNDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
-                    $sunday_half_day_mark = $this->check_date('summary', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
-
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $monday_start_time = $this->check_date('empty', $row['MONDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $monday_end_time = $this->check_date('empty', $row['MONDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $monday_lunch_start_time = $this->check_date('empty', $row['MONDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $monday_lunch_end_time = $this->check_date('empty', $row['MONDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $monday_half_day_mark = $this->check_date('summary', $row['MONDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $tuesday_start_time = $this->check_date('empty', $row['TUESDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $tuesday_end_time = $this->check_date('empty', $row['TUESDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $tuesday_lunch_start_time = $this->check_date('empty', $row['TUESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $tuesday_lunch_end_time = $this->check_date('empty', $row['TUESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $tuesday_half_day_mark = $this->check_date('summary', $row['TUESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $wednesday_start_time = $this->check_date('empty', $row['WEDNESDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $wednesday_end_time = $this->check_date('empty', $row['WEDNESDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $wednesday_lunch_start_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $wednesday_lunch_end_time = $this->check_date('empty', $row['WEDNESDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $wednesday_half_day_mark = $this->check_date('summary', $row['WEDNESDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $thursday_start_time = $this->check_date('empty', $row['THURSDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $thursday_end_time = $this->check_date('empty', $row['THURSDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $thursday_lunch_start_time = $this->check_date('empty', $row['THURSDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $thursday_lunch_end_time = $this->check_date('empty', $row['THURSDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $thursday_half_day_mark = $this->check_date('summary', $row['THURSDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $friday_start_time = $this->check_date('empty', $row['FRIDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $friday_end_time = $this->check_date('empty', $row['FRIDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $friday_lunch_start_time = $this->check_date('empty', $row['FRIDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $friday_lunch_end_time = $this->check_date('empty', $row['FRIDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $friday_half_day_mark = $this->check_date('summary', $row['FRIDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $saturday_start_time = $this->check_date('empty', $row['SATURDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $saturday_end_time = $this->check_date('empty', $row['SATURDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $saturday_lunch_start_time = $this->check_date('empty', $row['SATURDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $saturday_lunch_end_time = $this->check_date('empty', $row['SATURDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $saturday_half_day_mark = $this->check_date('summary', $row['SATURDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $sunday_start_time = $this->check_date('empty', $row['SUNDAY_START_TIME'], '', 'h:i a', '', '', '');
+                        $sunday_end_time = $this->check_date('empty', $row['SUNDAY_END_TIME'], '', 'h:i a', '', '', '');
+                        $sunday_lunch_start_time = $this->check_date('empty', $row['SUNDAY_LUNCH_START_TIME'], '', 'h:i a', '', '', '');
+                        $sunday_lunch_end_time = $this->check_date('empty', $row['SUNDAY_LUNCH_END_TIME'], '', 'h:i a', '', '', '');
+                        $sunday_half_day_mark = $this->check_date('summary', $row['SUNDAY_HALF_DAY_MARK'], '', 'h:i a', '', '', '');
+    
+                        $column .= '<tr>
+                                        <td>Monday</td>
+                                        <td>'. $monday_start_time .' - '. $monday_end_time .'</td>
+                                        <td>'. $monday_lunch_start_time .' - '. $monday_lunch_end_time .'</td>
+                                        <td>'. $monday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tuesday</td>
+                                        <td>'. $tuesday_start_time .' - '. $tuesday_end_time .'</td>
+                                        <td>'. $tuesday_lunch_start_time .' - '. $tuesday_lunch_end_time .'</td>
+                                        <td>'. $tuesday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Wednesday</td>
+                                        <td>'. $wednesday_start_time .' - '. $wednesday_end_time .'</td>
+                                        <td>'. $wednesday_lunch_start_time .' - '. $wednesday_lunch_end_time .'</td>
+                                        <td>'. $wednesday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Thursday</td>
+                                        <td>'. $thursday_start_time .' - '. $thursday_end_time .'</td>
+                                        <td>'. $thursday_lunch_start_time .' - '. $thursday_lunch_end_time .'</td>
+                                        <td>'. $thursday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Friday</td>
+                                        <td>'. $friday_start_time .' - '. $friday_end_time .'</td>
+                                        <td>'. $friday_lunch_start_time .' - '. $friday_lunch_end_time .'</td>
+                                        <td>'. $friday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Saturday</td>
+                                        <td>'. $saturday_start_time .' - '. $saturday_end_time .'</td>
+                                        <td>'. $saturday_lunch_start_time .' - '. $saturday_lunch_end_time .'</td>
+                                        <td>'. $saturday_half_day_mark .'</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sunday</td>
+                                        <td>'. $sunday_start_time .' - '. $sunday_end_time .'</td>
+                                        <td>'. $sunday_lunch_start_time .' - '. $sunday_lunch_end_time .'</td>
+                                        <td>'. $sunday_half_day_mark .'</td>
+                                    </tr>';
+                    }
+                }
+                else{
                     $column .= '<tr>
-                                    <td>Monday</td>
-                                    <td>'. $monday_start_time .' - '. $monday_end_time .'</td>
-                                    <td>'. $monday_lunch_start_time .' - '. $monday_lunch_end_time .'</td>
-                                    <td>'. $monday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Tuesday</td>
-                                    <td>'. $tuesday_start_time .' - '. $tuesday_end_time .'</td>
-                                    <td>'. $tuesday_lunch_start_time .' - '. $tuesday_lunch_end_time .'</td>
-                                    <td>'. $tuesday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Wednesday</td>
-                                    <td>'. $wednesday_start_time .' - '. $wednesday_end_time .'</td>
-                                    <td>'. $wednesday_lunch_start_time .' - '. $wednesday_lunch_end_time .'</td>
-                                    <td>'. $wednesday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Thursday</td>
-                                    <td>'. $thursday_start_time .' - '. $thursday_end_time .'</td>
-                                    <td>'. $thursday_lunch_start_time .' - '. $thursday_lunch_end_time .'</td>
-                                    <td>'. $thursday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Friday</td>
-                                    <td>'. $friday_start_time .' - '. $friday_end_time .'</td>
-                                    <td>'. $friday_lunch_start_time .' - '. $friday_lunch_end_time .'</td>
-                                    <td>'. $friday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Saturday</td>
-                                    <td>'. $saturday_start_time .' - '. $saturday_end_time .'</td>
-                                    <td>'. $saturday_lunch_start_time .' - '. $saturday_lunch_end_time .'</td>
-                                    <td>'. $saturday_half_day_mark .'</td>
-                                </tr>
-                                <tr>
-                                    <td>Sunday</td>
-                                    <td>'. $sunday_start_time .' - '. $sunday_end_time .'</td>
-                                    <td>'. $sunday_lunch_start_time .' - '. $sunday_lunch_end_time .'</td>
-                                    <td>'. $sunday_half_day_mark .'</td>
+                                    <td colspan="4" class="text-center">No Data Found</td>
                                 </tr>';
                 }
 

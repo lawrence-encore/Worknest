@@ -17,7 +17,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $authenticate = $api->authenticate($username, $password);
             
-            if($authenticate){
+            if($authenticate == 1){
                 $_SESSION['lock'] = 0;
                 $_SESSION['logged_in'] = 1;
                 $_SESSION['username'] = $username;
@@ -6582,7 +6582,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Delete leave entitlement or delete employee leave entitlement
     else if($transaction == 'delete leave entitlement' || $transaction == 'delete employee leave entitlement'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && !empty($_POST['leave_id'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['leave_entitlement_id']) && !empty($_POST['leave_entitlement_id'])){
             $username = $_POST['username'];
             $leave_entitlement_id = $_POST['leave_entitlement_id'];
 

@@ -36,7 +36,7 @@
                     },
                     complete: function(){
                         document.getElementById('submit-form').disabled = false;
-                        $('#submit-form').html('Submit');
+                        $('#submit-form').html('Save');
                     }
                 });
 

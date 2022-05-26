@@ -11256,7 +11256,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $filter_end_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_end_date'], '', 'Y-m-d', '', '', '');
 
                 $employee_details = $api->get_employee_details($employee_id, '');
-                $email = $employee_details[0]['EMAIL'];
+                $email = $employee_details[0]['EMAIL'] ?? null;
                 $validate_email = $api->validate_email($email);
     
                 $query = 'SELECT PAYSLIP_ID, PAY_RUN_ID, GROSS_PAY, NET_PAY, TRANSACTION_LOG_ID FROM tblpayslip WHERE EMPLOYEE_ID = :employee_id AND PAY_RUN_ID IN (SELECT PAY_RUN_ID FROM tblpayrun WHERE STATUS = "LOCK")';

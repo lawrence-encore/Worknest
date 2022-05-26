@@ -265,6 +265,8 @@
                                                                 <ol>
                                                                     <li>Email is marked as spam: Configure DKIM & SPF records are used by email providers to verify and increase the trust of email coming from your server. This is usually common for shared hosting. You can check if your server has been blacklisted here. If your server is blacklisted, you will need to contact your web hosting provider for help.</li>
                                                                     <li>Make sure that your web hosting server (email server) has been blacklisted. If your server is blacklisted, you will need to contact your web hosting provider for help.</li>
+                                                                    <li>Check the configuration of your email and do a test email.</li>
+                                                                    <li>Make sure that the email notification is enabled on application notification.</li>
                                                                 </ol>
                                                             </div>
                                                         </div>
