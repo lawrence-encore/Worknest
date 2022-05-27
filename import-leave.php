@@ -103,6 +103,115 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="flex-grow-1 align-self-center">
+                                                        <h4 class="card-title">Instructions</h4>
+                                                    </div>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="./import_template/import_leave.csv" class="btn btn-success waves-effect waves-light" target="_blank">Download Template File</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-4">
+                                            <div class="col-md-12">
+                                                <h5 class="font-size-15">Follow the instructions carefully before importing the file.</h5>
+                                                <p class="mb-2">The columns of the file should be in the following order.</p>
+                                            </div>
+                                        </div>       
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Column Number</th>
+                                                                <th>Column Name</th>
+                                                                <th>Type</th>
+                                                                <th>Max Length</th>
+                                                                <th>Required</th>
+                                                                <th>Instruction</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <th scope="row">1</th>
+                                                                <td>Employee ID</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">2</th>
+                                                                <td>Leave Type</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>Get the database ID of the type of leave.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">3</th>
+                                                                <td>Leave Date</td>
+                                                                <td>Date</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">4</th>
+                                                                <td>Start Time</td>
+                                                                <td>Time</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">5</th>
+                                                                <td>End Time</td>
+                                                                <td>Time</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">6</th>
+                                                                <td>Leave Status</td>
+                                                                <td>Text</td>
+                                                                <td>10</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>Available Options:
+                                                                    <ul>
+                                                                        <li>PEN = Pending</li>
+                                                                        <li>APV = Approved</li>
+                                                                        <li>REJ = Rejected</li>
+                                                                        <li>CAN = Cancelled</li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">7</th>
+                                                                <td>Leave Reason</td>
+                                                                <td>Text</td>
+                                                                <td>500</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

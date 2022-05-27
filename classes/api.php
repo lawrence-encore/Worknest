@@ -14733,7 +14733,7 @@ class Api{
             $work_shift_time_out = $time_in_date . ' ' . $work_shift_schedule[0]['END_TIME'];
 
             if($overtime_policy > 0){
-                $overtime_allowance = $this->check_date('empty', $work_shift_time_out, '', 'H:i:00', '+'. $overtime_policy .' minutes', '', '');
+                $overtime_allowance = $this->check_date('empty', $work_shift_time_out, '', 'Y-m-d H:i:00', '+'. $overtime_policy .' minutes', '', '');
 
                 $overtime = floor(((strtotime($time_out) - strtotime($overtime_allowance)) / 3600));
             }
@@ -16239,7 +16239,7 @@ class Api{
                     $end_range = $row['END_RANGE'];
                     $fix_compensation_level = $row['FIX_COMPENSATION_LEVEL'];
                     $base_tax = $row['BASE_TAX'];
-                    $percent_over = $row['PERCENT_OVER'];
+                    $percent_over = $row['PERCENT_OVER'] / 100;
 
                     if($taxable_income >= $start_range && $taxable_income <= $end_range){
                         $withholding_tax = (($taxable_income - $fix_compensation_level) * $percent_over) + $base_tax;
@@ -16329,6 +16329,8 @@ class Api{
             $total_deduction = 0;
             $total_contribution_deduction = 0;
             $total_salary = 0;
+            $taxable_allowance_total = 0;
+            $taxable_other_income_total = 0;
 
             for ($i = strtotime($start_date); $i <= strtotime($end_date); $i = $i + (60 * 60 * 24)) {
                 $payroll_date = date('Y-m-d', $i);
@@ -16344,8 +16346,7 @@ class Api{
                     $work_shift_end_time = $work_shift_schedule[0]['END_TIME'];
 
                     # Get employee attendance id
-                    $get_employee_attendance_id = $this->get_employee_attendance_id($employee_id, $payroll_date);
-                    $attendance_id = $get_employee_attendance_id[0]['ATTENDANCE_ID'] ?? null;
+                    $attendance_id = $this->get_employee_attendance_id($employee_id, $payroll_date);
 
                     if(!empty($attendance_id)){
                         # Employee attendance details
@@ -16362,7 +16363,7 @@ class Api{
                         if($attendance_late > 0 || $attendance_early_leaving > 0){
                             # Check if there is an approve paid employee leave
                             $get_paid_employee_leave = $this->get_paid_employee_leave($employee_id, $payroll_date);
-                            $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'];
+                            $paid_employee_leave_id = $get_paid_employee_leave[0]['LEAVE_ID'] ?? null;
 
                             if(!empty($paid_employee_leave_id)){
                                 $paid_employee_leave_start_time = $get_paid_employee_leave[0]['START_TIME'];
@@ -16442,6 +16443,9 @@ class Api{
                 $total_other_income = $total_other_income + $other_income;
                 $total_deduction = $total_deduction + $deduction;
                 $total_contribution_deduction = $total_contribution_deduction + $contribution_deduction;
+
+                $taxable_allowance_total = $taxable_allowance_total + $this->get_taxable_allowance_total($employee_id, $payroll_date);
+                $taxable_other_income_total = $taxable_other_income_total + $this->get_taxable_other_income_total($employee_id, $payroll_date);
             }
 
             if(!$consider_overtime){
@@ -16449,8 +16453,6 @@ class Api{
             }
 
             if($consider_withholding_tax){
-                $taxable_allowance_total = $this->get_taxable_allowance_total($employee_id, $payroll_date);
-                $taxable_other_income_total = $this->get_taxable_other_income_total($employee_id, $payroll_date);
                 $taxable_income = $salary_amount + $total_overtime_earning + $taxable_allowance_total + $taxable_other_income_total;
 
                 $withholding_tax = $this->get_withholding_tax($taxable_income, $salary_frequency);
@@ -18201,7 +18203,7 @@ class Api{
     # -------------------------------------------------------------
     public function generate_payslip_deduction_table($payslip_id, $employee_id){
         if ($this->databaseConnection()) {
-            $item_no = 3;
+            $item_no = 5;
             $deduction_column = '';
             $contribution_deduction_column = '';
 
@@ -18464,7 +18466,7 @@ class Api{
     # -------------------------------------------------------------
     public function generate_email_payslip_deduction_table($payslip_id, $employee_id){
         if ($this->databaseConnection()) {
-            $item_no = 3;
+            $item_no = 5;
             $deduction_column = '';
             $contribution_deduction_column = '';
 

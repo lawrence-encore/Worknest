@@ -507,13 +507,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Email <span class="required">*</span></label>
+                                        <label for="email" class="form-label">Email</label>
                                         <input id="email" name="email" class="form-control form-maxlength" maxlength="100" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="phone" class="form-label">Mobile Number</label>
+                                        <label for="phone" class="form-label">Mobile Number <span class="required">*</span></label>
                                         <input type="text" class="form-control form-maxlength" autocomplete="off" id="phone" name="phone" maxlength="30">
                                     </div>
                                 </div>

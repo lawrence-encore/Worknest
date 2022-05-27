@@ -116,6 +116,224 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="flex-grow-1 align-self-center">
+                                                        <h4 class="card-title">Instructions</h4>
+                                                    </div>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="./import_template/import_employee.csv" class="btn btn-success waves-effect waves-light" target="_blank">Download Template File</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-4">
+                                            <div class="col-md-12">
+                                                <h5 class="font-size-15">Follow the instructions carefully before importing the file.</h5>
+                                                <p class="mb-2">The columns of the file should be in the following order.</p>
+                                            </div>
+                                        </div>       
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Column Number</th>
+                                                                <th>Column Name</th>
+                                                                <th>Type</th>
+                                                                <th>Max Length</th>
+                                                                <th>Required</th>
+                                                                <th>Instruction</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <th scope="row">1</th>
+                                                                <td>Employee ID</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Leave blank if you wish to insert. If you want to update get the database ID of the employee.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">2</th>
+                                                                <td>ID Number</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">3</th>
+                                                                <td>First Name</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">4</th>
+                                                                <td>Middle Name</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">5</th>
+                                                                <td>Last Name</td>
+                                                                <td>Text</td>
+                                                                <td>100</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">6</th>
+                                                                <td>Suffix</td>
+                                                                <td>Text</td>
+                                                                <td>20</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Available Options:
+                                                                    <ul>
+                                                                        <li>JR = Junior</li>
+                                                                        <li>SR = Senior</li>
+                                                                        <li>I = I</li>
+                                                                        <li>II = II</li>
+                                                                        <li>III = III</li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">7</th>
+                                                                <td>Birthday</td>
+                                                                <td>Date</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">8</th>
+                                                                <td>Employment Status</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>Available Options:
+                                                                    <ul>
+                                                                        <li>1 = Permanent</li>
+                                                                        <li>2 = Probation</li>
+                                                                        <li>3 = Resigned</li>
+                                                                        <li>4 = Terminated</li>
+                                                                        <li>5 = Suspended</li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">9</th>
+                                                                <td>Join Date</td>
+                                                                <td>Date</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">10</th>
+                                                                <td>Exit Date</td>
+                                                                <td>Date</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">11</th>
+                                                                <td>Permanency Date</td>
+                                                                <td>Date</td>
+                                                                <td>--</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">12</th>
+                                                                <td>Exit Reason</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">13</th>
+                                                                <td>Email</td>
+                                                                <td>Text</td>
+                                                                <td>30</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">14</th>
+                                                                <td>Phone</td>
+                                                                <td>Text</td>
+                                                                <td>30</td>
+                                                                <td><span class="badge bg-warning">Yes</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">15</th>
+                                                                <td>Telephone</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>--</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">16</th>
+                                                                <td>Department</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Get the database ID of the branch.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">17</th>
+                                                                <td>Designation</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Get the database ID of the designation.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">18</th>
+                                                                <td>Branch</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Get the database ID of the branch.</td>
+                                                            </tr><tr>
+                                                                <th scope="row">19</th>
+                                                                <td>Gender</td>
+                                                                <td>Text</td>
+                                                                <td>50</td>
+                                                                <td><span class="badge bg-info">No</span></td>
+                                                                <td>Available Options:
+                                                                    <ul>
+                                                                        <li>MALE = Male</li>
+                                                                        <li>FEMALE = Female</li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

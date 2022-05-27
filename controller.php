@@ -2842,7 +2842,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
     # Submit employee
     else if($transaction == 'submit employee'){
-        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['id_number']) && !empty($_POST['id_number']) && isset($_POST['joining_date']) && !empty($_POST['joining_date']) && isset($_POST['permanency_date']) && isset($_POST['exit_date']) && isset($_POST['first_name']) && !empty($_POST['first_name']) && isset($_POST['middle_name']) && isset($_POST['last_name']) && !empty($_POST['last_name']) && isset($_POST['department']) && !empty($_POST['department']) && isset($_POST['designation']) && !empty($_POST['designation']) && isset($_POST['branch']) && !empty($_POST['branch']) && isset($_POST['employment_status']) && !empty($_POST['employment_status']) && isset($_POST['email']) && !empty($_POST['email']) && isset($_POST['phone']) && isset($_POST['telephone']) && isset($_POST['gender']) && !empty($_POST['gender']) && isset($_POST['birthday']) && !empty($_POST['birthday'])){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['employee_id']) && isset($_POST['id_number']) && !empty($_POST['id_number']) && isset($_POST['joining_date']) && !empty($_POST['joining_date']) && isset($_POST['permanency_date']) && isset($_POST['exit_date']) && isset($_POST['first_name']) && !empty($_POST['first_name']) && isset($_POST['middle_name']) && isset($_POST['last_name']) && !empty($_POST['last_name']) && isset($_POST['department']) && !empty($_POST['department']) && isset($_POST['designation']) && !empty($_POST['designation']) && isset($_POST['branch']) && !empty($_POST['branch']) && isset($_POST['employment_status']) && !empty($_POST['employment_status']) && isset($_POST['email']) && isset($_POST['phone']) && !empty($_POST['phone']) && isset($_POST['telephone']) && isset($_POST['gender']) && !empty($_POST['gender']) && isset($_POST['birthday']) && !empty($_POST['birthday'])){
             $username = $_POST['username'];
             $employee_id = $_POST['employee_id'];
             $id_number = $_POST['id_number'];
@@ -5588,7 +5588,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $check_end_withholding_tax_range_overlap = $api->check_withholding_tax_overlap(null, $salary_frequency, $end_range);
 
                 if($check_start_withholding_tax_range_overlap == 0 && $check_end_withholding_tax_range_overlap == 0){
-                    $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency, $start_range, $end_range, $fix_compensation_level, $percent_over, $base_tax, $username);
+                    $insert_withholding_tax = $api->insert_withholding_tax($salary_frequency, $start_range, $end_range, $fix_compensation_level, $base_tax, $percent_over, $username);
 
                     if($insert_withholding_tax){
                         echo 'Inserted';

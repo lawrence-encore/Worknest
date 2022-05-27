@@ -1200,7 +1200,7 @@ function initialize_form_validation(form_type){
                 gender: {
                     required: true
                 },
-                email: {
+                phone: {
                     required: true
                 }
             },
@@ -1244,8 +1244,8 @@ function initialize_form_validation(form_type){
                 gender: {
                     required: 'Please choose the gender',
                 },
-                email: {
-                    required: 'Please enter the email',
+                phone: {
+                    required: 'Please enter the mobile number',
                 }
             },
             errorPlacement: function(label, element) {
