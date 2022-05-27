@@ -11907,12 +11907,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $amount = $allowance_details[0]['AMOUNT'];
             $allowance_type_details = $api->get_allowance_type_details($allowance_type);
             $allowance_type_name = $allowance_type_details[0]['ALLOWANCE_TYPE'];
+            $payslip_id_encrypted = $api->encrypt_data($payroll_id);
 
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
             if(!empty($payroll_id)){
-                $payroll = '<a href="#">View Payroll</a>';
+                $payroll = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" target="_blank">View Payroll</a>';
             }
             else{
                 $payroll = '--';
@@ -11978,12 +11979,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $amount = $other_income_details[0]['AMOUNT'];
             $other_income_type_details = $api->get_other_income_type_details($other_income_type);
             $other_income_type_name = $other_income_type_details[0]['OTHER_INCOME_TYPE'];
+            $payslip_id_encrypted = $api->encrypt_data($payroll_id);
 
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
             if(!empty($payroll_id)){
-                $payroll = '<a href="#">View Payroll</a>';
+                $payroll = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" target="_blank">View Payroll</a>';
             }
             else{
                 $payroll = '--';
@@ -12081,12 +12083,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $amount = $deduction_details[0]['AMOUNT'];
             $deduction_type_details = $api->get_deduction_type_details($deduction_type);
             $deduction_type_name = $deduction_type_details[0]['DEDUCTION_TYPE'];
+            $payslip_id_encrypted = $api->encrypt_data($payroll_id);
 
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
             if(!empty($payroll_id)){
-                $payroll = '<a href="#">View Payroll</a>';
+                $payroll = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" target="_blank">View Payroll</a>';
             }
             else{
                 $payroll = '--';
@@ -12133,12 +12136,13 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $payroll_date = $api->check_date('empty', $contribution_deduction_details[0]['PAYROLL_DATE'], '', 'F d, Y', '', '', '');
             $government_contribution_type_details = $api->get_government_contribution_details($government_contribution_type);
             $government_contribution_type_name = $government_contribution_type_details[0]['GOVERNMENT_CONTRIBUTION'];
+            $payslip_id_encrypted = $api->encrypt_data($payroll_id);
 
             $employee_details = $api->get_employee_details($employee_id, '');
             $employee_file_as = $employee_details[0]['FILE_AS'] ?? '--';
 
             if(!empty($payroll_id)){
-                $payroll = '<a href="#">View Payroll</a>';
+                $payroll = '<a href="payslip-print.php?id='. $payslip_id_encrypted .'" target="_blank">View Payroll</a>';
             }
             else{
                 $payroll = '--';
