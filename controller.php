@@ -5605,6 +5605,40 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit job category
+    else if($transaction == 'submit job category'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_category_id']) && isset($_POST['job_category']) && !empty($_POST['job_category']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $job_category_id = $_POST['job_category_id'];
+            $job_category = $_POST['job_category'];
+            $description = $_POST['description'];
+
+            $check_job_category_exist = $api->check_job_category_exist($job_category_id);
+
+            if($check_job_category_exist > 0){
+                $update_job_category = $api->update_job_category($job_category_id, $job_category, $description, $username);
+
+                if($update_job_category){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_job_category;
+                }
+            }
+            else{
+                $insert_job_category = $api->insert_job_category($job_category, $description, $username);
+
+                if($insert_job_category){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_job_category;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -7822,6 +7856,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                     else{
                         $error = $update_allowance_reversal;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete job category
+    else if($transaction == 'delete job category'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_category_id']) && !empty($_POST['job_category_id'])){
+            $username = $_POST['username'];
+            $job_category_id = $_POST['job_category_id'];
+
+            $check_job_category_exist = $api->check_job_category_exist($job_category_id);
+
+            if($check_job_category_exist > 0){
+                $delete_job_category = $api->delete_job_category($job_category_id, $username);
+                                    
+                if($delete_job_category){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_job_category;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple job category
+    else if($transaction == 'delete multiple job category'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_category_id'])){
+            $username = $_POST['username'];
+            $job_category_ids = $_POST['job_category_id'];
+
+            foreach($job_category_ids as $job_category_id){
+                $check_job_category_exist = $api->check_job_category_exist($job_category_id);
+
+                if($check_job_category_exist > 0){
+                    $delete_job_category = $api->delete_job_category($job_category_id, $username);
+                                        
+                    if(!$delete_job_category){
+                        $error = $delete_job_category;
                     }
                 }
                 else{
@@ -12432,5 +12522,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Job category details
+    else if($transaction == 'job category details'){
+        if(isset($_POST['job_category_id']) && !empty($_POST['job_category_id'])){
+            $job_category_id = $_POST['job_category_id'];
+            $job_category_details = $api->get_job_category_details($job_category_id);
+
+            $response[] = array(
+                'JOB_CATEGORY' => $job_category_details[0]['JOB_CATEGORY'],
+                'DESCRIPTION' => $job_category_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
 }
+
 ?>
