@@ -64,6 +64,8 @@
     $other_income_page = $api->check_role_permissions($username, 321);
     $import_other_income_page = $api->check_role_permissions($username, 326);
     $payroll_summary_page = $api->check_role_permissions($username, 328);
+    $job_category_page = $api->check_role_permissions($username, 340);
+    $job_type_page = $api->check_role_permissions($username, 345);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -112,13 +114,13 @@
         }
     }
 
-    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0){
+    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0 || $job_category_page > 0 || $job_type_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Human Resource</li>';
 
         if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="bx bx-user"></i>
+                            <i class="bx bx-user-circle"></i>
                             <span key="t-employee">Employee</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">';
@@ -181,6 +183,26 @@
 
                         if($leave_type_page > 0){
                             $menu .= '<li><a href="leave-type.php" key="t-all-employees">Leave Type</a></li>';
+                        }
+
+            $menu .= '</ul>
+                    </li>';
+        }
+
+        if($job_category_page > 0 || $job_type_page > 0){
+            $menu .= '<li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="bx bx-user-plus"></i>
+                            <span key="t-leave">Recruitment</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">';
+
+                        if($job_category_page > 0){
+                            $menu .= '<li><a href="job-category.php" key="t-job-category">Job Category</a></li>';
+                        }
+
+                        if($job_type_page > 0){
+                            $menu .= '<li><a href="job-type.php" key="t-job-type">Job Type</a></li>';
                         }
 
             $menu .= '</ul>
@@ -307,7 +329,7 @@
         if($attendance_adjustment_approval_page > 0){
             $menu .= '<li>
                         <a href="attendance-adjustment-approval.php" class="waves-effect">
-                            <i class="bx bx-user"></i>
+                            <i class="bx bx-time"></i>
                             <span key="t-dashboard">Attendance Adjustment</span>
                         </a>
                     </li>';
@@ -338,7 +360,7 @@
         if($attendance_creation_recommendation_page > 0){
             $menu .= '<li>
                         <a href="attendance-adjustment-recommendation.php" class="waves-effect">
-                            <i class="bx bx-user"></i>
+                            <i class="bx bx-time"></i>
                             <span key="t-dashboard">Attendance Adjustment</span>
                         </a>
                     </li>';
@@ -495,7 +517,7 @@
         if($user_account_page > 0){
             $menu .= '<li>
                         <a href="user-account.php" class="waves-effect">
-                            <i class="bx bx-user-plus"></i>
+                            <i class="bx bx-user"></i>
                             <span key="t-dashboard">User Account</span>
                         </a>
                     </li>';

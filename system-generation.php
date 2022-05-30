@@ -2915,6 +2915,25 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($form_type == 'job category form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="job_category" class="form-label">Job Category <span class="required">*</span></label>
+                                    <input type="hidden" id="job_category_id" name="job_category_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="job_category" name="job_category" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
 
             $form .= '</form>';
 
@@ -11417,6 +11436,70 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 else{
                     echo $sql->errorInfo()[2];
                 }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Job category table
+    else if($type == 'job category table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_job_category = $api->check_role_permissions($username, 342);
+            $delete_job_category = $api->check_role_permissions($username, 343);
+            $view_transaction_log = $api->check_role_permissions($username, 344);
+
+            $sql = $api->db_connection->prepare('SELECT JOB_CATEGORY_ID, JOB_CATEGORY, DESCRIPTION, TRANSACTION_LOG_ID FROM tbljobcategory ORDER BY JOB_CATEGORY');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $job_category_id = $row['JOB_CATEGORY_ID'];
+                    $job_category = $row['JOB_CATEGORY'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_job_category > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-category" data-job-category-id="'. $job_category_id .'" title="Edit Job Category">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_job_category > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job-category" data-job-category-id="'. $job_category_id .'" title="Delete Job Category">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $job_category_id .'">',
+                        'JOB_CATEGORY' => $job_category . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
             }
         }
     }

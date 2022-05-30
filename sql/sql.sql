@@ -882,8 +882,83 @@ CREATE TABLE tblotherincome(
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX other_income_type_index ON tblotherincometype(OTHER_INCOME_TYPE_ID);
-CREATE INDEX other_income_index ON tblotherincome(OTHER_INCOME_ID);
+CREATE TABLE tbljobcategory(
+	JOB_CATEGORY_ID VARCHAR(100) PRIMARY KEY,
+	JOB_CATEGORY VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljob(
+	JOB_ID VARCHAR(100) PRIMARY KEY,
+	JOB_TITLE VARCHAR(200) NOT NULL,
+	JOB_CATEGORY VARCHAR(100) NOT NULL,
+	JOB_TYPE VARCHAR(100) NOT NULL,
+	BRANCH VARCHAR(50) NOT NULL,
+	PIPELINE VARCHAR(100) NOT NULL,
+	SCORECARD VARCHAR(100) NOT NULL,
+	SALARY DOUBLE NOT NULL,
+	DESCRIPTION VARCHAR(30000) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobtype(
+	JOB_TYPE_ID VARCHAR(100) PRIMARY KEY,
+	JOB_TYPE VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX job_type_index ON tbljobtype(JOB_TYPE_ID);
+
+CREATE TABLE tbljobpipeline(
+	PIPELINE_ID VARCHAR(100) PRIMARY KEY,
+	PIPELINE VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobpipelinestage(
+	PIPELINE_STAGE_ID VARCHAR(100) PRIMARY KEY,
+	PIPELINE_ID VARCHAR(100) NOT NULL,
+	PIPELINE_STAGE VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobscorecard(
+	SCORECARD_ID VARCHAR(100) PRIMARY KEY,
+	SCORECARD VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobscorecardsection(
+	SECTION_ID VARCHAR(100) PRIMARY KEY,
+	SCORECARD_ID VARCHAR(100) NOT NULL,
+	SECTION VARCHAR(100) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobscorecardsectionoption(
+	OPTION_ID VARCHAR(100) PRIMARY KEY,
+	SECTION_ID VARCHAR(100) NOT NULL,
+	SCORECARD_ID VARCHAR(100) NOT NULL,
+	SECTION_OPTION VARCHAR(100) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX job_scorecard_index ON tbljobscorecard(SCORECARD_ID);
+CREATE INDEX job_scorecard_section_index ON tbljobscorecardsection(SECTION_ID);
+CREATE INDEX job_scorecard_section_option_index ON tbljobscorecardsectionoption(OPTION_ID);
 
 /* Index */
 
@@ -936,6 +1011,12 @@ CREATE INDEX payroll_group_index ON tblpayrollgroup(PAYROLL_GROUP_ID);
 CREATE INDEX pay_run_index ON tblpayrun(PAY_RUN_ID);
 CREATE INDEX payslip_index ON tblpayslip(PAYSLIP_ID);
 CREATE INDEX withholding_tax_index ON tblwithholdingtax(WITHHOLDING_TAX_ID);
+CREATE INDEX other_income_type_index ON tblotherincometype(OTHER_INCOME_TYPE_ID);
+CREATE INDEX other_income_index ON tblotherincome(OTHER_INCOME_ID);
+CREATE INDEX job_category_index ON tbljobcategory(JOB_CATEGORIY_ID);
+CREATE INDEX job_index ON tbljob(JOB_ID);
+CREATE INDEX job_pipeline_index ON tbljobpipeline(PIPELINE_ID);
+CREATE INDEX job_pipeline_stage_index ON tbljobpipelinestage(PIPELINE_STAGE_ID);
 
 /* Stored Procedure */
 
@@ -6251,20 +6332,6 @@ BEGIN
 	SET @pay_run_id = pay_run_id;
 
 	SET @query = 'DELETE FROM tblpayrun WHERE PAY_RUN_ID = @pay_run_id';
-
-	PREPARE stmt FROM @query;
-	EXECUTE stmt;
-	DROP PREPARE stmt;
-END //
-
-CREATE PROCEDURE update_company_logo_file(IN company_id VARCHAR(50), IN company_logo VARCHAR(500), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
-BEGIN
-	SET @company_id = company_id;
-	SET @company_logo = company_logo;
-	SET @transaction_log_id = transaction_log_id;
-	SET @record_log = record_log;
-
-	SET @query = 'UPDATE tblcompany SET COMPANY_LOGO = @company_logo, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE COMPANY_ID  = @company_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

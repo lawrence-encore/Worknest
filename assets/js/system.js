@@ -10098,6 +10098,80 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'job category form'){
+        $('#job-category-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit job category';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Job Category Success', 'The job category has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Job Category Success', 'The job category has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#job-category-datatable');
+                        }
+                        else{
+                            show_alert('Job Category Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                job_category: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                job_category: {
+                    required: 'Please enter the job category',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -12219,6 +12293,23 @@ function display_form_details(form_type){
                 document.getElementById('company_logo').innerHTML = response[0].COMPANY_LOGO;
 
                 $('#payslip_id').text('# ' + payslip_id);
+            }
+        });
+    }
+    else if(form_type == 'job category form'){
+        transaction = 'job category details';
+
+        var job_category_id = sessionStorage.getItem('job_category_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {job_category_id : job_category_id, transaction : transaction},
+            success: function(response) {
+                $('#job_category').val(response[0].JOB_CATEGORY);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#job_category_id').val(job_category_id);
             }
         });
     }
