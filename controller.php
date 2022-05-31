@@ -5639,6 +5639,74 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit job type
+    else if($transaction == 'submit job type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_type_id']) && isset($_POST['job_type']) && !empty($_POST['job_type']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $job_type_id = $_POST['job_type_id'];
+            $job_type = $_POST['job_type'];
+            $description = $_POST['description'];
+
+            $check_job_type_exist = $api->check_job_type_exist($job_type_id);
+
+            if($check_job_type_exist > 0){
+                $update_job_type = $api->update_job_type($job_type_id, $job_type, $description, $username);
+
+                if($update_job_type){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_job_type;
+                }
+            }
+            else{
+                $insert_job_type = $api->insert_job_type($job_type, $description, $username);
+
+                if($insert_job_type){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_job_type;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Submit recruitment pipeline
+    else if($transaction == 'submit recruitment pipeline'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_id']) && isset($_POST['recruitment_pipeline']) && !empty($_POST['recruitment_pipeline']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_id = $_POST['recruitment_pipeline_id'];
+            $recruitment_pipeline = $_POST['recruitment_pipeline'];
+            $description = $_POST['description'];
+
+            $check_recruitment_pipeline_exist = $api->check_recruitment_pipeline_exist($recruitment_pipeline_id);
+
+            if($check_recruitment_pipeline_exist > 0){
+                $update_recruitment_pipeline = $api->update_recruitment_pipeline($recruitment_pipeline_id, $recruitment_pipeline, $description, $username);
+
+                if($update_recruitment_pipeline){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_recruitment_pipeline;
+                }
+            }
+            else{
+                $insert_recruitment_pipeline = $api->insert_recruitment_pipeline($recruitment_pipeline, $description, $username);
+
+                if($insert_recruitment_pipeline){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_recruitment_pipeline;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -7912,6 +7980,118 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                         
                     if(!$delete_job_category){
                         $error = $delete_job_category;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete job type
+    else if($transaction == 'delete job type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_type_id']) && !empty($_POST['job_type_id'])){
+            $username = $_POST['username'];
+            $job_type_id = $_POST['job_type_id'];
+
+            $check_job_type_exist = $api->check_job_type_exist($job_type_id);
+
+            if($check_job_type_exist > 0){
+                $delete_job_type = $api->delete_job_type($job_type_id, $username);
+                                    
+                if($delete_job_type){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_job_type;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple job type
+    else if($transaction == 'delete multiple job type'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_type_id'])){
+            $username = $_POST['username'];
+            $job_type_ids = $_POST['job_type_id'];
+
+            foreach($job_type_ids as $job_type_id){
+                $check_job_type_exist = $api->check_job_type_exist($job_type_id);
+
+                if($check_job_type_exist > 0){
+                    $delete_job_type = $api->delete_job_type($job_type_id, $username);
+                                        
+                    if(!$delete_job_type){
+                        $error = $delete_job_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete recruitment pipeline
+    else if($transaction == 'delete recruitment pipeline'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_id']) && !empty($_POST['recruitment_pipeline_id'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_id = $_POST['recruitment_pipeline_id'];
+
+            $check_recruitment_pipeline_exist = $api->check_recruitment_pipeline_exist($recruitment_pipeline_id);
+
+            if($check_recruitment_pipeline_exist > 0){
+                $delete_recruitment_pipeline = $api->delete_recruitment_pipeline($recruitment_pipeline_id, $username);
+                                    
+                if($delete_recruitment_pipeline){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_recruitment_pipeline;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple recruitment pipeline
+    else if($transaction == 'delete multiple recruitment pipeline'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_id'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_ids = $_POST['recruitment_pipeline_id'];
+
+            foreach($recruitment_pipeline_ids as $recruitment_pipeline_id){
+                $check_recruitment_pipeline_exist = $api->check_recruitment_pipeline_exist($recruitment_pipeline_id);
+
+                if($check_recruitment_pipeline_exist > 0){
+                    $delete_recruitment_pipeline = $api->delete_recruitment_pipeline($recruitment_pipeline_id, $username);
+                                        
+                    if(!$delete_recruitment_pipeline){
+                        $error = $delete_recruitment_pipeline;
                     }
                 }
                 else{
@@ -12531,6 +12711,38 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'JOB_CATEGORY' => $job_category_details[0]['JOB_CATEGORY'],
                 'DESCRIPTION' => $job_category_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Job type details
+    else if($transaction == 'job type details'){
+        if(isset($_POST['job_type_id']) && !empty($_POST['job_type_id'])){
+            $job_type_id = $_POST['job_type_id'];
+            $job_type_details = $api->get_job_type_details($job_type_id);
+
+            $response[] = array(
+                'JOB_TYPE' => $job_type_details[0]['JOB_TYPE'],
+                'DESCRIPTION' => $job_type_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment pipeline details
+    else if($transaction == 'recruitment pipeline details'){
+        if(isset($_POST['recruitment_pipeline_id']) && !empty($_POST['recruitment_pipeline_id'])){
+            $recruitment_pipeline_id = $_POST['recruitment_pipeline_id'];
+            $recruitment_pipeline_details = $api->get_recruitment_pipeline_details($recruitment_pipeline_id);
+
+            $response[] = array(
+                'RECRUITMENT_PIPELINE' => $recruitment_pipeline_details[0]['RECRUITMENT_PIPELINE'],
+                'DESCRIPTION' => $recruitment_pipeline_details[0]['DESCRIPTION']
             );
 
             echo json_encode($response);

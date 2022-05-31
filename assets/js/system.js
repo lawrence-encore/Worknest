@@ -10172,6 +10172,154 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'job type form'){
+        $('#job-type-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit job type';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Job Type Success', 'The job type has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Job Type Success', 'The job type has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#job-type-datatable');
+                        }
+                        else{
+                            show_alert('Job Type Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                job_type: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                job_type: {
+                    required: 'Please enter the job type',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'recruitment pipeline form'){
+        $('#recruitment-pipeline-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit recruitment pipeline';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Recruitment Pipeline Success', 'The recruitment pipeline has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Recruitment Pipeline Success', 'The recruitment pipeline has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#recruitment-pipeline-datatable');
+                        }
+                        else{
+                            show_alert('Recruitment Pipeline Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                recruitment_pipeline: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                recruitment_pipeline: {
+                    required: 'Please enter the recruitment pipeline',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -12310,6 +12458,40 @@ function display_form_details(form_type){
                 $('#job_category').val(response[0].JOB_CATEGORY);
                 $('#description').val(response[0].DESCRIPTION);
                 $('#job_category_id').val(job_category_id);
+            }
+        });
+    }
+    else if(form_type == 'job type form'){
+        transaction = 'job type details';
+
+        var job_type_id = sessionStorage.getItem('job_type_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {job_type_id : job_type_id, transaction : transaction},
+            success: function(response) {
+                $('#job_type').val(response[0].JOB_TYPE);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#job_type_id').val(job_type_id);
+            }
+        });
+    }
+    else if(form_type == 'recruitment pipeline form'){
+        transaction = 'recruitment pipeline details';
+
+        var recruitment_pipeline_id = sessionStorage.getItem('recruitment_pipeline_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {recruitment_pipeline_id : recruitment_pipeline_id, transaction : transaction},
+            success: function(response) {
+                $('#recruitment_pipeline').val(response[0].RECRUITMENT_PIPELINE);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#recruitment_pipeline_id').val(recruitment_pipeline_id);
             }
         });
     }

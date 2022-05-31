@@ -2,24 +2,24 @@
     'use strict';
 
     $(function() {
-        if($('#job-type-datatable').length){
-            initialize_job_type_table('#job-type-datatable');
+        if($('#recruitment-pipeline-datatable').length){
+            initialize_recruitment_pipeline_table('#recruitment-pipeline-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_job_type_table(datatable_name, buttons = false, show_all = false){
+function initialize_recruitment_pipeline_table(datatable_name, buttons = false, show_all = false){
     hide_multiple_buttons();
     
     var username = $('#username').text();
-    var type = 'job type table';
+    var type = 'recruitment pipeline table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'JOB_TYPE' },
+        { 'data' : 'RECRUITMENT_PIPELINE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -103,25 +103,25 @@ function initialize_job_type_table(datatable_name, buttons = false, show_all = f
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#add-job-type',function() {
-        generate_modal('job type form', 'Job Type', 'R' , '1', '1', 'form', 'job-type-form', '1', username);
+    $(document).on('click','#add-recruitment-pipeline',function() {
+        generate_modal('recruitment pipeline form', 'Recruitment Pipeline', 'R' , '1', '1', 'form', 'recruitment-pipeline-form', '1', username);
     });
 
-    $(document).on('click','.update-job-type',function() {
-        var job_type_id = $(this).data('job-type-id');
+    $(document).on('click','.update-recruitment-pipeline',function() {
+        var recruitment_pipeline_id = $(this).data('recruitment-pipeline-id');
 
-        sessionStorage.setItem('job_type_id', job_type_id);
+        sessionStorage.setItem('recruitment_pipeline_id', recruitment_pipeline_id);
         
-        generate_modal('job type form', 'Job Type', 'R' , '1', '1', 'form', 'job-type-form', '0', username);
+        generate_modal('recruitment pipeline form', 'Recruitment Pipeline', 'R' , '1', '1', 'form', 'recruitment-pipeline-form', '0', username);
     });
 
-    $(document).on('click','.delete-job-type',function() {
-        var job_type_id = $(this).data('job-type-id');
-        var transaction = 'delete job type';
+    $(document).on('click','.delete-recruitment-pipeline',function() {
+        var recruitment_pipeline_id = $(this).data('recruitment-pipeline-id');
+        var transaction = 'delete recruitment pipeline';
 
         Swal.fire({
-            title: 'Delete Job Type',
-            text: 'Are you sure you want to delete this job type?',
+            title: 'Delete Recruitment Pipeline',
+            text: 'Are you sure you want to delete this recruitment pipeline?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -134,18 +134,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, job_type_id : job_type_id, transaction : transaction},
+                    data: {username : username, recruitment_pipeline_id : recruitment_pipeline_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Job Type', 'The job type has been deleted.', 'success');
+                          show_alert('Delete Recruitment Pipeline', 'The recruitment pipeline has been deleted.', 'success');
 
-                          reload_datatable('#job-type-datatable');
+                          reload_datatable('#recruitment-pipeline-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Job Type', 'The job type does not exist.', 'info');
+                          show_alert('Delete Recruitment Pipeline', 'The recruitment pipeline does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Job Type', response, 'error');
+                          show_alert('Delete Recruitment Pipeline', response, 'error');
                         }
                     }
                 });
@@ -154,20 +154,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-job-type',function() {
-        var job_type_id = [];
-        var transaction = 'delete multiple job type';
+    $(document).on('click','#delete-recruitment-pipeline',function() {
+        var recruitment_pipeline_id = [];
+        var transaction = 'delete multiple recruitment pipeline';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                job_type_id.push(this.value);  
+                recruitment_pipeline_id.push(this.value);  
             }
         });
 
-        if(job_type_id.length > 0){
+        if(recruitment_pipeline_id.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Job Types',
-                text: 'Are you sure you want to delete these job types?',
+                title: 'Delete Multiple Recruitment Pipelines',
+                text: 'Are you sure you want to delete these recruitment pipelines?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -181,18 +181,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, job_type_id : job_type_id, transaction : transaction},
+                        data: {username : username, recruitment_pipeline_id : recruitment_pipeline_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Job Types', 'The job types have been deleted.', 'success');
+                                show_alert('Delete Multiple Recruitment Pipelines', 'The recruitment pipelines have been deleted.', 'success');
     
-                                reload_datatable('#job-type-datatable');
+                                reload_datatable('#recruitment-pipeline-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Job Types', 'The job types does not exist.', 'info');
+                                show_alert('Delete Multiple Recruitment Pipelines', 'The recruitment pipelines does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Job Types', response, 'error');
+                                show_alert('Delete Multiple Recruitment Pipelines', response, 'error');
                             }
                         }
                     });
@@ -202,7 +202,7 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Job Types', 'Please select the job types you want to delete.', 'error');
+            show_alert('Delete Multiple Recruitment Pipelines', 'Please select the recruitment pipelines you want to delete.', 'error');
         }
     });
 

@@ -2934,6 +2934,44 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
+            else if($form_type == 'job type form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="job_type" class="form-label">Job Type <span class="required">*</span></label>
+                                    <input type="hidden" id="job_type_id" name="job_type_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="job_type" name="job_type" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'recruitment pipeline form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="recruitment_pipeline" class="form-label">Job Type <span class="required">*</span></label>
+                                    <input type="hidden" id="recruitment_pipeline_id" name="recruitment_pipeline_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_pipeline" name="recruitment_pipeline" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
 
             $form .= '</form>';
 
@@ -10661,8 +10699,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $send = '';
                         }
 
-                        
-    
                         $response[] = array(
                             'CHECK_BOX' =>  '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-lock="'. $data_lock .'" value="'. $pay_run_id .'">',
                             'PAY_RUN_ID' => $pay_run_id,
@@ -11490,6 +11526,146 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         'JOB_CATEGORY' => $job_category . '<p class="text-muted mb-0">'. $description .'</p>',
                         'ACTION' => '<div class="d-flex gap-2">
                             '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Job type table
+    else if($type == 'job type table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $update_job_type = $api->check_role_permissions($username, 347);
+            $delete_job_type = $api->check_role_permissions($username, 348);
+            $view_transaction_log = $api->check_role_permissions($username, 349);
+
+            $sql = $api->db_connection->prepare('SELECT JOB_TYPE_ID, JOB_TYPE, DESCRIPTION, TRANSACTION_LOG_ID FROM tbljobtype ORDER BY JOB_TYPE');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $job_type_id = $row['JOB_TYPE_ID'];
+                    $job_type = $row['JOB_TYPE'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                    if($update_job_type > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-type" data-job-type-id="'. $job_type_id .'" title="Edit Job Type">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_job_type > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job-type" data-job-type-id="'. $job_type_id .'" title="Delete Job Type">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $job_type_id .'">',
+                        'JOB_TYPE' => $job_type . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment pipeline table
+    else if($type == 'recruitment pipeline table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $recruitment_pipeline_stage_page = $api->check_role_permissions($username, 355);
+            $update_recruitment_pipeline = $api->check_role_permissions($username, 352);
+            $delete_recruitment_pipeline = $api->check_role_permissions($username, 353);
+            $view_transaction_log = $api->check_role_permissions($username, 354);
+
+            $sql = $api->db_connection->prepare('SELECT RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE, DESCRIPTION, TRANSACTION_LOG_ID FROM tblrecruitmentpipeline ORDER BY RECRUITMENT_PIPELINE');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $recruitment_pipeline_id = $row['RECRUITMENT_PIPELINE_ID'];
+                    $recruitment_pipeline = $row['RECRUITMENT_PIPELINE'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                    $recruitment_pipeline_id_encrypted = $api->encrypt_data($recruitment_pipeline_id);
+
+                    if($recruitment_pipeline_stage_page > 0){
+                        $pipeline_stage = '<a href="recruitment-pipeline-stage.php?id='. $recruitment_pipeline_id_encrypted .'" class="btn btn-success waves-effect waves-light" title="View Recruitment Pipeline Stage">
+                                    <i class="bx bx-stats font-size-16 align-middle"></i>
+                                </a>';
+                    }
+                    else{
+                        $pipeline_stage = '';
+                    }
+
+                    if($update_recruitment_pipeline > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-recruitment-pipeline" data-recruitment-pipeline-id="'. $recruitment_pipeline_id .'" title="Edit Recruitment Pipeline">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_recruitment_pipeline > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-recruitment-pipeline" data-recruitment-pipeline-id="'. $recruitment_pipeline_id .'" title="Delete Recruitment Pipeline">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $recruitment_pipeline_id .'">',
+                        'RECRUITMENT_PIPELINE' => $recruitment_pipeline . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $pipeline_stage .'
                             '. $transaction_log .'
                             '. $delete .'
                         </div>'

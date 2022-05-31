@@ -914,22 +914,29 @@ CREATE TABLE tbljobtype(
 
 CREATE INDEX job_type_index ON tbljobtype(JOB_TYPE_ID);
 
-CREATE TABLE tbljobpipeline(
-	PIPELINE_ID VARCHAR(100) PRIMARY KEY,
-	PIPELINE VARCHAR(100) NOT NULL,
+CREATE TABLE tblrecruitmentpipeline(
+	RECRUITMENT_PIPELINE_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_PIPELINE VARCHAR(100) NOT NULL,
 	DESCRIPTION VARCHAR(100),
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE TABLE tbljobpipelinestage(
-	PIPELINE_STAGE_ID VARCHAR(100) PRIMARY KEY,
-	PIPELINE_ID VARCHAR(100) NOT NULL,
-	PIPELINE_STAGE VARCHAR(100) NOT NULL,
+CREATE INDEX recruitment_pipeline_index ON tblrecruitmentpipeline(RECRUITMENT_PIPELINE_ID);
+
+DROP TABLE tbljobpipelinestage;
+
+CREATE TABLE tblrecruitmentpipelinestage(
+	RECRUITMENT_PIPELINE_STAGE_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_PIPELINE_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_PIPELINE_STAGE VARCHAR(100) NOT NULL,
 	DESCRIPTION VARCHAR(100),
+	STAGE_ORDER INT NOT NULL,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
+
+CREATE INDEX recruitment_pipeline_stage_index ON tblrecruitmentpipelinestage(RECRUITMENT_PIPELINE_STAGE_ID);
 
 CREATE TABLE tbljobscorecard(
 	SCORECARD_ID VARCHAR(100) PRIMARY KEY,
@@ -6332,6 +6339,132 @@ BEGIN
 	SET @pay_run_id = pay_run_id;
 
 	SET @query = 'DELETE FROM tblpayrun WHERE PAY_RUN_ID = @pay_run_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_job_type_exist(IN job_type_id VARCHAR(100))
+BEGIN
+	SET @job_type_id = job_type_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tbljobtype WHERE JOB_TYPE_ID = @job_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_job_type(IN job_type_id VARCHAR(100), IN job_type VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_type_id = job_type_id;
+	SET @job_type = job_type;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbljobtype SET JOB_TYPE = @job_type, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE JOB_TYPE_ID = @job_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_job_type(IN job_type_id VARCHAR(100), IN job_type VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_type_id = job_type_id;
+	SET @job_type = job_type;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbljobtype (JOB_TYPE_ID, JOB_TYPE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@job_type_id, @job_type, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_job_type_details(IN job_type_id VARCHAR(100))
+BEGIN
+	SET @job_type_id = job_type_id;
+
+	SET @query = 'SELECT JOB_TYPE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tbljobtype WHERE JOB_TYPE_ID = @job_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_job_type(IN job_type_id VARCHAR(100))
+BEGIN
+	SET @job_type_id = job_type_id;
+
+	SET @query = 'DELETE FROM tbljobtype WHERE JOB_TYPE_ID = @job_type_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_recruitment_pipeline_exist(IN recruitment_pipeline_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblrecruitmentpipeline WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_pipeline(IN recruitment_pipeline_id VARCHAR(100), IN recruitment_pipeline VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+	SET @recruitment_pipeline = recruitment_pipeline;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentpipeline SET RECRUITMENT_PIPELINE = @recruitment_pipeline, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_recruitment_pipeline(IN recruitment_pipeline_id VARCHAR(100), IN recruitment_pipeline VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+	SET @recruitment_pipeline = recruitment_pipeline;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblrecruitmentpipeline (RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@recruitment_pipeline_id, @recruitment_pipeline, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_recruitment_pipeline_details(IN recruitment_pipeline_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+
+	SET @query = 'SELECT RECRUITMENT_PIPELINE, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblrecruitmentpipeline WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_recruitment_pipeline(IN recruitment_pipeline_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentpipeline WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;
