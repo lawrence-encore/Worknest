@@ -10320,6 +10320,80 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'recruitment pipeline stage form'){
+        $('#recruitment-pipeline-stage-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit recruitment pipeline stage';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Recruitment Pipeline Stage Success', 'The recruitment pipeline stage has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Recruitment Pipeline Stage Success', 'The recruitment pipeline stage has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#recruitment-pipeline-stage-datatable');
+                        }
+                        else{
+                            show_alert('Recruitment Pipeline Stage Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                recruitment_pipeline_stage: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                recruitment_pipeline_stage: {
+                    required: 'Please enter the recruitment pipeline stage',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -10561,6 +10635,11 @@ function generate_form(form_type, form_id, add, username){
 
                     $('#pay_run_id').val(pay_run_id);
                     generate_pay_run_payee_option(pay_run_id);
+                }
+                else if(form_type == 'recruitment pipeline stage form'){
+                    var recruitment_pipeline_id = $('#recruitment-pipeline-id').text();
+
+                    $('#recruitment_pipeline_id').val(recruitment_pipeline_id);
                 }
             }
 
@@ -12492,6 +12571,25 @@ function display_form_details(form_type){
                 $('#recruitment_pipeline').val(response[0].RECRUITMENT_PIPELINE);
                 $('#description').val(response[0].DESCRIPTION);
                 $('#recruitment_pipeline_id').val(recruitment_pipeline_id);
+            }
+        });
+    }
+    else if(form_type == 'recruitment pipeline stage form'){
+        transaction = 'recruitment pipeline stage details';
+
+        var recruitment_pipeline_stage_id = sessionStorage.getItem('recruitment_pipeline_stage_id');
+        var recruitment_pipeline_id = $('#recruitment-pipeline-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {recruitment_pipeline_stage_id : recruitment_pipeline_stage_id, transaction : transaction},
+            success: function(response) {
+                $('#recruitment_pipeline_stage').val(response[0].RECRUITMENT_PIPELINE_STAGE);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#recruitment_pipeline_id').val(recruitment_pipeline_id);
+                $('#recruitment_pipeline_stage_id').val(recruitment_pipeline_stage_id);
             }
         });
     }

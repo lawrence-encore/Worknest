@@ -938,13 +938,17 @@ CREATE TABLE tblrecruitmentpipelinestage(
 
 CREATE INDEX recruitment_pipeline_stage_index ON tblrecruitmentpipelinestage(RECRUITMENT_PIPELINE_STAGE_ID);
 
-CREATE TABLE tbljobscorecard(
-	SCORECARD_ID VARCHAR(100) PRIMARY KEY,
-	SCORECARD VARCHAR(100) NOT NULL,
+DROP TABLE tbljobscorecard;
+
+CREATE TABLE tblrecruitmentcorecard(
+	RECRUITMENT_SCORECARD_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_SCORECARD VARCHAR(100) NOT NULL,
 	DESCRIPTION VARCHAR(100),
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
+
+CREATE INDEX recruitment_scorecard_index ON tblrecruitmentcorecard(RECRUITMENT_SCORECARD_ID);
 
 CREATE TABLE tbljobscorecardsection(
 	SECTION_ID VARCHAR(100) PRIMARY KEY,
@@ -6465,6 +6469,204 @@ BEGIN
 	SET @recruitment_pipeline_id = recruitment_pipeline_id;
 
 	SET @query = 'DELETE FROM tblrecruitmentpipeline WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_recruitment_pipeline_stage(IN recruitment_pipeline_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblrecruitmentpipelinestage(
+	RECRUITMENT_PIPELINE_STAGE_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_PIPELINE_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_PIPELINE_STAGE VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	STAGE_ORDER INT NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_recruitment_pipeline_stage_exist(IN recruitment_pipeline_stage_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_STAGE_ID = @recruitment_pipeline_stage_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_pipeline_stage(IN recruitment_pipeline_stage_id VARCHAR(100), IN recruitment_pipeline_stage VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+	SET @recruitment_pipeline_stage = recruitment_pipeline_stage;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentpipelinestage SET RECRUITMENT_PIPELINE_STAGE = @recruitment_pipeline_stage, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE RECRUITMENT_PIPELINE_STAGE_ID = @recruitment_pipeline_stage_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_recruitment_pipeline_stage(IN recruitment_pipeline_stage_id VARCHAR(100), IN recruitment_pipeline_id VARCHAR(100), IN recruitment_pipeline_stage VARCHAR(100), IN description VARCHAR(100), IN stage_order INT, IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+	SET @recruitment_pipeline_stage = recruitment_pipeline_stage;
+	SET @description = description;
+	SET @stage_order = stage_order;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblrecruitmentpipelinestage (RECRUITMENT_PIPELINE_STAGE_ID, RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE_STAGE, DESCRIPTION, STAGE_ORDER, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@recruitment_pipeline_stage_id, @recruitment_pipeline_id, @recruitment_pipeline_stage, @description, @stage_order, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_recruitment_pipeline_stage_details(IN recruitment_pipeline_stage_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+
+	SET @query = 'SELECT RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE_STAGE, DESCRIPTION, STAGE_ORDER, TRANSACTION_LOG_ID, RECORD_LOG FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_STAGE_ID = @recruitment_pipeline_stage_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_recruitment_pipeline_stage(IN recruitment_pipeline_stage_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_STAGE_ID = @recruitment_pipeline_stage_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_last_recruitment_pipeline_stage_order(IN recruitment_pipeline_id VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+
+	SET @query = 'SELECT MAX(STAGE_ORDER) AS STAGE_ORDER FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_pipeline_stage_subsquent_order(IN recruitment_pipeline_id VARCHAR(100), IN stage_order INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+	SET @stage_order = stage_order;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentpipelinestage SET STAGE_ORDER = (STAGE_ORDER - 1), RECORD_LOG = @record_log WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id AND STAGE_ORDER > @stage_order';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_pipeline_stage_order(IN recruitment_pipeline_stage_id VARCHAR(100), IN stage_order INT, IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_pipeline_stage_id = recruitment_pipeline_stage_id;
+	SET @stage_order = stage_order;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentpipelinestage SET STAGE_ORDER = @stage_order, RECORD_LOG = @record_log WHERE RECRUITMENT_PIPELINE_STAGE_ID = @recruitment_pipeline_stage_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_recruitment_pipeline_stage_id_from_stage_order(IN recruitment_pipeline_id VARCHAR(100), IN stage_order INT)
+BEGIN
+	SET @recruitment_pipeline_id = recruitment_pipeline_id;
+	SET @stage_order = stage_order;
+
+	SET @query = 'SELECT RECRUITMENT_PIPELINE_STAGE_ID FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_ID = @recruitment_pipeline_id AND STAGE_ORDER = @stage_order';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE check_recruitment_scorecard_exist(IN recruitment_scorecard_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblrecruitmentscorecard WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_scorecard(IN recruitment_scorecard_id VARCHAR(100), IN recruitment_scorecard VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+	SET @recruitment_scorecard = recruitment_scorecard;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentscorecard SET RECRUITMENT_SCORECARD = @recruitment_scorecard, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_recruitment_scorecard(IN recruitment_scorecard_id VARCHAR(100), IN recruitment_scorecard VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+	SET @recruitment_scorecard = recruitment_scorecard;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblrecruitmentscorecard (RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@recruitment_scorecard_id, @recruitment_scorecard, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_recruitment_scorecard_details(IN recruitment_scorecard_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+
+	SET @query = 'SELECT RECRUITMENT_SCORECARD, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblrecruitmentscorecard WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_recruitment_scorecard(IN recruitment_scorecard_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentscorecard WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

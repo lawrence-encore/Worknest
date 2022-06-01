@@ -5707,6 +5707,41 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit recruitment pipeline stage
+    else if($transaction == 'submit recruitment pipeline stage'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_stage_id']) && isset($_POST['recruitment_pipeline_id']) && !empty($_POST['recruitment_pipeline_id']) && isset($_POST['recruitment_pipeline_stage']) && !empty($_POST['recruitment_pipeline_stage']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_stage_id = $_POST['recruitment_pipeline_stage_id'];
+            $recruitment_pipeline_id = $_POST['recruitment_pipeline_id'];
+            $recruitment_pipeline_stage = $_POST['recruitment_pipeline_stage'];
+            $description = $_POST['description'];
+
+            $check_recruitment_pipeline_stage_exist = $api->check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id);
+
+            if($check_recruitment_pipeline_stage_exist > 0){
+                $update_recruitment_pipeline_stage = $api->update_recruitment_pipeline_stage($recruitment_pipeline_stage_id, $recruitment_pipeline_stage, $description, $username);
+
+                if($update_recruitment_pipeline_stage){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_recruitment_pipeline_stage;
+                }
+            }
+            else{
+                $insert_recruitment_pipeline_stage = $api->insert_recruitment_pipeline_stage($recruitment_pipeline_id, $recruitment_pipeline_stage, $description, $username);
+
+                if($insert_recruitment_pipeline_stage){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_recruitment_pipeline_stage;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -8065,7 +8100,14 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 $delete_recruitment_pipeline = $api->delete_recruitment_pipeline($recruitment_pipeline_id, $username);
                                     
                 if($delete_recruitment_pipeline){
-                    echo 'Deleted';
+                    $delete_all_recruitment_pipeline_stage = $api->delete_all_recruitment_pipeline_stage($recruitment_pipeline_id, $username);
+                                    
+                    if($delete_all_recruitment_pipeline_stage){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_all_recruitment_pipeline_stage;
+                    }
                 }
                 else{
                     echo $delete_recruitment_pipeline;
@@ -8089,9 +8131,94 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
                 if($check_recruitment_pipeline_exist > 0){
                     $delete_recruitment_pipeline = $api->delete_recruitment_pipeline($recruitment_pipeline_id, $username);
+                                    
+                    if($delete_recruitment_pipeline){
+                        $delete_all_recruitment_pipeline_stage = $api->delete_all_recruitment_pipeline_stage($recruitment_pipeline_id, $username);
                                         
-                    if(!$delete_recruitment_pipeline){
+                        if(!$delete_all_recruitment_pipeline_stage){
+                            $error = $delete_all_recruitment_pipeline_stage;
+                        }
+                    }
+                    else{
                         $error = $delete_recruitment_pipeline;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete recruitment pipeline stage
+    else if($transaction == 'delete recruitment pipeline stage'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_stage_id']) && !empty($_POST['recruitment_pipeline_stage_id'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_stage_id = $_POST['recruitment_pipeline_stage_id'];
+
+            $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+            $recruitment_pipeline_id = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_ID'];
+            $stage_order = $recruitment_pipeline_stage_details[0]['STAGE_ORDER'];
+
+            $check_recruitment_pipeline_stage_exist = $api->check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id);
+
+            if($check_recruitment_pipeline_stage_exist > 0){
+                $update_recruitment_pipeline_stage_subsquent_order = $api->update_recruitment_pipeline_stage_subsquent_order($recruitment_pipeline_id, $stage_order, $username);
+                                    
+                if($update_recruitment_pipeline_stage_subsquent_order){
+                    $delete_recruitment_pipeline_stage = $api->delete_recruitment_pipeline_stage($recruitment_pipeline_stage_id, $username);
+                                    
+                    if($delete_recruitment_pipeline_stage){
+                        echo 'Deleted';
+                    }
+                    else{
+                        echo $delete_recruitment_pipeline_stage;
+                    }
+                }
+                else{
+                    echo $update_recruitment_pipeline_stage_subsquent_order;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple recruitment pipeline stage
+    else if($transaction == 'delete multiple recruitment pipeline stage'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_stage_id'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_stage_ids = $_POST['recruitment_pipeline_stage_id'];
+
+            foreach($recruitment_pipeline_stage_ids as $recruitment_pipeline_stage_id){
+                $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+                $recruitment_pipeline_id = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_ID'];
+                $stage_order = $recruitment_pipeline_stage_details[0]['STAGE_ORDER'];
+
+                $check_recruitment_pipeline_stage_exist = $api->check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id);
+
+                if($check_recruitment_pipeline_stage_exist > 0){
+                    $update_recruitment_pipeline_stage_subsquent_order = $api->update_recruitment_pipeline_stage_subsquent_order($recruitment_pipeline_id, $stage_order, $username);
+                                    
+                    if($update_recruitment_pipeline_stage_subsquent_order){
+                        $delete_recruitment_pipeline_stage = $api->delete_recruitment_pipeline_stage($recruitment_pipeline_stage_id, $username);
+                                        
+                        if(!$delete_recruitment_pipeline_stage){
+                            $error = $delete_recruitment_pipeline_stage;
+                        }
+                    }
+                    else{
+                        $error = $update_recruitment_pipeline_stage_subsquent_order;
                     }
                 }
                 else{
@@ -10939,6 +11066,86 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Order transactions
+    # -------------------------------------------------------------
+
+    # Order up recruitment pipeline stage
+    else if($transaction == 'order up recruitment pipeline stage'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_stage_id']) && !empty($_POST['recruitment_pipeline_stage_id']) && isset($_POST['stage_order']) && !empty($_POST['stage_order'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_stage_id = $_POST['recruitment_pipeline_stage_id'];
+            $stage_order = $_POST['stage_order'];
+
+            $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+            $recruitment_pipeline_id = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_ID'];
+
+            $check_recruitment_pipeline_stage_exist = $api->check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id);
+
+            if($check_recruitment_pipeline_stage_exist > 0){
+                $subsquent_recruitment_pipeline_stage_id = $api->get_recruitment_pipeline_stage_id_from_stage_order($recruitment_pipeline_id, ($stage_order - 1));
+
+                $update_recruitment_pipeline_stage_order = $api->update_recruitment_pipeline_stage_order($subsquent_recruitment_pipeline_stage_id, $stage_order, $username);
+    
+                if($update_recruitment_pipeline_stage_order){
+                    $update_recruitment_pipeline_stage_order = $api->update_recruitment_pipeline_stage_order($recruitment_pipeline_stage_id, ($stage_order - 1), $username);
+    
+                    if($update_recruitment_pipeline_stage_order){
+                        echo 'Order Up';
+                    }
+                    else{
+                        echo $update_recruitment_pipeline_stage_order;
+                    }
+                }
+                else{
+                    echo $update_recruitment_pipeline_stage_order;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Order down recruitment pipeline stage
+    else if($transaction == 'order down recruitment pipeline stage'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_pipeline_stage_id']) && !empty($_POST['recruitment_pipeline_stage_id']) && isset($_POST['stage_order']) && !empty($_POST['stage_order'])){
+            $username = $_POST['username'];
+            $recruitment_pipeline_stage_id = $_POST['recruitment_pipeline_stage_id'];
+            $stage_order = $_POST['stage_order'];
+
+            $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+            $recruitment_pipeline_id = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_ID'];
+
+            $check_recruitment_pipeline_stage_exist = $api->check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id);
+
+            if($check_recruitment_pipeline_stage_exist > 0){
+                $subsquent_recruitment_pipeline_stage_id = $api->get_recruitment_pipeline_stage_id_from_stage_order($recruitment_pipeline_id, ($stage_order + 1));
+
+                $update_recruitment_pipeline_stage_order = $api->update_recruitment_pipeline_stage_order($subsquent_recruitment_pipeline_stage_id, $stage_order, $username);
+    
+                if($update_recruitment_pipeline_stage_order){
+                    $update_recruitment_pipeline_stage_order = $api->update_recruitment_pipeline_stage_order($recruitment_pipeline_stage_id, ($stage_order + 1), $username);
+    
+                    if($update_recruitment_pipeline_stage_order){
+                        echo 'Order Down';
+                    }
+                    else{
+                        echo $update_recruitment_pipeline_stage_order;
+                    }
+                }
+                else{
+                    echo $update_recruitment_pipeline_stage_order;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details transactions
     # -------------------------------------------------------------
 
@@ -12743,6 +12950,22 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'RECRUITMENT_PIPELINE' => $recruitment_pipeline_details[0]['RECRUITMENT_PIPELINE'],
                 'DESCRIPTION' => $recruitment_pipeline_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment pipeline stage details
+    else if($transaction == 'recruitment pipeline stage details'){
+        if(isset($_POST['recruitment_pipeline_stage_id']) && !empty($_POST['recruitment_pipeline_stage_id'])){
+            $recruitment_pipeline_stage_id = $_POST['recruitment_pipeline_stage_id'];
+            $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+
+            $response[] = array(
+                'RECRUITMENT_PIPELINE_STAGE' => $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_STAGE'],
+                'DESCRIPTION' => $recruitment_pipeline_stage_details[0]['DESCRIPTION']
             );
 
             echo json_encode($response);

@@ -2083,6 +2083,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_recruitment_pipeline_stage_exist
+    # Purpose    : Checks if the recruitment pipeline stage exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_recruitment_pipeline_stage_exist($recruitment_pipeline_stage_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_recruitment_pipeline_stage_exist(:recruitment_pipeline_stage_id)');
+            $sql->bindValue(':recruitment_pipeline_stage_id', $recruitment_pipeline_stage_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -6751,6 +6776,127 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_recruitment_pipeline_stage
+    # Purpose    : Updates recruitment pipeline stage.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_recruitment_pipeline_stage($recruitment_pipeline_stage_id, $recruitment_pipeline_stage, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $recruitment_pipeline_stage_details = $this->get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id);
+            
+            if(!empty($recruitment_pipeline_stage_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $recruitment_pipeline_stage_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_recruitment_pipeline_stage(:recruitment_pipeline_stage_id, :recruitment_pipeline_stage, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':recruitment_pipeline_stage_id', $recruitment_pipeline_stage_id);
+            $sql->bindValue(':recruitment_pipeline_stage', $recruitment_pipeline_stage);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($recruitment_pipeline_stage_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment pipeline stage (' . $recruitment_pipeline_stage_id . ').');
+                                    
+                    if($insert_transaction_log){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment pipeline stage (' . $recruitment_pipeline_stage_id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_recruitment_pipeline_stage_subsquent_order
+    # Purpose    : Updates recruitment pipeline stage subsquent order.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_recruitment_pipeline_stage_subsquent_order($recruitment_pipeline_id, $stage_order, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_recruitment_pipeline_stage_subsquent_order(:recruitment_pipeline_id, :stage_order, :record_log)');
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+            $sql->bindValue(':stage_order', $stage_order);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_recruitment_pipeline_stage_order
+    # Purpose    : Updates recruitment pipeline stage order.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_recruitment_pipeline_stage_order($recruitment_pipeline_id, $stage_order, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL update_recruitment_pipeline_stage_order(:recruitment_pipeline_id, :stage_order, :record_log)');
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+            $sql->bindValue(':stage_order', $stage_order);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -11129,7 +11275,74 @@ class Api{
                     $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
 
                     if($update_system_parameter_value){
-                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted job type (' . $id . ').');
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted recruitment pipeline (' . $id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_recruitment_pipeline_stage
+    # Purpose    : Insert recruitment pipeline stage.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_recruitment_pipeline_stage($recruitment_pipeline_id, $recruitment_pipeline_stage, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(45, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            # Get last recruitment pipeline stage order
+            $stage_order = $this->get_last_recruitment_pipeline_stage_order($recruitment_pipeline_id) + 1;
+
+            $sql = $this->db_connection->prepare('CALL insert_recruitment_pipeline_stage(:id, :recruitment_pipeline_id, :recruitment_pipeline_stage, :description, :stage_order, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+            $sql->bindValue(':recruitment_pipeline_stage', $recruitment_pipeline_stage);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':stage_order', $stage_order);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 45, $username);
+
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted recruitment pipeline stage (' . $id . ').');
                                     
                         if($insert_transaction_log){
                             return true;
@@ -12542,6 +12755,52 @@ class Api{
     public function delete_recruitment_pipeline($recruitment_pipeline_id, $username){
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_recruitment_pipeline(:recruitment_pipeline_id)');
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_recruitment_pipeline_stage
+    # Purpose    : Delete recruitment pipeline stage.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_recruitment_pipeline_stage($recruitment_pipeline_stage_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_recruitment_pipeline_stage(:recruitment_pipeline_stage_id)');
+            $sql->bindValue(':recruitment_pipeline_stage_id', $recruitment_pipeline_stage_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_all_recruitment_pipeline_stage
+    # Purpose    : Delete recruitment pipeline stage.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_all_recruitment_pipeline_stage($recruitment_pipeline_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_all_recruitment_pipeline_stage(:recruitment_pipeline_id)');
             $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
         
             if($sql->execute()){
@@ -14990,6 +15249,42 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_recruitment_pipeline_stage_details
+    # Purpose    : Gets the recruitment pipeline stage details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_recruitment_pipeline_stage_details($recruitment_pipeline_stage_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_recruitment_pipeline_stage_details(:recruitment_pipeline_stage_id)');
+            $sql->bindValue(':recruitment_pipeline_stage_id', $recruitment_pipeline_stage_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'RECRUITMENT_PIPELINE_ID' => $row['RECRUITMENT_PIPELINE_ID'],
+                        'RECRUITMENT_PIPELINE_STAGE' => $row['RECRUITMENT_PIPELINE_STAGE'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'STAGE_ORDER' => $row['STAGE_ORDER'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -16898,8 +17193,6 @@ class Api{
     # -------------------------------------------------------------
     public function get_employee_attendance_id($employee_id, $time_in_date){
         if ($this->databaseConnection()) {
-            $withholding_tax = 0;
-
             $sql = $this->db_connection->prepare('CALL get_employee_attendance_id(:employee_id, :time_in_date)');
             $sql->bindValue(':employee_id', $employee_id);
             $sql->bindValue(':time_in_date', $time_in_date);
@@ -16908,6 +17201,57 @@ class Api{
                 $row = $sql->fetch();
 
                 return $row['ATTENDANCE_ID'] ?? null;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_last_recruitment_pipeline_stage_order
+    # Purpose    : Gets the last recruitment pipeline stage order.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_last_recruitment_pipeline_stage_order($recruitment_pipeline_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_last_recruitment_pipeline_stage_order(:recruitment_pipeline_id)');
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['STAGE_ORDER'] ?? 0;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_recruitment_pipeline_stage_id_from_stage_order
+    # Purpose    : Gets the last recruitment pipeline stage id from stage order.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function get_recruitment_pipeline_stage_id_from_stage_order($recruitment_pipeline_id, $stage_order){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL get_recruitment_pipeline_stage_id_from_stage_order(:recruitment_pipeline_id, :stage_order)');
+            $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+            $sql->bindValue(':stage_order', $stage_order);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['RECRUITMENT_PIPELINE_STAGE_ID'];
             }
             else{
                 return $sql->errorInfo()[2];

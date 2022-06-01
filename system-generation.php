@@ -2957,9 +2957,29 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $form .= '<div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <label for="recruitment_pipeline" class="form-label">Job Type <span class="required">*</span></label>
+                                    <label for="recruitment_pipeline" class="form-label">Recruitment Pipeline <span class="required">*</span></label>
                                     <input type="hidden" id="recruitment_pipeline_id" name="recruitment_pipeline_id">
                                     <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_pipeline" name="recruitment_pipeline" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'recruitment pipeline stage form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="recruitment_pipeline_stage" class="form-label">Recruitment Pipeline Stage <span class="required">*</span></label>
+                                    <input type="hidden" id="recruitment_pipeline_stage_id" name="recruitment_pipeline_stage_id">
+                                    <input type="hidden" id="recruitment_pipeline_id" name="recruitment_pipeline_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_pipeline_stage" name="recruitment_pipeline_stage" maxlength="100">
                                 </div>
                             </div>
                         </div>
@@ -11676,6 +11696,103 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
             }
             else{
                 echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment pipeline stage table
+    else if($type == 'recruitment pipeline stage table'){
+        if(isset($_POST['recruitment_pipeline_id']) && !empty($_POST['recruitment_pipeline_id'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_recruitment_pipeline_stage = $api->check_role_permissions($username, 357);
+                $delete_recruitment_pipeline_stage = $api->check_role_permissions($username, 358);
+                $view_transaction_log = $api->check_role_permissions($username, 359);
+
+                $recruitment_pipeline_id = $_POST['recruitment_pipeline_id'];
+                $last_recruitment_pipeline_stage_order = $api->get_last_recruitment_pipeline_stage_order($recruitment_pipeline_id);
+    
+                $sql = $api->db_connection->prepare('SELECT RECRUITMENT_PIPELINE_STAGE_ID, RECRUITMENT_PIPELINE_STAGE, DESCRIPTION, STAGE_ORDER, TRANSACTION_LOG_ID FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_ID = :recruitment_pipeline_id ORDER BY STAGE_ORDER');
+                $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $recruitment_pipeline_stage_id = $row['RECRUITMENT_PIPELINE_STAGE_ID'];
+                        $recruitment_pipeline_stage = $row['RECRUITMENT_PIPELINE_STAGE'];
+                        $stage_order = $row['STAGE_ORDER'];
+                        $description = $row['DESCRIPTION'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        if($last_recruitment_pipeline_stage_order == 1){
+                            $button_order = '';
+                        }
+                        else{
+                            if($stage_order == 1){
+                                $button_order = '<button type="button" class="btn btn-warning waves-effect waves-light recruitment-pipeline-stage-order-down" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" data-stage-order="'. $stage_order .'" title="Recruitment Pipeline Order Down">
+                                    <i class="bx bx-down-arrow-alt font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else if($stage_order == $last_recruitment_pipeline_stage_order){
+                                $button_order = '<button type="button" class="btn btn-success waves-effect waves-light recruitment-pipeline-stage-order-up" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" data-stage-order="'. $stage_order .'" title="Recruitment Pipeline Order Up">
+                                    <i class="bx bx-up-arrow-alt font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $button_order = '<button type="button" class="btn btn-success waves-effect waves-light recruitment-pipeline-stage-order-up" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" data-stage-order="'. $stage_order .'" title="Recruitment Pipeline Order Up">
+                                    <i class="bx bx-up-arrow-alt font-size-16 align-middle"></i>
+                                </button>
+                                <button type="button" class="btn btn-warning waves-effect waves-light recruitment-pipeline-stage-order-down" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" data-stage-order="'. $stage_order .'" title="Recruitment Pipeline Order Down">
+                                    <i class="bx bx-down-arrow-alt font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                        }
+    
+                        if($update_recruitment_pipeline_stage > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-recruitment-pipeline-stage" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" title="Edit Recruitment Pipeline">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_recruitment_pipeline_stage > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-recruitment-pipeline-stage" data-recruitment-pipeline-stage-id="'. $recruitment_pipeline_stage_id .'" title="Delete Recruitment Pipeline">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $recruitment_pipeline_stage_id .'">',
+                            'STAGE_ORDER' => number_format($stage_order),
+                            'RECRUITMENT_PIPELINE_STAGE' => $recruitment_pipeline_stage . '<p class="text-muted mb-0">'. $description .'</p>',
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $button_order .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
             }
         }
     }

@@ -2,8 +2,8 @@
     'use strict';
 
     $(function() {
-        if($('#recruitment pipeline stage-datatable').length){
-            initialize_recruitment_pipeline_stage_table('#recruitment pipeline stage-datatable');
+        if($('#recruitment-pipeline-stage-datatable').length){
+            initialize_recruitment_pipeline_stage_table('#recruitment-pipeline-stage-datatable');
         }
 
         initialize_click_events();
@@ -142,7 +142,7 @@ function initialize_click_events(){
                         if(response === 'Deleted'){
                           show_alert('Delete Recruitment Pipeline Stage', 'The recruitment pipeline stage has been deleted.', 'success');
 
-                          reload_datatable('#recruitment pipeline stage-datatable');
+                          reload_datatable('#recruitment-pipeline-stage-datatable');
                         }
                         else if(response === 'Not Found'){
                           show_alert('Delete Recruitment Pipeline Stage', 'The recruitment pipeline stage does not exist.', 'info');
@@ -207,5 +207,85 @@ function initialize_click_events(){
         else{
             show_alert('Delete Multiple Recruitment Pipeline Stages', 'Please select the recruitment pipeline stages you want to delete.', 'error');
         }
+    });
+
+    $(document).on('click','.recruitment-pipeline-stage-order-up',function() {
+        var recruitment_pipeline_stage_id = $(this).data('recruitment-pipeline-stage-id');
+        var stage_order = $(this).data('stage-order');
+        var transaction = 'order up recruitment pipeline stage';
+
+        Swal.fire({
+            title: 'Order Up Recruitment Pipeline Stage',
+            text: 'Are you sure you want to order up this recruitment pipeline stage?',
+            icon: 'info',
+            showCancelButton: !0,
+            confirmButtonText: 'Order Up',
+            cancelButtonText: 'Cancel',
+            confirmButtonClass: 'btn btn-success mt-2',
+            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: {username : username, recruitment_pipeline_stage_id : recruitment_pipeline_stage_id, stage_order : stage_order, transaction : transaction},
+                    success: function (response) {
+                        if(response === 'Order Up'){
+                          show_alert('Order Up Recruitment Pipeline Stage', 'The recruitment pipeline stage has been ordered up.', 'success');
+
+                          reload_datatable('#recruitment-pipeline-stage-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                          show_alert('Order Up Recruitment Pipeline Stage', 'The recruitment pipeline stage does not exist.', 'info');
+                        }
+                        else{
+                          show_alert('Order Up Recruitment Pipeline Stage', response, 'error');
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','.recruitment-pipeline-stage-order-down',function() {
+        var recruitment_pipeline_stage_id = $(this).data('recruitment-pipeline-stage-id');
+        var stage_order = $(this).data('stage-order');
+        var transaction = 'order down recruitment pipeline stage';
+
+        Swal.fire({
+            title: 'Order Down Recruitment Pipeline Stage',
+            text: 'Are you sure you want to order down this recruitment pipeline stage?',
+            icon: 'info',
+            showCancelButton: !0,
+            confirmButtonText: 'Order Down',
+            cancelButtonText: 'Cancel',
+            confirmButtonClass: 'btn btn-warning mt-2',
+            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: {username : username, recruitment_pipeline_stage_id : recruitment_pipeline_stage_id, stage_order : stage_order, transaction : transaction},
+                    success: function (response) {
+                        if(response === 'Order Down'){
+                          show_alert('Order Down Recruitment Pipeline Stage', 'The recruitment pipeline stage has been ordered down.', 'success');
+
+                          reload_datatable('#recruitment-pipeline-stage-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                          show_alert('Order Down Recruitment Pipeline Stage', 'The recruitment pipeline stage does not exist.', 'info');
+                        }
+                        else{
+                          show_alert('Order Down Recruitment Pipeline Stage', response, 'error');
+                        }
+                    }
+                });
+                return false;
+            }
+        });
     });
 }
