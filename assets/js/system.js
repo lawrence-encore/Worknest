@@ -10394,6 +10394,154 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'recruitment scorecard form'){
+        $('#recruitment-scorecard-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit recruitment scorecard';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Recruitment Scorecard Success', 'The recruitment scorecard has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Recruitment Scorecard Success', 'The recruitment scorecard has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#recruitment-scorecard-datatable');
+                        }
+                        else{
+                            show_alert('Recruitment Scorecard Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                recruitment_scorecard: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                recruitment_scorecard: {
+                    required: 'Please enter the recruitment scorecard',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
+    else if(form_type == 'recruitment scorecard section form'){
+        $('#recruitment-scorecard-section-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit recruitment scorecard section';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Recruitment Scorecard Section Success', 'The recruitment scorecard section has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Recruitment Scorecard Section Success', 'The recruitment scorecard section has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#recruitment-scorecard-section-datatable');
+                        }
+                        else{
+                            show_alert('Recruitment Scorecard Section Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                recruitment_scorecard_section: {
+                    required: true         
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                recruitment_scorecard_section: {
+                    required: 'Please enter the recruitment scorecard section',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -10640,6 +10788,11 @@ function generate_form(form_type, form_id, add, username){
                     var recruitment_pipeline_id = $('#recruitment-pipeline-id').text();
 
                     $('#recruitment_pipeline_id').val(recruitment_pipeline_id);
+                }
+                else if(form_type == 'recruitment scorecard section form'){
+                    var recruitment_scorecard_id = $('#recruitment-scorecard-id').text();
+
+                    $('#recruitment_scorecard_id').val(recruitment_scorecard_id);
                 }
             }
 
@@ -12593,6 +12746,42 @@ function display_form_details(form_type){
             }
         });
     }
+    else if(form_type == 'recruitment scorecard form'){
+        transaction = 'recruitment scorecard details';
+
+        var recruitment_scorecard_id = sessionStorage.getItem('recruitment_scorecard_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {recruitment_scorecard_id : recruitment_scorecard_id, transaction : transaction},
+            success: function(response) {
+                $('#recruitment_scorecard').val(response[0].RECRUITMENT_SCORECARD);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#recruitment_scorecard_id').val(recruitment_scorecard_id);
+            }
+        });
+    }
+    else if(form_type == 'recruitment scorecard section form'){
+        transaction = 'recruitment scorecard section details';
+
+        var recruitment_scorecard_section_id = sessionStorage.getItem('recruitment_scorecard_section_id');
+        var recruitment_scorecard_id = $('#recruitment-scorecard-id').text();
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {recruitment_scorecard_section_id : recruitment_scorecard_section_id, transaction : transaction},
+            success: function(response) {
+                $('#recruitment_scorecard_section').val(response[0].RECRUITMENT_SCORECARD_SECTION);
+                $('#description').val(response[0].DESCRIPTION);
+                $('#recruitment_scorecard_id').val(recruitment_scorecard_id);
+                $('#recruitment_scorecard_section_id').val(recruitment_scorecard_section_id);
+            }
+        });
+    }
 }
 
 // Destroy functions
@@ -12946,7 +13135,7 @@ function show_alert_confirmation(confirm_title, confirm_text, confirm_icon, conf
             if(confirm_type == 'expired password'){
                 var username = $('#username').val();
                 
-                generate_modal('change password form', 'Change Password', 'R' , '1', '1', '0', 'form', 'change-password-form', '1', username);
+                generate_modal('change password form', 'Change Password', 'R' , '1', '1', 'form', 'change-password-form', '1', username);
             }
         }
     })

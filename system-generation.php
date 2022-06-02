@@ -2992,6 +2992,45 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
+            else if($form_type == 'recruitment scorecard form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="recruitment_scorecard" class="form-label">Recruitment Scorecard <span class="required">*</span></label>
+                                    <input type="hidden" id="recruitment_scorecard_id" name="recruitment_scorecard_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_scorecard" name="recruitment_scorecard" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'recruitment scorecard section form'){
+                $form .= '<div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="recruitment_scorecard_section" class="form-label">Recruitment Scorecard Section <span class="required">*</span></label>
+                                    <input type="hidden" id="recruitment_scorecard_section_id" name="recruitment_scorecard_section_id">
+                                    <input type="hidden" id="recruitment_scorecard_id" name="recruitment_scorecard_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_scorecard_section" name="recruitment_scorecard_section" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="100" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>';
+            }
 
             $form .= '</form>';
 
@@ -11782,6 +11821,163 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'ACTION' => '<div class="d-flex gap-2">
                                 '. $update .'
                                 '. $button_order .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment scorecard table
+    else if($type == 'recruitment scorecard table'){
+        if ($api->databaseConnection()) {
+            # Get permission
+            $recruitment_scorecard_section_page = $api->check_role_permissions($username, 365);
+            $update_recruitment_scorecard = $api->check_role_permissions($username, 362);
+            $delete_recruitment_scorecard = $api->check_role_permissions($username, 363);
+            $view_transaction_log = $api->check_role_permissions($username, 364);
+
+            $sql = $api->db_connection->prepare('SELECT RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD, DESCRIPTION, TRANSACTION_LOG_ID FROM tblrecruitmentscorecard ORDER BY RECRUITMENT_SCORECARD');
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $recruitment_scorecard_id = $row['RECRUITMENT_SCORECARD_ID'];
+                    $recruitment_scorecard = $row['RECRUITMENT_SCORECARD'];
+                    $description = $row['DESCRIPTION'];
+                    $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                    $recruitment_scorecard_id_encrypted = $api->encrypt_data($recruitment_scorecard_id);
+
+                    if($recruitment_scorecard_section_page > 0){
+                        $scorecard_section = '<a href="recruitment-scorecard-section.php?id='. $recruitment_scorecard_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Recruitment Scorecard Section">
+                                    <i class="bx bx-columns font-size-16 align-middle"></i>
+                                </a>';
+                    }
+                    else{
+                        $scorecard_section = '';
+                    }
+
+                    if($update_recruitment_scorecard > 0){
+                        $update = '<button type="button" class="btn btn-info waves-effect waves-light update-recruitment-scorecard" data-recruitment-scorecard-id="'. $recruitment_scorecard_id .'" title="Edit Recruitment Scorecard">
+                                        <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                    </button>';
+                    }
+                    else{
+                        $update = '';
+                    }
+
+                    if($delete_recruitment_scorecard > 0){
+                        $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-recruitment-scorecard" data-recruitment-scorecard-id="'. $recruitment_scorecard_id .'" title="Delete Recruitment Scorecard">
+                                    <i class="bx bx-trash font-size-16 align-middle"></i>
+                                </button>';
+                    }
+                    else{
+                        $delete = '';
+                    }
+
+                    if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                        $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                <i class="bx bx-detail font-size-16 align-middle"></i>
+                                            </button>';
+                    }
+                    else{
+                        $transaction_log = '';
+                    }
+
+                    $response[] = array(
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $recruitment_scorecard_id .'">',
+                        'RECRUITMENT_SCORECARD' => $recruitment_scorecard . '<p class="text-muted mb-0">'. $description .'</p>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                            '. $update .'
+                            '. $scorecard_section .'
+                            '. $transaction_log .'
+                            '. $delete .'
+                        </div>'
+                    );
+                }
+
+                echo json_encode($response);
+            }
+            else{
+                echo $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment scorecard section table
+    else if($type == 'recruitment scorecard section table'){
+        if(isset($_POST['recruitment_scorecard_id']) && !empty($_POST['recruitment_scorecard_id'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $recruitment_scorecard_section_option_page = $api->check_role_permissions($username, 370);
+                $update_recruitment_scorecard_section = $api->check_role_permissions($username, 367);
+                $delete_recruitment_scorecard_section = $api->check_role_permissions($username, 368);
+                $view_transaction_log = $api->check_role_permissions($username, 369);
+
+                $recruitment_scorecard_id = $_POST['recruitment_scorecard_id'];
+    
+                $sql = $api->db_connection->prepare('SELECT RECRUITMENT_SCORECARD_SECTION_ID, RECRUITMENT_SCORECARD_SECTION, DESCRIPTION, TRANSACTION_LOG_ID FROM tblrecruitmentscorecardsection WHERE RECRUITMENT_SCORECARD_ID = :recruitment_scorecard_id ORDER BY RECRUITMENT_SCORECARD_SECTION');
+                $sql->bindValue(':recruitment_scorecard_id', $recruitment_scorecard_id);
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $recruitment_scorecard_section_id = $row['RECRUITMENT_SCORECARD_SECTION_ID'];
+                        $recruitment_scorecard_section = $row['RECRUITMENT_SCORECARD_SECTION'];
+                        $description = $row['DESCRIPTION'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+                        $recruitment_scorecard_section_id_encrypted = $api->encrypt_data($recruitment_scorecard_section_id);
+
+                        if($recruitment_scorecard_section_option_page > 0){
+                            $scorecard_section_option = '<a href="recruitment-scorecard-section.php?id='. $recruitment_scorecard_section_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Recruitment Scorecard Section Option">
+                                        <i class="bx bx-columns font-size-16 align-middle"></i>
+                                    </a>';
+                        }
+                        else{
+                            $scorecard_section_option = '';
+                        }
+    
+                        if($update_recruitment_scorecard_section > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-recruitment-scorecard-section" data-recruitment-scorecard-section-id="'. $recruitment_scorecard_section_id .'" title="Edit Recruitment Scorecard Section">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_recruitment_scorecard_section > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-recruitment-scorecard-section" data-recruitment-scorecard-section-id="'. $recruitment_scorecard_section_id .'" title="Delete Recruitment Scorecard Section">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $recruitment_scorecard_section_id .'">',
+                            'RECRUITMENT_SCORECARD_SECTION' => $recruitment_scorecard_section . '<p class="text-muted mb-0">'. $description .'</p>',
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $scorecard_section_option .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'

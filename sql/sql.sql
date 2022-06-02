@@ -940,7 +940,7 @@ CREATE INDEX recruitment_pipeline_stage_index ON tblrecruitmentpipelinestage(REC
 
 DROP TABLE tbljobscorecard;
 
-CREATE TABLE tblrecruitmentcorecard(
+CREATE TABLE tblrecruitmentscorecard(
 	RECRUITMENT_SCORECARD_ID VARCHAR(100) PRIMARY KEY,
 	RECRUITMENT_SCORECARD VARCHAR(100) NOT NULL,
 	DESCRIPTION VARCHAR(100),
@@ -948,28 +948,32 @@ CREATE TABLE tblrecruitmentcorecard(
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX recruitment_scorecard_index ON tblrecruitmentcorecard(RECRUITMENT_SCORECARD_ID);
+CREATE INDEX recruitment_scorecard_index ON tblrecruitmentscorecard(RECRUITMENT_SCORECARD_ID);
 
-CREATE TABLE tbljobscorecardsection(
-	SECTION_ID VARCHAR(100) PRIMARY KEY,
-	SCORECARD_ID VARCHAR(100) NOT NULL,
-	SECTION VARCHAR(100) NOT NULL,
+
+DROP TABLE tbljobscorecardsection;
+DROP TABLE tbljobscorecardsectionoption;
+
+CREATE TABLE tblrecruitmentscorecardsection(
+	RECRUITMENT_SCORECARD_SECTION_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_SCORECARD_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_SCORECARD_SECTION VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE TABLE tbljobscorecardsectionoption(
-	OPTION_ID VARCHAR(100) PRIMARY KEY,
-	SECTION_ID VARCHAR(100) NOT NULL,
-	SCORECARD_ID VARCHAR(100) NOT NULL,
-	SECTION_OPTION VARCHAR(100) NOT NULL,
+CREATE TABLE tblrecruitmentscorecardsectionoption(
+	RECRUITMENT_SCORECARD_SECTION_OPTION_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_SCORECARD_SECTION_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_SCORECARD_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_SCORECARD_SECTION_OPTION VARCHAR(100) NOT NULL,
 	TRANSACTION_LOG_ID VARCHAR(500),
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX job_scorecard_index ON tbljobscorecard(SCORECARD_ID);
-CREATE INDEX job_scorecard_section_index ON tbljobscorecardsection(SECTION_ID);
-CREATE INDEX job_scorecard_section_option_index ON tbljobscorecardsectionoption(OPTION_ID);
+CREATE INDEX job_scorecard_section_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_ID);
+CREATE INDEX job_scorecard_section_option_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_OPTION_ID);
 
 /* Index */
 
@@ -6673,6 +6677,105 @@ BEGIN
 	DROP PREPARE stmt;
 END //
 
+CREATE PROCEDURE delete_all_recruitment_scorecard_section(IN recruitment_scorecard_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentscorecardsection WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_recruitment_scorecard_section_option(IN recruitment_scorecard_id VARCHAR(100), IN recruitment_scorecard_section_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+
+	IF @recruitment_scorecard_id IS NULL OR @recruitment_scorecard_id = '' THEN
+		SET @query = 'DELETE FROM tblrecruitmentscorecardsectionoption WHERE RECRUITMENT_SCORECARD_ID = @recruitment_scorecard_id';
+	ELSE
+		SET @query = 'DELETE FROM tblrecruitmentscorecardsectionoption WHERE RECRUITMENT_SCORECARD_SECTION_ID = @recruitment_scorecard_section_id';
+    END IF;
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tblrecruitmentscorecardsection(
+	RECRUITMENT_SCORECARD_SECTION_ID VARCHAR(100) PRIMARY KEY,
+	RECRUITMENT_SCORECARD_ID VARCHAR(100) NOT NULL,
+	RECRUITMENT_SCORECARD_SECTION VARCHAR(100) NOT NULL,
+	DESCRIPTION VARCHAR(100),
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_recruitment_scorecard_section_exist(IN recruitment_scorecard_section_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tblrecruitmentscorecardsection WHERE RECRUITMENT_SCORECARD_SECTION_ID = @recruitment_scorecard_section_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_recruitment_scorecard_section(IN recruitment_scorecard_section_id VARCHAR(100), IN recruitment_scorecard_section VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+	SET @recruitment_scorecard_section = recruitment_scorecard_section;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tblrecruitmentscorecardsection SET RECRUITMENT_SCORECARD_SECTION = @recruitment_scorecard_section, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE RECRUITMENT_SCORECARD_SECTION_ID = @recruitment_scorecard_section_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_recruitment_scorecard_section(IN recruitment_scorecard_section_id VARCHAR(100), IN recruitment_scorecard_id VARCHAR(100), IN recruitment_scorecard_section VARCHAR(100), IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+	SET @recruitment_scorecard_id = recruitment_scorecard_id;
+	SET @recruitment_scorecard_section = recruitment_scorecard_section;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tblrecruitmentscorecardsection (RECRUITMENT_SCORECARD_SECTION_ID, RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD_SECTION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@recruitment_scorecard_section_id, @recruitment_scorecard_id, @recruitment_scorecard_section, @description, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_recruitment_scorecard_section_details(IN recruitment_scorecard_section_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+
+	SET @query = 'SELECT RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD_SECTION, DESCRIPTION, TRANSACTION_LOG_ID, RECORD_LOG FROM tblrecruitmentscorecardsection WHERE RECRUITMENT_SCORECARD_SECTION_ID = @recruitment_scorecard_section_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_recruitment_scorecard_section(IN recruitment_scorecard_section_id VARCHAR(100))
+BEGIN
+	SET @recruitment_scorecard_section_id = recruitment_scorecard_section_id;
+
+	SET @query = 'DELETE FROM tblrecruitmentscorecardsection WHERE RECRUITMENT_SCORECARD_SECTION_ID = @recruitment_scorecard_section_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
 
 /* Insert */
 
