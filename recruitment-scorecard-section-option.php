@@ -4,11 +4,11 @@
     require('classes/api.php');
 
     $api = new Api;
-    $page_title = 'Recruitment Scorecard Section';
+    $page_title = 'Recruitment Scorecard Section Option';
 
-    $page_access = $api->check_role_permissions($username, 365);
-	$add_recruitment_scorecard_section = $api->check_role_permissions($username, 365);
-	$delete_recruitment_scorecard_section = $api->check_role_permissions($username, 368);
+    $page_access = $api->check_role_permissions($username, 370);
+	$add_recruitment_scorecard_section_option = $api->check_role_permissions($username, 371);
+	$delete_recruitment_scorecard_section_option = $api->check_role_permissions($username, 373);
     
     $check_user_account_status = $api->check_user_account_status($username);
 
@@ -18,7 +18,11 @@
         }
         else{
             $id = $_GET['id'];
-            $recruitment_scorecard_id = $api->decrypt_data($id);
+            $recruitment_scorecard_section_id = $api->decrypt_data($id);
+
+            $recruitment_scorecard_section_details = $api->get_recruitment_scorecard_section_details($recruitment_scorecard_section_id);
+            $recruitment_scorecard_id = $recruitment_scorecard_section_details[0]['RECRUITMENT_SCORECARD_ID'];
+            $recruitment_scorecard_id_encrypt = $api->encrypt_data($recruitment_scorecard_id);
         }
     }
     else{
@@ -58,8 +62,9 @@
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Human Resource</a></li>
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Recruitment</a></li>
                                             <li class="breadcrumb-item"><a href="recruitment-scorecard.php">Recruitment Scorecard</a></li>
+                                            <li class="breadcrumb-item"><a href="recruitment-scorecard-section.php?id=<?php echo $recruitment_scorecard_id_encrypt; ?>">Recruitment Scorecard Section</a></li>
                                             <li class="breadcrumb-item active"><?php echo $page_title; ?></li>
-                                            <li class="breadcrumb-item" id="recruitment-scorecard-id"><a href="javascript: void(0);"><?php echo $recruitment_scorecard_id; ?></a></li>
+                                            <li class="breadcrumb-item" id="recruitment-scorecard-section-id"><a href="javascript: void(0);"><?php echo $recruitment_scorecard_section_id; ?></a></li>
                                         </ol>
                                     </div>
                                 </div>
@@ -73,17 +78,17 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Recruitment Scorecard Section List</h4>
+                                                        <h4 class="card-title">Recruitment Scorecard Section Option List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                             if($add_recruitment_scorecard_section > 0 || $delete_recruitment_scorecard_section > 0){
-                                                                if($add_recruitment_scorecard_section > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-recruitment-scorecard-section"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                             if($add_recruitment_scorecard_section_option > 0 || $delete_recruitment_scorecard_section_option > 0){
+                                                                if($add_recruitment_scorecard_section_option > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-recruitment-scorecard-section-option"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($delete_recruitment_scorecard_section > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-recruitment-scorecard-section"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_recruitment_scorecard_section_option > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-recruitment-scorecard-section-option"><i class="bx bx-trash label-icon"></i> Delete</button>';
                                                                 }
                                                             }
                                                         ?>
@@ -93,7 +98,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="recruitment-scorecard-section-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="recruitment-scorecard-section-option-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
@@ -101,7 +106,7 @@
                                                                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                                                                 </div>
                                                             </th>
-                                                            <th class="all">Recruitment Scorecard Section</th>
+                                                            <th class="all">Recruitment Scorecard Section Option</th>
                                                             <th class="all">Action</th>
                                                         </tr>
                                                     </thead>
@@ -131,6 +136,6 @@
         <script src="assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/js/system.js?v=<?php echo rand(); ?>"></script>
-        <script src="assets/js/pages/recruitment-scorecard-section.js?v=<?php echo rand(); ?>"></script>
+        <script src="assets/js/pages/recruitment-scorecard-section-option.js?v=<?php echo rand(); ?>"></script>
     </body>
 </html>

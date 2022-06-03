@@ -2158,6 +2158,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_recruitment_scorecard_section_option_exist
+    # Purpose    : Checks if the recruitment scorecard section option exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_recruitment_scorecard_section_option_exist($recruitment_scorecard_section_option_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_recruitment_scorecard_section_option_exist(:recruitment_scorecard_section_option_id)');
+            $sql->bindValue(':recruitment_scorecard_section_option_id', $recruitment_scorecard_section_option_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -7014,6 +7039,72 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_recruitment_scorecard_section_option
+    # Purpose    : Updates recruitment scorecard section option.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_recruitment_scorecard_section_option($recruitment_scorecard_section_option_id, $recruitment_scorecard_section_option, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $recruitment_scorecard_section_option_details = $this->get_recruitment_scorecard_section_option_details($recruitment_scorecard_section_option_id);
+            
+            if(!empty($recruitment_scorecard_section_option_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $recruitment_scorecard_section_option_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_recruitment_scorecard_section_option(:recruitment_scorecard_section_option_id, :recruitment_scorecard_section_option, :transaction_log_id, :record_log)');
+            $sql->bindValue(':recruitment_scorecard_section_option_id', $recruitment_scorecard_section_option_id);
+            $sql->bindValue(':recruitment_scorecard_section_option', $recruitment_scorecard_section_option);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($recruitment_scorecard_section_option_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment scorecard section option (' . $recruitment_scorecard_section_option_id . ').');
+                                    
+                    if($insert_transaction_log){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment scorecard section option (' . $recruitment_scorecard_section_option_id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -11609,6 +11700,69 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_recruitment_scorecard_section_option
+    # Purpose    : Insert recruitment scorecard section option.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_recruitment_scorecard_section_option($recruitment_scorecard_section_id, $recruitment_scorecard_id, $recruitment_scorecard_section_option, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(48, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_recruitment_scorecard_section_option(:id, :recruitment_scorecard_section_id, :recruitment_scorecard_id, :recruitment_scorecard_section_option, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':recruitment_scorecard_section_id', $recruitment_scorecard_section_id);
+            $sql->bindValue(':recruitment_scorecard_id', $recruitment_scorecard_id);
+            $sql->bindValue(':recruitment_scorecard_section_option', $recruitment_scorecard_section_option);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 48, $username);
+
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted recruitment scorecard section options (' . $id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -13137,6 +13291,29 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_recruitment_scorecard_section(:recruitment_scorecard_section_id)');
             $sql->bindValue(':recruitment_scorecard_section_id', $recruitment_scorecard_section_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+     # -------------------------------------------------------------
+    #
+    # Name       : delete_recruitment_scorecard_section_option
+    # Purpose    : Delete recruitment scorecard section option.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_recruitment_scorecard_section_option($recruitment_scorecard_section_option_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_recruitment_scorecard_section_option(:recruitment_scorecard_section_option_id)');
+            $sql->bindValue(':recruitment_scorecard_section_option_id', $recruitment_scorecard_section_option_id);
         
             if($sql->execute()){
                 return true;
@@ -15674,6 +15851,41 @@ class Api{
                         'RECRUITMENT_SCORECARD_ID' => $row['RECRUITMENT_SCORECARD_ID'],
                         'RECRUITMENT_SCORECARD_SECTION' => $row['RECRUITMENT_SCORECARD_SECTION'],
                         'DESCRIPTION' => $row['DESCRIPTION'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_recruitment_scorecard_section_option_details
+    # Purpose    : Gets the recruitment scorecard section option details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_recruitment_scorecard_section_option_details($recruitment_scorecard_section_option_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_recruitment_scorecard_section_option_details(:recruitment_scorecard_section_option_id)');
+            $sql->bindValue(':recruitment_scorecard_section_option_id', $recruitment_scorecard_section_option_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'RECRUITMENT_SCORECARD_SECTION_ID' => $row['RECRUITMENT_SCORECARD_SECTION_ID'],
+                        'RECRUITMENT_SCORECARD_ID' => $row['RECRUITMENT_SCORECARD_ID'],
+                        'RECRUITMENT_SCORECARD_SECTION_OPTION' => $row['RECRUITMENT_SCORECARD_SECTION_OPTION'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );

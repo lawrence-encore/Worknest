@@ -5811,6 +5811,42 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit recruitment scorecard section option
+    else if($transaction == 'submit recruitment scorecard section option'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_scorecard_section_option_id']) && isset($_POST['recruitment_scorecard_section_id']) && !empty($_POST['recruitment_scorecard_section_id']) && isset($_POST['recruitment_scorecard_section_option']) && !empty($_POST['recruitment_scorecard_section_option'])){
+            $username = $_POST['username'];
+            $recruitment_scorecard_section_option_id = $_POST['recruitment_scorecard_section_option_id'];
+            $recruitment_scorecard_section_id = $_POST['recruitment_scorecard_section_id'];
+            $recruitment_scorecard_section_option = $_POST['recruitment_scorecard_section_option'];
+
+            $recruitment_scorecard_section_details = $api->get_recruitment_scorecard_section_details($recruitment_scorecard_section_id);
+            $recruitment_scorecard_id = $recruitment_scorecard_section_details[0]['RECRUITMENT_SCORECARD_ID'];
+             
+            $check_recruitment_scorecard_section_option_exist = $api->check_recruitment_scorecard_section_option_exist($recruitment_scorecard_section_option_id);
+
+            if($check_recruitment_scorecard_section_option_exist > 0){
+                $update_recruitment_scorecard_section_option = $api->update_recruitment_scorecard_section_option($recruitment_scorecard_section_option_id, $recruitment_scorecard_section_option, $username);
+
+                if($update_recruitment_scorecard_section_option){
+                    echo 'Updated';
+                }
+                else{
+                    echo $update_recruitment_scorecard_section_option;
+                }
+            }
+            else{
+                $insert_recruitment_scorecard_section_option = $api->insert_recruitment_scorecard_section_option($recruitment_scorecard_section_id, $recruitment_scorecard_id, $recruitment_scorecard_section_option, $username);
+
+                if($insert_recruitment_scorecard_section_option){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_recruitment_scorecard_section_option;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Delete transactions
@@ -8434,7 +8470,7 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 if($check_recruitment_scorecard_section_exist > 0){
                     $delete_recruitment_scorecard_section = $api->delete_recruitment_scorecard_section($recruitment_scorecard_section_id, $username);
                                             
-                    if(!$delete_recruitment_scorecard_section){
+                    if($delete_recruitment_scorecard_section){
                         $delete_all_recruitment_scorecard_section_option = $api->delete_all_recruitment_scorecard_section_option(null, $recruitment_scorecard_section_id, $username);
                                         
                         if(!$delete_all_recruitment_scorecard_section_option){
@@ -8443,6 +8479,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                     else{
                         $error = $delete_recruitment_scorecard_section;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete recruitment scorecard section option
+    else if($transaction == 'delete recruitment scorecard section option'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_scorecard_section_option_id']) && !empty($_POST['recruitment_scorecard_section_option_id'])){
+            $username = $_POST['username'];
+            $recruitment_scorecard_section_option_id = $_POST['recruitment_scorecard_section_option_id'];
+
+            $check_recruitment_scorecard_section_option_exist = $api->check_recruitment_scorecard_section_option_exist($recruitment_scorecard_section_option_id);
+
+            if($check_recruitment_scorecard_section_option_exist > 0){
+                $delete_recruitment_scorecard_section_option = $api->delete_recruitment_scorecard_section_option($recruitment_scorecard_section_option_id, $username);
+                                        
+                if($delete_recruitment_scorecard_section_option){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_recruitment_scorecard_section_option;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple recruitment scorecard section option
+    else if($transaction == 'delete multiple recruitment scorecard section option'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['recruitment_scorecard_section_option_id'])){
+            $username = $_POST['username'];
+            $recruitment_scorecard_section_option_ids = $_POST['recruitment_scorecard_section_option_id'];
+
+            foreach($recruitment_scorecard_section_option_ids as $recruitment_scorecard_section_option_id){
+                $check_recruitment_scorecard_section_option_exist = $api->check_recruitment_scorecard_section_option_exist($recruitment_scorecard_section_option_id);
+
+                if($check_recruitment_scorecard_section_option_exist > 0){
+                    $delete_recruitment_scorecard_section_option = $api->delete_recruitment_scorecard_section_option($recruitment_scorecard_section_option_id, $username);
+                                            
+                    if(!$delete_recruitment_scorecard_section_option){
+                        $error = $delete_recruitment_scorecard_section_option;
                     }
                 }
                 else{
@@ -13222,6 +13314,21 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
             $response[] = array(
                 'RECRUITMENT_SCORECARD_SECTION' => $recruitment_scorecard_section_details[0]['RECRUITMENT_SCORECARD_SECTION'],
                 'DESCRIPTION' => $recruitment_scorecard_section_details[0]['DESCRIPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Recruitment scorecard section option details
+    else if($transaction == 'recruitment scorecard section option details'){
+        if(isset($_POST['recruitment_scorecard_section_option_id']) && !empty($_POST['recruitment_scorecard_section_option_id'])){
+            $recruitment_scorecard_section_option_id = $_POST['recruitment_scorecard_section_option_id'];
+            $recruitment_scorecard_section_option_details = $api->get_recruitment_scorecard_section_option_details($recruitment_scorecard_section_option_id);
+
+            $response[] = array(
+                'RECRUITMENT_SCORECARD_SECTION_OPTION' => $recruitment_scorecard_section_option_details[0]['RECRUITMENT_SCORECARD_SECTION_OPTION']
             );
 
             echo json_encode($response);

@@ -68,6 +68,7 @@
     $job_type_page = $api->check_role_permissions($username, 345);
     $recruitment_pipeline_page = $api->check_role_permissions($username, 350);
     $recruitment_scorecard_page = $api->check_role_permissions($username, 360);
+    $jobs_page = $api->check_role_permissions($username, 375);
 
     if($dashboard_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Menu</li>
@@ -116,7 +117,7 @@
         }
     }
 
-    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0 || $job_category_page > 0 || $job_type_page > 0 || $recruitment_pipeline_page > 0 || $recruitment_scorecard_page > 0){
+    if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $leave_type_page > 0 || $leave_entitlement_page > 0 || $leave_management_page > 0 || $employee_file_management_page > 0 || $holiday_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0 || $job_category_page > 0 || $job_type_page > 0 || $recruitment_pipeline_page > 0 || $recruitment_scorecard_page > 0 || $jobs_page > 0){
         $menu .= '<li class="menu-title" key="t-menu">Human Resource</li>';
 
         if($employment_status_page > 0 || $department_page > 0 || $designation_page > 0 || $employee_page > 0 || $work_shift_page > 0 || $employee_file_management_page > 0 || $attendance_record_page > 0 || $attendance_summary_page > 0 || $salary_page > 0){
@@ -191,13 +192,17 @@
                     </li>';
         }
 
-        if($job_category_page > 0 || $job_type_page > 0 || $recruitment_pipeline_page > 0 || $recruitment_scorecard_page > 0){
+        if($job_category_page > 0 || $job_type_page > 0 || $recruitment_pipeline_page > 0 || $recruitment_scorecard_page > 0 || $jobs_page > 0){
             $menu .= '<li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="bx bx-user-plus"></i>
                             <span key="t-leave">Recruitment</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">';
+
+                        if($jobs_page > 0){
+                            $menu .= '<li><a href="jobs.php" key="t-jobs">Jobs</a></li>';
+                        }
 
                         if($job_category_page > 0){
                             $menu .= '<li><a href="job-category.php" key="t-job-category">Job Category</a></li>';
