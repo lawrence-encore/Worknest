@@ -14,6 +14,12 @@ function initialize_jobs_table(datatable_name, buttons = false, show_all = false
     hide_multiple_buttons();
     
     var username = $('#username').text();
+    var filter_job_type = $('#filter_job_type').val();
+    var filter_job_category = $('#filter_job_category').val();
+    var filter_recruitment_pipeline = $('#filter_recruitment_pipeline').val();
+    var filter_recruitment_scorecard = $('#filter_recruitment_scorecard').val();
+    var filter_status = $('#filter_status').val();
+    var filter_team_member = $('#filter_team_member').val();
     var type = 'jobs table';
     var settings;
 
@@ -48,7 +54,7 @@ function initialize_jobs_table(datatable_name, buttons = false, show_all = false
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'filter_job_type' : filter_job_type, 'filter_job_category' : filter_job_category, 'filter_recruitment_pipeline' : filter_recruitment_pipeline, 'filter_recruitment_scorecard' : filter_recruitment_scorecard, 'filter_status' : filter_status, 'filter_team_member' : filter_team_member, 'username' : username},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -79,7 +85,7 @@ function initialize_jobs_table(datatable_name, buttons = false, show_all = false
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username},
+                'data': {'type' : type, 'filter_job_type' : filter_job_type, 'filter_job_category' : filter_job_category, 'filter_recruitment_pipeline' : filter_recruitment_pipeline, 'filter_recruitment_scorecard' : filter_recruitment_scorecard, 'filter_status' : filter_status, 'filter_team_member' : filter_team_member, 'username' : username},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],
@@ -110,7 +116,7 @@ function initialize_click_events(){
     var username = $('#username').text();
 
     $(document).on('click','#add-jobs',function() {
-        generate_modal('jobs form', 'Jobs', 'R' , '1', '1', 'form', 'jobs-form', '1', username);
+        generate_modal('jobs form', 'Jobs', 'LG' , '1', '1', 'form', 'jobs-form', '1', username);
     });
 
     $(document).on('click','.update-jobs',function() {
@@ -118,7 +124,7 @@ function initialize_click_events(){
 
         sessionStorage.setItem('jobs_id', jobs_id);
         
-        generate_modal('jobs form', 'Jobs', 'R' , '1', '1', 'form', 'jobs-form', '0', username);
+        generate_modal('jobs form', 'Jobs', 'LG' , '1', '1', 'form', 'jobs-form', '0', username);
     });
 
     $(document).on('click','.delete-jobs',function() {

@@ -982,7 +982,24 @@ CREATE TABLE tbljob(
 	SALARY DOUBLE NOT NULL,
 	STATUS VARCHAR(10) NOT NULL,
 	DESCRIPTION VARCHAR(30000) NOT NULL,
+	CREATED_DATE DATE NOT NULL,
+	CREATED_TIME TIME NOT NULL,
+	CREATED_BY VARCHAR(50) NOT NULL,
 	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE INDEX job_index ON tbljob(JOB_ID);
+
+CREATE TABLE tbljobbranch(
+	JOB_ID VARCHAR(100) NOT NULL,
+	BRANCH_ID VARCHAR(50) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobteam(
+	JOB_ID VARCHAR(100) NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
 	RECORD_LOG VARCHAR(100)
 );
 
@@ -6860,6 +6877,42 @@ BEGIN
 	SET @recruitment_scorecard_section_option_id = recruitment_scorecard_section_option_id;
 
 	SET @query = 'DELETE FROM tblrecruitmentscorecardsectionoption WHERE RECRUITMENT_SCORECARD_SECTION_OPTION_ID = @recruitment_scorecard_section_option_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_job_type_options()
+BEGIN
+	SET @query = 'SELECT JOB_TYPE_ID, JOB_TYPE FROM tbljobtype ORDER BY JOB_TYPE';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_job_category_options()
+BEGIN
+	SET @query = 'SELECT JOB_CATEGORY_ID, JOB_CATEGORY FROM tbljobcategory ORDER BY JOB_CATEGORY';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_recruitment_pipeline_options()
+BEGIN
+	SET @query = 'SELECT RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE FROM tblrecruitmentpipeline ORDER BY RECRUITMENT_PIPELINE';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_recruitment_scorecard_options()
+BEGIN
+	SET @query = 'SELECT RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD FROM tblrecruitmentscorecard ORDER BY RECRUITMENT_SCORECARD';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

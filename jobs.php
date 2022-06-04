@@ -83,6 +83,75 @@
                                                                 }
                                                             }
                                                         ?>
+                                                        <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas"><i class="bx bx-filter-alt label-icon"></i> Filter</button>
+                                                    </div>
+                                                    <div class="offcanvas offcanvas-end" tabindex="-1" id="filter-off-canvas" data-bs-backdrop="true" aria-labelledby="filter-off-canvas-label">
+                                                        <div class="offcanvas-header">
+                                                            <h5 class="offcanvas-title" id="filter-off-canvas-label">Filter</h5>
+                                                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="offcanvas-body">
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Job Category</p>
+
+                                                                <select class="form-control filter-select2" id="filter_job_category">
+                                                                    <option value="">All Job Category</option>
+                                                                    <?php echo $api->generate_job_category_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Job Type</p>
+
+                                                                <select class="form-control filter-select2" id="filter_job_type">
+                                                                    <option value="">All Job Type</option>
+                                                                    <?php echo $api->generate_job_type_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Recruitment Pipeline</p>
+
+                                                                <select class="form-control filter-select2" id="filter_recruitment_pipeline">
+                                                                    <option value="">All Recruitment Pipeline</option>
+                                                                    <?php echo $api->generate_recruitment_pipeline_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Recruitment Scorecard</p>
+
+                                                                <select class="form-control filter-select2" id="filter_recruitment_scorecard">
+                                                                    <option value="">All Recruitment Scorecard</option>
+                                                                    <?php echo $api->generate_recruitment_scorecard_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Status</p>
+
+                                                                <select class="form-control filter-select2" id="filter_status">
+                                                                    <option value="">All Status</option>
+                                                                    <option value="ACT">Active</option>
+                                                                    <option value="INACT">Inactive</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Branch</p>
+
+                                                                <select class="form-control filter-select2" id="filter_branch">
+                                                                    <option value="">All Branch</option>
+                                                                    <?php echo $api->generate_branch_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Team Member</p>
+
+                                                                <select class="form-control filter-select2" id="filter_team_member">
+                                                                    <option value="">All Team Member</option>
+                                                                    <?php echo $api->generate_employee_options(); ?>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <button type="button" class="btn btn-primary waves-effect waves-light" id="apply-filter" data-bs-toggle="offcanvas" data-bs-target="#filter-off-canvas" aria-controls="filter-off-canvas">Apply Filter</button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

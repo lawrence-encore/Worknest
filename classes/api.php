@@ -18081,6 +18081,35 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : get_job_status
+    # Purpose    : Returns the status, badge.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_job_status($stat){
+        $response = array();
+
+        if($stat == 'ACT'){
+            $status = 'Active';
+            $button_class = 'bg-success';
+        }
+        else{
+            $status = 'Inactive';
+            $button_class = 'bg-danger';
+        }
+
+        $response[] = array(
+            'STATUS' => $status,
+            'BADGE' => '<span class="badge '. $button_class .'">'. $status .'</span>'
+        );
+
+        return $response;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
 
@@ -19536,6 +19565,146 @@ class Api{
                         $file_as = $row['FILE_AS'];
     
                         $option .= "<option value='". $employee_id ."'>". $file_as ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_job_type_options
+    # Purpose    : Generates job type options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_job_type_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_job_type_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $job_type_id = $row['JOB_TYPE_ID'];
+                        $job_type = $row['JOB_TYPE'];
+    
+                        $option .= "<option value='". $job_type_id ."'>". $job_type ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_job_category_options
+    # Purpose    : Generates job category options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_job_category_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_job_category_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $job_category_id = $row['JOB_CATEGORY_ID'];
+                        $job_category = $row['JOB_CATEGORY'];
+    
+                        $option .= "<option value='". $job_category_id ."'>". $job_category ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_recruitment_pipeline_options
+    # Purpose    : Generates recruitment pipeline options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_recruitment_pipeline_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_recruitment_pipeline_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $recruitment_pipeline_id = $row['RECRUITMENT_PIPELINE_ID'];
+                        $recruitment_pipeline = $row['RECRUITMENT_PIPELINE'];
+    
+                        $option .= "<option value='". $recruitment_pipeline_id ."'>". $recruitment_pipeline ."</option>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_recruitment_scorecard_options
+    # Purpose    : Generates recruitment scorecard options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_recruitment_scorecard_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('CALL generate_recruitment_scorecard_options()');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $recruitment_scorecard_id = $row['RECRUITMENT_SCORECARD_ID'];
+                        $recruitment_scorecard = $row['RECRUITMENT_SCORECARD'];
+    
+                        $option .= "<option value='". $recruitment_scorecard_id ."'>". $recruitment_scorecard ."</option>";
                     }
     
                     return $option;

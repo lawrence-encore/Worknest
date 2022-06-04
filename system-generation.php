@@ -1461,8 +1461,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label class="form-label">Branch <span class="required">*</span></label>
-                                        <select class="form-control form-select2" multiple="multiple" id="branch" name="branch">
-                                        <option value="">--</option>';
+                                        <select class="form-control form-select2" multiple="multiple" id="branch" name="branch">';
                                         $form .= $api->generate_branch_options();
                                         $form .='</select>
                                     </div>
@@ -3039,6 +3038,91 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                     <input type="hidden" id="recruitment_scorecard_section_option_id" name="recruitment_scorecard_section_option_id">
                                     <input type="hidden" id="recruitment_scorecard_section_id" name="recruitment_scorecard_section_id">
                                     <input type="text" class="form-control form-maxlength" autocomplete="off" id="recruitment_scorecard_section_option" name="recruitment_scorecard_section_option" maxlength="100">
+                                </div>
+                            </div>
+                        </div>';
+            }
+            else if($form_type == 'jobs form'){
+                $form .= '<div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="job_title" class="form-label">Job Title <span class="required">*</span></label>
+                                    <input type="hidden" id="job_id" name="job_id">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="job_title" name="job_title" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="salary_amount" class="form-label">Salary Amount</label>
+                                    <input id="salary_amount" name="salary_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Job Category <span class="required">*</span></label>
+                                    <select class="form-control form-select2" id="job_category" name="job_category">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_job_category_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Job Type <span class="required">*</span></label>
+                                    <select class="form-control form-select2" id="job_type" name="job_category">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_job_type_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Recruitment Pipeline <span class="required">*</span></label>
+                                    <select class="form-control form-select2" id="recruitment_pipeline" name="recruitment_pipeline">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_recruitment_pipeline_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Recruitment Scorecard <span class="required">*</span></label>
+                                    <select class="form-control form-select2" id="recruitment_scorecard" name="recruitment_scorecard">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_recruitment_scorecard_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Team Members <span class="required">*</span></label>
+                                    <select class="form-control form-select2" multiple="multiple" id="team_member" name="team_member">';
+                                    $form .= $api->generate_employee_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Branch <span class="required">*</span></label>
+                                    <select class="form-control form-select2" multiple="multiple" id="branch" name="branch">';
+                                    $form .= $api->generate_branch_options();
+                                    $form .='</select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description <span class="required">*</span></label>
+                                    <textarea class="form-control form-maxlength" id="description" name="description" maxlength="30000" rows="5"></textarea>
                                 </div>
                             </div>
                         </div>';
@@ -12056,6 +12140,147 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $response[] = array(
                             'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $recruitment_scorecard_section_option_id .'">',
                             'RECRUITMENT_SCORECARD_SECTION_OPTION' => $recruitment_scorecard_section_option,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Jobs table
+    else if($type == 'jobs table'){
+        if(isset($_POST['filter_job_type']) && isset($_POST['filter_job_category']) && isset($_POST['filter_recruitment_pipeline']) && isset($_POST['filter_recruitment_scorecard']) && isset($_POST['filter_status']) && isset($_POST['filter_team_member'])){
+            if ($api->databaseConnection()) {
+                # Get permission
+                $update_job = $api->check_role_permissions($username, 377);
+                $delete_job = $api->check_role_permissions($username, 378);
+                $activate_job = $api->check_role_permissions($username, 379);
+                $deactivate_job = $api->check_role_permissions($username, 380);
+                $view_transaction_log = $api->check_role_permissions($username, 381);
+
+                $query = 'SELECT JOB_ID, JOB_TITLE, JOB_CATEGORY, JOB_TYPE, STATUS, TRANSACTION_LOG_ID FROM tbljob';
+    
+                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status)){
+                    $query .= ' WHERE ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'JOB_ID IN (SELECT JOB_ID FROM tbljobbranch WHERE BRANCH_ID = :filter_branch)';
+                    }
+
+                    if(!empty($filter_job_category)){
+                        $filter[] = 'JOB_CATEGORY = :filter_job_category';
+                    }
+
+                    if(!empty($filter_job_type)){
+                        $filter[] = 'JOB_TYPE = :filter_job_type';
+                    }
+
+                    if(!empty($filter_recruitment_pipeline)){
+                        $filter[] = 'PIPELINE = :filter_recruitment_pipeline';
+                    }
+
+                    if(!empty($filter_recruitment_scorecard)){
+                        $filter[] = 'SCORECARD = :filter_recruitment_scorecard';
+                    }
+
+                    if(!empty($filter_status)){
+                        $filter[] = 'STATUS = :filter_status';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+    
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status)){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_job_category)){
+                        $sql->bindValue(':filter_job_category', $filter_job_category);
+                    }
+
+                    if(!empty($filter_job_type)){
+                        $sql->bindValue(':filter_job_type', $filter_job_type);
+                    }
+
+                    if(!empty($filter_recruitment_pipeline)){
+                        $sql->bindValue(':filter_recruitment_pipeline', $filter_recruitment_pipeline);
+                    }
+
+                    if(!empty($filter_recruitment_scorecard)){
+                        $sql->bindValue(':filter_recruitment_scorecard', $filter_recruitment_scorecard);
+                    }
+
+                    if(!empty($filter_status)){
+                        $sql->bindValue(':filter_status', $filter_status);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $job_id = $row['JOB_ID'];
+                        $job_title = $row['JOB_TITLE'];
+                        $job_category = $row['JOB_CATEGORY'];
+                        $job_type = $row['JOB_TYPE'];
+                        $status = $row['STATUS'];
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $status_name = get_job_status($status)[0]['BADGE'];
+
+                        $job_category_details = $api->get_job_category_details($job_category);
+                        $job_category_name = $job_category_details[0]['JOB_CATEGORY'];
+
+                        $job_type_details = $api->get_job_type_details($job_type);
+                        $job_type_name = $job_type_details[0]['JOB_TYPE'];
+    
+                        if($update_job > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job" data-job-id="'. $job_id .'" title="Edit Job">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($delete_job > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job" data-job-id="'. $job_id .'" title="Delete Job">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $job_id .'">',
+                            'JOB_TITLE' => $job_title,
+                            'JOB_CATEGORY' => $job_category_name,
+                            'JOB_TYPE' => $job_type_name,
+                            'STATUS' => $status_name,
                             'ACTION' => '<div class="d-flex gap-2">
                                 '. $update .'
                                 '. $transaction_log .'
