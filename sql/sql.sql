@@ -989,8 +989,6 @@ CREATE TABLE tbljob(
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX job_index ON tbljob(JOB_ID);
-
 CREATE TABLE tbljobbranch(
 	JOB_ID VARCHAR(100) NOT NULL,
 	BRANCH_ID VARCHAR(50) NOT NULL,
@@ -6913,6 +6911,195 @@ END //
 CREATE PROCEDURE generate_recruitment_scorecard_options()
 BEGIN
 	SET @query = 'SELECT RECRUITMENT_SCORECARD_ID, RECRUITMENT_SCORECARD FROM tblrecruitmentscorecard ORDER BY RECRUITMENT_SCORECARD';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE TABLE tbljob(
+	JOB_ID VARCHAR(100) PRIMARY KEY,
+	JOB_TITLE VARCHAR(100) NOT NULL,
+	JOB_CATEGORY VARCHAR(100) NOT NULL,
+	JOB_TYPE VARCHAR(100) NOT NULL,
+	PIPELINE VARCHAR(100) NOT NULL,
+	SCORECARD VARCHAR(100) NOT NULL,
+	SALARY DOUBLE NOT NULL,
+	STATUS VARCHAR(10) NOT NULL,
+	DESCRIPTION VARCHAR(30000) NOT NULL,
+	CREATED_DATE DATE NOT NULL,
+	CREATED_TIME TIME NOT NULL,
+	CREATED_BY VARCHAR(50) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobbranch(
+	JOB_ID VARCHAR(100) NOT NULL,
+	BRANCH_ID VARCHAR(50) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE TABLE tbljobteam(
+	JOB_ID VARCHAR(100) NOT NULL,
+	EMPLOYEE_ID VARCHAR(100) NOT NULL,
+	RECORD_LOG VARCHAR(100)
+);
+
+CREATE PROCEDURE check_job_exist(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'SELECT COUNT(1) AS TOTAL FROM tbljob WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_job(IN job_id VARCHAR(100), IN job_title VARCHAR(100), IN job_category VARCHAR(100), IN job_type VARCHAR(100), IN pipeline VARCHAR(100), IN scorecard VARCHAR(100), IN salary DOUBLE, IN description VARCHAR(100), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+	SET @job_title = job_title;
+	SET @job_category = job_category;
+	SET @job_type = job_type;
+	SET @pipeline = pipeline;
+	SET @scorecard = scorecard;
+	SET @salary = salary;
+	SET @description = description;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbljob SET JOB_TITLE = @job_title, JOB_CATEGORY = @job_category, JOB_TYPE = @job_type, PIPELINE = @pipeline, SCORECARD = @scorecard, SALARY = @salary, DESCRIPTION = @description, TRANSACTION_LOG_ID = @transaction_log_id, RECORD_LOG = @record_log WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_job(IN job_id VARCHAR(100), IN job_title VARCHAR(100), IN job_category VARCHAR(100), IN job_type VARCHAR(100), IN pipeline VARCHAR(100), IN scorecard VARCHAR(100), IN salary DOUBLE, IN status VARCHAR(10), IN description VARCHAR(100), IN created_date DATE, IN created_time TIME, IN created_by VARCHAR(50), IN transaction_log_id VARCHAR(500), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+	SET @job_title = job_title;
+	SET @job_category = job_category;
+	SET @job_type = job_type;
+	SET @pipeline = pipeline;
+	SET @scorecard = scorecard;
+	SET @salary = salary;
+	SET @status = status;
+	SET @description = description;
+	SET @created_date = created_date;
+	SET @created_time = created_time;
+	SET @created_by = created_by;
+	SET @transaction_log_id = transaction_log_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbljob (JOB_ID, JOB_TITLE, JOB_CATEGORY, JOB_TYPE, PIPELINE, SCORECARD, SALARY, STATUS, DESCRIPTION, CREATED_DATE, CREATED_TIME, CREATED_BY, TRANSACTION_LOG_ID, RECORD_LOG) VALUES(@job_id, @job_title, @job_category, @job_type, @pipeline, @scorecard, @salary, @status, @description, @created_date, @created_time, @created_by, @transaction_log_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_job_details(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'SELECT JOB_TITLE, JOB_CATEGORY, JOB_TYPE, PIPELINE, SCORECARD, SALARY, STATUS, DESCRIPTION, CREATED_DATE, CREATED_TIME, CREATED_BY, TRANSACTION_LOG_ID, RECORD_LOG FROM tbljob WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_job(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'DELETE FROM tbljob WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_job_team_member(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'DELETE FROM tbljobteam WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE delete_all_job_branch(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'DELETE FROM tbljobbranch WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_job_team_member(IN job_id VARCHAR(100), IN employee_id VARCHAR(100), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+	SET @employee_id = employee_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbljobteam (JOB_ID, EMPLOYEE_ID, RECORD_LOG) VALUES(@job_id, @employee_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE insert_job_branch(IN job_id VARCHAR(100), IN branch_id VARCHAR(50), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+	SET @branch_id = branch_id;
+	SET @record_log = record_log;
+
+	SET @query = 'INSERT INTO tbljobbranch (JOB_ID, BRANCH_ID, RECORD_LOG) VALUES(@job_id, @branch_id, @record_log)';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_job_team_member_details(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'SELECT EMPLOYEE_ID, RECORD_LOG FROM tbljobteam WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE get_job_branch_details(IN job_id VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+
+	SET @query = 'SELECT BRANCH_ID, RECORD_LOG FROM tbljobbranch WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE update_job_status(IN job_id VARCHAR(100), IN status VARCHAR(10), IN record_log VARCHAR(100))
+BEGIN
+	SET @job_id = job_id;
+	SET @status = status;
+	SET @record_log = record_log;
+
+	SET @query = 'UPDATE tbljob SET STATUS = @status, RECORD_LOG = @record_log WHERE JOB_ID = @job_id';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

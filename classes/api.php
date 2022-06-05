@@ -2183,6 +2183,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_job_exist
+    # Purpose    : Checks if the job exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_job_exist($job_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_job_exist(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -6974,6 +6999,73 @@ class Api{
     # -------------------------------------------------------------
     #
     # Name       : update_recruitment_scorecard_section
+    # Purpose    : Updates recruitment scorecard.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_recruitment_scorecard($recruitment_scorecard_id, $recruitment_scorecard, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $recruitment_scorecard_details = $this->get_recruitment_scorecard_details($recruitment_scorecard_id);
+            
+            if(!empty($recruitment_scorecard_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $recruitment_scorecard_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_recruitment_scorecard(:recruitment_scorecard_id, :recruitment_scorecard, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':recruitment_scorecard_id', $recruitment_scorecard_id);
+            $sql->bindValue(':recruitment_scorecard', $recruitment_scorecard);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($recruitment_scorecard_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment scorecard section (' . $recruitment_scorecard_id . ').');
+                                    
+                    if($insert_transaction_log){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated recruitment scorecard section (' . $recruitment_scorecard_id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_recruitment_scorecard_section
     # Purpose    : Updates recruitment scorecard section.
     #
     # Returns    : Number/String
@@ -7095,6 +7187,124 @@ class Api{
                     else{
                         return $update_system_parameter_value;
                     }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_job
+    # Purpose    : Updates job.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_job($job_id, $job_title, $job_category, $job_type, $recruitment_pipeline, $recruitment_scorecard, $salary_amount, $description, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $job_details = $this->get_job_details($job_id);
+            
+            if(!empty($job_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $job_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_job(:job_id, :job_title, :job_category, :job_type, :recruitment_pipeline, :recruitment_scorecard, :salary_amount, :description, :transaction_log_id, :record_log)');
+            $sql->bindValue(':job_id', $job_id);
+            $sql->bindValue(':job_title', $job_title);
+            $sql->bindValue(':job_category', $job_category);
+            $sql->bindValue(':job_type', $job_type);
+            $sql->bindValue(':recruitment_pipeline', $recruitment_pipeline);
+            $sql->bindValue(':recruitment_scorecard', $recruitment_scorecard);
+            $sql->bindValue(':salary_amount', $salary_amount);
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($job_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated job (' . $job_id . ').');
+                                    
+                    if($insert_transaction_log){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated job (' . $job_id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_job_status
+    # Purpose    : Updates job status.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_job_status($job_id, $status, $username){
+        if ($this->databaseConnection()) {
+            $get_job_details = $this->get_job_details($job_id);
+            $transaction_log_id = $get_job_details[0]['TRANSACTION_LOG_ID'];
+
+            if($status == 'ACT'){
+                $record_log = 'ACT->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Activated';
+                $log = 'User ' . $username . ' activated job (' . $job_id . ').';
+            }
+            else{
+                $record_log = 'INACT->' . $username . '->' . date('Y-m-d h:i:s');
+                $log_type = 'Deactivated';
+                $log = 'User ' . $username . ' deactivated job (' . $job_id . ').';
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_job_status(:job_id, :status, :record_log)');
+            $sql->bindValue(':job_id', $job_id);
+            $sql->bindValue(':status', $status);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, $log_type, $log);
+                                    
+                if($insert_transaction_log){
+                    return true;
+                }
+                else{
+                    return $insert_transaction_log;
                 }
             }
             else{
@@ -11763,6 +11973,157 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_job
+    # Purpose    : Insert job.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_job($job_title, $job_category, $job_type, $recruitment_pipeline, $recruitment_scorecard, $salary_amount, $description, $team_members, $branch_ids, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $error = '';
+
+            $system_date = date('Y-m-d');
+            $current_time = date('H:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(49, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_job(:id, :job_title, :job_category, :job_type, :recruitment_pipeline, :recruitment_scorecard, :salary_amount, :status, :description, :system_date, :current_time, :username, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':job_title', $job_title);
+            $sql->bindValue(':job_category', $job_category);
+            $sql->bindValue(':job_type', $job_type);
+            $sql->bindValue(':recruitment_pipeline', $recruitment_pipeline);
+            $sql->bindValue(':recruitment_scorecard', $recruitment_scorecard);
+            $sql->bindValue(':salary_amount', $salary_amount);
+            $sql->bindValue(':status', 'INACT');
+            $sql->bindValue(':description', $description);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':current_time', $current_time);
+            $sql->bindValue(':username', $username);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 49, $username);
+
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted job (' . $id . ').');
+                                    
+                        if($insert_transaction_log){
+                            foreach($team_members as $team_member){
+                                $insert_job_team_member = $this->insert_job_team_member($id, $team_member, $username);
+    
+                                if(!$insert_job_team_member){
+                                    $error = $insert_job_team_member;
+                                }
+                            }
+
+                            foreach($branch_ids as $branch_id){
+                                $insert_job_branch = $this->insert_job_branch($id, $branch_id, $username);
+    
+                                if(!$insert_job_branch){
+                                    $error = $insert_job_branch;
+                                }
+                            }
+
+                            if(empty($error)){
+                                return true;
+                            }
+                            else{
+                                return $error;
+                            }
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_job_team_member
+    # Purpose    : Insert job team member.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_job_team_member($job_id, $team_member, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_job_team_member(:job_id, :team_member, :record_log)');
+            $sql->bindValue(':job_id', $job_id);
+            $sql->bindValue(':team_member', $team_member);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : insert_job_branch
+    # Purpose    : Insert job branch.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_job_branch($job_id, $branch_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            $sql = $this->db_connection->prepare('CALL insert_job_branch(:job_id, :branch_id, :record_log)');
+            $sql->bindValue(':job_id', $job_id);
+            $sql->bindValue(':branch_id', $branch_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -13314,6 +13675,75 @@ class Api{
         if ($this->databaseConnection()) {
             $sql = $this->db_connection->prepare('CALL delete_recruitment_scorecard_section_option(:recruitment_scorecard_section_option_id)');
             $sql->bindValue(':recruitment_scorecard_section_option_id', $recruitment_scorecard_section_option_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_job
+    # Purpose    : Delete job.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_job($job_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_job(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_all_job_team_member
+    # Purpose    : Deletes all job team member.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_all_job_team_member($job_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_all_job_team_member(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+        
+            if($sql->execute()){
+                return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_all_job_branch
+    # Purpose    : Deletes all job branch.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_all_job_branch($job_id, $username){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL delete_all_job_branch(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
         
             if($sql->execute()){
                 return true;
@@ -15887,6 +16317,113 @@ class Api{
                         'RECRUITMENT_SCORECARD_ID' => $row['RECRUITMENT_SCORECARD_ID'],
                         'RECRUITMENT_SCORECARD_SECTION_OPTION' => $row['RECRUITMENT_SCORECARD_SECTION_OPTION'],
                         'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_job_details
+    # Purpose    : Gets the job details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_job_details($job_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_job_details(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'JOB_TITLE' => $row['JOB_TITLE'],
+                        'JOB_CATEGORY' => $row['JOB_CATEGORY'],
+                        'JOB_TYPE' => $row['JOB_TYPE'],
+                        'PIPELINE' => $row['PIPELINE'],
+                        'SCORECARD' => $row['SCORECARD'],
+                        'SALARY' => $row['SALARY'],
+                        'STATUS' => $row['STATUS'],
+                        'DESCRIPTION' => $row['DESCRIPTION'],
+                        'CREATED_DATE' => $row['CREATED_DATE'],
+                        'CREATED_TIME' => $row['CREATED_TIME'],
+                        'CREATED_BY' => $row['CREATED_BY'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_job_team_member_details
+    # Purpose    : Gets the job team member details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_job_team_member_details($job_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_job_team_member_details(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'EMPLOYEE_ID' => $row['EMPLOYEE_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_job_branch_details
+    # Purpose    : Gets the job branch details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_job_branch_details($job_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_job_branch_details(:job_id)');
+            $sql->bindValue(':job_id', $job_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'BRANCH_ID' => $row['BRANCH_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
                 }

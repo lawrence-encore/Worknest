@@ -5848,6 +5848,82 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit job
+    else if($transaction == 'submit job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id']) && isset($_POST['job_title']) && !empty($_POST['job_title']) && isset($_POST['salary_amount']) && isset($_POST['job_category']) && !empty($_POST['job_category']) && isset($_POST['job_type']) && !empty($_POST['job_type']) && isset($_POST['recruitment_pipeline']) && !empty($_POST['recruitment_pipeline']) && isset($_POST['recruitment_scorecard']) && !empty($_POST['recruitment_scorecard']) && isset($_POST['team_member']) && !empty($_POST['team_member']) && isset($_POST['branch_id']) && !empty($_POST['branch_id']) && isset($_POST['description']) && !empty($_POST['description'])){
+            $username = $_POST['username'];
+            $job_id = $_POST['job_id'];
+            $job_title = $_POST['job_title'];
+            $salary_amount = $_POST['salary_amount'];
+            $job_category = $_POST['job_category'];
+            $job_type = $_POST['job_type'];
+            $recruitment_pipeline = $_POST['recruitment_pipeline'];
+            $recruitment_scorecard = $_POST['recruitment_scorecard'];
+            $team_members = explode(',', $_POST['team_member']);
+            $branch_ids = explode(',', $_POST['branch_id']);
+            $description = $_POST['description'];
+
+            $check_job_exist = $api->check_job_exist($job_id);
+
+            if($check_job_exist > 0){
+                $update_job = $api->update_job($job_id, $job_title, $job_category, $job_type, $recruitment_pipeline, $recruitment_scorecard, $salary_amount, $description, $username);
+
+                if($update_job){
+                    $delete_all_job_team_member = $api->delete_all_job_team_member($job_id, $username);
+
+                    if($delete_all_job_team_member){
+                        foreach($team_members as $team_member){
+                            $insert_job_team_member = $api->insert_job_team_member($job_id, $team_member, $username);
+
+                            if(!$insert_job_team_member){
+                                $error = $insert_job_team_member;
+                            }
+                        }
+                    }
+                    else{
+                        $error = $delete_all_job_team_member;
+                    }
+
+                    $delete_all_job_branch = $api->delete_all_job_branch($job_id, $username);
+
+                    if($delete_all_job_branch){
+                        foreach($branch_ids as $branch_id){
+                            $insert_job_branch = $api->insert_job_branch($job_id, $branch_id, $username);
+
+                            if(!$insert_job_branch){
+                                $error = $insert_job_branch;
+                            }
+                        }
+                    }
+                    else{
+                        $error = $delete_all_job_branch;
+                    }
+
+                    if(empty($error)){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $error;
+                    }
+                }
+                else{
+                    echo $update_job;
+                }
+            }
+            else{
+                $insert_job = $api->insert_job($job_title, $job_category, $job_type, $recruitment_pipeline, $recruitment_scorecard, $salary_amount, $description, $team_members, $branch_ids, $username);
+
+                if($insert_job){
+                    echo 'Inserted';
+                }
+                else{
+                    echo $insert_job;
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -8552,6 +8628,90 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Delete job
+    else if($transaction == 'delete job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id']) && !empty($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_id = $_POST['job_id'];
+
+            $check_job_exist = $api->check_job_exist($job_id);
+
+            if($check_job_exist > 0){
+                $delete_job = $api->delete_job($job_id, $username);
+                                    
+                if($delete_job){
+                    $delete_all_job_team_member = $api->delete_all_job_team_member($job_id, $username);
+
+                    if($delete_all_job_team_member){
+                        $delete_all_job_branch = $api->delete_all_job_branch($job_id, $username);
+
+                        if($delete_all_job_branch){
+                            echo 'Deleted';
+                        }
+                        else {
+                            echo $delete_all_job_branch;
+                        }
+                    }
+                    else {
+                        echo $delete_all_job_team_member;
+                    }
+                }
+                else{
+                    echo $delete_job_type;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple job type
+    else if($transaction == 'delete multiple job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_ids = $_POST['job_id'];
+
+            foreach($job_ids as $job_id){
+                $check_job_exist = $api->check_job_exist($job_id);
+
+                if($check_job_exist > 0){
+                    $delete_job = $api->delete_job($job_id, $username);
+                                        
+                    if($delete_job){
+                        $delete_all_job_team_member = $api->delete_all_job_team_member($job_id, $username);
+
+                        if($delete_all_job_team_member){
+                            $delete_all_job_branch = $api->delete_all_job_branch($job_id, $username);
+
+                            if(!$delete_all_job_branch){
+                                $error = $delete_all_job_branch;
+                            }
+                        }
+                        else {
+                            $error = $delete_all_job_team_member;
+                        }
+                    }
+                    else{
+                        $error = $delete_job_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Approve transactions
     # -------------------------------------------------------------
@@ -10287,6 +10447,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Activate job
+    else if($transaction == 'activate job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id']) && !empty($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_id = $_POST['job_id'];
+
+            $check_job_exist = $api->check_job_exist($job_id);
+
+            if($check_job_exist > 0){
+                $update_job_status = $api->update_job_status($job_id, 'ACT', $username);
+    
+                if($update_job_status){
+                    echo 'Activated';
+                }
+                else{
+                    echo $update_job_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Activate multiple job
+    else if($transaction == 'activate multiple job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_ids = $_POST['job_id'];
+
+            foreach($job_ids as $job_id){
+                $check_job_exist = $api->check_job_exist($job_id);
+
+                if($check_job_exist > 0){
+                    $update_job_status = $api->update_job_status($job_id, 'ACT', $username);
+        
+                    if(!$update_job_status){
+                        $error = $update_job_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Activated';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+    
     # -------------------------------------------------------------
     #   Deactivate transactions
     # -------------------------------------------------------------
@@ -10330,6 +10546,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                                     
                     if(!$update_user_account_status){
                         $error = $update_user_account_status;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deactivated';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Deactivate job
+    else if($transaction == 'deactivate job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id']) && !empty($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_id = $_POST['job_id'];
+
+            $check_job_exist = $api->check_job_exist($job_id);
+
+            if($check_job_exist > 0){
+                $update_job_status = $api->update_job_status($job_id, 'INACT', $username);
+    
+                if($update_job_status){
+                    echo 'Deactivated';
+                }
+                else{
+                    echo $update_job_status;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Deactivate multiple job
+    else if($transaction == 'deactivate multiple job'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['job_id'])){
+            $username = $_POST['username'];
+            $job_ids = $_POST['job_id'];
+
+            foreach($job_ids as $job_id){
+                $check_job_exist = $api->check_job_exist($job_id);
+
+                if($check_job_exist > 0){
+                    $update_job_status = $api->update_job_status($job_id, 'INACT', $username);
+        
+                    if(!$update_job_status){
+                        $error = $update_job_status;
                     }
                 }
                 else{
@@ -13329,6 +13601,50 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
 
             $response[] = array(
                 'RECRUITMENT_SCORECARD_SECTION_OPTION' => $recruitment_scorecard_section_option_details[0]['RECRUITMENT_SCORECARD_SECTION_OPTION']
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Job details
+    else if($transaction == 'job details'){
+        if(isset($_POST['job_id']) && !empty($_POST['job_id'])){
+            $job_id = $_POST['job_id'];
+            $job_details = $api->get_job_details($job_id);
+            $team_member = '';
+            $branch = '';
+
+            $job_team_member_details = $api->get_job_team_member_details($job_id);
+            $job_branch_details = $api->get_job_branch_details($job_id);
+
+            for($i = 0; $i < count($job_team_member_details); $i++) {
+                $team_member .= $job_team_member_details[$i]['EMPLOYEE_ID'] ?? null;
+
+                if($i != (count($job_team_member_details) - 1)){
+                    $team_member .= ',';
+                }
+            }
+
+            for($i = 0; $i < count($job_branch_details); $i++) {
+                $branch .= $job_branch_details[$i]['BRANCH_ID'] ?? null;
+
+                if($i != (count($job_branch_details) - 1)){
+                    $branch .= ',';
+                }
+            }
+
+            $response[] = array(
+                'JOB_TITLE' => $job_details[0]['JOB_TITLE'],
+                'JOB_CATEGORY' => $job_details[0]['JOB_CATEGORY'],
+                'JOB_TYPE' => $job_details[0]['JOB_TYPE'],
+                'PIPELINE' => $job_details[0]['PIPELINE'],
+                'SCORECARD' => $job_details[0]['SCORECARD'],
+                'SALARY' => $job_details[0]['SALARY'],
+                'DESCRIPTION' => $job_details[0]['DESCRIPTION'],
+                'TEAM_MEMBER' => $team_member,
+                'BRANCH' => $branch
             );
 
             echo json_encode($response);

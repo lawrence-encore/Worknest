@@ -3042,7 +3042,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
-            else if($form_type == 'jobs form'){
+            else if($form_type == 'job form'){
                 $form .= '<div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
@@ -3054,7 +3054,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="salary_amount" class="form-label">Salary Amount</label>
-                                    <input id="salary_amount" name="salary_amount" class="form-control" type="number" min="0.01" value="0" step="0.01">
+                                    <input id="salary_amount" name="salary_amount" class="form-control" type="number" min="0" value="0" step="0.01">
                                 </div>
                             </div>
                         </div>
@@ -3071,7 +3071,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Job Type <span class="required">*</span></label>
-                                    <select class="form-control form-select2" id="job_type" name="job_category">
+                                    <select class="form-control form-select2" id="job_type" name="job_type">
                                     <option value="">--</option>';
                                     $form .= $api->generate_job_type_options();
                                     $form .='</select>
@@ -3112,7 +3112,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Branch <span class="required">*</span></label>
-                                    <select class="form-control form-select2" multiple="multiple" id="branch" name="branch">';
+                                    <select class="form-control form-select2" multiple="multiple" id="branch_id" name="branch_id">';
                                     $form .= $api->generate_branch_options();
                                     $form .='</select>
                                 </div>
@@ -9357,7 +9357,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             'PAYROLL_DATE' => $payroll_date,
                             'AMOUNT' => number_format($amount, 2),
                             'ACTION' => '<div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary waves-effect waves-light view-deduction" data-deduction-id="'. $deduction_id .'" title="View Allowance">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-deduction" data-deduction-id="'. $deduction_id .'" title="View Deduction">
                                     <i class="bx bx-show font-size-16 align-middle"></i>
                                 </button>
                                 '. $update .'
@@ -12158,8 +12158,8 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
-    # Jobs table
-    else if($type == 'jobs table'){
+    # Job table
+    else if($type == 'job table'){
         if(isset($_POST['filter_job_type']) && isset($_POST['filter_job_category']) && isset($_POST['filter_recruitment_pipeline']) && isset($_POST['filter_recruitment_scorecard']) && isset($_POST['filter_status']) && isset($_POST['filter_team_member'])){
             if ($api->databaseConnection()) {
                 # Get permission
@@ -12169,13 +12169,25 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $deactivate_job = $api->check_role_permissions($username, 380);
                 $view_transaction_log = $api->check_role_permissions($username, 381);
 
+                $filter_branch = $_POST['filter_branch'];
+                $filter_job_type = $_POST['filter_job_type'];
+                $filter_job_category = $_POST['filter_job_category'];
+                $filter_recruitment_pipeline = $_POST['filter_recruitment_pipeline'];
+                $filter_recruitment_scorecard = $_POST['filter_recruitment_scorecard'];
+                $filter_status = $_POST['filter_status'];
+                $filter_team_member = $_POST['filter_team_member'];
+
                 $query = 'SELECT JOB_ID, JOB_TITLE, JOB_CATEGORY, JOB_TYPE, STATUS, TRANSACTION_LOG_ID FROM tbljob';
     
-                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status)){
+                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status) || !empty($filter_team_member)){
                     $query .= ' WHERE ';
 
                     if(!empty($filter_branch)){
                         $filter[] = 'JOB_ID IN (SELECT JOB_ID FROM tbljobbranch WHERE BRANCH_ID = :filter_branch)';
+                    }
+
+                    if(!empty($filter_team_member)){
+                        $filter[] = 'JOB_ID IN (SELECT JOB_ID FROM tbljobteam WHERE EMPLOYEE_ID = :filter_team_member)';
                     }
 
                     if(!empty($filter_job_category)){
@@ -12205,9 +12217,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status)){
+                if(!empty($filter_branch) || !empty($filter_job_type) || !empty($filter_job_category) || !empty($filter_recruitment_pipeline) || !empty($filter_recruitment_scorecard) || !empty($filter_status) || !empty($filter_team_member)){
                     if(!empty($filter_branch)){
                         $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_team_member)){
+                        $sql->bindValue(':filter_team_member', $filter_team_member);
                     }
 
                     if(!empty($filter_job_category)){
@@ -12240,7 +12256,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $status = $row['STATUS'];
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
 
-                        $status_name = get_job_status($status)[0]['BADGE'];
+                        $status_name = $api->get_job_status($status)[0]['BADGE'];
 
                         $job_category_details = $api->get_job_category_details($job_category);
                         $job_category_name = $job_category_details[0]['JOB_CATEGORY'];
@@ -12256,14 +12272,40 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         else{
                             $update = '';
                         }
-    
-                        if($delete_job > 0){
-                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job" data-job-id="'. $job_id .'" title="Delete Job">
-                                        <i class="bx bx-trash font-size-16 align-middle"></i>
-                                    </button>';
+
+                        if($status == 'ACT'){
+                            if($deactivate_job > 0){
+                                $active_inactive = '<button class="btn btn-danger waves-effect waves-light deactivate-job title="Deactivate Job" data-job-id="'. $job_id .'">
+                                <i class="bx bx-x font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $active_inactive = '';
+                            }
+
+                            $delete = '';
+                            $data_active = '1';
                         }
                         else{
-                            $delete = '';
+                            if($activate_job > 0){
+                                $active_inactive = '<button class="btn btn-success waves-effect waves-light activate-job" title="Activate Job" data-job-id="'. $job_id .'">
+                                <i class="bx bx-check font-size-16 align-middle"></i>
+                                </button>';
+                            }
+                            else{
+                                $active_inactive = '';
+                            }
+    
+                            if($delete_job > 0){
+                                $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job" data-job-id="'. $job_id .'" title="Delete Job">
+                                            <i class="bx bx-trash font-size-16 align-middle"></i>
+                                        </button>';
+                            }
+                            else{
+                                $delete = '';
+                            }
+
+                            $data_active = '0';
                         }
     
                         if($view_transaction_log > 0 && !empty($transaction_log_id)){
@@ -12276,13 +12318,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         }
     
                         $response[] = array(
-                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $job_id .'">',
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" data-active="'. $data_active .'" value="'. $job_id .'">',
                             'JOB_TITLE' => $job_title,
                             'JOB_CATEGORY' => $job_category_name,
                             'JOB_TYPE' => $job_type_name,
                             'STATUS' => $status_name,
                             'ACTION' => '<div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary waves-effect waves-light view-job" data-job-id="'. $job_id .'" title="View Job">
+                                    <i class="bx bx-show font-size-16 align-middle"></i>
+                                </button>
                                 '. $update .'
+                                '. $active_inactive .'
                                 '. $transaction_log .'
                                 '. $delete .'
                             </div>'

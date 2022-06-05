@@ -216,84 +216,6 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','.activate-user-account',function() {
-        var user_code = $(this).data('user-code');
-        var transaction = 'activate user account';
-
-        Swal.fire({
-            title: 'Activate User Account',
-            text: 'Are you sure you want to activate this user account?',
-            icon: 'info',
-            showCancelButton: !0,
-            confirmButtonText: 'Activate',
-            cancelButtonText: 'Cancel',
-            confirmButtonClass: 'btn btn-success mt-2',
-            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'controller.php',
-                    data: {username : username, user_code : user_code, transaction : transaction},
-                    success: function (response) {
-                        if(response === 'Activated'){
-                          show_alert('Activate User Account', 'The user account has been activated.', 'success');
-
-                          reload_datatable('#user-account-datatable');
-                        }
-                        else if(response === 'Not Found'){
-                          show_alert('Activate User Account', 'The user account does not exist.', 'info');
-                        }
-                        else{
-                          show_alert('Activate User Account', response, 'error');
-                        }
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
-    $(document).on('click','.deactivate-user-account',function() {
-        var user_code = $(this).data('user-code');
-        var transaction = 'deactivate user account';
-
-        Swal.fire({
-            title: 'Deactivate User Account',
-            text: 'Are you sure you want to deactivate this user account?',
-            icon: 'warning',
-            showCancelButton: !0,
-            confirmButtonText: 'Deactivate',
-            cancelButtonText: 'Cancel',
-            confirmButtonClass: 'btn btn-danger mt-2',
-            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-            buttonsStyling: !1
-        }).then(function(result) {
-            if (result.value) {
-                $.ajax({
-                    type: 'POST',
-                    url: 'controller.php',
-                    data: {username : username, user_code : user_code, transaction : transaction},
-                    success: function (response) {
-                        if(response === 'Deactivated'){
-                          show_alert('Deactivate User Account', 'The user account has been deactivated.', 'success');
-
-                          reload_datatable('#user-account-datatable');
-                        }
-                        else if(response === 'Not Found'){
-                          show_alert('Deactivate User Account', 'The user account does not exist.', 'info');
-                        }
-                        else{
-                          show_alert('Deactivate User Account', response, 'error');
-                        }
-                    }
-                });
-                return false;
-            }
-        });
-    });
-
     $(document).on('click','#lock-user-account',function() {
         var user_code = [];
         var transaction = 'lock multiple user account';
@@ -392,6 +314,84 @@ function initialize_click_events(){
         else{
             show_alert('Unlock Multiple User Accounts', 'Please select the user accounts you want to unlock.', 'error');
         }
+    });
+
+    $(document).on('click','.activate-user-account',function() {
+        var user_code = $(this).data('user-code');
+        var transaction = 'activate user account';
+
+        Swal.fire({
+            title: 'Activate User Account',
+            text: 'Are you sure you want to activate this user account?',
+            icon: 'info',
+            showCancelButton: !0,
+            confirmButtonText: 'Activate',
+            cancelButtonText: 'Cancel',
+            confirmButtonClass: 'btn btn-success mt-2',
+            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: {username : username, user_code : user_code, transaction : transaction},
+                    success: function (response) {
+                        if(response === 'Activated'){
+                          show_alert('Activate User Account', 'The user account has been activated.', 'success');
+
+                          reload_datatable('#user-account-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                          show_alert('Activate User Account', 'The user account does not exist.', 'info');
+                        }
+                        else{
+                          show_alert('Activate User Account', response, 'error');
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    });
+
+    $(document).on('click','.deactivate-user-account',function() {
+        var user_code = $(this).data('user-code');
+        var transaction = 'deactivate user account';
+
+        Swal.fire({
+            title: 'Deactivate User Account',
+            text: 'Are you sure you want to deactivate this user account?',
+            icon: 'warning',
+            showCancelButton: !0,
+            confirmButtonText: 'Deactivate',
+            cancelButtonText: 'Cancel',
+            confirmButtonClass: 'btn btn-danger mt-2',
+            cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+            buttonsStyling: !1
+        }).then(function(result) {
+            if (result.value) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: {username : username, user_code : user_code, transaction : transaction},
+                    success: function (response) {
+                        if(response === 'Deactivated'){
+                          show_alert('Deactivate User Account', 'The user account has been deactivated.', 'success');
+
+                          reload_datatable('#user-account-datatable');
+                        }
+                        else if(response === 'Not Found'){
+                          show_alert('Deactivate User Account', 'The user account does not exist.', 'info');
+                        }
+                        else{
+                          show_alert('Deactivate User Account', response, 'error');
+                        }
+                    }
+                });
+                return false;
+            }
+        });
     });
 
     $(document).on('click','#activate-user-account',function() {

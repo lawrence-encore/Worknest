@@ -10610,6 +10610,119 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'job form'){
+        $('#job-form').validate({
+            submitHandler: function (form) {
+                transaction = 'submit job';
+
+                var team_member = $('#team_member').val();
+                var branch_id = $('#branch_id').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: $(form).serialize() + '&username=' + username + '&transaction=' + transaction + '&team_member=' + team_member + '&branch_id=' + branch_id,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Job Success', 'The job has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Job Success', 'The job has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#job-datatable');
+                        }
+                        else{
+                            show_alert('Job Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                job_title: {
+                    required: true
+                },
+                job_category: {
+                    required: true
+                },
+                job_type: {
+                    required: true
+                },
+                recruitment_pipeline: {
+                    required: true
+                },
+                recruitment_scorecard: {
+                    required: true
+                },
+                team_member: {
+                    required: true
+                },
+                branch_id: {
+                    required: true
+                },
+                description: {
+                    required: true         
+                }
+            },
+            messages: {
+                job_title: {
+                    required: 'Please enter the job title',
+                },
+                job_category: {
+                    required: 'Please choose the job category',
+                },
+                job_type: {
+                    required: 'Please choose the job type',
+                },
+                recruitment_pipeline: {
+                    required: 'Please choose the recruitment pipeline',
+                },
+                recruitment_scorecard: {
+                    required: 'Please choose the recruitment scorecard',
+                },
+                team_member: {
+                    required: 'Please choose at least one (1) team member',
+                },
+                branch_id: {
+                    required: 'Please choose at least one (1) branch',
+                },
+                description: {
+                    required: 'Please enter the description',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){
@@ -12870,6 +12983,32 @@ function display_form_details(form_type){
                 $('#recruitment_scorecard_section_option').val(response[0].RECRUITMENT_SCORECARD_SECTION_OPTION);
                 $('#recruitment_scorecard_section_id').val(recruitment_scorecard_section_id);
                 $('#recruitment_scorecard_section_option_id').val(recruitment_scorecard_section_option_id);
+            }
+        });
+    }
+    else if(form_type == 'job form'){
+        transaction = 'job details';
+
+        var job_id = sessionStorage.getItem('job_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {job_id : job_id, transaction : transaction},
+            success: function(response) {
+                $('#job_id').val(job_id);
+                $('#job_title').val(response[0].JOB_TITLE);
+                $('#salary_amount').val(response[0].SALARY);
+                $('#description').val(response[0].DESCRIPTION);
+
+                check_empty(response[0].JOB_CATEGORY, '#job_category', 'select');
+                check_empty(response[0].JOB_TYPE, '#job_type', 'select');
+                check_empty(response[0].PIPELINE, '#recruitment_pipeline', 'select');
+                check_empty(response[0].SCORECARD, '#recruitment_scorecard', 'select');
+
+                check_empty(response[0].TEAM_MEMBER.split(','), '#team_member', 'select');
+                check_empty(response[0].BRANCH.split(','), '#branch_id', 'select');
             }
         });
     }

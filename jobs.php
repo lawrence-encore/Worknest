@@ -7,8 +7,10 @@
     $page_title = 'Jobs';
 
     $page_access = $api->check_role_permissions($username, 375);
-	$add_jobs = $api->check_role_permissions($username, 376);
-	$delete_jobs = $api->check_role_permissions($username, 378);
+	$add_job = $api->check_role_permissions($username, 376);
+	$delete_job = $api->check_role_permissions($username, 378);   
+    $activate_job = $api->check_role_permissions($username, 379);
+    $deactivate_job = $api->check_role_permissions($username, 380);
 
 	$check_user_account_status = $api->check_user_account_status($username);
 
@@ -68,18 +70,26 @@
                                             <div class="col-md-12">
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-grow-1 align-self-center">
-                                                        <h4 class="card-title">Jobs List</h4>
+                                                        <h4 class="card-title">Job List</h4>
                                                     </div>
                                                     <div class="d-flex gap-2">
                                                         <?php
-                                                            if($add_jobs > 0 || $delete_jobs > 0){
+                                                            if($add_job > 0 || $delete_job > 0|| $activate_job > 0|| $deactivate_job > 0){
 
-                                                                if($add_jobs > 0){
-                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-jobs"><i class="bx bx-plus label-icon"></i> Add</button>';
+                                                                if($add_job > 0){
+                                                                    echo '<button type="button" class="btn btn-primary waves-effect btn-label waves-light" id="add-job"><i class="bx bx-plus label-icon"></i> Add</button>';
                                                                 }
 
-                                                                if($delete_jobs > 0){
-                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-jobs"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                if($delete_job > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple" id="delete-job"><i class="bx bx-trash label-icon"></i> Delete</button>';
+                                                                }
+
+                                                                if($activate_job > 0){
+                                                                    echo '<button type="button" class="btn btn-success waves-effect btn-label waves-light d-none multiple-activate" id="activate-job"><i class="bx bx bx-user-check label-icon"></i> Activate</button>';
+                                                                }
+
+                                                                if($deactivate_job > 0){
+                                                                    echo '<button type="button" class="btn btn-danger waves-effect btn-label waves-light d-none multiple-deactivate" id="deactivate-job"><i class="bx bx bx-user-check label-icon"></i> Deactivate</button>';
                                                                 }
                                                             }
                                                         ?>
@@ -158,7 +168,7 @@
                                         </div>
                                         <div class="row mt-4">
                                             <div class="col-md-12">
-                                                <table id="jobs-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
+                                                <table id="job-datatable" class="table table-bordered align-middle mb-0 table-hover table-striped dt-responsive nowrap w-100">
                                                     <thead>
                                                         <tr>
                                                             <th class="all">
