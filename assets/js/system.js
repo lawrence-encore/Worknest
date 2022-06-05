@@ -11017,7 +11017,7 @@ function generate_element(element_type, value, container, modal, username){
             if(modal == '1'){
                 $('#System-Modal').modal('show');
 
-                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details' || element_type == 'other income details' || element_type == 'payslip details'){
+                if(element_type == 'system parameter details' || element_type == 'branch details' || element_type == 'leave details' || element_type == 'employee file details' || element_type == 'employee qr code' || element_type == 'user account details' || element_type == 'employee attendance details' || element_type == 'attendance creation details' || element_type == 'attendance adjustment details' || element_type == 'work shift regular details' || element_type == 'work shift scheduled details' || element_type == 'allowance details' || element_type == 'deduction details' || element_type == 'contribution deduction details' || element_type == 'salary details' || element_type == 'payroll group details' || element_type == 'pay run details' || element_type == 'other income details' || element_type == 'payslip details' || element_type == 'job details'){
                     display_form_details(element_type);
                 }
                 else if(element_type == 'scan qr code form'){
@@ -13009,6 +13009,34 @@ function display_form_details(form_type){
 
                 check_empty(response[0].TEAM_MEMBER.split(','), '#team_member', 'select');
                 check_empty(response[0].BRANCH.split(','), '#branch_id', 'select');
+            }
+        });
+    }
+    else if(form_type == 'job details'){
+        transaction = 'job summary details';
+
+        var job_id = sessionStorage.getItem('job_id');
+
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {job_id : job_id, transaction : transaction},
+            success: function(response) {
+                $('#job_title').text(response[0].JOB_TITLE);
+                $('#job_category').text(response[0].JOB_CATEGORY);
+                $('#job_type').text(response[0].JOB_TYPE);
+                $('#pipeline').text(response[0].PIPELINE);
+                $('#scorecard').text(response[0].SCORECARD);
+                $('#salary').text(response[0].SALARY);
+                $('#description').text(response[0].DESCRIPTION);
+                $('#created_date').text(response[0].CREATED_DATE);
+                $('#created_time').text(response[0].CREATED_TIME);
+                $('#created_by').text(response[0].CREATED_BY);
+
+                document.getElementById('job_status').innerHTML = response[0].STATUS;
+                document.getElementById('branch').innerHTML = response[0].BRANCH;
+                document.getElementById('team_member').innerHTML = response[0].TEAM_MEMBER;
             }
         });
     }

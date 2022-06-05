@@ -4190,6 +4190,64 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                                 </div>
                             </div>';
             }
+            else if($element_type == 'job details'){
+                $element = '<table class="table table-nowrap mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Job Title :</th>
+                                        <td id="job_title"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Job Category :</th>
+                                        <td id="job_category"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Job Type :</th>
+                                        <td id="job_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Pipeline :</th>
+                                        <td id="pipeline"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Scorecard :</th>
+                                        <td id="scorecard"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Salary :</th>
+                                        <td id="salary"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Status :</th>
+                                        <td id="job_status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Description :</th>
+                                        <td id="description"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Branch :</th>
+                                        <td id="branch"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Team Members :</th>
+                                        <td id="team_member"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Created Date :</th>
+                                        <td id="created_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Created Time :</th>
+                                        <td id="created_time"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Created By :</th>
+                                        <td id="created_by"></td>
+                                    </tr>
+                                </tbody>
+                            </table>';
+            }
 
             $response[] = array(
                 'ELEMENT' => $element
@@ -12263,15 +12321,6 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
                         $job_type_details = $api->get_job_type_details($job_type);
                         $job_type_name = $job_type_details[0]['JOB_TYPE'];
-    
-                        if($update_job > 0){
-                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job" data-job-id="'. $job_id .'" title="Edit Job">
-                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
-                                        </button>';
-                        }
-                        else{
-                            $update = '';
-                        }
 
                         if($status == 'ACT'){
                             if($deactivate_job > 0){
@@ -12284,6 +12333,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             }
 
                             $delete = '';
+                            $update = '';
                             $data_active = '1';
                         }
                         else{
@@ -12294,6 +12344,15 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             }
                             else{
                                 $active_inactive = '';
+                            }
+
+                            if($update_job > 0){
+                                $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job" data-job-id="'. $job_id .'" title="Edit Job">
+                                                <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                            </button>';
+                            }
+                            else{
+                                $update = '';
                             }
     
                             if($delete_job > 0){

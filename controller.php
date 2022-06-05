@@ -13652,6 +13652,75 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Job summary details
+    else if($transaction == 'job summary details'){
+        if(isset($_POST['job_id']) && !empty($_POST['job_id'])){
+            $job_id = $_POST['job_id'];
+            $job_details = $api->get_job_details($job_id);
+            $team_member = '';
+            $branch = '';
+            $job_category = $job_details[0]['JOB_CATEGORY'];
+            $job_type = $job_details[0]['JOB_TYPE'];
+            $pipeline = $job_details[0]['PIPELINE'];
+            $scorecard = $job_details[0]['SCORECARD'];
+
+            $job_category_details = $api->get_job_category_details($job_category);
+            $job_category_name = $job_category_details[0]['JOB_CATEGORY'];
+
+            $job_type_details = $api->get_job_type_details($job_type);
+            $job_type_name = $job_type_details[0]['JOB_TYPE'];
+
+            $recruitment_pipeline_details = $api->get_recruitment_pipeline_details($pipeline);
+            $pipeline_name = $recruitment_pipeline_details[0]['RECRUITMENT_PIPELINE'];
+
+            $recruitment_scorecard_details = $api->get_recruitment_scorecard_details($scorecard);
+            $scorecard_name = $recruitment_scorecard_details[0]['RECRUITMENT_SCORECARD'];
+
+            $job_team_member_details = $api->get_job_team_member_details($job_id);
+            $job_branch_details = $api->get_job_branch_details($job_id);
+
+            $created_by_details = $api->get_employee_details('', $job_details[0]['CREATED_BY']);
+            $created_by = $created_by_details[0]['FILE_AS'] ?? $job_details[0]['CREATED_BY'];
+
+            for($i = 0; $i < count($job_team_member_details); $i++) {
+                $team_member_details = $api->get_employee_details($job_team_member_details[$i]['EMPLOYEE_ID'], '');
+                $team_member .= $team_member_details[0]['FILE_AS'] ?? null;
+
+                if($i != (count($job_team_member_details) - 1)){
+                    $team_member .= '<br/>';
+                }
+            }
+
+            for($i = 0; $i < count($job_branch_details); $i++) {
+                $branch_details = $api->get_branch_details($job_branch_details[$i]['BRANCH_ID']);
+                $branch = $branch_details[0]['BRANCH'];
+
+                if($i != (count($job_branch_details) - 1)){
+                    $branch .= '<br/>';
+                }
+            }
+
+            $response[] = array(
+                'JOB_TITLE' => $job_details[0]['JOB_TITLE'],
+                'JOB_CATEGORY' => $job_category_name,
+                'JOB_TYPE' => $job_type_name,
+                'PIPELINE' => $pipeline_name,
+                'SCORECARD' => $scorecard_name,
+                'SALARY' => number_format($job_details[0]['SALARY'], 2),
+                'STATUS' => $api->get_job_status($job_details[0]['STATUS'])[0]['BADGE'],
+                'DESCRIPTION' => $job_details[0]['DESCRIPTION'],
+                'CREATED_DATE' => $api->check_date('empty', $job_details[0]['CREATED_DATE'], '', 'F d, Y', '', '', ''),
+                'CREATED_TIME' => $api->check_date('empty', $job_details[0]['CREATED_TIME'], '', 'h:i:s a', '', '', ''),
+                'CREATED_BY' => $created_by,
+                'TEAM_MEMBER' => $team_member,
+                'BRANCH' => $branch
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
 }
 
 ?>
