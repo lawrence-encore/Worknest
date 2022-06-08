@@ -100,7 +100,7 @@ function initialize_emergency_contact_table(datatable_name, buttons = false, sho
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -127,7 +127,7 @@ function initialize_emergency_contact_table(datatable_name, buttons = false, sho
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -187,7 +187,7 @@ function initialize_employee_address_table(datatable_name, buttons = false, show
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -214,7 +214,7 @@ function initialize_employee_address_table(datatable_name, buttons = false, show
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -274,7 +274,7 @@ function initialize_employee_social_table(datatable_name, buttons = false, show_
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -301,7 +301,7 @@ function initialize_employee_social_table(datatable_name, buttons = false, show_
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -378,7 +378,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -405,7 +405,7 @@ function initialize_employee_attendance_table(datatable_name, buttons = false, s
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -470,7 +470,7 @@ function initialize_employee_leave_entitlement_table(datatable_name, buttons = f
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -497,7 +497,7 @@ function initialize_employee_leave_entitlement_table(datatable_name, buttons = f
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -566,7 +566,7 @@ function initialize_employee_leave_table(datatable_name, buttons = false, show_a
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }
@@ -593,7 +593,7 @@ function initialize_employee_leave_table(datatable_name, buttons = false, show_a
                 'emptyTable': 'No data found',
                 'searchPlaceholder': 'Search...',
                 'search': '',
-                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" employee="status"><span class="sr-only">Loading...</span></div>'
+                'loadingRecords': '<div class="spinner-border spinner-border-lg text-info" role="status"><span class="sr-only">Loading...</span></div>'
             }
         };
     }

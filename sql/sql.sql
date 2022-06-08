@@ -1001,10 +1001,27 @@ CREATE TABLE tbljobteam(
 	RECORD_LOG VARCHAR(100)
 );
 
-CREATE INDEX job_index ON tbljob(JOB_ID);
+CREATE TABLE tblapplicant(
+	APPLICANT_ID VARCHAR(100) PRIMARY KEY,
+	FILE_AS VARCHAR(500) NOT NULL,
+	FIRST_NAME VARCHAR(100) NOT NULL,
+	MIDDLE_NAME VARCHAR(100),
+	LAST_NAME VARCHAR(100) NOT NULL,
+	SUFFIX VARCHAR(20),
+	BIRTHDAY DATE NOT NULL,
+	APPLICATION_DATE DATE NOT NULL,
+	APPLICATION_TIME TIME NOT NULL,
+	EMAIL VARCHAR(100) NOT NULL,
+	PHONE VARCHAR(30) NOT NULL,
+	TELEPHONE VARCHAR(30),
+	APPLIED_FOR VARCHAR(100) NOT NULL,
+	RECRUITMENT_STAGE VARCHAR(100) NOT NULL,
+	APPLICANT_RESUME VARCHAR(500) NOT NULL,
+	TRANSACTION_LOG_ID VARCHAR(500),
+	RECORD_LOG VARCHAR(100)
+);
 
-CREATE INDEX job_scorecard_section_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_ID);
-CREATE INDEX job_scorecard_section_option_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_OPTION_ID);
+CREATE INDEX applicant_index ON tblapplicant(APPLICANT_ID);
 
 /* Index */
 
@@ -1063,6 +1080,9 @@ CREATE INDEX job_category_index ON tbljobcategory(JOB_CATEGORIY_ID);
 CREATE INDEX job_index ON tbljob(JOB_ID);
 CREATE INDEX job_pipeline_index ON tbljobpipeline(PIPELINE_ID);
 CREATE INDEX job_pipeline_stage_index ON tbljobpipelinestage(PIPELINE_STAGE_ID);
+CREATE INDEX job_index ON tbljob(JOB_ID);
+CREATE INDEX job_scorecard_section_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_ID);
+CREATE INDEX job_scorecard_section_option_index ON tblrecruitmentscorecardsectionoption(RECRUITMENT_SCORECARD_SECTION_OPTION_ID);
 
 /* Stored Procedure */
 
@@ -7100,6 +7120,15 @@ BEGIN
 	SET @record_log = record_log;
 
 	SET @query = 'UPDATE tbljob SET STATUS = @status, RECORD_LOG = @record_log WHERE JOB_ID = @job_id';
+
+	PREPARE stmt FROM @query;
+	EXECUTE stmt;
+	DROP PREPARE stmt;
+END //
+
+CREATE PROCEDURE generate_job_options()
+BEGIN
+	SET @query = 'SELECT JOB_ID, JOB_TITLE FROM tbljob ORDER BY JOB_TITLE';
 
 	PREPARE stmt FROM @query;
 	EXECUTE stmt;

@@ -2,39 +2,41 @@
     'use strict';
 
     $(function() {
-        if($('#employee-datatable').length){
-            initialize_employee_table('#employee-datatable');
+        if($('#job-applicant-datatable').length){
+            initialize_job_applicant_table('#job-applicant-datatable');
         }
 
         initialize_click_events();
     });
 })(jQuery);
 
-function initialize_employee_table(datatable_name, buttons = false, show_all = false){    
+function initialize_job_applicant_table(datatable_name, buttons = false, show_all = false){    
     var username = $('#username').text();
     var filter_branch = $('#filter_branch').val();
-    var filter_department = $('#filter_department').val();
-    var filter_designation = $('#filter_designation').val();
-    var filter_employment_status = $('#filter_employment_status').val();
-    var type = 'employee table';
+    var filter_job = $('#filter_job').val();
+    var filter_job_category = $('#filter_job_category').val();
+    var filter_job_type = $('#filter_job_type').val();
+    var filter_start_date = $('#filter_start_date').val();
+    var filter_end_date = $('#filter_end_date').val();
+    var type = 'job applicant table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'FILE_AS' },
-        { 'data' : 'EMPLOYEE_ID' },
-        { 'data' : 'EMPLOYMENT_STATUS' },
-        { 'data' : 'DEPARTMENT' },
+        { 'data' : 'APPLIED_FOR' },
+        { 'data' : 'APPLICATION_DATE' },
+        { 'data' : 'RECRUITMENT_STAGE' },
         { 'data' : 'ACTION' }
     ];
 
     var column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '37%', 'aTargets': 1 },
-        { 'width': '12%', 'aTargets': 2 },
+        { 'width': '35%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
         { 'width': '15%', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
-        { 'width': '20%','bSortable': false, 'aTargets': 5 },
+        { 'width': '19%','bSortable': false, 'aTargets': 5 },
     ];
 
     if(show_all){
@@ -50,7 +52,7 @@ function initialize_employee_table(datatable_name, buttons = false, show_all = f
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_designation' : filter_designation, 'filter_employment_status' : filter_employment_status},
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_job' : filter_job, 'filter_job_category' : filter_job_category, 'filter_job_type' : filter_job_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -111,25 +113,25 @@ function initialize_employee_table(datatable_name, buttons = false, show_all = f
 function initialize_click_events(){
     var username = $('#username').text();
 
-    $(document).on('click','#add-employee',function() {
-        generate_modal('employee form', 'Employee', 'XL' , '0', '1', 'form', 'employee-form', '1', username);
+    $(document).on('click','#add-job-applicant',function() {
+        generate_modal('job applicant form', 'Job Applicant', 'XL' , '0', '1', 'form', 'job-applicant-form', '1', username);
     });
 
-    $(document).on('click','.update-employee',function() {
-        var employee_id = $(this).data('employee-id');
+    $(document).on('click','.update-job-applicant',function() {
+        var job_applicant_id = $(this).data('job-applicant-id');
 
-        sessionStorage.setItem('employee_id', employee_id);
+        sessionStorage.setItem('job_applicant_id', job_applicant_id);
         
-        generate_modal('employee form', 'Employee', 'XL' , '0', '1', 'form', 'employee-form', '0', username);
+        generate_modal('job applicant form', 'Job Applicant', 'XL' , '0', '1', 'form', 'job-applicant-form', '0', username);
     });
     
-    $(document).on('click','.delete-employee',function() {
-        var employee_id = $(this).data('employee-id');
-        var transaction = 'delete employee';
+    $(document).on('click','.delete-job-applicant',function() {
+        var job_applicant_id = $(this).data('job-applicant-id');
+        var transaction = 'delete job applicant';
 
         Swal.fire({
-            title: 'Delete Employee',
-            text: 'Are you sure you want to delete this employee?',
+            title: 'Delete Job Applicant',
+            text: 'Are you sure you want to delete this job applicant?',
             icon: 'warning',
             showCancelButton: !0,
             confirmButtonText: 'Delete',
@@ -142,18 +144,18 @@ function initialize_click_events(){
                 $.ajax({
                     type: 'POST',
                     url: 'controller.php',
-                    data: {username : username, employee_id : employee_id, transaction : transaction},
+                    data: {username : username, job_applicant_id : job_applicant_id, transaction : transaction},
                     success: function (response) {
                         if(response === 'Deleted'){
-                          show_alert('Delete Employee', 'The employee has been deleted.', 'success');
+                          show_alert('Delete Job Applicant', 'The job applicant has been deleted.', 'success');
 
-                          reload_datatable('#employee-datatable');
+                          reload_datatable('#job-applicant-datatable');
                         }
                         else if(response === 'Not Found'){
-                          show_alert('Delete Employee', 'The employee does not exist.', 'info');
+                          show_alert('Delete Job Applicant', 'The job applicant does not exist.', 'info');
                         }
                         else{
-                          show_alert('Delete Employee', response, 'error');
+                          show_alert('Delete Job Applicant', response, 'error');
                         }
                     }
                 });
@@ -162,20 +164,20 @@ function initialize_click_events(){
         });
     });
 
-    $(document).on('click','#delete-employee',function() {
-        var employee_id = [];
-        var transaction = 'delete multiple employee';
+    $(document).on('click','#delete-job-applicant',function() {
+        var job_applicant_id = [];
+        var transaction = 'delete multiple job applicant';
 
         $('.datatable-checkbox-children').each(function(){
             if($(this).is(':checked')){  
-                employee_id.push(this.value);  
+                job_applicant_id.push(this.value);  
             }
         });
 
-        if(employee_id.length > 0){
+        if(job_applicant_id.length > 0){
             Swal.fire({
-                title: 'Delete Multiple Employees',
-                text: 'Are you sure you want to delete these employees?',
+                title: 'Delete Multiple Job Applicants',
+                text: 'Are you sure you want to delete these job applicants?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -189,18 +191,18 @@ function initialize_click_events(){
                     $.ajax({
                         type: 'POST',
                         url: 'controller.php',
-                        data: {username : username, employee_id : employee_id, transaction : transaction},
+                        data: {username : username, job_applicant_id : job_applicant_id, transaction : transaction},
                         success: function (response) {
                             if(response === 'Deleted'){
-                                show_alert('Delete Multiple Employees', 'The employees have been deleted.', 'success');
+                                show_alert('Delete Multiple Job Applicants', 'The job applicants have been deleted.', 'success');
     
-                                reload_datatable('#employee-datatable');
+                                reload_datatable('#job-applicant-datatable');
                             }
                             else if(response === 'Not Found'){
-                                show_alert('Delete Multiple Employees', 'The employee does not exist.', 'info');
+                                show_alert('Delete Multiple Job Applicants', 'The job applicant does not exist.', 'info');
                             }
                             else{
-                                show_alert('Delete Multiple Employees', response, 'error');
+                                show_alert('Delete Multiple Job Applicants', response, 'error');
                             }
                         }
                     });
@@ -210,11 +212,11 @@ function initialize_click_events(){
             });
         }
         else{
-            show_alert('Delete Multiple Employees', 'Please select the employees you want to delete.', 'error');
+            show_alert('Delete Multiple Job Applicants', 'Please select the job applicants you want to delete.', 'error');
         }
     });
 
     $(document).on('click','#apply-filter',function() {
-        initialize_employee_table('#employee-datatable');
+        initialize_job_applicant_table('#job-applicant-datatable');
     });
 }

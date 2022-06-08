@@ -12404,6 +12404,159 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
     }
     # -------------------------------------------------------------
 
+    # Job applicant table
+    else if($type == 'job applicant table'){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_job']) && isset($_POST['filter_job_category']) && isset($_POST['filter_job_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+            if($api->databaseConnection()) {
+                # Get permission
+                $update_job_applicant = $api->check_role_permissions($username, 384);
+                $delete_job_applicant = $api->check_role_permissions($username, 385);
+                $view_transaction_log = $api->check_role_permissions($username, 386);
+                $view_employee_details_page = $api->check_role_permissions($username, 75);
+
+                $filter_branch = $_POST['filter_branch'];
+                $filter_job = $_POST['filter_job'];
+                $filter_job_category = $_POST['filter_job_category'];
+                $filter_job_type = $_POST['filter_job_type'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_end_date'], '', 'Y-m-d', '', '', '');
+    
+                $query = 'SELECT APPLICANT_ID, FILE_AS, APPLICATION_DATE, APPLICATION_TIME, APPLIED_FOR, RECRUITMENT_STAGE, TRANSACTION_LOG_ID FROM tblapplicant ';
+
+                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    $query .= ' WHERE ';
+
+                    if(!empty($filter_branch)){
+                        $filter[] = 'APPLIED_FOR IN (SELECT JOB_ID FROM tbljobbranch WHERE BRANCH_ID = :filter_branch)';
+                    }
+
+                    if(!empty($filter_job)){
+                        $filter[] = 'APPLIED_FOR = :filter_job';
+                    }
+
+                    if(!empty($filter_job_category)){
+                        $filter[] = 'APPLIED_FOR IN (SELECT JOB_ID FROM tbljob WHERE JOB_CATEGORY = :filter_job_category)';
+                    }
+
+                    if(!empty($filter_job_type)){
+                        $filter[] = 'APPLIED_FOR IN (SELECT JOB_ID FROM tbljob WHERE JOB_TYPE = :filter_job_type)';
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $query .= ' APPLICATION_DATE BETWEEN :filter_start_date AND :filter_start_date';
+                    }
+
+                    if(!empty($filter)){
+                        $query .= implode(' AND ', $filter);
+                    }
+                }
+                
+                $sql = $api->db_connection->prepare($query);
+
+                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                    if(!empty($filter_branch)){
+                        $sql->bindValue(':filter_branch', $filter_branch);
+                    }
+
+                    if(!empty($filter_job)){
+                        $sql->bindValue(':filter_job', $filter_job);
+                    }
+
+                    if(!empty($filter_job_category)){
+                        $sql->bindValue(':filter_job_category', $filter_job_category);
+                    }
+
+                    if(!empty($filter_job_type)){
+                        $sql->bindValue(':filter_job_type', $filter_job_type);
+                    }
+
+                    if(!empty($filter_start_date) && !empty($filter_end_date)){
+                        $sql->bindValue(':filter_start_date', $filter_start_date);
+                        $sql->bindValue(':filter_end_date', $filter_end_date);
+                    }
+                }
+    
+                if($sql->execute()){
+                    while($row = $sql->fetch()){
+                        $applicant_id = $row['APPLICANT_ID'];
+                        $applicant_id_encrypted = $api->encrypt_data($applicant_id);
+                        $file_as = $row['FILE_AS'];
+                        $applied_for = $row['APPLIED_FOR'];
+                        $recruitment_stage = $row['RECRUITMENT_STAGE'];
+
+                        $application_date = $api->check_date('empty', $row['APPLICATION_DATE'], '', 'm/d/Y', '', '', '');
+                        $application_time = $api->check_date('empty', $row['APPLICATION_TIME'], '', 'h:i:s a', '', '', '');
+                        $transaction_log_id = $row['TRANSACTION_LOG_ID'];
+
+                        $job_details = $api->get_job_details($applied_for);
+                        $job_title = $job_details[0]['JOB_TITLE'];
+                        $pipeline = $job_details[0]['PIPELINE'];
+    
+                        if($update_job_applicant > 0){
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-applicant" data-employee-id="'. $applicant_id .'" title="Edit Applicant">
+                                            <i class="bx bx-pencil font-size-16 align-middle"></i>
+                                        </button>';
+                        }
+                        else{
+                            $update = '';
+                        }
+    
+                        if($view_employee_details_page > 0){
+                            $view_page = '<a href="employee-details.php?id='. $applicant_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Applicant Details">
+                                                <i class="bx bx-user font-size-16 align-middle"></i>
+                                            </a>';
+
+                            $file_as = '<a href="employee-details.php?id='. $applicant_id_encrypted .'" title="View Applicant Details">
+                                                '. $file_as .'
+                                            </a>';
+                        }
+                        else{
+                            $view_page = '';
+                        }
+    
+                        if($delete_job_applicant > 0){
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job-applicant" data-employee-id="'. $applicant_id .'" title="Delete Applicant">
+                                        <i class="bx bx-trash font-size-16 align-middle"></i>
+                                    </button>';
+                        }
+                        else{
+                            $delete = '';
+                        }
+    
+                        if($view_transaction_log > 0 && !empty($transaction_log_id)){
+                            $transaction_log = '<button type="button" class="btn btn-dark waves-effect waves-light view-transaction-log" data-transaction-log-id="'. $transaction_log_id .'" title="View Transaction Log">
+                                                    <i class="bx bx-detail font-size-16 align-middle"></i>
+                                                </button>';
+                        }
+                        else{
+                            $transaction_log = '';
+                        }
+    
+                        $response[] = array(
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $applicant_id .'">',
+                            'FILE_AS' => $file_as,
+                            'EMPLOYEE_ID' => $employee_id,
+                            'EMPLOYMENT_STATUS' => '<span class="badge bg-'. $color_value .'">'. $employment_status_description .'</span>',
+                            'DEPARTMENT' => $department_name,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                '. $update .'
+                                '. $view_page .'
+                                '. $transaction_log .'
+                                '. $delete .'
+                            </div>'
+                        );
+                    }
+    
+                    echo json_encode($response);
+                }
+                else{
+                    echo $sql->errorInfo()[2];
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Generate option functions
     # -------------------------------------------------------------
