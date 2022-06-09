@@ -115,12 +115,22 @@
                                                                     <?php echo $api->generate_job_category_options(); ?>
                                                                 </select>
                                                             </div>
+
                                                             <div class="mb-3">
                                                                 <p class="text-muted">Job Type</p>
 
                                                                 <select class="form-control filter-select2" id="filter_job_type">
                                                                     <option value="">All Job Type</option>
                                                                     <?php echo $api->generate_job_type_options(); ?>
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <p class="text-muted">Recruitment Stage</p>
+
+                                                                <select class="form-control filter-select2" id="filter_recruitment_stage">
+                                                                    <option value="">All Recruitment Stage</option>
+                                                                    <?php echo $api->generate_recruitment_stage_options(); ?>
                                                                 </select>
                                                             </div>
 

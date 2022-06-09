@@ -20948,6 +20948,64 @@ class Api{
         }
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Name       : generate_recruitment_stage_options
+    # Purpose    : Generates recruitment stage options of dropdown.
+    #
+    # Returns    : String
+    #
+    # -------------------------------------------------------------
+    public function generate_recruitment_stage_options(){
+        if ($this->databaseConnection()) {
+            $option = '';
+            
+            $sql = $this->db_connection->prepare('SELECT RECRUITMENT_PIPELINE_ID, RECRUITMENT_PIPELINE FROM tblrecruitmentpipeline');
+
+            if($sql->execute()){
+                $count = $sql->rowCount();
+        
+                if($count > 0){
+                    while($row = $sql->fetch()){
+                        $recruitment_pipeline_id = $row['RECRUITMENT_PIPELINE_ID'];
+                        $recruitment_pipeline = $row['RECRUITMENT_PIPELINE'];
+                        
+                        $option .= "<optgroup label='". $recruitment_pipeline ."'>";
+
+                        $sql = $this->db_connection->prepare('SELECT RECRUITMENT_PIPELINE_STAGE_ID, RECRUITMENT_PIPELINE_STAGE FROM tblrecruitmentpipelinestage WHERE RECRUITMENT_PIPELINE_ID = :recruitment_pipeline_id ORDER BY STAGE_ORDER');
+                        $sql->bindValue(':recruitment_pipeline_id', $recruitment_pipeline_id);
+
+                        if($sql->execute()){
+                            $count = $sql->rowCount();
+                    
+                            if($count > 0){
+                                while($row = $sql->fetch()){
+                                    $recruitment_pipeline_stage_id = $row['RECRUITMENT_PIPELINE_STAGE_ID'];
+                                    $recruitment_pipeline_stage = $row['RECRUITMENT_PIPELINE_STAGE'];
+                                    
+                                    $option .= "<option value='". $recruitment_pipeline_stage_id ."'>". $recruitment_pipeline_stage ."</option>";
+                                }
+                
+                                return $option;
+                            }
+                        }
+                        else{
+                            return $sql->errorInfo()[2];
+                        }
+
+                        $option .= "</optgroup>";
+                    }
+    
+                    return $option;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
 
 }
 

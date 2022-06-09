@@ -18,15 +18,16 @@ function initialize_job_applicant_table(datatable_name, buttons = false, show_al
     var filter_job_type = $('#filter_job_type').val();
     var filter_start_date = $('#filter_start_date').val();
     var filter_end_date = $('#filter_end_date').val();
+    var filter_recruitment_stage = $('#filter_recruitment_stage').val();
     var type = 'job applicant table';
     var settings;
 
     var column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'FILE_AS' },
-        { 'data' : 'APPLIED_FOR' },
+        { 'data' : 'JOB_TITLE' },
         { 'data' : 'APPLICATION_DATE' },
-        { 'data' : 'RECRUITMENT_STAGE' },
+        { 'data' : 'RECRUITMENT_PIPELINE_STAGE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -52,7 +53,7 @@ function initialize_job_applicant_table(datatable_name, buttons = false, show_al
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_job' : filter_job, 'filter_job_category' : filter_job_category, 'filter_job_type' : filter_job_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date},
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_job' : filter_job, 'filter_job_category' : filter_job_category, 'filter_job_type' : filter_job_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_recruitment_stage' : filter_recruitment_stage},
                 'dataSrc' : ''
             },
             dom:  "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -83,7 +84,7 @@ function initialize_job_applicant_table(datatable_name, buttons = false, show_al
                 'url' : 'system-generation.php',
                 'method' : 'POST',
                 'dataType': 'JSON',
-                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_department' : filter_department, 'filter_designation' : filter_designation, 'filter_employment_status' : filter_employment_status},
+                'data': {'type' : type, 'username' : username, 'filter_branch' : filter_branch, 'filter_job' : filter_job, 'filter_job_category' : filter_job_category, 'filter_job_type' : filter_job_type, 'filter_start_date' : filter_start_date, 'filter_end_date' : filter_end_date, 'filter_recruitment_stage' : filter_recruitment_stage},
                 'dataSrc' : ''
             },
             'order': [[ 1, 'asc' ]],

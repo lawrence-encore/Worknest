@@ -10723,6 +10723,124 @@ function initialize_form_validation(form_type){
             }
         });
     }
+    else if(form_type == 'job application form'){
+        $('#job-application-form').validate({
+            submitHandler: function (form) {
+                var transaction = 'submit job application';
+                var username = $('#username').text();
+                
+                var formData = new FormData(form);
+                formData.append('username', username);
+                formData.append('transaction', transaction);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller.php',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function(){
+                        document.getElementById('submit-form').disabled = true;
+                        $('#submit-form').html('<div class="spinner-border spinner-border-sm text-light" role="status"><span rclass="sr-only"></span></div>');
+                    },
+                    success: function (response) {
+                        if(response === 'Updated' || response === 'Inserted'){
+                            if(response === 'Inserted'){
+                                show_alert('Insert Designation Success', 'The designation has been inserted.', 'success');
+                            }
+                            else{
+                                show_alert('Update Designation Success', 'The designation has been updated.', 'success');
+                            }
+
+                            $('#System-Modal').modal('hide');
+                            reload_datatable('#designation-datatable');
+                        }
+                        else if(response === 'File Size'){
+                            show_alert('Designation Error', 'The file uploaded exceeds the maximum file size.', 'error');
+                        }
+                        else if(response === 'File Type'){
+                            show_alert('Designation Error', 'The file uploaded is not supported.', 'error');
+                        }
+                        else{
+                            show_alert('Designation Error', response, 'error');
+                        }
+                    },
+                    complete: function(){
+                        document.getElementById('submit-form').disabled = false;
+                        $('#submit-form').html('Submit');
+                    }
+                });
+                return false;
+            },
+            rules: {
+                first_name: {
+                    required: true
+                },
+                last_name: {
+                    required: true
+                },
+                applied_for: {
+                    required: true
+                },
+                application_date: {
+                    required: true
+                },
+                birthday: {
+                    employee_age : 18,
+                    required: true
+                },
+                gender: {
+                    required: true
+                },
+                phone: {
+                    required: true
+                }
+            },
+            messages: {
+                first_name: {
+                    required: 'Please enter the first name',
+                },
+                last_name: {
+                    required: 'Please enter the last name',
+                },
+                applied_for: {
+                    required: 'Please choose the applied for',
+                },
+                application_date: {
+                    required: 'Please choose the application date',
+                },
+                birthday: {
+                    required: 'Please choose the birthday',
+                },
+                gender: {
+                    required: 'Please choose the gender',
+                },
+                phone: {
+                    required: 'Please enter the mobile number',
+                }
+            },
+            errorPlacement: function(label, element) {
+                if((element.hasClass('select2') || element.hasClass('form-select2')) && element.next('.select2-container').length) {
+                    label.insertAfter(element.next('.select2-container'));
+                }
+                else if(element.parent('.input-group').length){
+                    label.insertAfter(element.parent());
+                }
+                else{
+                    label.insertAfter(element);
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass('has-danger');
+                $(element).addClass('form-control-danger');
+            },
+            success: function(label,element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+                label.remove();
+            }
+        });
+    }
 }
 
 function initialize_transaction_log_table(datatable_name, buttons = false, show_all = false){

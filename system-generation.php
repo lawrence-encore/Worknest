@@ -3127,6 +3127,103 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             </div>
                         </div>';
             }
+            else if($form_type == 'job applicant form'){
+                $form .= '<div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">First Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="first_name" name="first_name" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="middle_name" name="middle_name" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Last Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="last_name" name="last_name" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Suffix</label>
+                                        <select class="form-control form-select2" id="suffix" name="suffix">
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_system_code_options('SUFFIX');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Applied For <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="applied_for" name="applied_for">
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_job_options();
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Application Date <span class="required">*</span></label>
+                                        <div class="input-group" id="application-date-container">
+                                            <input type="text" class="form-control application-date-date-picker" id="application_date" name="application_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#application-date-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Birthday <span class="required">*</span></label>
+                                        <div class="input-group" id="birthday-container">
+                                            <input type="text" class="form-control birthday-date-picker" id="birthday" name="birthday" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#birthday-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
+                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Gender <span class="required">*</span></label>
+                                        <select class="form-control form-select2" id="gender" name="gender">
+                                        <option value="">--</option>';
+                                        $form .= $api->generate_system_code_options('GENDER');
+                                        $form .='</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="applicant_resume" class="form-label">Resume</label><br/>
+                                        <input class="form-control" type="file" name="applicant_resume" id="applicant_resume">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input id="email" name="email" class="form-control form-maxlength" maxlength="100" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Mobile Number <span class="required">*</span></label>
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="phone" name="phone" maxlength="30">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="telephone" class="form-label">Telephone</label>
+                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="telephone" name="telephone" maxlength="30">
+                                    </div>
+                                </div>
+                            </div>';
+            }
 
             $form .= '</form>';
 
@@ -12406,7 +12503,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
     # Job applicant table
     else if($type == 'job applicant table'){
-        if(isset($_POST['filter_branch']) && isset($_POST['filter_job']) && isset($_POST['filter_job_category']) && isset($_POST['filter_job_type']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
+        if(isset($_POST['filter_branch']) && isset($_POST['filter_job']) && isset($_POST['filter_job_category']) && isset($_POST['filter_job_type']) && isset($_POST['filter_recruitment_stage']) && isset($_POST['filter_start_date']) && isset($_POST['filter_end_date'])){
             if($api->databaseConnection()) {
                 # Get permission
                 $update_job_applicant = $api->check_role_permissions($username, 384);
@@ -12418,12 +12515,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $filter_job = $_POST['filter_job'];
                 $filter_job_category = $_POST['filter_job_category'];
                 $filter_job_type = $_POST['filter_job_type'];
-                $filter_start_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_start_date'], '', 'Y-m-d', '', '', '');
-                $filter_end_date = $api->check_date('empty', $_POST['filter_employee_payroll_summary_end_date'], '', 'Y-m-d', '', '', '');
+                $filter_recruitment_stage = $_POST['filter_recruitment_stage'];
+                $filter_start_date = $api->check_date('empty', $_POST['filter_start_date'], '', 'Y-m-d', '', '', '');
+                $filter_end_date = $api->check_date('empty', $_POST['filter_end_date'], '', 'Y-m-d', '', '', '');
     
-                $query = 'SELECT APPLICANT_ID, FILE_AS, APPLICATION_DATE, APPLICATION_TIME, APPLIED_FOR, RECRUITMENT_STAGE, TRANSACTION_LOG_ID FROM tblapplicant ';
+                $query = 'SELECT APPLICANT_ID, FILE_AS, APPLICATION_DATE, APPLIED_FOR, RECRUITMENT_STAGE, TRANSACTION_LOG_ID FROM tblapplicant ';
 
-                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_recruitment_stage) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
                     $query .= ' WHERE ';
 
                     if(!empty($filter_branch)){
@@ -12432,6 +12530,10 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
 
                     if(!empty($filter_job)){
                         $filter[] = 'APPLIED_FOR = :filter_job';
+                    }
+
+                    if(!empty($filter_recruitment_stage)){
+                        $filter[] = 'RECRUITMENT_STAGE = :filter_recruitment_stage';
                     }
 
                     if(!empty($filter_job_category)){
@@ -12453,13 +12555,17 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 
                 $sql = $api->db_connection->prepare($query);
 
-                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
+                if(!empty($filter_branch) || !empty($filter_job) || !empty($filter_job_category) || !empty($filter_recruitment_stage) || !empty($filter_job_type) || (!empty($filter_start_date) && !empty($filter_end_date))){
                     if(!empty($filter_branch)){
                         $sql->bindValue(':filter_branch', $filter_branch);
                     }
 
                     if(!empty($filter_job)){
                         $sql->bindValue(':filter_job', $filter_job);
+                    }
+
+                    if(!empty($filter_recruitment_stage)){
+                        $sql->bindValue(':filter_recruitment_stage', $filter_recruitment_stage);
                     }
 
                     if(!empty($filter_job_category)){
@@ -12485,12 +12591,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $recruitment_stage = $row['RECRUITMENT_STAGE'];
 
                         $application_date = $api->check_date('empty', $row['APPLICATION_DATE'], '', 'm/d/Y', '', '', '');
-                        $application_time = $api->check_date('empty', $row['APPLICATION_TIME'], '', 'h:i:s a', '', '', '');
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
 
                         $job_details = $api->get_job_details($applied_for);
                         $job_title = $job_details[0]['JOB_TITLE'];
-                        $pipeline = $job_details[0]['PIPELINE'];
+
+                        $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_stage);
+                        $recruitment_stage_name = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_STAGE'];
     
                         if($update_job_applicant > 0){
                             $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-applicant" data-employee-id="'. $applicant_id .'" title="Edit Applicant">
@@ -12535,9 +12642,9 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $response[] = array(
                             'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $applicant_id .'">',
                             'FILE_AS' => $file_as,
-                            'EMPLOYEE_ID' => $employee_id,
-                            'EMPLOYMENT_STATUS' => '<span class="badge bg-'. $color_value .'">'. $employment_status_description .'</span>',
-                            'DEPARTMENT' => $department_name,
+                            'JOB_TITLE' => $job_title,
+                            'APPLICATION_DATE' => $application_date,
+                            'RECRUITMENT_PIPELINE_STAGE' => $recruitment_stage_name,
                             'ACTION' => '<div class="d-flex gap-2">
                                 '. $update .'
                                 '. $view_page .'
