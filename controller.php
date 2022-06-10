@@ -5924,6 +5924,120 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
     }
     # -------------------------------------------------------------
 
+    # Submit job applicant
+    else if($transaction == 'submit job applicant'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['applicant_id']) && isset($_POST['first_name']) && !empty($_POST['first_name']) && isset($_POST['middle_name']) && isset($_POST['last_name']) && !empty($_POST['last_name']) && isset($_POST['suffix']) && isset($_POST['application_date']) && !empty($_POST['application_date']) && isset($_POST['birthday']) && !empty($_POST['birthday']) && isset($_POST['gender']) && !empty($_POST['gender']) && isset($_POST['email']) && isset($_POST['phone']) && !empty($_POST['phone']) && isset($_POST['telephone'])){
+            $file_type = '';
+            $username = $_POST['username'];
+            $applicant_id = $_POST['applicant_id'];
+            $first_name = $_POST['first_name'];
+            $middle_name = $_POST['middle_name'];
+            $last_name = $_POST['last_name'];
+            $suffix = $_POST['suffix'];
+            $file_as = $api->get_file_as_format($first_name, $middle_name, $last_name, $suffix);
+            $gender = $_POST['gender'];
+            $email = $_POST['email'];
+            $phone = $_POST['phone'];
+            $telephone = $_POST['telephone'];
+            $application_date = $api->check_date('empty', $_POST['application_date'], '', 'Y-m-d', '', '', '');
+            $birthday = $api->check_date('empty', $_POST['birthday'], '', 'Y-m-d', '', '', '');
+
+            $applicant_resume_name = $_FILES['applicant_resume']['name'];
+            $applicant_resume_size = $_FILES['applicant_resume']['size'];
+            $applicant_resume_error = $_FILES['applicant_resume']['error'];
+            $applicant_resume_tmp_name = $_FILES['applicant_resume']['tmp_name'];
+            $applicant_resume_ext = explode('.', $applicant_resume_name);
+            $applicant_resume_actual_ext = strtolower(end($applicant_resume_ext));
+
+            $upload_setting_details = $api->get_upload_setting_details(21);
+            $upload_file_type_details = $api->get_upload_file_type_details(21);
+            $file_max_size = $upload_setting_details[0]['MAX_FILE_SIZE'] * 1048576;
+
+            for($i = 0; $i < count($upload_file_type_details); $i++) {
+                $file_type .= $upload_file_type_details[$i]['FILE_TYPE'];
+
+                if($i != (count($upload_file_type_details) - 1)){
+                    $file_type .= ',';
+                }
+            }
+
+            $allowed_ext = explode(',', $file_type);
+
+            $check_job_applicant_exist = $api->check_job_applicant_exist($applicant_id);
+ 
+            if($check_job_applicant_exist > 0){
+                if(!empty($applicant_resume_tmp_name)){
+                    if(in_array($applicant_resume_actual_ext, $allowed_ext)){
+                        if(!$applicant_resume_error){
+                            if($applicant_resume_size < $file_max_size){
+                                $update_job_applicant_resume = $api->update_job_applicant_resume($applicant_resume_tmp_name, $applicant_resume_actual_ext, $applicant_id, $username);
+        
+                                if($update_job_applicant_resume){
+                                    $update_job_applicant = $api->update_job_applicant($applicant_id, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $application_date, $email, $gender, $phone, $telephone, $username);
+
+                                    if($update_job_applicant){
+                                        echo 'Updated';
+                                    }
+                                    else{
+                                        echo $update_job_applicant;
+                                    }
+                                }
+                                else{
+                                    echo $update_job_applicant_resume;
+                                }
+                            }
+                            else{
+                                echo 'File Size';
+                            }
+                        }
+                        else{
+                            echo 'There was an error uploading the file.';
+                        }
+                    }
+                    else{
+                        echo 'File Type';
+                    }
+                }
+                else{
+                    $update_job_applicant = $api->update_job_applicant($applicant_id, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $application_date, $email, $gender, $phone, $telephone, $username);
+
+                    if($update_job_applicant){
+                        echo 'Updated';
+                    }
+                    else{
+                        echo $update_job_applicant;
+                    }
+                }
+            }
+            else{
+                if(in_array($applicant_resume_actual_ext, $allowed_ext)){
+                    if(!$applicant_resume_error){
+                        if($applicant_resume_size < $file_max_size){
+                            $insert_job_applicant = $api->insert_job_applicant($applicant_resume_tmp_name, $applicant_resume_actual_ext, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $application_date, $email, $gender, $phone, $telephone, $system_date, $current_time, $username);
+
+                            if($insert_job_applicant){
+                                echo 'Inserted';
+                            }
+                            else{
+                                echo $insert_job_applicant;
+                            }
+                        }
+                        else{
+                            echo 'File Size';
+                        }
+                    }
+                    else{
+                        echo 'There was an error uploading the file.';
+                    }
+                }
+                else{
+                    echo 'File Type';
+                }
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Delete transactions
     # -------------------------------------------------------------
@@ -8695,6 +8809,62 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                     }
                     else{
                         $error = $delete_job_type;
+                    }
+                }
+                else{
+                    $error = 'Not Found';
+                }
+            }
+
+            if(empty($error)){
+                echo 'Deleted';
+            }
+            else{
+                echo $error;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete job applicant
+    else if($transaction == 'delete job applicant'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['applicant_id']) && !empty($_POST['applicant_id'])){
+            $username = $_POST['username'];
+            $applicant_id = $_POST['applicant_id'];
+
+            $check_job_applicant_exist = $api->check_job_applicant_exist($applicant_id);
+
+            if($check_job_applicant_exist > 0){
+                $delete_job_applicant = $api->delete_job_applicant($applicant_id, $username);
+                                    
+                if($delete_job_applicant){
+                    echo 'Deleted';
+                }
+                else{
+                    echo $delete_job_applicant;
+                }
+            }
+            else{
+                echo 'Not Found';
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Delete multiple job applicant
+    else if($transaction == 'delete multiple job applicant'){
+        if(isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['applicant_id'])){
+            $username = $_POST['username'];
+            $applicant_ids = $_POST['applicant_id'];
+
+            foreach($applicant_ids as $applicant_id){
+                $check_job_applicant_exist = $api->check_job_applicant_exist($applicant_id);
+
+                if($check_job_applicant_exist > 0){
+                    $delete_job_applicant = $api->delete_job_applicant($applicant_id, $username);
+                                    
+                    if(!$delete_job_applicant){
+                        $error = $delete_job_applicant;
                     }
                 }
                 else{
@@ -13714,6 +13884,31 @@ if(isset($_POST['transaction']) && !empty($_POST['transaction'])){
                 'CREATED_BY' => $created_by,
                 'TEAM_MEMBER' => $team_member,
                 'BRANCH' => $branch
+            );
+
+            echo json_encode($response);
+        }
+    }
+    # -------------------------------------------------------------
+
+    # Job applicant details
+    else if($transaction == 'job applicant details'){
+        if(isset($_POST['applicant_id']) && !empty($_POST['applicant_id'])){
+            $applicant_id = $_POST['applicant_id'];
+            $job_applicant_details = $api->get_job_applicant_details($applicant_id);
+          
+            $response[] = array(
+                'FIRST_NAME' => $job_applicant_details[0]['FIRST_NAME'],
+                'MIDDLE_NAME' => $job_applicant_details[0]['MIDDLE_NAME'],
+                'LAST_NAME' => $job_applicant_details[0]['LAST_NAME'],
+                'APPLICATION_DATE' => $job_applicant_details[0]['APPLICATION_DATE'],
+                'BIRTHDAY' => $job_applicant_details[0]['BIRTHDAY'],
+                'EMAIL' => $job_applicant_details[0]['EMAIL'],
+                'PHONE' => $job_applicant_details[0]['PHONE'],
+                'TELEPHONE' => $job_applicant_details[0]['TELEPHONE'],
+                'SUFFIX' => $job_applicant_details[0]['SUFFIX'],
+                'APPLIED_FOR' => $job_applicant_details[0]['APPLIED_FOR'],
+                'GENDER' => $job_applicant_details[0]['GENDER']
             );
 
             echo json_encode($response);

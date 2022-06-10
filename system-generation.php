@@ -3128,99 +3128,84 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         </div>';
             }
             else if($form_type == 'job applicant form'){
-                $form .= '<div class="row">
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="first_name" class="form-label">First Name <span class="required">*</span></label>
-                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="first_name" name="first_name" maxlength="100">
-                                    </div>
+                $form .= '<div class="row mb-3">
+                                <label for="first_name" class="col-sm-3 col-form-label">First Name <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                    <input type="hidden" id="applicant_id" name="applicant_id">
+                                    <input type="hidden" id="update" value="0">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="first_name" name="first_name" maxlength="100">
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="middle_name" name="middle_name" maxlength="100">
-                                    </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="middle_name" class="col-sm-3 col-form-label">Middle Name</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="middle_name" name="middle_name" maxlength="100">
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="last_name" class="form-label">Last Name <span class="required">*</span></label>
-                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="last_name" name="last_name" maxlength="100">
-                                    </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="last_name" class="col-sm-3 col-form-label">Last Name <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="last_name" name="last_name" maxlength="100">
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Suffix</label>
-                                        <select class="form-control form-select2" id="suffix" name="suffix">
-                                        <option value="">--</option>';
-                                        $form .= $api->generate_system_code_options('SUFFIX');
-                                        $form .='</select>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="suffix" class="col-sm-3 col-form-label">Suffix</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control form-select2" id="suffix" name="suffix">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_system_code_options('SUFFIX');
+                                    $form .='</select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="application_date" class="col-sm-3 col-form-label">Application Date <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                    <div class="input-group" id="application-date-container">
+                                        <input type="text" class="form-control application-date-date-picker" id="application_date" name="application_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#application-date-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>      
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Applied For <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="applied_for" name="applied_for">
-                                        <option value="">--</option>';
-                                        $form .= $api->generate_job_options();
-                                        $form .='</select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Application Date <span class="required">*</span></label>
-                                        <div class="input-group" id="application-date-container">
-                                            <input type="text" class="form-control application-date-date-picker" id="application_date" name="application_date" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#application-date-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
-                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Birthday <span class="required">*</span></label>
-                                        <div class="input-group" id="birthday-container">
-                                            <input type="text" class="form-control birthday-date-picker" id="birthday" name="birthday" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#birthday-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
-                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Gender <span class="required">*</span></label>
-                                        <select class="form-control form-select2" id="gender" name="gender">
-                                        <option value="">--</option>';
-                                        $form .= $api->generate_system_code_options('GENDER');
-                                        $form .='</select>
+                            <div class="row mb-3">
+                                <label for="birthday" class="col-sm-3 col-form-label">Birthday <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                    <div class="input-group" id="birthday-container">
+                                        <input type="text" class="form-control birthday-date-picker" id="birthday" name="birthday" autocomplete="off" data-date-format="m/dd/yyyy" data-date-container="#birthday-container" data-provide="datepicker" data-date-autoclose="true" data-end-date="-18y">
+                                        <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="applicant_resume" class="form-label">Resume</label><br/>
-                                        <input class="form-control" type="file" name="applicant_resume" id="applicant_resume">
-                                    </div>
+                            <div class="row mb-3">
+                                <label for="gender" class="col-sm-3 col-form-label">Gender <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                    <select class="form-control form-select2" id="gender" name="gender">
+                                    <option value="">--</option>';
+                                    $form .= $api->generate_system_code_options('GENDER');
+                                    $form .='</select>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input id="email" name="email" class="form-control form-maxlength" maxlength="100" autocomplete="off">
-                                    </div>
+                            <div class="row mb-3">
+                                <label for="applicant_resume" class="col-sm-3 col-form-label">Applicant Resume</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="file" name="applicant_resume" id="applicant_resume">
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Mobile Number <span class="required">*</span></label>
-                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="phone" name="phone" maxlength="30">
-                                    </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                <div class="col-sm-9">
+                                    <input id="email" name="email" class="form-control form-maxlength" maxlength="100" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="telephone" class="form-label">Telephone</label>
-                                        <input type="text" class="form-control form-maxlength" autocomplete="off" id="telephone" name="telephone" maxlength="30">
-                                    </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="phone" class="col-sm-3 col-form-label">Mobile Number <span class="required">*</span></label>
+                                <div class="col-sm-9">
+                                <input type="text" class="form-control form-maxlength" autocomplete="off" id="phone" name="phone" maxlength="30">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="telephone" class="col-sm-3 col-form-label">Telephone</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control form-maxlength" autocomplete="off" id="telephone" name="telephone" maxlength="30">
                                 </div>
                             </div>';
             }
@@ -12509,7 +12494,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                 $update_job_applicant = $api->check_role_permissions($username, 384);
                 $delete_job_applicant = $api->check_role_permissions($username, 385);
                 $view_transaction_log = $api->check_role_permissions($username, 386);
-                $view_employee_details_page = $api->check_role_permissions($username, 75);
+                $view_applicant_details_page = $api->check_role_permissions($username, 75);
 
                 $filter_branch = $_POST['filter_branch'];
                 $filter_job = $_POST['filter_job'];
@@ -12594,13 +12579,13 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         $transaction_log_id = $row['TRANSACTION_LOG_ID'];
 
                         $job_details = $api->get_job_details($applied_for);
-                        $job_title = $job_details[0]['JOB_TITLE'];
+                        $job_title = $job_details[0]['JOB_TITLE'] ?? null;
 
                         $recruitment_pipeline_stage_details = $api->get_recruitment_pipeline_stage_details($recruitment_stage);
                         $recruitment_stage_name = $recruitment_pipeline_stage_details[0]['RECRUITMENT_PIPELINE_STAGE'];
     
                         if($update_job_applicant > 0){
-                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-applicant" data-employee-id="'. $applicant_id .'" title="Edit Applicant">
+                            $update = '<button type="button" class="btn btn-info waves-effect waves-light update-job-applicant" data-applicant-id="'. $applicant_id .'" title="Edit Applicant">
                                             <i class="bx bx-pencil font-size-16 align-middle"></i>
                                         </button>';
                         }
@@ -12608,12 +12593,12 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                             $update = '';
                         }
     
-                        if($view_employee_details_page > 0){
-                            $view_page = '<a href="employee-details.php?id='. $applicant_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Applicant Details">
+                        if($view_applicant_details_page > 0){
+                            $view_page = '<a href="applicant-details.php?id='. $applicant_id_encrypted .'" class="btn btn-warning waves-effect waves-light" title="View Applicant Details">
                                                 <i class="bx bx-user font-size-16 align-middle"></i>
                                             </a>';
 
-                            $file_as = '<a href="employee-details.php?id='. $applicant_id_encrypted .'" title="View Applicant Details">
+                            $file_as = '<a href="applicant-details.php?id='. $applicant_id_encrypted .'" title="View Applicant Details">
                                                 '. $file_as .'
                                             </a>';
                         }
@@ -12622,7 +12607,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['username']) 
                         }
     
                         if($delete_job_applicant > 0){
-                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job-applicant" data-employee-id="'. $applicant_id .'" title="Delete Applicant">
+                            $delete = '<button type="button" class="btn btn-danger waves-effect waves-light delete-job-applicant" data-applicant-id="'. $applicant_id .'" title="Delete Applicant">
                                         <i class="bx bx-trash font-size-16 align-middle"></i>
                                     </button>';
                         }

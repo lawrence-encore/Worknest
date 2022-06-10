@@ -2208,6 +2208,31 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : check_job_applicant_exist
+    # Purpose    : Checks if the job applicant file exists.
+    #
+    # Returns    : Number
+    #
+    # -------------------------------------------------------------
+    public function check_job_applicant_exist($applicant_id){
+        if ($this->databaseConnection()) {
+            $sql = $this->db_connection->prepare('CALL check_job_applicant_exist(:applicant_id)');
+            $sql->bindValue(':applicant_id', $applicant_id);
+
+            if($sql->execute()){
+                $row = $sql->fetch();
+
+                return $row['TOTAL'];
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
     
@@ -7315,6 +7340,170 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : update_job_applicant
+    # Purpose    : Updates job applicant.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_job_applicant($applicant_id, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $application_date, $email, $gender, $phone, $telephone, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+            $job_applicant_details = $this->get_job_applicant_details($file_id);
+            $transaction_log_id = $job_applicant_details[0]['TRANSACTION_LOG_ID'];
+
+            if(!empty($employee_file_details[0]['TRANSACTION_LOG_ID'])){
+                $transaction_log_id = $employee_file_details[0]['TRANSACTION_LOG_ID'];
+            }
+            else{
+                # Get transaction log id
+                $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+                $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+                $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+            }
+
+            $sql = $this->db_connection->prepare('CALL update_job_applicant(:applicant_id, :file_as, :first_name, :middle_name, :last_name, :suffix, :birthday, :application_date, :email, :gender, :phone, :telephone, :transaction_log_id, :record_log)');
+            $sql->bindValue(':applicant_id', $applicant_id);
+            $sql->bindValue(':file_as', $file_as);
+            $sql->bindValue(':first_name', $first_name);
+            $sql->bindValue(':middle_name', $middle_name);
+            $sql->bindValue(':last_name', $last_name);
+            $sql->bindValue(':suffix', $suffix);
+            $sql->bindValue(':birthday', $birthday);
+            $sql->bindValue(':application_date', $application_date);
+            $sql->bindValue(':email', $email);
+            $sql->bindValue(':gender', $gender);
+            $sql->bindValue(':phone', $phone);
+            $sql->bindValue(':telephone', $telephone);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log);
+        
+            if($sql->execute()){
+                if(!empty($employee_file_details[0]['TRANSACTION_LOG_ID'])){
+                    $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated job applicant (' . $applicant_id . ').');
+                                    
+                    if($insert_transaction_log){
+                        return true;
+                    }
+                    else{
+                        return $insert_transaction_log;
+                    }
+                }
+                else{
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated job applicant (' . $applicant_id . ').');
+                                    
+                        if($insert_transaction_log){
+                            return true;
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : update_job_applicant_resume
+    # Purpose    : Updates job applicant resume.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function update_job_applicant_resume($applicant_resume_tmp_name, $applicant_resume_actual_ext, $applicant_id, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'UPD->' . $username . '->' . date('Y-m-d h:i:s');
+
+            if(!empty($applicant_resume_tmp_name)){ 
+                $file_name = $this->generate_file_name(10);
+                $file_new = $file_name . '.' . $applicant_resume_actual_ext;
+                $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/worknest/applicant_file/' . $file_new;
+                $file_path = './applicant_file/' . $file_new;
+                
+                $job_applicant_details = $this->get_job_applicant_details($file_id);
+                $applicant_resume_path = $job_applicant_details[0]['APPLICANT_RESUME'];
+                $transaction_log_id = $job_applicant_details[0]['TRANSACTION_LOG_ID'];
+
+                if(file_exists($applicant_resume_path)){
+                    if (unlink($applicant_resume_path)) {
+                        if(move_uploaded_file($applicant_resume_tmp_name, $file_destination)){
+                            $sql = $this->db_connection->prepare('CALL update_job_applicant_resume(:applicant_id, :file_path, :transaction_log_id, :record_log)');
+                            $sql->bindValue(':applicant_id', $applicant_id);
+                            $sql->bindValue(':file_path', $file_path);
+                            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                            $sql->bindValue(':record_log', $record_log);
+                        
+                            if($sql->execute()){
+                                $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated applicant resume (' . $applicant_id . ').');
+                                    
+                                if($insert_transaction_log){
+                                    return true;
+                                }
+                                else{
+                                    return $insert_transaction_log;
+                                }
+                            }
+                            else{
+                                return $sql->errorInfo()[2];
+                            }
+                        }
+                        else{
+                            return 'There was an error uploading your file.';
+                        }
+                    }
+                    else {
+                        return $applicant_resume_path . ' cannot be deleted due to an error.';
+                    }
+                }
+                else{
+                    if(move_uploaded_file($applicant_resume_tmp_name, $file_destination)){
+                        $sql = $this->db_connection->prepare('CALL update_job_applicant_resume(:applicant_id, :file_path, :transaction_log_id, :record_log)');
+                        $sql->bindValue(':applicant_id', $applicant_id);
+                        $sql->bindValue(':file_path', $file_path);
+                        $sql->bindValue(':transaction_log_id', $transaction_log_id);
+                        $sql->bindValue(':record_log', $record_log);
+                    
+                        if($sql->execute()){
+                            $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Update', 'User ' . $username . ' updated applicant resume (' . $applicant_id . ').');
+                                
+                            if($insert_transaction_log){
+                                return true;
+                            }
+                            else{
+                                return $insert_transaction_log;
+                            }
+                        }
+                        else{
+                            return $sql->errorInfo()[2];
+                        }
+                    }
+                    else{
+                        return 'There was an error uploading your file.';
+                    }
+                }
+            }
+            else{
+                return true;
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
     
@@ -12124,6 +12313,86 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Name       : insert_job_applicant
+    # Purpose    : Insert job applicant.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function insert_job_applicant($applicant_resume_tmp_name, $applicant_resume_actual_ext, $file_as, $first_name, $middle_name, $last_name, $suffix, $birthday, $application_date, $email, $gender, $phone, $telephone, $system_date, $current_time, $username){
+        if ($this->databaseConnection()) {
+            $record_log = 'INS->' . $username . '->' . date('Y-m-d h:i:s');
+
+            # Get system parameter id
+            $system_parameter = $this->get_system_parameter(50, 1);
+            $parameter_number = $system_parameter[0]['PARAMETER_NUMBER'];
+            $id = $system_parameter[0]['ID'];
+
+            # Get transaction log id
+            $transaction_log_system_parameter = $this->get_system_parameter(2, 1);
+            $transaction_log_parameter_number = $transaction_log_system_parameter[0]['PARAMETER_NUMBER'];
+            $transaction_log_id = $transaction_log_system_parameter[0]['ID'];
+
+            $sql = $this->db_connection->prepare('CALL insert_job_applicant(:id, :file_as, :first_name, :middle_name, :last_name, :suffix, :birthday, :application_date, :email, :gender, :phone, :telephone, :system_date, :current_time, :transaction_log_id, :record_log)');
+            $sql->bindValue(':id', $id);
+            $sql->bindValue(':file_as', $file_as);
+            $sql->bindValue(':first_name', $first_name);
+            $sql->bindValue(':middle_name', $middle_name);
+            $sql->bindValue(':last_name', $last_name);
+            $sql->bindValue(':suffix', $suffix);
+            $sql->bindValue(':birthday', $birthday);
+            $sql->bindValue(':application_date', $application_date);
+            $sql->bindValue(':email', $email);
+            $sql->bindValue(':gender', $gender);
+            $sql->bindValue(':phone', $phone);
+            $sql->bindValue(':telephone', $telephone);
+            $sql->bindValue(':system_date', $system_date);
+            $sql->bindValue(':current_time', $current_time);
+            $sql->bindValue(':transaction_log_id', $transaction_log_id);
+            $sql->bindValue(':record_log', $record_log); 
+        
+            if($sql->execute()){
+                # Update system parameter value
+                $update_system_parameter_value = $this->update_system_parameter_value($parameter_number, 50, $username);
+
+                if($update_system_parameter_value){
+                    # Update transaction log value
+                    $update_system_parameter_value = $this->update_system_parameter_value($transaction_log_parameter_number, 2, $username);
+
+                    if($update_system_parameter_value){
+                        $insert_transaction_log = $this->insert_transaction_log($transaction_log_id, $username, 'Insert', 'User ' . $username . ' inserted job applicant (' . $id . ').');
+                                    
+                        if($insert_transaction_log){
+                            $update_job_applicant_resume = $this->update_job_applicant_resume($applicant_resume_tmp_name, $applicant_resume_actual_ext, $id, $username);
+        
+                            if($update_job_applicant_resume){
+                                return true;
+                            }
+                            else{
+                                return $update_job_applicant_resume;
+                            }
+                        }
+                        else{
+                            return $insert_transaction_log;
+                        }
+                    }
+                    else{
+                        return $update_system_parameter_value;
+                    }
+                }
+                else{
+                    return $update_system_parameter_value;
+                }
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -13747,6 +14016,42 @@ class Api{
         
             if($sql->execute()){
                 return true;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : delete_job_applicant
+    # Purpose    : Delete job applicant.
+    #
+    # Returns    : Number/String
+    #
+    # -------------------------------------------------------------
+    public function delete_job_applicant($applicant_id, $username){
+        if ($this->databaseConnection()) {
+            $job_applicant_details = $this->get_job_applicant_details($applicant_id);
+            $applicant_resume = $job_applicant_details[0]['APPLICANT_RESUME'];
+
+            $sql = $this->db_connection->prepare('CALL delete_job_applicant(:applicant_id)');
+            $sql->bindValue(':applicant_id', $applicant_id);
+        
+            if($sql->execute()){ 
+                if(!empty($applicant_resume)){
+                    if (unlink($applicant_resume)) {
+                        return true;
+                    }
+                    else {
+                        return $applicant_resume . ' cannot be deleted due to an error.';
+                    }
+                }
+                else{
+                    return true;
+                }
             }
             else{
                 return $sql->errorInfo()[2];
@@ -16424,6 +16729,60 @@ class Api{
                 while($row = $sql->fetch()){
                     $response[] = array(
                         'BRANCH_ID' => $row['BRANCH_ID'],
+                        'RECORD_LOG' => $row['RECORD_LOG']
+                    );
+                }
+
+                return $response;
+            }
+            else{
+                return $sql->errorInfo()[2];
+            }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Name       : get_job_applicant_details
+    # Purpose    : Gets the job applicant details.
+    #
+    # Returns    : Array
+    #
+    # -------------------------------------------------------------
+    public function get_job_applicant_details($job_applicant_id){
+        if ($this->databaseConnection()) {
+            $response = array();
+
+            $sql = $this->db_connection->prepare('CALL get_job_applicant_details(:job_applicant_id)');
+            $sql->bindValue(':job_applicant_id', $job_applicant_id);
+
+            if($sql->execute()){
+                while($row = $sql->fetch()){
+                    $response[] = array(
+                        'FILE_AS' => $row['FILE_AS'],
+                        'FIRST_NAME' => $row['FIRST_NAME'],
+                        'MIDDLE_NAME' => $row['MIDDLE_NAME'],
+                        'LAST_NAME' => $row['LAST_NAME'],
+                        'SUFFIX' => $row['SUFFIX'],
+                        'BIRTHDAY' => $row['BIRTHDAY'],
+                        'APPLICATION_STATUS' => $row['APPLICATION_STATUS'],
+                        'APPLICATION_DATE' => $row['APPLICATION_DATE'],
+                        'EMAIL' => $row['EMAIL'],
+                        'GENDER' => $row['GENDER'],
+                        'PHONE' => $row['PHONE'],
+                        'TELEPHONE' => $row['TELEPHONE'],
+                        'APPLIED_FOR' => $row['APPLIED_FOR'],
+                        'RECRUITMENT_STAGE' => $row['RECRUITMENT_STAGE'],
+                        'APPLICANT_RESUME' => $row['APPLICANT_RESUME'],
+                        'CREATED_DATE' => $row['CREATED_DATE'],
+                        'CREATED_TIME' => $row['CREATED_TIME'],
+                        'CREATED_BY' => $row['CREATED_BY'],
+                        'DECISION_REMARKS' => $row['DECISION_REMARKS'],
+                        'DECISION_DATE' => $row['DECISION_DATE'],
+                        'DECISION_TIME' => $row['DECISION_TIME'],
+                        'DECISION_BY' => $row['DECISION_BY'],
+                        'TRANSACTION_LOG_ID' => $row['TRANSACTION_LOG_ID'],
                         'RECORD_LOG' => $row['RECORD_LOG']
                     );
                 }

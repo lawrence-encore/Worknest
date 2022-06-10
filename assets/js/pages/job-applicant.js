@@ -115,7 +115,7 @@ function initialize_click_events(){
     var username = $('#username').text();
 
     $(document).on('click','#add-job-applicant',function() {
-        generate_modal('job applicant form', 'Job Applicant', 'XL' , '0', '1', 'form', 'job-applicant-form', '1', username);
+        generate_modal('job applicant form', 'Job Applicant', 'LG' , '1', '1', 'form', 'job-applicant-form', '1', username);
     });
 
     $(document).on('click','.update-job-applicant',function() {
@@ -123,7 +123,7 @@ function initialize_click_events(){
 
         sessionStorage.setItem('job_applicant_id', job_applicant_id);
         
-        generate_modal('job applicant form', 'Job Applicant', 'XL' , '0', '1', 'form', 'job-applicant-form', '0', username);
+        generate_modal('job applicant form', 'Job Applicant', 'LG' , '1', '1', 'form', 'job-applicant-form', '0', username);
     });
     
     $(document).on('click','.delete-job-applicant',function() {

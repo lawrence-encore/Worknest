@@ -10723,10 +10723,10 @@ function initialize_form_validation(form_type){
             }
         });
     }
-    else if(form_type == 'job application form'){
-        $('#job-application-form').validate({
+    else if(form_type == 'job applicant form'){
+        $('#job-applicant-form').validate({
             submitHandler: function (form) {
-                var transaction = 'submit job application';
+                var transaction = 'submit job applicant';
                 var username = $('#username').text();
                 
                 var formData = new FormData(form);
@@ -10779,15 +10779,24 @@ function initialize_form_validation(form_type){
                 last_name: {
                     required: true
                 },
-                applied_for: {
-                    required: true
-                },
                 application_date: {
                     required: true
                 },
                 birthday: {
                     employee_age : 18,
                     required: true
+                },
+                applicant_resume: {
+                    required: function(element){
+                        var update = $('#update').val();
+
+                        if(update == '0'){
+                            return true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
                 },
                 gender: {
                     required: true
@@ -10803,14 +10812,14 @@ function initialize_form_validation(form_type){
                 last_name: {
                     required: 'Please enter the last name',
                 },
-                applied_for: {
-                    required: 'Please choose the applied for',
-                },
                 application_date: {
                     required: 'Please choose the application date',
                 },
                 birthday: {
                     required: 'Please choose the birthday',
+                },
+                applicant_resume: {
+                    required: 'Please choose the applicant resume',
                 },
                 gender: {
                     required: 'Please choose the gender',
@@ -13155,6 +13164,34 @@ function display_form_details(form_type){
                 document.getElementById('job_status').innerHTML = response[0].STATUS;
                 document.getElementById('branch').innerHTML = response[0].BRANCH;
                 document.getElementById('team_member').innerHTML = response[0].TEAM_MEMBER;
+            }
+        });
+    }
+    else if(form_type == 'job applicant form'){
+        transaction = 'job applicant details';
+        
+        var applicant_id = sessionStorage.getItem('applicant_id');
+  
+        $.ajax({
+            url: 'controller.php',
+            method: 'POST',
+            dataType: 'JSON',
+            data: {applicant_id : applicant_id, transaction : transaction},
+            success: function(response) {
+                $('#update').val('1');
+                $('#applicant_id').val(applicant_id);
+                $('#first_name').val(response[0].FIRST_NAME);
+                $('#middle_name').val(response[0].MIDDLE_NAME);
+                $('#last_name').val(response[0].LAST_NAME);
+                $('#application_date').val(response[0].APPLICATION_DATE);
+                $('#birthday').val(response[0].BIRTHDAY);
+                $('#email').val(response[0].EMAIL);
+                $('#phone').val(response[0].PHONE);
+                $('#telephone').val(response[0].TELEPHONE);
+
+                check_option_exist('#suffix', response[0].SUFFIX, '');
+                check_option_exist('#applied_for', response[0].APPLIED_FOR, '');
+                check_option_exist('#gender', response[0].GENDER, '');
             }
         });
     }
